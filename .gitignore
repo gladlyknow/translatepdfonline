@@ -46,3 +46,6 @@ Thumbs.db
 # Logs and local
 *.log
 .cache/
+doc/*
+frontend/*
+
