@@ -1,0 +1,8 @@
+source,target,tgt_lng
+数据 库,database,
+低 强度的 vacuum 操作,low-intensity vacuum operation,
+autovacuum 功能,autovacuum feature,
+REINDEX,REINDEX,
+坏的索引,corrupted index,
+日 志 查询 分 析 程序,log query analyzer,
+用户 查询,user query,

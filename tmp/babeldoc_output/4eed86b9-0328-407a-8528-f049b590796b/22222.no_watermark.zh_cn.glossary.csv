@@ -1,0 +1,12 @@
+source,target,tgt_lng
+Server Configuration Tuning,服务器配置调优,
+Server-wide settings,服务器范围设置,
+postgresql.conf file,postgresql.conf 文件,
+Database connections,数据库连接,
+listen_addresses,监听地址,
+pg_hba.conf file,pg_hba.conf 文件,
+PostgreSQL,PostgreSQL,
+denial of service attack,拒绝服务攻击,
+Internet-wide queries,全网查询,
+firewall,防火墙,
+cloud-hosted databases,云托管数据库,

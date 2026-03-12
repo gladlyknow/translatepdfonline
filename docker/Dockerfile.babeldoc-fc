@@ -1,0 +1,26 @@
+# BabelDOC FC 自定义容器镜像
+# 在项目根目录构建: docker build -f docker/Dockerfile.babeldoc-fc -t babeldoc-fc:latest .
+FROM python:3.11-slim
+
+WORKDIR /code
+
+# 系统依赖（BabelDOC/ONNX 等可能用到）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 先安装 BabelDOC（按 tmp/BabelDOC 的 pyproject.toml）
+COPY tmp/BabelDOC /code/tmp/BabelDOC
+RUN pip install --no-cache-dir -e /code/tmp/BabelDOC
+
+# babeldoc_fc 与 HTTP 层依赖
+COPY babeldoc_fc /code/babeldoc_fc
+RUN pip install --no-cache-dir -r /code/babeldoc_fc/requirements.txt
+
+# 工作目录保持项目根，便于 run_translate 解析 tmp/BabelDOC
+WORKDIR /code
+ENV PYTHONPATH=/code
+
+EXPOSE 9000
+CMD ["uvicorn", "babeldoc_fc.main:app", "--host", "0.0.0.0", "--port", "9000"]
