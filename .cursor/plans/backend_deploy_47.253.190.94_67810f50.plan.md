@@ -168,9 +168,11 @@ pip install gunicorn
 
 以下路径与工作目录均以 `/data/translatepdfonline` 为项目根。API 与 Celery 由 systemd 托管，开机自启、异常重启。
 
+**若虚拟环境在项目根 `.venv`**（如已执行 `python3.12 -m venv .venv`），可直接使用仓库内 [scripts/deploy/translatepdfonline-api.service](scripts/deploy/translatepdfonline-api.service) 与 [scripts/deploy/translatepdfonline-celery.service](scripts/deploy/translatepdfonline-celery.service)，其中已使用 `/data/translatepdfonline/.venv/bin`；或按下面 7.1/7.2 将 `backend/.venv` 改为 `.venv`（项目根）。
+
 **7.1 API 服务**
 
-创建 `/etc/systemd/system/translatepdfonline-api.service`：
+创建 `/etc/systemd/system/translatepdfonline-api.service`（或复制 `scripts/deploy/translatepdfonline-api.service`）：
 
 ```ini
 [Unit]
@@ -181,8 +183,8 @@ After=network.target
 Type=notify
 User=root
 WorkingDirectory=/data/translatepdfonline/backend
-Environment="PATH=/data/translatepdfonline/backend/.venv/bin"
-ExecStart=/data/translatepdfonline/backend/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000
+Environment="PATH=/data/translatepdfonline/.venv/bin"
+ExecStart=/data/translatepdfonline/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000
 Restart=always
 RestartSec=5
 
@@ -203,9 +205,9 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/data/translatepdfonline/backend
-Environment="PATH=/data/translatepdfonline/backend/.venv/bin"
+Environment="PATH=/data/translatepdfonline/.venv/bin"
 Environment="PROJECT_ROOT=/data/translatepdfonline"
-ExecStart=/data/translatepdfonline/backend/.venv/bin/celery -A app.celery_app worker -l info
+ExecStart=/data/translatepdfonline/.venv/bin/celery -A app.celery_app worker -l info
 Restart=always
 RestartSec=10
 
@@ -317,7 +319,7 @@ git config receive.denyCurrentBranch updateInstead
 set -e
 WORKTREE=/data/translatepdfonline
 cd "$WORKTREE"
-export PATH="$WORKTREE/backend/.venv/bin:$PATH"
+export PATH="$WORKTREE/.venv/bin:$PATH"
 pip install -U -q pip
 pip install -q -r backend/requirements.txt
 pip install -q gunicorn
@@ -332,7 +334,7 @@ echo "Deploy done."
 chmod +x /data/translatepdfonline/.git/hooks/post-receive
 ```
 
-说明：`.env` 已存在于工作区，不会被 push 覆盖；`backend/.venv` 在首次部署时已创建，hook 中只做 `pip install` 与重启。
+说明：`.env` 已存在于工作区，不会被 push 覆盖；`.venv`（项目根）或 `backend/.venv` 在首次部署时已创建，hook 中只做 `pip install` 与重启。
 
 ### 10.2 在本机添加远程并推送
 
@@ -366,7 +368,7 @@ git push backend master
 ```bash
 cd /data/translatepdfonline
 git pull   # 需已配置 remote
-export PATH=/data/translatepdfonline/backend/.venv/bin:$PATH
+export PATH=/data/translatepdfonline/.venv/bin:$PATH
 pip install -r backend/requirements.txt
 pip install gunicorn
 cd backend && alembic upgrade head

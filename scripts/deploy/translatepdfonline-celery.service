@@ -1,0 +1,19 @@
+# Celery Worker
+# 安装：cp scripts/deploy/translatepdfonline-celery.service /etc/systemd/system/
+# 虚拟环境为项目根 .venv：/data/translatepdfonline/.venv
+[Unit]
+Description=translatepdfonline Celery Worker
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/data/translatepdfonline/backend
+Environment="PATH=/data/translatepdfonline/.venv/bin"
+Environment="PROJECT_ROOT=/data/translatepdfonline"
+ExecStart=/data/translatepdfonline/.venv/bin/celery -A app.celery_app worker -l info
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

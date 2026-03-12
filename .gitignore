@@ -47,5 +47,7 @@ Thumbs.db
 *.log
 .cache/
 doc/*
-frontend/*
-
+.vscode/*
+.cursor/*
+docs/*
+tmp/*
