@@ -1,0 +1,19 @@
+#!/bin/bash
+# 在服务器裸仓库 repo.git 的 hooks 中使用：每次 push 后自动更新工作目录 /android/translate/translatepdfonline
+# 安装：cp scripts/hooks/post-receive /android/translate/repo.git/hooks/post-receive && chmod +x /android/translate/repo.git/hooks/post-receive
+set -e
+REPO=/android/translate/repo.git
+WORKTREE=/android/translate/translatepdfonline
+
+# 避免影响后续 git 命令
+unset GIT_DIR
+unset GIT_WORK_TREE
+
+cd /android/translate
+if [ -d "$WORKTREE" ]; then
+  cd "$WORKTREE"
+  git pull
+else
+  git clone "$REPO" translatepdfonline
+  cd translatepdfonline
+fi
