@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
+export const dynamic = "force-static";
 
 /** Placeholder brand icon for translatepdfonline.com. Replace with app/favicon.ico or app/icon.png when a final design is ready. */
 export default function Icon() {
