@@ -8,7 +8,7 @@ from typing import Any
 
 import httpx
 
-from .config import get_settings
+from .config import get_settings, get_babeldoc_fc_url_effective
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,11 @@ def run_translate_remote(
         RuntimeError: FC 未配置或请求失败
     """
     settings = get_settings()
-    url = (settings.babeldoc_fc_url or "").strip()
+    url = (get_babeldoc_fc_url_effective() or "").strip()
     if not url:
-        raise RuntimeError("BABELDOC_FC_URL is not set; cannot call remote BabelDOC")
+        raise RuntimeError(
+            "BABELDOC FC URL is not set. Set BABELDOC_FC_URL_CPU / BABELDOC_FC_URL_GPU (and BABELDOC_FC_SPEC), or BABELDOC_FC_URL."
+        )
     url = url.rstrip("/")
     if not url.endswith("/translate"):
         url = f"{url}/translate"

@@ -41,6 +41,11 @@ class Settings(BaseSettings):
 
     # BabelDOC 隔离到 FC：True 时 Worker 通过 HTTP 调 FC 执行翻译，False 时本地调用 run_translate
     babeldoc_use_fc: bool = os.getenv("BABELDOC_USE_FC", "false").strip().lower() in ("1", "true", "yes")
+    # FC 规格：cpu 或 gpu，决定使用 BABELDOC_FC_URL_CPU 还是 BABELDOC_FC_URL_GPU；后期切 GPU 只需改此处
+    babeldoc_fc_spec: str = (os.getenv("BABELDOC_FC_SPEC", "cpu") or "cpu").strip().lower()
+    babeldoc_fc_url_cpu: str = os.getenv("BABELDOC_FC_URL_CPU", "").strip()
+    babeldoc_fc_url_gpu: str = os.getenv("BABELDOC_FC_URL_GPU", "").strip()
+    # 实际使用的 FC URL：按 spec 选用 URL_CPU/URL_GPU，未配置时回退到 BABELDOC_FC_URL（兼容只配一个 URL）
     babeldoc_fc_url: str = os.getenv("BABELDOC_FC_URL", "").strip()
     babeldoc_fc_secret: str = os.getenv("BABELDOC_FC_SECRET", "").strip()
 
@@ -69,5 +74,18 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+
+
+def get_babeldoc_fc_url_effective() -> str:
+    """按 BABELDOC_FC_SPEC 返回实际使用的 FC URL（cpu 用 URL_CPU，gpu 用 URL_GPU，未配则回退 BABELDOC_FC_URL）。"""
+    s = get_settings()
+    if not s.babeldoc_use_fc:
+        return ""
+    spec = (s.babeldoc_fc_spec or "cpu").strip().lower()
+    if spec == "gpu" and s.babeldoc_fc_url_gpu:
+        return s.babeldoc_fc_url_gpu
+    if s.babeldoc_fc_url_cpu:
+        return s.babeldoc_fc_url_cpu
+    return s.babeldoc_fc_url or ""
 
 
