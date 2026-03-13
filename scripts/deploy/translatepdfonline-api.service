@@ -10,7 +10,7 @@ Type=notify
 User=root
 WorkingDirectory=/data/translatepdfonline/backend
 Environment="PATH=/data/translatepdfonline/.venv/bin"
-ExecStart=/data/translatepdfonline/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000
+ExecStart=/data/translatepdfonline/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000 -w 2
 Restart=always
 RestartSec=5
 
