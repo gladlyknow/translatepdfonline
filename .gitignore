@@ -51,3 +51,4 @@ doc/*
 .cursor/*
 docs/*
 tmp/*
+frontend/*
