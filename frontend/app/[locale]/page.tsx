@@ -244,7 +244,7 @@ export default function HomePage() {
       };
     }
 
-    const url = `/api/tasks/${taskId}/events`;
+    const url = resolveApiUrl(`/api/tasks/${taskId}/events`);
     const es = new EventSource(url);
 
     api.getTask(taskId).then((detail) => {
