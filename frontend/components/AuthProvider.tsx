@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 
-/** 仅客户端挂载后再渲染 SessionProvider，避免静态导出时 prerender 阶段调用 headers() 报错 */
+/** 开发与普通 build 下始终渲染 SessionProvider，供 useSession 使用。静态导出构建时由 setRequestLocale 等避免 headers()，SessionProvider 可正常参与预渲染。 */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <>{children}</>;
   return <SessionProvider>{children}</SessionProvider>;
 }

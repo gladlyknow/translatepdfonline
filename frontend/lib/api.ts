@@ -1,8 +1,6 @@
-// 浏览器端：有 NEXT_PUBLIC_API_BASE_URL 时直连后端（静态导出/Cloudflare）；否则同源由 next 代理。服务端构建用 env。
+// 直连后端 API。未配置时开发环境默认 http://localhost:8000；静态导出部署必须配置 NEXT_PUBLIC_API_BASE_URL。
 const API_BASE =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_BASE_URL || "")
-    : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000");
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 /** 将相对 API 路径解析为完整 URL（静态导出时前端直连后端用） */
 export function resolveApiUrl(url: string): string {

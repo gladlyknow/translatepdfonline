@@ -74,6 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.sub ?? "";
         session.user.image = (token.image as string | undefined) ?? null;
       }
+      (session as { backend_access_token?: string }).backend_access_token = token.backend_access_token as string | undefined;
       return session;
     },
   },

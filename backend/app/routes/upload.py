@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..config import get_settings
 from ..db import get_db
-from ..models import Document, User
+from ..models import Document, TranslationTask, User
 from ..auth_utils import get_current_user_or_temp
 from ..tasks_pdf import preprocess_pdf
 from ..pdf_utils import get_pdf_page_count
@@ -286,6 +286,8 @@ def delete_document(
                 local_path.unlink()
         except Exception:
             pass
+    # 先删除引用该文档的翻译任务，避免外键约束报错
+    db.query(TranslationTask).filter(TranslationTask.document_id == doc.id).delete(synchronize_session=False)
     db.delete(doc)
     db.commit()
     return None

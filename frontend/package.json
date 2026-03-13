@@ -8,6 +8,7 @@
     "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});}catch(e){}\"",
     "prebuild": "npm run clean",
     "build": "next build",
+    "build:export": "npm run clean && node scripts/prepare-export-build.js",
     "start": "next start",
     "lint": "eslint"
   },

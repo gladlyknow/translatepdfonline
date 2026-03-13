@@ -12,8 +12,8 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
-  title: "在线 PDF 翻译 | Online PDF Translation",
-  description: "中英西互译的在线 PDF 翻译服务",
+  title: "Online PDF Translation",
+  description: "Translate PDF documents online between English, Chinese and Spanish. Fast and free.",
 };
 
 type Props = {
@@ -27,7 +27,7 @@ async function loadMessages(locale: string) {
     en: (await import("@/messages/en.json")).default,
     es: (await import("@/messages/es.json")).default,
   };
-  return (dict as Record<string, Record<string, unknown>>)[locale] ?? dict.zh;
+  return (dict as Record<string, Record<string, unknown>>)[locale] ?? dict.en;
 }
 
 export default async function LocaleLayout({ children, params }: Props) {

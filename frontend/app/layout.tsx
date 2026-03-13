@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "在线 PDF 翻译 | Online PDF Translation",
-  description: "中英西互译的在线 PDF 翻译服务",
+  title: "Online PDF Translation",
+  description: "Translate PDF documents online between English, Chinese and Spanish. Fast and free.",
+  applicationName: "Online PDF Translation",
 };
 
 export default function RootLayout({
@@ -25,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col h-screen overflow-hidden`}
       >
