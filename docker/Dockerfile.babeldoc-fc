@@ -4,9 +4,9 @@ FROM python:3.11-slim
 
 WORKDIR /code
 
-# 系统依赖（BabelDOC/ONNX 等可能用到）
+# 系统依赖（BabelDOC/ONNX 等可能用到；Debian Bookworm+ 用 libgl1 替代已废弃的 libgl1-mesa-glx）
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
