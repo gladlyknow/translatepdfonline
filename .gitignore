@@ -65,4 +65,4 @@ frontend/.git/
 backend/venv/
 **/__pycache__/
 *.md
-.github/*
+#.github/*

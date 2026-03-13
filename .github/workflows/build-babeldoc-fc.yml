@@ -1,0 +1,43 @@
+# BabelDOC FC 纯 CPU 镜像：构建并推送至阿里云 ACR
+# Secrets：REGISTRY（如 registry.cn-hangzhou.aliyuncs.com/ns/babeldoc-fc）、ALIBABA_CLOUD_USERNAME、ALIBABA_CLOUD_PASSWORD
+name: Build BabelDOC FC (CPU) and push to ACR
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check ACR registry secret
+        run: |
+          if [ -z "$REGISTRY" ]; then
+            echo "::error::REGISTRY secret is not set. Add it in Settings → Secrets → Actions (e.g. registry.cn-hangzhou.aliyuncs.com/your-ns/babeldoc-fc)"
+            exit 1
+          fi
+          echo "Pushing to registry: ${REGISTRY%%:*}"
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}
+
+      - name: Login to Aliyun ACR
+        run: |
+          ACR_HOST="${REGISTRY%%/*}"
+          echo "::add-mask::$ALIBABA_CLOUD_PASSWORD"
+          echo "$ALIBABA_CLOUD_PASSWORD" | docker login "$ACR_HOST" -u "$ALIBABA_CLOUD_USERNAME" --password-stdin
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}
+          ALIBABA_CLOUD_USERNAME: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
+          ALIBABA_CLOUD_PASSWORD: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
+
+      - name: Build and push CPU image
+        run: |
+          docker build -f docker/Dockerfile.babeldoc-fc -t "$REGISTRY:latest" -t "$REGISTRY:sha-${{ github.sha }}" .
+          docker push "$REGISTRY:latest"
+          docker push "$REGISTRY:sha-${{ github.sha }}"
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}

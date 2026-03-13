@@ -96,15 +96,26 @@ async def translate(
             logger.exception("BabelDOC translate failed task_id=%s", body.task_id)
             raise HTTPException(status_code=500, detail=str(e)[:500]) from e
         if not output_paths:
+            logger.error("BabelDOC produced no output PDF; output_paths=%s", output_paths)
             raise HTTPException(status_code=500, detail="BabelDOC produced no output PDF")
-        # 主文件：优先 .mono.pdf，否则第一个 pdf
-        pdfs = sorted(Path(p) for p in output_paths if str(p).lower().endswith(".pdf"))
+        # 主文件：优先 .mono.pdf，否则第一个 pdf（排除 glossary 等非主 PDF）
+        pdfs = sorted(
+            Path(p) for p in output_paths
+            if str(p).lower().endswith(".pdf") and "gloss" not in str(p).lower()
+        )
+        if not pdfs:
+            logger.error("No output PDF found in output_paths=%s", output_paths)
+            raise HTTPException(status_code=500, detail="No output PDF in BabelDOC result")
         mono = [p for p in pdfs if p.name.lower().endswith(".mono.pdf")]
         primary = mono[0] if mono else pdfs[0]
+        if not primary.exists():
+            logger.error("Primary PDF does not exist: %s", primary)
+            raise HTTPException(status_code=500, detail=f"Output PDF not found: {primary}")
+        logger.info("Uploading to R2 key=%s path=%s size=%s", body.output_object_key, primary, primary.stat().st_size)
         try:
             _upload_to_r2(primary, body.output_object_key)
         except Exception as e:
-            logger.exception("R2 upload failed key=%s", body.output_object_key)
+            logger.exception("R2 upload failed key=%s err=%s", body.output_object_key, e)
             raise HTTPException(status_code=500, detail=f"Failed to upload result to R2: {e}") from e
     return TranslateResponse(output_object_key=body.output_object_key)
 
