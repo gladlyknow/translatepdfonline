@@ -24,8 +24,8 @@ app.add_middleware(
 
 @app.get("/health", tags=["system"])
 def health_check():
-    """基础健康检查，用于 Cloudflare / 负载均衡探活。"""
-    return {"status": "ok", "env": settings.environment}
+    """基础健康检查，用于 Cloudflare / 负载均衡探活。仅返回固定 JSON，不依赖 settings/DB/Redis。"""
+    return {"status": "ok"}
 
 
 # 业务路由挂载在统一的 API 前缀下，便于版本控制与网关转发
