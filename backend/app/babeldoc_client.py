@@ -59,7 +59,7 @@ def run_translate_remote(
 
     headers: dict[str, str] = {"Content-Type": "application/json"}
     if settings.babeldoc_fc_secret:
-        headers["X-Fc-Secret"] = settings.babeldoc_fc_secret
+        headers["X-Babeldoc-Secret"] = settings.babeldoc_fc_secret
 
     logger.info(
         "run_translate_remote: task_id=%s url=%s output_key=%s",

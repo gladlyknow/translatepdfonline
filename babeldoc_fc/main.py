@@ -67,14 +67,14 @@ def _upload_to_r2(local_path: Path, object_key: str) -> None:
 async def translate(
     body: TranslateRequest,
     request: Request,
-    x_fc_secret: str | None = Header(None, alias="X-Fc-Secret"),
+    x_babeldoc_secret: str | None = Header(None, alias="X-Babeldoc-Secret"),
 ):
     """
     执行 PDF 翻译：从 source_pdf_url 下载 PDF，调用 BabelDOC，将结果上传到 R2 的 output_object_key。
     """
     secret = get_fc_secret()
-    if secret and x_fc_secret != secret:
-        raise HTTPException(status_code=403, detail="Invalid or missing X-Fc-Secret")
+    if secret and x_babeldoc_secret != secret:
+        raise HTTPException(status_code=403, detail="Invalid or missing X-Babeldoc-Secret")
     with tempfile.TemporaryDirectory(prefix="babeldoc_fc_") as tmp:
         tmp_path = Path(tmp)
         input_pdf = tmp_path / "input.pdf"
