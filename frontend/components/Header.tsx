@@ -58,20 +58,39 @@ export function Header() {
                 <UserMenu />
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link
-                    href="/login"
+                  {process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1" ? (
+                    <>
+                      <a
+                        href={`/${locale}/login`}
+                        className="inline-flex min-h-[44px] items-center text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                      >
+                        {tAuth("signIn")}
+                      </a>
+                      <a
+                        href={`/${locale}/register`}
+                        className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:text-zinc-200"
+                      >
+                        {tAuth("getStarted")}
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
                     prefetch={false}
                     className="inline-flex min-h-[44px] items-center text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   >
-                    {tAuth("signIn")}
-                  </Link>
-                  <Link
-                    href="/register"
+                        {tAuth("signIn")}
+                      </Link>
+                      <Link
+                        href="/register"
                     prefetch={false}
                     className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                   >
-                    {tAuth("getStarted")}
-                  </Link>
+                        {tAuth("getStarted")}
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </>
