@@ -16,7 +16,7 @@ __pycache__/
 htmlcov/
 
 # Node
-node_modules/
+node_modules/*
 .npm
 .yarn/cache
 .yarn/unplugged
@@ -51,4 +51,7 @@ doc/*
 .cursor/*
 docs/*
 tmp/*
-frontend/*
+node_modules/
+frontend/node_modules/
+backend/venv/
+**/__pycache__/
