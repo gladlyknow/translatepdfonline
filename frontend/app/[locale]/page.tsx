@@ -218,6 +218,7 @@ export default function HomePage() {
     };
 
     if (usePollingFallback) {
+      let intervalId: ReturnType<typeof setInterval> | null = null;
       const poll = async () => {
         try {
           const detail = await api.getTask(taskId);
@@ -226,16 +227,20 @@ export default function HomePage() {
           setTaskDetail(detail);
           if (detail.status === "completed" || detail.status === "failed") {
             await fetchViewOnce();
+            if (intervalId != null) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
           }
         } catch {
           // 下一轮再试
         }
       };
       poll();
-      const id = setInterval(poll, POLL_INTERVAL_MS);
+      intervalId = setInterval(poll, POLL_INTERVAL_MS);
       return () => {
         cancelled = true;
-        clearInterval(id);
+        if (intervalId != null) clearInterval(intervalId);
       };
     }
 
@@ -374,7 +379,13 @@ export default function HomePage() {
         : null;
   const showLongTaskHint = elapsedSeconds > 30;
 
-  const sourcePdfUrl = taskView?.source_pdf_url != null ? resolveApiUrl(taskView.source_pdf_url) : null;
+  // 翻译失败时不传原文 URL，避免左侧预览反复请求 R2 导致卡顿
+  const sourcePdfUrl =
+    taskStatus === "failed"
+      ? null
+      : taskView?.source_pdf_url != null
+        ? resolveApiUrl(taskView.source_pdf_url)
+        : null;
   // 预签名 URL（R2 直连）不能追加 query，否则签名失效导致 400
   const isPresigned = (url: string) => /^https?:\/\//i.test(url);
   const withDisposition = (url: string, disp: string) =>

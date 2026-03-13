@@ -48,6 +48,7 @@ export function PdfViewerPane({
   const [internalPage, setInternalPage] = useState(initialPage);
   const [hasTextLayer, setHasTextLayer] = useState<boolean | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(800);
+  const [loadFailedUrl, setLoadFailedUrl] = useState<string | null>(null);
   const pageWrapRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -58,16 +59,26 @@ export function PdfViewerPane({
       ? Math.max(1, Math.min(currentPage, numPages))
       : 1;
 
+  // URL 变化时清除失败标记，允许重新加载
+  useEffect(() => {
+    setLoadFailedUrl(null);
+  }, [fileUrl]);
+
   const onLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
+    setLoadFailedUrl(null);
   }, []);
 
-  const onLoadError = useCallback((error: Error) => {
-    if (error?.message?.includes("Worker was terminated") || error?.message?.includes("terminated")) {
-      return;
-    }
-    console.error("[PdfViewerPane] load error", error);
-  }, []);
+  const onLoadError = useCallback(
+    (error: Error) => {
+      if (error?.message?.includes("Worker was terminated") || error?.message?.includes("terminated")) {
+        return;
+      }
+      console.error("[PdfViewerPane] load error", error);
+      setLoadFailedUrl(fileUrl);
+    },
+    [fileUrl]
+  );
 
   const goPrev = useCallback(() => {
     if (currentPage <= 1) return;
@@ -151,6 +162,15 @@ export function PdfViewerPane({
     return (
       <div className="flex h-full min-h-[400px] items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <span className="text-zinc-500">{placeholder ?? t("noPdf")}</span>
+      </div>
+    );
+  }
+
+  // 该 URL 已加载失败则不再渲染 Document，避免反复请求 R2 导致卡顿
+  if (loadFailedUrl === fileUrl) {
+    return (
+      <div className="flex h-full min-h-[400px] items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        <span className="text-red-500">{t("loadFailed")}</span>
       </div>
     );
   }
