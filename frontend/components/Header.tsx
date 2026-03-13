@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
 import { locales, type Locale } from "@/i18n/config";
 import { UserMenu } from "./UserMenu";
+import { useStaticAuth } from "./StaticAuthContext";
 
 export function Header() {
   const t = useTranslations("header");
@@ -15,6 +16,10 @@ export function Header() {
   const sessionState = useSession();
   const session = sessionState?.data;
   const status = sessionState?.status ?? "loading";
+  const staticAuth = useStaticAuth();
+  const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
+  const showUser = isStaticDeploy ? !!staticAuth?.user : !!session?.user;
+  const authLoading = isStaticDeploy ? staticAuth?.loading : status === "loading";
 
   const switchLocale = (newLocale: Locale) => {
     if (newLocale === locale) return;
@@ -52,13 +57,13 @@ export function Header() {
             ))}
           </div>
 
-          {status !== "loading" && (
+          {!authLoading && (
             <>
-              {session?.user ? (
+              {showUser ? (
                 <UserMenu />
               ) : (
                 <div className="flex items-center gap-2">
-                  {process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1" ? (
+                  {isStaticDeploy ? (
                     <>
                       <a
                         href={`/${locale}/login`}

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Header } from "@/components/Header";
 import { PasswordInput } from "@/components/PasswordInput";
+import { useStaticAuth } from "@/components/StaticAuthContext";
 import { api, clearSessionTokenCache, setBackendToken } from "@/lib/api";
 
 export default function LoginPage() {
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const tRegister = useTranslations("register");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const staticAuth = useStaticAuth();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +36,7 @@ export default function LoginPage() {
         }
         clearSessionTokenCache();
         setBackendToken(data.access_token);
+        staticAuth?.setToken(data.access_token);
         router.push(callbackUrl);
         router.refresh();
         return;

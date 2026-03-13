@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { Header } from "@/components/Header";
 import { PasswordInput } from "@/components/PasswordInput";
+import { useStaticAuth } from "@/components/StaticAuthContext";
 import { api, setBackendToken, clearSessionTokenCache } from "@/lib/api";
 import { validatePassword } from "@/lib/passwordValidation";
 
@@ -15,6 +16,7 @@ const CODE_COOLDOWN_SECONDS = 60;
 export default function RegisterPage() {
   const t = useTranslations("register");
   const router = useRouter();
+  const staticAuth = useStaticAuth();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -73,6 +75,7 @@ export default function RegisterPage() {
           if (data?.access_token) {
             clearSessionTokenCache();
             setBackendToken(data.access_token);
+            staticAuth?.setToken(data.access_token);
             router.push("/");
             return;
           }
@@ -96,7 +99,7 @@ export default function RegisterPage() {
         setSubmitting(false);
       }
     },
-    [email, code, password, confirmPassword, t, router]
+    [email, code, password, confirmPassword, t, router, staticAuth]
   );
 
   if (success) {

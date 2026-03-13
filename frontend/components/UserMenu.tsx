@@ -2,26 +2,38 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { signOut, useSession } from "next-auth/react";
+import { useStaticAuth } from "./StaticAuthContext";
 
 export function UserMenu() {
   const tAuth = useTranslations("auth");
+  const locale = useLocale();
   const sessionState = useSession();
   const session = sessionState?.data;
+  const staticAuth = useStaticAuth();
+  const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
   const [open, setOpen] = useState(false);
 
   const label = useMemo(() => {
+    if (isStaticDeploy && staticAuth?.user)
+      return staticAuth.user.display_name || staticAuth.user.email || "User";
     const u = session?.user;
     return u?.name || u?.email || "User";
-  }, [session?.user]);
+  }, [isStaticDeploy, staticAuth?.user, session?.user]);
 
   const toggle = useCallback(() => setOpen((v) => !v), []);
   const close = useCallback(() => setOpen(false), []);
 
   const doSignOut = useCallback(async () => {
     close();
+    if (isStaticDeploy && staticAuth) {
+      staticAuth.setToken(null);
+      window.location.href = `/${locale}`;
+      return;
+    }
     await signOut({ callbackUrl: "/" });
-  }, [close]);
+  }, [close, isStaticDeploy, staticAuth, locale]);
 
   return (
     <div className="relative">
