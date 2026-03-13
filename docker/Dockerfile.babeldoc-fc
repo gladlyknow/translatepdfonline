@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 先安装 BabelDOC（按 tmp/BabelDOC 的 pyproject.toml）
 COPY tmp/BabelDOC /code/tmp/BabelDOC
+# hatchling 要求 readme 存在；若仓库/子模块未含 README.md 则在镜像内创建
+RUN test -f /code/tmp/BabelDOC/README.md || echo '# BabelDOC' > /code/tmp/BabelDOC/README.md
 RUN pip install --no-cache-dir -e /code/tmp/BabelDOC
 
 # babeldoc_fc 与 HTTP 层依赖
