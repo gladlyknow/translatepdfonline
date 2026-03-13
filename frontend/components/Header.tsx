@@ -12,7 +12,9 @@ export function Header() {
   const tAuth = useTranslations("auth");
   const pathname = usePathname();
   const locale = useLocale();
-  const { data: session, status } = useSession();
+  const sessionState = useSession();
+  const session = sessionState?.data;
+  const status = sessionState?.status ?? "loading";
 
   const switchLocale = (newLocale: Locale) => {
     if (newLocale === locale) return;

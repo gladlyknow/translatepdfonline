@@ -104,13 +104,22 @@ import { getFingerprint } from "./fingerprint";
 
 let sessionTokenCache: string | null = null;
 
+const BACKEND_TOKEN_STORAGE_KEY = "backend_access_token";
+
 export async function getSessionToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   if (sessionTokenCache) return sessionTokenCache;
   try {
     const { getSession } = await import("next-auth/react");
     const session = await getSession();
-    const token = (session as { backend_access_token?: string } | null)?.backend_access_token ?? null;
+    let token = (session as { backend_access_token?: string } | null)?.backend_access_token ?? null;
+    if (typeof token !== "string" && typeof window !== "undefined") {
+      try {
+        token = localStorage.getItem(BACKEND_TOKEN_STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
     if (typeof token === "string") {
       sessionTokenCache = token;
       return token;
@@ -121,8 +130,26 @@ export async function getSessionToken(): Promise<string | null> {
   return null;
 }
 
+/** 静态导出部署下无 NextAuth API 时，登录成功后调用以保存后端 token，供 getSessionToken 读取 */
+export function setBackendToken(token: string | null): void {
+  sessionTokenCache = token;
+  try {
+    if (typeof window !== "undefined") {
+      if (token == null) localStorage.removeItem(BACKEND_TOKEN_STORAGE_KEY);
+      else localStorage.setItem(BACKEND_TOKEN_STORAGE_KEY, token);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export function clearSessionTokenCache() {
   sessionTokenCache = null;
+  try {
+    if (typeof window !== "undefined") localStorage.removeItem(BACKEND_TOKEN_STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 async function fetchApi<T>(

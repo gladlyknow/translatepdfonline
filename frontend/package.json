@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "dev:all": "concurrently -n backend,worker,frontend -c blue,magenta,green --restart-tries 10 --restart-after 2000 \"node ../scripts/run-backend.js\" \"node ../scripts/run-worker.js\" \"npm run dev\"",
+    "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});}catch(e){}\"",
+    "prebuild": "npm run clean",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

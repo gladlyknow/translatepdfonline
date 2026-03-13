@@ -6,7 +6,8 @@ import { signOut, useSession } from "next-auth/react";
 
 export function UserMenu() {
   const tAuth = useTranslations("auth");
-  const { data: session } = useSession();
+  const sessionState = useSession();
+  const session = sessionState?.data;
   const [open, setOpen] = useState(false);
 
   const label = useMemo(() => {
