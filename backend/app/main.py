@@ -1,10 +1,13 @@
-from fastapi import FastAPI
+import logging
+import time
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .routes import upload, tasks, auth, user
 
-
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 app = FastAPI(
@@ -20,6 +23,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def access_log_middleware(request: Request, call_next):
+    """记录访问日志：方法、路径、状态码、耗时、是否带 Bearer 鉴权，便于排查 CORS/鉴权问题。"""
+    if request.url.path == "/health":
+        return await call_next(request)
+    start = time.perf_counter()
+    auth_header = request.headers.get("Authorization") or ""
+    has_bearer = auth_header.lower().startswith("bearer ") and len(auth_header.strip()) > 7
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "access method=%s path=%s status=%s duration_ms=%.0f has_bearer=%s",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+        has_bearer,
+    )
+    return response
 
 
 @app.get("/health", tags=["system"])
