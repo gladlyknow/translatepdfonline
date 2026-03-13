@@ -107,6 +107,19 @@ const BACKEND_TOKEN_STORAGE_KEY = "backend_access_token";
 export async function getSessionToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   if (sessionTokenCache) return sessionTokenCache;
+  const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
+  if (isStaticDeploy) {
+    try {
+      const token = localStorage.getItem(BACKEND_TOKEN_STORAGE_KEY);
+      if (typeof token === "string") {
+        sessionTokenCache = token;
+        return token;
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }
   try {
     const { getSession } = await import("next-auth/react");
     const session = await getSession();
