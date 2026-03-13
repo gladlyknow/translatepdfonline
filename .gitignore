@@ -51,7 +51,13 @@ doc/*
 .vscode/*
 .cursor/*
 docs/*
-tmp/*
+tmp/babeldoc_output
+tmp/lumina-pdf-translator
+tmp/MinerU-master
+tmp/OCRmyPDF
+tmp/PDFMathTranslate-main
+tmp/staging
+tmp/test-sample.pdf
 node_modules/
 frontend/node_modules/
 frontend/.next/
