@@ -32,5 +32,5 @@ export async function slicePdfByPageRange(file: File, pageRange: string): Promis
   const copied = await out.copyPages(src, validIndices);
   copied.forEach((p) => out.addPage(p));
   const outBytes = await out.save();
-  return new Blob([outBytes], { type: "application/pdf" });
+  return new Blob([new Uint8Array(outBytes)], { type: "application/pdf" });
 }
