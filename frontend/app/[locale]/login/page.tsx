@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Header } from "@/components/Header";
 import { PasswordInput } from "@/components/PasswordInput";
-import { clearSessionTokenCache } from "@/lib/api";
+import { api, clearSessionTokenCache, setBackendToken } from "@/lib/api";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -25,6 +25,19 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+      const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
+      if (isStaticDeploy) {
+        const data = await api.login(email.trim(), password);
+        if (!data?.access_token) {
+          setError("Invalid email or password");
+          return;
+        }
+        clearSessionTokenCache();
+        setBackendToken(data.access_token);
+        router.push(callbackUrl);
+        router.refresh();
+        return;
+      }
       const res = await signIn("credentials", {
         email,
         password,

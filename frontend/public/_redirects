@@ -1,1 +1,4 @@
 # 多语言由 public/register/index.html 等落地页按浏览器语言重定向到 /zh|en|es/...，此处不再 302
+# 静态部署无 NextAuth API，避免登录/注册回调跳转到 /api/auth 或 /api/auth/error 时 404
+/api/auth/error   /en/login   302
+/api/auth         /en/login   302

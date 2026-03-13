@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     app_secret: str = os.getenv("APP_SECRET", "dev-app-secret")
 
     api_base_prefix: str = "/api"
+    # CORS 允许的前端来源，逗号分隔。生产需包含前端实际域名，例如：
+    # https://translatepdfonline.pages.dev,https://www.translatepdfonline.com
     frontend_origins: str = os.getenv("FRONTEND_ORIGINS", "http://localhost:3000")
 
     # BabelDOC + DeepSeek（key 去除首尾空格，避免 .env 换行导致 401）

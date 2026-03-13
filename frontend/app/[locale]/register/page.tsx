@@ -7,8 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { Header } from "@/components/Header";
 import { PasswordInput } from "@/components/PasswordInput";
-import { api } from "@/lib/api";
-import { clearSessionTokenCache } from "@/lib/api";
+import { api, setBackendToken, clearSessionTokenCache } from "@/lib/api";
 import { validatePassword } from "@/lib/passwordValidation";
 
 const CODE_COOLDOWN_SECONDS = 60;
@@ -68,15 +67,26 @@ export default function RegisterPage() {
       setSubmitting(true);
       try {
         await api.verifyRegister(email.trim(), code.trim(), password, confirmPassword);
-        const signInResult = await signIn("credentials", {
-          email: email.trim(),
-          password,
-          redirect: false,
-        });
-        if (signInResult?.ok) {
-          clearSessionTokenCache();
-          router.push("/");
-          return;
+        const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
+        if (isStaticDeploy) {
+          const data = await api.login(email.trim(), password);
+          if (data?.access_token) {
+            clearSessionTokenCache();
+            setBackendToken(data.access_token);
+            router.push("/");
+            return;
+          }
+        } else {
+          const signInResult = await signIn("credentials", {
+            email: email.trim(),
+            password,
+            redirect: false,
+          });
+          if (signInResult?.ok) {
+            clearSessionTokenCache();
+            router.push("/");
+            return;
+          }
         }
         setSuccess(true);
       } catch (e) {
