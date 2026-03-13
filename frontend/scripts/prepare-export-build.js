@@ -9,7 +9,8 @@ const { spawnSync } = require("child_process");
 
 const root = path.resolve(__dirname, "..");
 const apiDir = path.join(root, "app", "api");
-const apiBak = path.join(root, "app", "api.bak");
+/** 备份到 app 外，否则 Next 会把 app/api.bak 当作路由 /api.bak/... 导致静态导出报错 */
+const apiBak = path.join(root, ".api-export-backup");
 
 function main() {
   const isExport = process.env.OUTPUT_EXPORT === "1";

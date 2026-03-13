@@ -20,7 +20,7 @@ export function HistoryPanel({ onSelectTask }: Props) {
   const [loading, setLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [panelRect, setPanelRect] = useState<{ top: number; left: number } | null>(null);
+  const [panelRect, setPanelRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -28,7 +28,12 @@ export function HistoryPanel({ onSelectTask }: Props) {
   useEffect(() => {
     if (!open || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
-    setPanelRect({ top: rect.bottom + 8, left: rect.right - 320 });
+    const panelWidth = typeof window !== "undefined" ? Math.min(320, window.innerWidth - 16) : 320;
+    const left =
+      typeof window !== "undefined"
+        ? Math.max(8, Math.min(rect.right - panelWidth, window.innerWidth - panelWidth - 8))
+        : rect.right - 320;
+    setPanelRect({ top: rect.bottom + 8, left, width: panelWidth });
   }, [open]);
 
   useEffect(() => {
@@ -135,8 +140,8 @@ export function HistoryPanel({ onSelectTask }: Props) {
               ref={panelRef}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="fixed z-[9999] w-[320px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
-              style={{ top: panelRect.top, left: panelRect.left }}
+              className="fixed z-[9999] max-w-[calc(100vw-16px)] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+              style={{ top: panelRect.top, left: panelRect.left, width: panelRect.width }}
             >
             <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">

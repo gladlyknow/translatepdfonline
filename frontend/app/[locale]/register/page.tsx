@@ -125,7 +125,7 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
               autoComplete="email"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base dark:border-zinc-600 dark:bg-zinc-800"
             />
           </div>
           <div className="flex gap-2">
@@ -136,7 +136,7 @@ export default function RegisterPage() {
               onChange={(e) => setCode(e.target.value)}
               placeholder={t("code")}
               maxLength={10}
-              className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+              className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base dark:border-zinc-600 dark:bg-zinc-800"
             />
             <button
               type="button"

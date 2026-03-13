@@ -142,29 +142,33 @@ export function TranslationForm({ documentId, onTaskCreated, compact = false, ta
 
   if (compact) {
     return (
-      <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
-        <LanguageSelector
-          value={sourceLang}
-          onChange={setSourceLang}
-          label={t("sourceLang")}
-          placeholderKey="selectSourceLang"
-        />
-        <span className="text-zinc-400 dark:text-zinc-500">↔</span>
-        <LanguageSelector
-          value={targetLang}
-          onChange={setTargetLang}
-          label={t("targetLang")}
-          placeholderKey="selectTargetLang"
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="w-full sm:w-auto">
+          <LanguageSelector
+            value={sourceLang}
+            onChange={setSourceLang}
+            label={t("sourceLang")}
+            placeholderKey="selectSourceLang"
+          />
+        </div>
+        <span className="shrink-0 text-zinc-400 dark:text-zinc-500" aria-hidden>↔</span>
+        <div className="w-full sm:w-auto">
+          <LanguageSelector
+            value={targetLang}
+            onChange={setTargetLang}
+            label={t("targetLang")}
+            placeholderKey="selectTargetLang"
+          />
+        </div>
         {sourceLang && targetLang ? (
-          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 w-full sm:w-auto">
             {t("confirmDirection", {
               source: tLang(sourceLang as UILang),
               target: tLang(targetLang as UILang),
             })}
           </span>
         ) : (
-          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 w-full sm:w-auto">
             {t("selectBothLanguages")}
           </span>
         )}
@@ -173,18 +177,18 @@ export function TranslationForm({ documentId, onTaskCreated, compact = false, ta
           value={pageRange}
           onChange={(e) => setPageRange(e.target.value)}
           placeholder={t("pageRangeExample")}
-          className="w-32 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+          className="min-h-[44px] w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base sm:w-32 dark:border-zinc-600 dark:bg-zinc-800"
           aria-label={t("pageRange")}
         />
         {(error || loginHint) && (
-          <span className={`text-sm ${error ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-300"}`}>
+          <span className={`text-sm w-full sm:w-auto ${error ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-300"}`}>
             {error ?? loginHint}
           </span>
         )}
         <button
           type="submit"
           disabled={submitDisabled}
-          className="rounded-xl bg-zinc-900 dark:bg-zinc-100 px-5 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:opacity-90 disabled:opacity-50"
+          className="min-h-[44px] w-full shrink-0 rounded-xl bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 sm:w-auto"
         >
           {submitting ? t("submitting") : taskInProgress ? t("submitting") : t("submit")}
         </button>

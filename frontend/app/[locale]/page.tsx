@@ -545,7 +545,7 @@ export default function HomePage() {
                   )}
                 </div>
                 {documentId && (
-                  <div className="flex flex-[1.5] flex-wrap items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900">
+                  <div className="flex min-w-0 flex-[1.5] flex-wrap items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900">
                     <TranslationForm
                       documentId={documentId}
                       onTaskCreated={handleTaskCreated}
