@@ -205,7 +205,30 @@ def run_translate_local(
     )
 
     result = translate(config)
-    output_paths = getattr(result, "output_paths", [])
-    if isinstance(output_paths, (list, tuple)):
-        return [str(p) for p in output_paths]
+    # BabelDOC 返回 TranslateResult（mono_pdf_path / dual_pdf_path），无 output_paths；优先从 result 取路径
+    out_list: list[str] = []
+    if result is not None:
+        mono = getattr(result, "mono_pdf_path", None)
+        dual = getattr(result, "dual_pdf_path", None)
+        no_wm_mono = getattr(result, "no_watermark_mono_pdf_path", None)
+        no_wm_dual = getattr(result, "no_watermark_dual_pdf_path", None)
+        seen: set[Path] = set()
+        for p in (mono, no_wm_mono, dual, no_wm_dual):
+            if p is None:
+                continue
+            path = p if isinstance(p, Path) else Path(str(p))
+            if path not in seen and path.exists() and path.suffix.lower() == ".pdf":
+                seen.add(path)
+                out_list.append(str(path))
+        # 保持 mono 在前，便于 main 里优先选 .mono.pdf
+        if out_list:
+            return out_list
+    # 回退：output_dir 下 rglob 查找 PDF（含子目录），排除 glossary
+    out_path = Path(output_dir)
+    if out_path.exists():
+        pdfs = sorted(out_path.rglob("*.pdf"))
+        pdfs = [p for p in pdfs if "gloss" not in p.name.lower()]
+        if pdfs:
+            logger.info("run_translate_local: using rglob fallback %s", [str(p) for p in pdfs])
+            return [str(p) for p in pdfs]
     return []

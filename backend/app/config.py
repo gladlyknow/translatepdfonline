@@ -48,6 +48,8 @@ class Settings(BaseSettings):
     # 实际使用的 FC URL：按 spec 选用 URL_CPU/URL_GPU，未配置时回退到 BABELDOC_FC_URL（兼容只配一个 URL）
     babeldoc_fc_url: str = os.getenv("BABELDOC_FC_URL", "").strip()
     babeldoc_fc_secret: str = os.getenv("BABELDOC_FC_SECRET", "").strip()
+    # 调用 FC 的 HTTP 超时（秒）；大文件可调大（如 1200），且 FC 控制台「执行超时」需 >= 此值
+    babeldoc_fc_timeout_seconds: int = int(os.getenv("BABELDOC_FC_TIMEOUT_SECONDS", "600"))
 
     # Cloudflare R2（S3 兼容存储）
     r2_account_id: str = os.getenv("R2_ACCOUNT_ID", "")

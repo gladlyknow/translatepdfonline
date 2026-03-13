@@ -111,7 +111,12 @@ async def translate(
         if not primary.exists():
             logger.error("Primary PDF does not exist: %s", primary)
             raise HTTPException(status_code=500, detail=f"Output PDF not found: {primary}")
-        logger.info("Uploading to R2 key=%s path=%s size=%s", body.output_object_key, primary, primary.stat().st_size)
+        try:
+            primary_size = primary.stat().st_size
+        except OSError as e:
+            logger.error("Primary PDF stat failed path=%s err=%s", primary, e)
+            raise HTTPException(status_code=500, detail=f"Output PDF not accessible: {e}") from e
+        logger.info("Uploading to R2 key=%s path=%s size=%s", body.output_object_key, primary, primary_size)
         try:
             _upload_to_r2(primary, body.output_object_key)
         except Exception as e:

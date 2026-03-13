@@ -67,7 +67,8 @@ def run_translate_remote(
         "run_translate_remote: task_id=%s url=%s output_key=%s",
         task_id, url, output_object_key,
     )
-    with httpx.Client(timeout=600.0) as client:
+    timeout_sec = max(60, getattr(settings, "babeldoc_fc_timeout_seconds", 600))
+    with httpx.Client(timeout=float(timeout_sec)) as client:
         resp = client.post(url, json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
