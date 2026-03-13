@@ -10,7 +10,7 @@ import { UploadDropzone } from "@/components/UploadDropzone";
 import { TranslationForm } from "@/components/TranslationForm";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { ChevronUp, ChevronDown, Loader2, Download, Trash2 } from "lucide-react";
-import { api, type TaskDetail, type TaskView } from "@/lib/api";
+import { api, getSessionToken, resolveApiUrl, type TaskDetail, type TaskView } from "@/lib/api";
 
 const PdfViewerPane = dynamic(
   () => import("@/components/PdfViewerPane").then((m) => ({ default: m.PdfViewerPane })),
@@ -374,7 +374,7 @@ export default function HomePage() {
         : null;
   const showLongTaskHint = elapsedSeconds > 30;
 
-  const sourcePdfUrl = taskView?.source_pdf_url ?? null;
+  const sourcePdfUrl = taskView?.source_pdf_url != null ? resolveApiUrl(taskView.source_pdf_url) : null;
   // 预签名 URL（R2 直连）不能追加 query，否则签名失效导致 400
   const isPresigned = (url: string) => /^https?:\/\//i.test(url);
   const withDisposition = (url: string, disp: string) =>
@@ -383,12 +383,13 @@ export default function HomePage() {
   const translationOutput =
     taskView?.outputs?.find((f) => f.filename.toLowerCase().includes(".mono.")) ??
     taskView?.outputs?.[0];
-  const targetPdfUrl =
+  const targetPdfUrlRaw =
     taskView && (taskView.primary_file_url ?? translationOutput)
       ? taskView.primary_file_url
         ? withDisposition(taskView.primary_file_url, "inline")
         : withDisposition(translationOutput!.download_url, "inline")
       : null;
+  const targetPdfUrl = targetPdfUrlRaw ? resolveApiUrl(targetPdfUrlRaw) : null;
   const pageRange = parsePageRange(taskView?.task.page_range ?? null);
   const isPageTranslated =
     pageRange == null ||
@@ -402,7 +403,7 @@ export default function HomePage() {
         : 1;
   const handleRightPageChange = (p: number) => setCurrentPage(p);
 
-  const downloadUrl =
+  const downloadUrlRaw =
     taskView?.can_download === true && (taskView?.primary_file_url || taskView?.outputs?.[0]?.download_url || taskId)
       ? taskView.primary_file_url
         ? withDisposition(taskView.primary_file_url, "attachment")
@@ -410,6 +411,7 @@ export default function HomePage() {
           ? withDisposition(taskView.outputs[0].download_url, "attachment")
           : `/api/tasks/${taskId}/file?disposition=attachment`
       : null;
+  const downloadUrl = downloadUrlRaw ? resolveApiUrl(downloadUrlRaw) : null;
 
   const downloadError = searchParams.get("download_error"); // "login" | "not_found" | truthy
 
@@ -417,9 +419,15 @@ export default function HomePage() {
     if (!downloadUrl || downloading) return;
     setDownloading(true);
     try {
-      // 预签名 R2 URL 不能带 credentials，否则 CORS 要求服务端返回 Access-Control-Allow-Credentials: true，R2 不满足会报错
+      // 预签名 R2 URL 不能带 credentials；直连后端时带 token 以支持跨域静态部署
+      const headers: HeadersInit = {};
+      if (!isPresigned(downloadUrl)) {
+        const token = await getSessionToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+      }
       const res = await fetch(downloadUrl, {
         credentials: isPresigned(downloadUrl) ? "omit" : "include",
+        headers,
       });
       if (!res.ok) {
         if (res.status === 403) {

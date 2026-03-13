@@ -1,5 +1,14 @@
-// 使用相对路径时由 next.config rewrites 代理到后端
-const API_BASE = typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000");
+// 浏览器端：有 NEXT_PUBLIC_API_BASE_URL 时直连后端（静态导出/Cloudflare）；否则同源由 next 代理。服务端构建用 env。
+const API_BASE =
+  typeof window !== "undefined"
+    ? (process.env.NEXT_PUBLIC_API_BASE_URL || "")
+    : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000");
+
+/** 将相对 API 路径解析为完整 URL（静态导出时前端直连后端用） */
+export function resolveApiUrl(url: string): string {
+  if (!url || url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
 export type UILang = "zh" | "en" | "es";
 
@@ -95,12 +104,11 @@ import { getFingerprint } from "./fingerprint";
 
 let sessionTokenCache: string | null = null;
 
-async function getSessionToken(): Promise<string | null> {
+export async function getSessionToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   if (sessionTokenCache) return sessionTokenCache;
   try {
-    const base = typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000");
-    const res = await fetch(`${base}/api/auth/token`, { credentials: "include" });
+    const res = await fetch(`${API_BASE || ""}/api/auth/token`, { credentials: "include" });
     const data = await res.json();
     if (data?.token) {
       sessionTokenCache = data.token;
