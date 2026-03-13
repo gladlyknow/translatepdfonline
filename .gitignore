@@ -56,3 +56,4 @@ frontend/node_modules/
 backend/venv/
 **/__pycache__/
 *.md
+frontend/
