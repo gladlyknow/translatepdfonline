@@ -108,11 +108,12 @@ export async function getSessionToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   if (sessionTokenCache) return sessionTokenCache;
   try {
-    const res = await fetch(`${API_BASE || ""}/api/auth/token`, { credentials: "include" });
-    const data = await res.json();
-    if (data?.token) {
-      sessionTokenCache = data.token;
-      return data.token;
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+    const token = (session as { backend_access_token?: string } | null)?.backend_access_token ?? null;
+    if (typeof token === "string") {
+      sessionTokenCache = token;
+      return token;
     }
   } catch {
     // ignore
