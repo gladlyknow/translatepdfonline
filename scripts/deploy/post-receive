@@ -13,4 +13,6 @@ systemctl restart translatepdfonline-api translatepdfonline-celery
 # 部署 Nginx 配置并重载
 cp -f "$WORKTREE/scripts/deploy/translatepdfonline.conf" /etc/nginx/conf.d/translatepdfonline.conf
 nginx -t && systemctl reload nginx
+# 清理工作区，避免下次 push 因“有未提交改动”被拒（不删未跟踪文件，.env 保留）
+cd "$WORKTREE" && git reset --hard HEAD
 echo "Deploy done."
