@@ -53,7 +53,7 @@ docs/*
 tmp/*
 node_modules/
 frontend/node_modules/
+frontend/.next/
 backend/venv/
 **/__pycache__/
 *.md
-frontend/
