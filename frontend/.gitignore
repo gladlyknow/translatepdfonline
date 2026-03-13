@@ -17,6 +17,11 @@
 /.next/
 /out/
 
+# 多语言重定向落地页（构建时由 scripts/generate-locale-redirect-pages.js 生成）
+/public/register/
+/public/login/
+/public/privacy/
+
 # production
 /build
 

@@ -1,0 +1,1 @@
+# 多语言由 public/register/index.html 等落地页按浏览器语言重定向到 /zh|en|es/...，此处不再 302

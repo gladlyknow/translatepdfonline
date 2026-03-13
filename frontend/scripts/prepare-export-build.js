@@ -20,6 +20,13 @@ function main() {
     return;
   }
 
+  // 生成 /register、/login、/privacy 的按浏览器语言重定向落地页（多语言适配）
+  const gen = spawnSync("node", [path.join(root, "scripts", "generate-locale-redirect-pages.js")], {
+    stdio: "inherit",
+    cwd: root,
+  });
+  if (gen.status !== 0) process.exit(gen.status);
+
   const hadApi = fs.existsSync(apiDir);
   if (hadApi) {
     try {
