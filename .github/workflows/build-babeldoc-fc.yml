@@ -4,11 +4,7 @@ name: Build BabelDOC FC (CPU) and push to ACR
 
 on:
   push:
-    branches: [main]
-    paths:
-      - "babeldoc_fc/**"
-      - "docker/Dockerfile.babeldoc-fc"
-      - "tmp/BabelDOC/**"
+    branches: [master]
   workflow_dispatch:
 
 jobs:
