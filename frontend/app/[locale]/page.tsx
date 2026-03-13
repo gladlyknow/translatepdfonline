@@ -497,7 +497,11 @@ export default function HomePage() {
           </p>
         )}
         <div
-          className={`flex-shrink-0 overflow-hidden transition-[max-height] duration-300 ${topRowCollapsed ? "max-h-12" : "max-h-[400px]"}`}
+          className={`flex-shrink-0 transition-[max-height] duration-300 ${
+            topRowCollapsed
+              ? "max-h-12 overflow-hidden"
+              : "max-h-[85vh] overflow-y-auto sm:max-h-[400px] sm:overflow-hidden"
+          }`}
         >
           {topRowCollapsed ? (
             <div className="flex h-12 items-center justify-end border-b border-zinc-200 bg-zinc-50 px-4 dark:border-zinc-700 dark:bg-zinc-950 sm:px-6">

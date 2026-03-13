@@ -1,8 +1,23 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
+import { SessionContext, SessionProvider } from "next-auth/react";
 
-/** 开发与普通 build 下始终渲染 SessionProvider，供 useSession 使用。静态导出构建时由 setRequestLocale 等避免 headers()，SessionProvider 可正常参与预渲染。 */
+/** 静态部署时无 NextAuth API，不请求 /api/auth/session，避免 404。提供与 useSession 兼容的“未登录”上下文。 */
+const staticSessionValue = {
+  data: null as null,
+  status: "unauthenticated" as const,
+  update: (async () => null) as () => Promise<null>,
+};
+
+/** 开发/非静态部署用 NextAuth SessionProvider；静态部署用只读“未登录”上下文，不请求同源 /api/auth/session。 */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const isStaticDeploy = process.env.NEXT_PUBLIC_STATIC_DEPLOY === "1";
+  if (isStaticDeploy) {
+    return (
+      <SessionContext.Provider value={staticSessionValue}>
+        {children}
+      </SessionContext.Provider>
+    );
+  }
   return <SessionProvider>{children}</SessionProvider>;
 }
