@@ -1,0 +1,11 @@
+{
+  "prevPage": "Назад",
+  "nextPage": "Вперёд",
+  "loading": "Загрузка…",
+  "loadFailed": "Ошибка загрузки",
+  "noPdf": "Нет PDF",
+  "pageNotTranslated": "Эта страница не переведена",
+  "zoomIn": "Увеличить",
+  "zoomOut": "Уменьшить",
+  "zoomReset": "Сброс масштаба"
+}

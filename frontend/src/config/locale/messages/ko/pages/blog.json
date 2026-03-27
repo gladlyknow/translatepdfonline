@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "title": "블로그",
+    "description": "제품의 최신 기능, 솔루션 및 업데이트를 읽어보세요."
+  },
+  "page": {
+    "title": "Translate PDF Online 블로그",
+    "sections": {
+      "blog": {
+        "id": "blog",
+        "title": "블로그",
+        "description": "제품의 최신 기능, 솔루션 및 업데이트를 읽어보세요."
+      }
+    }
+  },
+  "messages": {
+    "all": "전체",
+    "no_content": "콘텐츠 없음",
+    "crumb": "블로그",
+    "toc": "목차"
+  }
+}

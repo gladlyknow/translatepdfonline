@@ -1,0 +1,326 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "variant": "translateDark",
+        "title": "Translate PDF Online",
+        "highlight_text": "Traduction PDF assistée par IA",
+        "description": "Traduisez des PDF en préservant la mise en page : colonnes, tableaux, figures et polices. Langues : anglais, chinois, espagnol, français, italien, grec, japonais, coréen, etc. Dans le navigateur, sans installation.",
+        "announcement": {
+          "badge": "Nouveau",
+          "title": "Traduction PDF professionnelle qui préserve la mise en page",
+          "url": "/translate"
+        },
+        "tip": "Tarif de lancement pour les premiers utilisateurs",
+        "buttons": [
+          {
+            "title": "Commencer",
+            "icon": "Zap",
+            "url": "/translate",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
+            "title": "Documentation",
+            "icon": "BookOpenText",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false,
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Aperçu de la traduction PDF",
+          "width": 3840,
+          "height": 2424
+        },
+        "image_invert": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Aperçu de la traduction PDF",
+          "width": 3840,
+          "height": 2424
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "Qu’est-ce que Translate PDF Online",
+        "label": "Produit",
+        "description": "Service web pour traduire des PDF tout en conservant la mise en page d’origine. Conçu pour articles, manuels, rapports et livres.",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "introduce",
+          "width": 3840,
+          "height": 2424
+        },
+        "items": [
+          {
+            "title": "Sortie à mise en page préservée",
+            "description": "Les PDF traduits reflètent la structure : texte multi-colonnes, tableaux, images et titres alignés sur la source.",
+            "icon": "RiLayoutLine",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Nombreuses paires de langues",
+            "description": "Choisissez la langue source et cible parmi un ensemble croissant, adapté aux documents académiques et professionnels.",
+            "icon": "RiTranslate2",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Stockage sécurisé et temporaire",
+            "description": "Les fichiers transitent en HTTPS et sont supprimés selon la politique de rétention après traitement.",
+            "icon": "RiShieldCheckLine",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Historique et reprise des tâches",
+            "description": "Le panneau Historique liste vos envois et tâches pour rouvrir un travail sans retéléverser le même PDF.",
+            "icon": "RiHistoryLine",
+            "image": {
+              "src": "/imgs/features/4.png",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "Pourquoi les équipes nous choisissent",
+        "label": "Avantages",
+        "description": "Concentrez-vous sur le document, pas sur la correction du format après traduction.",
+        "items": [
+          {
+            "title": "Conçu pour les PDF denses",
+            "description": "Optimisé pour les mises en page académiques et techniques — équations, figures et tables lorsque le pipeline le permet.",
+            "icon": "RiFilePdf2Line",
+            "image": {
+              "src": "/imgs/features/dense_PDFs.png",
+              "alt": "benefits",
+              "width": 2511,
+              "height": 1233
+            }
+          },
+          {
+            "title": "Aperçu côte à côte",
+            "description": "Comparez source et traduction dans le navigateur avec défilement synchronisé avant téléchargement.",
+            "icon": "RiSplitCellsHorizontal",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          },
+          {
+            "title": "Plages de pages optionnelles",
+            "description": "Traduisez tout le fichier ou seulement les pages nécessaires pour gagner du temps et des crédits.",
+            "icon": "RiBookReadLine",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "Comment traduire votre PDF",
+        "description": "Trois étapes du téléversement au téléchargement :",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "usage",
+          "width": 1062,
+          "height": 741
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "Téléverser",
+            "description": "Déposez un PDF ou choisissez un fichier. Les gros documents respectent les limites indiquées sur la page de traduction.",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage",
+              "width": 1062,
+              "height": 741
+            }
+          },
+          {
+            "title": "Choisir les langues et lancer",
+            "description": "Sélectionnez source et cible, optionnellement une plage de pages, puis lancez la traduction. Suivez l’avancement sur la même page.",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage",
+              "width": 1390,
+              "height": 1252
+            }
+          },
+          {
+            "title": "Télécharger",
+            "description": "Une fois terminé, téléchargez le PDF traduit. Rouvrez la tâche depuis l’historique tant que le fichier est disponible.",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "Ce que vous obtenez",
+        "description": "Des capacités concrètes pour vos flux PDF.",
+        "items": [
+          {
+            "title": "Pipeline compatible vecteurs",
+            "description": "Approche de type BabelDOC pour replacer le texte dans la structure PDF lorsque c’est possible.",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "Crédits et facturation",
+            "description": "Payez à l’usage avec un modèle de crédits lié aux pages et aux produits.",
+            "icon": "RiCoinsLine"
+          },
+          {
+            "title": "Compte ou invité",
+            "description": "Connectez-vous pour la facturation et l’historique multi-appareils, ou essayez en une session.",
+            "icon": "RiUserLine"
+          },
+          {
+            "title": "Interface hébergée en edge",
+            "description": "Chargement initial rapide sur Cloudflare ; aperçu et téléchargement dans le navigateur.",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "Documentation",
+            "description": "Architecture, rétention et conformité dans /docs.",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "Stack lisible",
+            "description": "Application Next.js avec des API claires entre UI, stockage et worker de traduction.",
+            "icon": "RiCodeSSlashLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "Pour les documents exigeants",
+        "description": "D’un article aux manuels volumineux.",
+        "items": [
+          {
+            "title": "8+",
+            "description": "Langues d’interface"
+          },
+          {
+            "title": "7",
+            "description": "Jours de rétention par défaut"
+          },
+          {
+            "title": "1",
+            "description": "Pipeline sensible à la mise en page"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "Questions fréquentes",
+        "description": "Plus de détails dans la documentation ou par e-mail hello@translatepdfonline.com.",
+        "items": [
+          {
+            "question": "Qu’est-ce que Translate PDF Online et comment ça marche ?",
+            "answer": "Vous téléversez un PDF, choisissez les langues source et cible, nous exécutons un pipeline de traduction qui respecte la mise en page. Vous téléchargez un nouveau PDF qui reflète la structure d’origine lorsque la technologie le permet."
+          },
+          {
+            "question": "Dois-je installer un logiciel ?",
+            "answer": "Non. Téléversement et aperçu dans le navigateur. Les fichiers sont envoyés en HTTPS."
+          },
+          {
+            "question": "Quelles langues sont prises en charge ?",
+            "answer": "La page de traduction liste les langues disponibles (p. ex. anglais, chinois, espagnol, français, italien, grec, japonais, coréen). Nous ajoutons des paires au fil du temps."
+          },
+          {
+            "question": "Combien de temps prend la traduction ?",
+            "answer": "Les PDF courts finissent souvent en quelques minutes ; les longs ou très illustrés prennent plus de temps. Restez sur la page ou revenez plus tard et ouvrez la tâche depuis l’historique."
+          },
+          {
+            "question": "Mon document est-il sécurisé ?",
+            "answer": "Le trafic est chiffré. Les fichiers stockés suivent la politique de rétention décrite dans la documentation (en général suppression automatique après environ sept jours sauf mention contraire)."
+          },
+          {
+            "question": "Puis-je traduire seulement certaines pages ?",
+            "answer": "Oui. Indiquez une plage de pages au démarrage du travail."
+          },
+          {
+            "question": "Comment rouvrir ou prévisualiser une traduction antérieure ?",
+            "answer": "Ouvrez la page de traduction et utilisez l’historique. Choisissez une tâche passée pour voir son état et prévisualiser les PDF source et traduits dans le navigateur. Inutile de téléverser à nouveau tant que les fichiers sont encore disponibles selon notre politique de rétention."
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "Traduisez votre premier PDF",
+        "description": "Téléversez depuis la page de traduction — utilisez l’historique pour retrouver les tâches récentes.",
+        "buttons": [
+          {
+            "title": "Commencer à traduire",
+            "url": "/translate",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "Documentation",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "Newsletter",
+        "description": "Actualités de Translate PDF Online.",
+        "submit": {
+          "input": {
+            "placeholder": "Votre e-mail"
+          },
+          "button": {
+            "title": "S’abonner"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

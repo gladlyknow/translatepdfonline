@@ -1,0 +1,11 @@
+{
+  "prevPage": "上一页",
+  "nextPage": "下一页",
+  "loading": "加载中...",
+  "loadFailed": "加载失败",
+  "noPdf": "暂无 PDF",
+  "pageNotTranslated": "此页未翻译",
+  "zoomIn": "放大",
+  "zoomOut": "缩小",
+  "zoomReset": "重置缩放"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Activité",
+  "nav": {
+    "items": [
+      { "title": "Tâches IA", "url": "/activity/ai-tasks", "icon": "RiTaskLine" },
+      { "title": "Discussions IA", "url": "/activity/chats", "icon": "RiChat2Line" }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      { "title": "Activité", "url": "/activity", "icon": "Activity" },
+      { "title": "Paramètres", "url": "/settings", "icon": "Settings" }
+    ]
+  }
+}

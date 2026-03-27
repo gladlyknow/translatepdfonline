@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "id": "ID",
+    "code": "코드",
+    "title": "제목",
+    "resource": "리소스",
+    "action": "작업",
+    "description": "설명",
+    "created_at": "생성일",
+    "updated_at": "수정일"
+  },
+  "list": {
+    "title": "권한",
+    "crumbs": { "admin": "관리", "permissions": "권한" }
+  }
+}

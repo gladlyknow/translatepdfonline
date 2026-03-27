@@ -1,0 +1,22 @@
+{
+  "fields": {
+    "email": "Email",
+    "password": "Κωδικός",
+    "new_password": "Νέος κωδικός",
+    "confirm_password": "Επιβεβαίωση κωδικού"
+  },
+  "reset_password": {
+    "title": "Επαναφορά κωδικού",
+    "description": "Επαναφέρετε τον κωδικό σας",
+    "tip": "Θα σας στείλουμε email για επαναφορά κωδικού.",
+    "crumbs": { "settings": "Ρυθμίσεις", "security": "Ασφάλεια" },
+    "buttons": { "submit": "Αποθήκευση" }
+  },
+  "delete_account": {
+    "title": "Διαγραφή λογαριασμού",
+    "description": "Διαγράψτε τον λογαριασμό σας",
+    "tip": "Είστε βέβαιοι; Η ενέργεια δεν αναιρείται.",
+    "crumbs": { "settings": "Ρυθμίσεις", "security": "Ασφάλεια" },
+    "buttons": { "submit": "Διαγραφή" }
+  }
+}

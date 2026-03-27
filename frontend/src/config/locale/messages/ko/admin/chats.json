@@ -1,0 +1,18 @@
+{
+  "fields": {
+    "title": "제목",
+    "user": "사용자",
+    "status": "상태",
+    "model": "모델",
+    "provider": "제공자",
+    "created_at": "생성일",
+    "action": "작업"
+  },
+  "list": {
+    "title": "AI 채팅",
+    "crumbs": { "admin": "관리", "chats": "AI 채팅" },
+    "tabs": { "all": "전체", "pending": "대기", "completed": "완료", "failed": "실패" },
+    "buttons": { "view": "채팅 보기", "new": "새 채팅" },
+    "empty_message": "채팅이 없습니다"
+  }
+}

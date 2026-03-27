@@ -1,0 +1,326 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "variant": "translateDark",
+        "title": "Translate PDF Online",
+        "highlight_text": "Μετάφραση PDF με τεχνητή νοημοσύνη",
+        "description": "Μεταφράστε PDF διατηρώντας τη διάταξη — στήλες, πίνακες, σχήματα και γραμματοσειρές παραμένουν πιστά στο πρωτότυπο. Υποστηρίζει αγγλικά, κινεζικά, ισπανικά, γαλλικά, ιταλικά, ελληνικά, ιαπωνικά, κορεατικά και άλλα. Λειτουργεί στον browser· χωρίς εγκατάσταση.",
+        "announcement": {
+          "badge": "Νέο",
+          "title": "Επαγγελματική μετάφραση PDF με διατήρηση διάταξης",
+          "url": "/translate"
+        },
+        "tip": "Ειδική τιμή λανσαρίσματος για πρώιμους χρήστες",
+        "buttons": [
+          {
+            "title": "Ξεκινήστε",
+            "icon": "Zap",
+            "url": "/translate",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
+            "title": "Διαβάστε την τεκμηρίωση",
+            "icon": "BookOpenText",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false,
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Προεπισκόπηση μετάφρασης PDF",
+          "width": 3840,
+          "height": 2424
+        },
+        "image_invert": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Προεπισκόπηση μετάφρασης PDF",
+          "width": 3840,
+          "height": 2424
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "Τι είναι το Translate PDF Online",
+        "label": "Προϊόν",
+        "description": "Υπηρεσία web για μετάφραση εγγράφων PDF διατηρώντας το αρχικό σχεδιασμό. Για εργασίες, εγχειρίδια, αναφορές και βιβλία — όχι απλή εξαγωγή κειμένου.",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "introduce",
+          "width": 3840,
+          "height": 2424
+        },
+        "items": [
+          {
+            "title": "Έξοδος με διατήρηση διάταξης",
+            "description": "Τα μεταφρασμένα PDF αντικατοπτρίζουν τη δομή: πολυστήλικο κείμενο, πίνακες, εικόνες και επικεφαλίδες παραμένουν ευθυγραμμισμένα με την πηγή.",
+            "icon": "RiLayoutLine",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Πολλά ζεύγη γλωσσών",
+            "description": "Επιλέξτε πηγή και στόχο από ένα διευρυνόμενο σύνολο. Κατάλληλο για ακαδημαϊκά και επαγγελματικά έγγραφα.",
+            "icon": "RiTranslate2",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Ασφαλής, εφήμερη αποθήκευση",
+            "description": "Τα αρχεία μεταφέρονται μέσω HTTPS και αφαιρούνται σύμφωνα με πολιτική διατήρησης μετά την επεξεργασία.",
+            "icon": "RiShieldCheckLine",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Ιστορικό και ανάκτηση εργασιών",
+            "description": "Το πάνελ Ιστορικού εμφανίζει τα ανεβάσματα και τις εργασίες ώστε να ανοίξετε ξανά χωρίς να ξανανεβάσετε το ίδιο PDF.",
+            "icon": "RiHistoryLine",
+            "image": {
+              "src": "/imgs/features/4.png",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "Γιατί μας επιλέγουν οι ομάδες",
+        "label": "Οφέλη",
+        "description": "Εστιάστε στο έγγραφο, όχι στο διόρθωμα μορφοποίησης μετά τη μετάφραση.",
+        "items": [
+          {
+            "title": "Για πυκνά PDF",
+            "description": "Βελτιστοποιημένο για ακαδημαϊκές και τεχνικές διατάξεις — εξισώσεις, σχήματα και πίνακες όπου υποστηρίζει η ροή.",
+            "icon": "RiFilePdf2Line",
+            "image": {
+              "src": "/imgs/features/dense_PDFs.png",
+              "alt": "benefits",
+              "width": 2511,
+              "height": 1233
+            }
+          },
+          {
+            "title": "Προεπισκόπηση πλάι-πλάι",
+            "description": "Συγκρίνετε πηγαίες και μεταφρασμένες σελίδες στον browser με συγχρονισμένη κύλιση πριν το κατέβασμα.",
+            "icon": "RiSplitCellsHorizontal",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          },
+          {
+            "title": "Προαιρετικά εύρη σελίδων",
+            "description": "Μεταφράστε ολόκληρο το αρχείο ή μόνο τις σελίδες που χρειάζεστε για εξοικονόμηση χρόνου και πιστώσεων.",
+            "icon": "RiBookReadLine",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "Πώς να μεταφράσετε το PDF σας",
+        "description": "Τρία βήματα από το ανέβασμα έως τη λήψη:",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "usage",
+          "width": 1062,
+          "height": 741
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "Ανέβασμα",
+            "description": "Αφήστε ένα PDF ή επιλέξτε αρχείο. Μεγάλα έγγραφα υποστηρίζονται εντός των ορίων στη σελίδα μετάφρασης.",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage",
+              "width": 1062,
+              "height": 741
+            }
+          },
+          {
+            "title": "Επιλογή γλωσσών και έναρξη",
+            "description": "Ορίστε πηγή και στόχο, προαιρετικά εύρος σελίδων, μετά ξεκινήστε. Παρακολουθήστε την πρόοδο στην ίδια οθόνη.",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage",
+              "width": 1390,
+              "height": 1252
+            }
+          },
+          {
+            "title": "Λήψη",
+            "description": "Όταν τελειώσει η εργασία, κατεβάστε το μεταφρασμένο PDF. Ανοίξτε ξανά από το Ιστορικό όσο το αρχείο είναι διαθέσιμο.",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "Τι παίρνετε",
+        "description": "Πρακτικές δυνατότητες για πραγματικές ροές PDF.",
+        "items": [
+          {
+            "title": "Ροή φιλική προς διανύσματα",
+            "description": "Χρησιμοποιεί διαδρομή τύπου BabelDOC ώστε το κείμενο να τοποθετείται ξανά στη δομή PDF όπου υποστηρίζεται.",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "Πιστώσεις και χρέωση",
+            "description": "Πληρώστε για ό,τι μεταφράζετε με μοντέλο πιστώσεων συνδεδεμένο με σελίδες και ρυθμίσεις προϊόντος.",
+            "icon": "RiCoinsLine"
+          },
+          {
+            "title": "Λογαριασμός ή επισκέπτης",
+            "description": "Συνδεθείτε για χρέωση και ιστορικό σε πολλές συσκευές, ή δοκιμάστε σε μία συνεδρία.",
+            "icon": "RiUserLine"
+          },
+          {
+            "title": "UI σε edge",
+            "description": "Γρήγορο πρώτο φόρτωμα στο Cloudflare· ο browser χειρίζεται προεπισκόπηση και λήψη.",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "Τεκμηρίωση",
+            "description": "Αρχιτεκτονική, διατήρηση και σημειώσεις συμμόρφωσης στο /docs για διαφάνεια.",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "Στοίβα φιλική προς dev",
+            "description": "Εφαρμογή Next.js με σαφή API μεταξύ UI, αποθήκευσης και worker μετάφρασης.",
+            "icon": "RiCodeSSlashLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "Για σοβαρά έγγραφα",
+        "description": "Από μεμονωμένες εργασίες έως μεγάλα εγχειρίδια.",
+        "items": [
+          {
+            "title": "8+",
+            "description": "Γλώσσες διεπαφής"
+          },
+          {
+            "title": "7",
+            "description": "Ημέρες προεπιλεγμένης διατήρησης"
+          },
+          {
+            "title": "1",
+            "description": "Ροή ευαίσθητη στη διάταξη"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "Συχνές ερωτήσεις",
+        "description": "Περισσότερα στη τεκμηρίωση ή στο hello@translatepdfonline.com.",
+        "items": [
+          {
+            "question": "Τι είναι το Translate PDF Online και πώς λειτουργεί;",
+            "answer": "Ανεβάζετε PDF, επιλέγετε πηγαία και στόχο γλώσσας και εκτελούμε ροή μετάφρασης ευαίσθητη στη διάταξη. Κατεβάζετε νέο PDF που αντικατοπτρίζει τη δομή όπου το επιτρέπει η τεχνολογία."
+          },
+          {
+            "question": "Χρειάζεται εγκατάσταση;",
+            "answer": "Όχι. Ανέβασμα και προεπισκόπηση στον browser. Τα αρχεία μέσω HTTPS."
+          },
+          {
+            "question": "Ποιες γλώσσες υποστηρίζονται;",
+            "answer": "Η σελίδα μετάφρασης εμφανίζει διαθέσιμες πηγαίες και στόχους (π.χ. αγγλικά, κινεζικά, ισπανικά, γαλλικά, ιταλικά, ελληνικά, ιαπωνικά, κορεατικά). Προσθέτουμε ζεύγη με τον χρόνο."
+          },
+          {
+            "question": "Πόσο διαρκεί η μετάφραση;",
+            "answer": "Σύντομα PDF συχνά τελειώνουν σε λίγα λεπτά. Μεγάλα ή εικόνα-βαριά αρχεία περισσότερο. Μείνετε στη σελίδα ή επιστρέψτε αργότερα από το Ιστορικό."
+          },
+          {
+            "question": "Είναι ασφαλές το έγγραφό μου;",
+            "answer": "Κρυπτογραφημένη κίνηση. Αποθηκευμένα αντικείμενα ακολουθούν την πολιτική διατήρησης (συνήθως αυτόματη διαγραφή μετά ~επτά ημέρες εκτός αν αναφέρεται διαφορετικά)."
+          },
+          {
+            "question": "Μπορώ να μεταφράσω μόνο συγκεκριμένες σελίδες;",
+            "answer": "Ναι. Ορίστε εύρος σελίδων κατά την έναρξη για μετάφραση μέρους του εγγράφου."
+          },
+          {
+            "question": "Πώς ξανανοίγω ή προβάλλω μια προηγούμενη μετάφραση;",
+            "answer": "Ανοίξτε τη σελίδα μετάφρασης και χρησιμοποιήστε το Ιστορικό. Επιλέξτε μια προηγούμενη εργασία για να δείτε την κατάσταση και να προβάλετε τα PDF πηγής και μετάφρασης στον browser, χωρίς νέο ανέβασμα, όσο τα αρχεία παραμένουν διαθέσιμα σύμφωνα με την πολιτική διατήρησης."
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "Μεταφράστε το πρώτο σας PDF",
+        "description": "Ανεβάστε στη σελίδα μετάφρασης — χρησιμοποιήστε το Ιστορικό για πρόσφατες εργασίες.",
+        "buttons": [
+          {
+            "title": "Ξεκινήστε τη μετάφραση",
+            "url": "/translate",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "Τεκμηρίωση",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "Εγγραφή στο newsletter",
+        "description": "Λάβετε ενημερώσεις από το Translate PDF Online.",
+        "submit": {
+          "input": {
+            "placeholder": "Εισάγετε το email σας"
+          },
+          "button": {
+            "title": "Εγγραφή"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

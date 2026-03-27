@@ -1,0 +1,128 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "TranslatePDFOnline",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "PDF übersetzen",
+          "url": "/translate",
+          "icon": "FileText"
+        },
+        {
+          "title": "Preise",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "Abrechnung",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "Aktivität",
+          "url": "/activity",
+          "icon": "Activity"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": "Professionelle PDF-Übersetzung im Browser — Layout, Schriften und Abbildungen bleiben erhalten. Viele Sprachpaare. <a href='/translate' target='_self'>Übersetzungsseite öffnen</a>."
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "Translate PDF Online",
+      "description": "PDF-Übersetzung im Browser mit erhaltener Seitenlayout. Viele Sprachpaare; verschlüsselte Übertragung und Löschung nach festgelegter Aufbewahrungsfrist.",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "Translate PDF Online",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Überblick",
+          "children": [
+            {
+              "title": "PDF übersetzen",
+              "url": "/translate",
+              "target": "_self"
+            },
+            {
+              "title": "Preise",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/translatep73025",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/translatepdfonline",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/cJnmgtMEZd",
+          "target": "_blank"
+        },
+        {
+          "title": "E-Mail",
+          "icon": "Mail",
+          "url": "mailto:hello@translatepdfonline.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Datenschutz",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Nutzungsbedingungen",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}

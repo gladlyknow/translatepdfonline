@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "title": "料金",
+    "description": "翻訳クレジットとプラン"
+  },
+  "page": {
+    "title": "Translate PDF Online — 料金",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "料金",
+        "description": "Creem でお支払い。翻訳済み PDF 1 ページあたり 10 クレジット。$5 / 500 クレジットをいつでもチャージできます。",
+        "groups": [
+          { "name": "one-time", "title": "チャージ" },
+          { "name": "monthly", "title": "月額", "is_featured": true },
+          { "name": "quarterly", "title": "四半期" },
+          { "name": "semi-annual", "title": "6 か月" },
+          { "name": "yearly", "title": "年額" }
+        ],
+        "items": [
+          {
+            "title": "500 クレジット",
+            "description": "買い切りパック — $5 で 500 クレジット。不足したらいつでも再購入できます。",
+            "features_title": "含まれるもの",
+            "features": [
+              "翻訳クレジット 500",
+              "翻訳 1 ページあたり 10 クレジット",
+              "クレジットに失効なし"
+            ],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "残りが少なくなったらチャージしましょう。",
+            "button": { "title": "クレジットを購入", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-topup",
+            "product_name": "Translate PDF — 500 クレジット（チャージ）",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "550 クレジット / 月",
+            "description": "月額サブスクリプション — 請求サイクルごとに 550 クレジット（$5/月）。いつでも解約できます。",
+            "features_title": "含まれるもの",
+            "features": [
+              "各請求サイクルで 550 クレジット",
+              "翻訳 1 ページあたり 10 クレジット",
+              "サブスク分は期間終了時に失効・チャージ分は失効なし"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ 月",
+            "is_featured": true,
+            "tip": "定期的に翻訳する方におすすめです。",
+            "button": { "title": "申し込む", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-monthly",
+            "product_name": "Translate PDF — 月額（550 クレジット）",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "月額",
+            "payment_providers": ["creem"],
+            "trial_subscription": true
+          },
+          {
+            "title": "1600 クレジット / 四半期",
+            "description": "四半期プラン — 3 か月ごとに $13、サイクルごとに 1600 クレジット。",
+            "features_title": "含まれるもの",
+            "features": [
+              "各請求サイクルで 1600 クレジット",
+              "翻訳 1 ページあたり 10 クレジット",
+              "請求画面からいつでも解約可能"
+            ],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ 四半期",
+            "is_featured": false,
+            "tip": "月額より手間が少なくなります。",
+            "button": { "title": "四半期で申し込む", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "Translate PDF — 四半期（1600 クレジット）",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "四半期",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "3300 クレジット / 6 か月",
+            "description": "半年プラン — 6 か月ごとに $25、サイクルごとに 3300 クレジット。",
+            "features_title": "含まれるもの",
+            "features": [
+              "各請求サイクルで 3300 クレジット",
+              "翻訳 1 ページあたり 10 クレジット",
+              "請求画面からいつでも解約可能"
+            ],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 6 か月",
+            "is_featured": false,
+            "tip": "価格と継続期間のバランスが良いプランです。",
+            "button": { "title": "6 か月で申し込む", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "Translate PDF — 半年（3300 クレジット）",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "半年",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "6500 クレジット / 年",
+            "description": "年額プラン — $45/年、年間 6500 クレジット。",
+            "features_title": "含まれるもの",
+            "features": [
+              "毎年 6500 クレジット",
+              "翻訳 1 ページあたり 10 クレジット",
+              "請求画面からいつでも解約可能"
+            ],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ 年",
+            "is_featured": false,
+            "label": "月額を 1 年続けた場合と比べて 25% お得",
+            "tip": "1 年間の月額と比べてクレジット単価が最も安くなります。",
+            "button": { "title": "年額で申し込む", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-yearly",
+            "product_name": "Translate PDF — 年額（6500 クレジット）",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "年額",
+            "payment_providers": ["creem"]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "現在のプラン",
+    "processing": "処理中"
+  }
+}

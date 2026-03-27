@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "subscription_no": "Αρ. συνδρομής",
+    "user": "Χρήστης",
+    "amount": "Ποσό",
+    "interval": "Διάστημα",
+    "provider": "Πάροχος",
+    "created_at": "Δημιουργήθηκε",
+    "current_period_start": "Έναρξη τρέχουσας περιόδου",
+    "current_period_end": "Λήξη τρέχουσας περιόδου",
+    "status": "Κατάσταση",
+    "description": "Περιγραφή",
+    "action": "Ενέργεια"
+  },
+  "list": {
+    "title": "Συνδρομές",
+    "crumbs": { "admin": "Διαχείριση", "subscriptions": "Συνδρομές" },
+    "tabs": { "all": "Όλες", "month": "Μήνας", "year": "Έτος" }
+  }
+}

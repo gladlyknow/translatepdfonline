@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "title": "Γεννήτρια εικόνων AI",
+    "description": "Δημιουργήστε εικόνες με μοντέλα AI: κείμενο→εικόνα και εικόνα→εικόνα."
+  },
+  "page": {
+    "title": "Γεννήτρια εικόνων AI",
+    "description": "Δημιουργήστε εικόνες με μοντέλα AI: κείμενο→εικόνα και εικόνα→εικόνα."
+  },
+  "generator": {
+    "title": "Γεννήτρια εικόνων",
+    "description": "Δημιουργήστε εικόνες με μοντέλα AI: κείμενο→εικόνα και εικόνα→εικόνα.",
+    "tabs": {
+      "text-to-image": "Κείμενο σε εικόνα",
+      "image-to-image": "Εικόνα σε εικόνα"
+    },
+    "form": {
+      "provider": "Πάροχος",
+      "model": "Μοντέλο",
+      "select_provider": "Επιλογή παρόχου",
+      "select_model": "Επιλογή μοντέλου",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Περιγράψτε χρώμα, σχήμα, υφή κ.λπ.",
+      "reference_image": "Εικόνα αναφοράς",
+      "reference_image_placeholder": "Ανεβάστε εικόνες αναφοράς, πολλαπλές υποστηρίζονται",
+      "some_images_failed_to_upload": "Ορισμένες εικόνες απέτυχαν, διαγράψτε και ξανανεβάστε",
+      "prompt_too_long": "Πολύ μεγάλο prompt, μειώστε το κείμενο"
+    },
+    "generate": "Δημιουργία εικόνων",
+    "checking_account": "Έλεγχος λογαριασμού...",
+    "loading": "Φόρτωση...",
+    "generating": "Δημιουργία...",
+    "sign_in_to_generate": "Συνδεθείτε για δημιουργία εικόνων",
+    "credits_cost": "Κόστος {credits} πιστώσεων",
+    "credits_remaining": "Απομένουν {credits} πιστώσεις",
+    "buy_credits": "Αγορά πιστώσεων",
+    "progress": "Πρόοδος",
+    "generated_images": "Προεπισκόπηση εικόνων",
+    "ready_to_generate": "Έτοιμο για δημιουργία",
+    "ready_for_generating": "Έτοιμο για δημιουργία",
+    "no_images_generated": "Δεν δημιουργήθηκαν εικόνες"
+  }
+}

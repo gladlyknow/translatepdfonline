@@ -1,0 +1,128 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "TranslatePDFOnline",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "PDFを翻訳",
+          "url": "/translate",
+          "icon": "FileText"
+        },
+        {
+          "title": "料金",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "請求",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "アクティビティ",
+          "url": "/activity",
+          "icon": "Activity"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": "ブラウザ上でプロ品質のPDF翻訳 — レイアウト・フォント・図を保持。多言語ペアに対応。<a href='/translate' target='_self'>翻訳ページ</a>を開く。"
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "Translate PDF Online",
+      "description": "レイアウトを保ったままブラウザでPDFを翻訳。多数の言語ペア。通信は暗号化され、ファイルは定められた保持期間後に削除されます。",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "Translate PDF Online",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "案内",
+          "children": [
+            {
+              "title": "PDFを翻訳",
+              "url": "/translate",
+              "target": "_self"
+            },
+            {
+              "title": "料金",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/translatep73025",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/translatepdfonline",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/cJnmgtMEZd",
+          "target": "_blank"
+        },
+        {
+          "title": "メール",
+          "icon": "Mail",
+          "url": "mailto:hello@translatepdfonline.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "プライバシーポリシー",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "利用規約",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}

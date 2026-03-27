@@ -1,0 +1,78 @@
+---
+title: Introduction
+description: Translate PDF Online — architecture, fonctionnalités, sécurité et conformité open source.
+---
+
+## Qu’est-ce que Translate PDF Online ?
+
+**Translate PDF Online** est un service web pour **traduire des PDF** tout en préservant autant que possible la mise en page, les figures et les tableaux. Il cible les documents académiques et professionnels en **anglais, chinois (simplifié), espagnol, français, italien, grec, japonais, coréen**, avec d’autres paires de langues au fil du temps.
+
+- **Site :** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **Contact :** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## Open source et crédits
+
+Notre pipeline s’appuie sur des projets open source, notamment **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** et l’écosystème **pdf2zh / BabelDOC** pour une traduction PDF respectant la mise en page.
+
+## Conformité AGPL-3.0
+
+Les composants dérivés de **pdf2zh** (AGPL-3.0) peuvent imposer des obligations de mise à disposition du code source. **Référence :** [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Pour notre déploiement : [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_Cette section est informative et ne constitue pas un conseil juridique._
+
+## Architecture
+
+Architecture **front et back séparés**.
+
+### Front (edge)
+
+- **Stack :** React / **Next.js**, hébergé sur **Cloudflare Pages / Workers**.
+- **Rôle :** interface, auth, facturation, prévisualisation PDF, appels API.
+
+### Stockage objet
+
+- **Cloudflare R2** pour les PDF et résultats (API compatible **S3**).
+
+### API backend
+
+- **Python (FastAPI)** sur serveurs cloud ; comptes, crédits, tâches, **DeepSeek**, files d’attente.
+
+### Workers asynchrones
+
+- **Celery** (ou équivalent) : analyse de mise en page, extraction, traduction, pipeline **BabelDOC**.
+
+**Flux :** navigateur → Next.js (Cloudflare) → API → R2, files, DeepSeek → workers → R2.
+
+## Fonctionnalités clés
+
+### A. Vue PDF et sélection par zone
+
+- Couche interactive (ex. `react-pdf-selection`), coordonnées normalisées, traduction partielle via **PyMuPDF** et **DeepSeek**.
+
+### B. Comparaison côte à côte
+
+- **pdf.js** ; synchronisation du défilement par ratio.
+
+### C. Pipeline de tâches
+
+1. Analyse / mise en page  
+2. Traduction (**DeepSeek**)  
+3. Rendu (**BabelDOC**)
+
+## Espace de traduction (panneau Historique)
+
+Sur **[Traduire un PDF](/translate)**, la colonne **Historique** est centrale :
+
+- Elle liste les **téléversements et tâches de traduction** de la session (et de votre **compte** si vous êtes connecté) : statut, langues, noms de fichiers.
+- **Rouvrir une tâche** depuis l’historique pour prévisualiser, télécharger le PDF traduit ou suivre l’avancement **sans renvoyer le même fichier**.
+- L’historique s’aligne avec l’**aperçu PDF** et les contrôles à droite.
+
+Si une entrée manque, elle peut avoir été supprimée par la **politique de rétention** ou vous utilisez un autre appareil / session.
+
+## Sécurité et rétention
+
+- **Transport :** **HTTPS** de bout en bout.
+- **Rétention :** suppression automatique des objets R2 liés aux traductions après **environ 7 jours**, sauf règle contraire.
+- **Sécurité :** bonnes pratiques d’accès et chiffrement en transit ; aucun service en ligne n’est « absolument sûr ».
+
+[Vie privée](/privacy-policy) · [Conditions d’utilisation](/terms-of-service)

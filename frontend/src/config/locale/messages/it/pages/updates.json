@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "Registro aggiornamenti",
+    "description": "Consulta il registro degli aggiornamenti del prodotto, incluse le ultime funzionalità e i miglioramenti."
+  },
+  "page": {
+    "sections": {
+      "updates": {
+        "id": "updates",
+        "title": "Registro aggiornamenti",
+        "description": "Consulta il registro degli aggiornamenti del prodotto, incluse le ultime funzionalità e i miglioramenti."
+      }
+    }
+  }
+}

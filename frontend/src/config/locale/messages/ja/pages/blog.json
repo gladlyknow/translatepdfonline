@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "title": "ブログ",
+    "description": "製品の新機能、ソリューション、最新情報をお読みください。"
+  },
+  "page": {
+    "title": "Translate PDF Online ブログ",
+    "sections": {
+      "blog": {
+        "id": "blog",
+        "title": "ブログ",
+        "description": "製品の新機能、ソリューション、最新情報をお読みください。"
+      }
+    }
+  },
+  "messages": {
+    "all": "すべて",
+    "no_content": "コンテンツがありません",
+    "crumb": "ブログ",
+    "toc": "目次"
+  }
+}

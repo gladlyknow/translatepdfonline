@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "title": "定价",
+    "description": "翻译积分与套餐"
+  },
+  "page": {
+    "title": "Translate PDF Online — 定价",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "定价",
+        "description": "通过 Creem 支付。每翻译 1 页 PDF 消耗 10 积分；不足时可随时 $5 加购 500 积分。",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "加购积分"
+          },
+          {
+            "name": "monthly",
+            "title": "月付",
+            "is_featured": true
+          },
+          {
+            "name": "quarterly",
+            "title": "季付"
+          },
+          {
+            "name": "semi-annual",
+            "title": "半年付"
+          },
+          {
+            "name": "yearly",
+            "title": "年付"
+          }
+        ],
+        "items": [
+          {
+            "title": "500 积分",
+            "description": "一次性 $5 / 500 积分；积分不足时可再次购买。",
+            "features_title": "包含",
+            "features": [
+              "500 翻译积分",
+              "每翻译 1 页消耗 10 积分",
+              "加购积分永久有效"
+            ],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "积分不足时可再次购买。",
+            "button": {
+              "title": "购买积分",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-topup",
+            "product_name": "PDF 翻译 — 500 积分（加购）",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "每月 550 积分",
+            "description": "按月订阅，每账单周期 $5，获得 550 积分；可随时取消。",
+            "features_title": "包含",
+            "features": [
+              "每账单周期 550 积分",
+              "每翻译 1 页消耗 10 积分",
+              "订阅积分在周期末失效；加购积分永久有效"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ 月",
+            "is_featured": true,
+            "tip": "经常翻译更划算。",
+            "button": {
+              "title": "订阅月付",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-monthly",
+            "product_name": "PDF 翻译 — 月付（550 积分）",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "月付",
+            "payment_providers": ["creem"],
+            "trial_subscription": true
+          },
+          {
+            "title": "每季 1600 积分",
+            "description": "季付 $13 / 季，每 3 个月一个账单周期，每周期 1600 积分。",
+            "features_title": "包含",
+            "features": [
+              "每账单周期 1600 积分",
+              "每翻译 1 页消耗 10 积分",
+              "可随时在账单页取消"
+            ],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ 季",
+            "is_featured": false,
+            "tip": "比月付更省心。",
+            "button": {
+              "title": "订阅季付",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "PDF 翻译 — 季付（1600 积分）",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "季付",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "每半年 3300 积分",
+            "description": "半年付 $25 / 半年，每周期 3300 积分。",
+            "features_title": "包含",
+            "features": [
+              "每账单周期 3300 积分",
+              "每翻译 1 页消耗 10 积分",
+              "可随时在账单页取消"
+            ],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 半年",
+            "is_featured": false,
+            "tip": "价格与周期平衡。",
+            "button": {
+              "title": "订阅半年付",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "PDF 翻译 — 半年付（3300 积分）",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "半年付",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "每年 6500 积分",
+            "description": "年付 $45 / 年，每年 6500 积分。",
+            "features_title": "包含",
+            "features": [
+              "每年 6500 积分",
+              "每翻译 1 页消耗 10 积分",
+              "可随时在账单页取消"
+            ],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ 年",
+            "is_featured": false,
+            "label": "Save 25% compared to Monthly",
+            "tip": "单积分成本更低。",
+            "button": {
+              "title": "订阅年付",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-yearly",
+            "product_name": "PDF 翻译 — 年付（6500 积分）",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "年付",
+            "payment_providers": ["creem"]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "当前方案",
+    "processing": "处理中"
+  }
+}

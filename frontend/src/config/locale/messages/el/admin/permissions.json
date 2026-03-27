@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "id": "ID",
+    "code": "Κωδικός",
+    "title": "Τίτλος",
+    "resource": "Πόρος",
+    "action": "Ενέργεια",
+    "description": "Περιγραφή",
+    "created_at": "Δημιουργήθηκε",
+    "updated_at": "Ενημερώθηκε"
+  },
+  "list": {
+    "title": "Δικαιώματα",
+    "crumbs": { "admin": "Διαχείριση", "permissions": "Δικαιώματα" }
+  }
+}

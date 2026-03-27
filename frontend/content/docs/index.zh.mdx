@@ -1,0 +1,88 @@
+---
+title: 介绍
+description: Translate PDF Online — 架构、功能、安全与开源合规说明。
+---
+
+## 什么是 Translate PDF Online？
+
+**Translate PDF Online** 提供在线 **PDF 翻译** 服务，在可行范围内尽量保留版式、插图与表格。产品面向 **英文、简体中文、西班牙语、法语、意大利语、希腊语、日语、韩语** 等学术与商业 PDF，并会持续扩展语言对。
+
+- **网站：** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **联系邮箱：** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## 开源与致谢
+
+翻译流水线建立在社区开源项目之上，尤其参考 **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** 以及更广泛的 **pdf2zh / BabelDOC** 生态，用于版式感知的 PDF 翻译。
+
+建议同时阅读上游仓库的实现与许可证条款。
+
+## AGPL-3.0 合规说明
+
+与 **pdf2zh** 相关的部分采用 **AGPL-3.0**。在通过网络使用服务的情形下，AGPL 可能要求对 AGPL 覆盖的修改版提供对应源代码，或以其他方式满足协议义务。
+
+**源码获取：** 上游参考实现见 [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)。若需了解我们部署侧提供的源码获取方式，请联系 [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)。
+
+_本节仅供透明说明，不构成法律意见；AGPL 合规请咨询专业律师。_
+
+## 系统总体架构
+
+采用 **前后端分离** 架构。
+
+### 前端（边缘）
+
+- **技术栈：** React / **Next.js**。
+- **部署：** **Cloudflare Pages / Workers**。
+- **职责：** 界面与交互、登录与支付流程 UI、浏览器内 PDF 预览与对比、调用后端 API。
+
+### 对象存储
+
+- 使用 **Cloudflare R2** 存放上传的 PDF 与生成结果，接口兼容 **S3**。
+- 相对部分对象存储方案，有利于控制大文件下载的 **出站流量** 成本。
+
+### 后端 API（应用服务器）
+
+- **技术栈：** 弹性云服务器（**ECS** 等）上运行 Python（**FastAPI** 等）。
+- **职责：** 用户与积分/订阅元数据、任务创建与编排、对接 **DeepSeek** API 与异步任务队列。
+
+### 异步计算（Worker）
+
+- **Celery**（或同类）负责重任务：版式分析（如 **DocLayout-YOLO**）、文本抽取、调用翻译 API，以及 **BabelDOC** 流程将译文写回 PDF 矢量结构（在支持的文档上）。
+
+**数据流（概要）：** 浏览器 → Cloudflare 上的 Next.js → 后端 API → R2、任务队列、DeepSeek API → Worker → 回写 R2。
+
+## 核心功能实现要点
+
+### A. PDF 浏览与圈选（局部翻译）
+
+- **技术选型：** `react-pdf-selection`（或同类）在 PDF 视图上方提供交互层。
+- **流程：** 用户框选矩形后，前端获得该页区域内的 **归一化坐标** 并提交后端。
+- **局部翻译：** 后端用 **PyMuPDF**（或同类）抽取区域文本，调用 **DeepSeek** 翻译后返回前端展示。
+
+### B. 左右对比与同步滚动
+
+- **引擎：** **pdf.js**（或同类）双侧渲染原文与译文 PDF。
+- **同步：** 监听左侧容器滚动，计算 **scrollTop 比例**，同步到右侧，减轻两栏长度差异带来的错位感。
+
+### C. 任务队列与翻译流水线
+
+1. **解析 / 版式：** Worker 进行段落、公式、表格等版式识别（按配置）。
+2. **翻译：** 分批调用 **DeepSeek**（如 DeepSeek-V3）。单文档 Token 成本随页数与模型官方计价变化，文中成本仅为**估算**。
+3. **渲染：** **BabelDOC** 等将译文按原样式回填至 PDF。
+
+## 翻译工作台与「历史」栏
+
+在 **[翻译 PDF](/translate)** 页面，左侧的 **「历史」栏**是日常使用的核心：
+
+- 展示当前浏览器会话下的 **上传记录与翻译任务**（登录后还会与 **账号**关联），包括状态、源语言/目标语言、文件名等。
+- 从历史中 **点开任务** 即可继续预览、下载译稿或查看进度，**无需重复上传同一文件**。
+- 历史与右侧 **PDF 预览**、任务操作区联动：选中某条记录会加载对应任务上下文，便于接着处理。
+
+若看不到更早的记录，可能是已被 **保留策略** 清理（见下文），或当前设备/会话不同。
+
+## 数据安全与保留策略
+
+- **传输：** 全程 **HTTPS**（含 Cloudflare 到源站）。
+- **保留：** 存储在 **R2** 中的翻译产物及相关对象，在约 **7 天** 后由定时策略 **自动物理删除**（除非产品另行说明或法律另有要求）。
+- **安全：** 我们采取合理的访问控制与传输加密；任何在线服务都无法承诺「绝对安全」。
+
+法律条款、隐私与支付处理请参阅 [《隐私政策》](/privacy-policy) 与 [《服务条款》](/terms-of-service)。

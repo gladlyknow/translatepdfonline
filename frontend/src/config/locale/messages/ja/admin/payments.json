@@ -1,0 +1,36 @@
+{
+  "fields": {
+    "order_no": "注文番号",
+    "user": "ユーザー",
+    "amount": "金額",
+    "product": "商品",
+    "description": "説明",
+    "type": "種類",
+    "provider": "プロバイダー",
+    "created_at": "作成日時",
+    "status": "ステータス",
+    "action": "操作"
+  },
+  "list": {
+    "title": "支払い",
+    "crumbs": { "admin": "管理", "payments": "支払い" },
+    "tabs": { "all": "すべて", "subscription": "サブスク", "one-time": "買い切り" },
+    "filters": {
+      "status": {
+        "title": "ステータス",
+        "options": { "all": "すべて", "paid": "支払済み", "created": "作成済み", "failed": "失敗" }
+      },
+      "provider": {
+        "title": "プロバイダー",
+        "options": {
+          "all": "すべて",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "PayPal"
+        }
+      }
+    },
+    "search": { "order_no": { "title": "注文番号", "placeholder": "注文番号" } }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Generatore video IA",
+    "description": "Genera video con modelli IA: testo→video, immagine→video e video→video."
+  },
+  "page": {
+    "title": "Generatore video IA",
+    "description": "Genera video con modelli IA: testo→video, immagine→video e video→video."
+  },
+  "generator": {
+    "title": "Generatore video",
+    "description": "Genera video con modelli IA: testo→video, immagine→video e video→video.",
+    "tabs": {
+      "text-to-video": "Testo in video",
+      "image-to-video": "Immagine in video",
+      "video-to-video": "Video in video"
+    },
+    "form": {
+      "provider": "Fornitore",
+      "model": "Modello",
+      "select_provider": "Seleziona fornitore",
+      "select_model": "Seleziona modello",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Descrivi il video: scena, azione, stile, ecc.",
+      "reference_image": "Immagine di riferimento",
+      "reference_image_placeholder": "Carica un’immagine di riferimento per la generazione",
+      "reference_video": "URL video di riferimento",
+      "reference_video_placeholder": "Inserisci l’URL del video di riferimento",
+      "some_images_failed_to_upload": "Caricamento immagine non riuscito, elimina e ricarica",
+      "prompt_too_long": "Prompt troppo lungo, riduci il testo"
+    },
+    "generate": "Genera video",
+    "checking_account": "Verifica account...",
+    "loading": "Caricamento...",
+    "generating": "Generazione...",
+    "sign_in_to_generate": "Accedi per generare video",
+    "credits_cost": "Costo {credits} crediti",
+    "credits_remaining": "Rimangono {credits} crediti",
+    "buy_credits": "Acquista crediti",
+    "progress": "Avanzamento",
+    "generated_videos": "Anteprima video",
+    "ready_to_generate": "Pronto per generare",
+    "ready_for_generating": "Pronto alla generazione",
+    "no_videos_generated": "Nessun video generato"
+  }
+}

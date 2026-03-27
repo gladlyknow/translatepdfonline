@@ -1,0 +1,11 @@
+{
+  "prevPage": "Precedente",
+  "nextPage": "Successiva",
+  "loading": "Caricamento...",
+  "loadFailed": "Caricamento non riuscito",
+  "noPdf": "Nessun PDF",
+  "pageNotTranslated": "Questa pagina non è tradotta",
+  "zoomIn": "Ingrandisci",
+  "zoomOut": "Riduci",
+  "zoomReset": "Reimposta zoom"
+}

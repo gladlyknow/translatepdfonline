@@ -1,0 +1,61 @@
+{
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "Translate PDF Online",
+        "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [{ "title": "Νέα συνομιλία", "icon": "Plus", "url": "/chat", "variant": "outline" }],
+    "main_navs": [{ "items": [{ "title": "Ιστορικό", "icon": "History", "url": "/chat/history" }] }],
+    "bottom_nav": { "items": [] },
+    "user": {
+      "nav": { "items": [{ "title": "Προφίλ", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          { "title": "Αρχική", "url": "/", "icon": "Home", "target": "_blank" },
+          { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+          { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+          { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+          { "title": "Email", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
+  },
+  "library": {
+    "title": "Βιβλιοθήκη",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "Περισσότερα",
+    "actions": { "edit_title": "Επεξεργασία τίτλου", "share": "Κοινοποίηση", "delete": "Διαγραφή" }
+  },
+  "generator": {
+    "title": "Πώς μπορώ να βοηθήσω σήμερα;",
+    "input_placeholder": "Μπορείτε να με ρωτήσετε οτιδήποτε"
+  },
+  "history": {
+    "title": "Ιστορικό συνομιλιών",
+    "description": "Αναθεωρήστε προηγούμενες συνομιλίες.",
+    "empty": "Δεν υπάρχουν ακόμα συνομιλίες.",
+    "error": "Αποτυχία φόρτωσης συνομιλιών.",
+    "retry": "Δοκιμάστε ξανά",
+    "signin": "Συνδεθείτε για να δείτε το ιστορικό.",
+    "summary": "{from}-{to} από {total}",
+    "perPage": "Ανά σελίδα",
+    "prev": "Προηγούμενη",
+    "next": "Επόμενη",
+    "open": "Άνοιγμα συνομιλίας",
+    "untitled": "Συνομιλία χωρίς τίτλο"
+  }
+}

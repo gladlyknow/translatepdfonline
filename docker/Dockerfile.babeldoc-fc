@@ -1,0 +1,32 @@
+# BabelDOC FC 自定义容器镜像
+# 在项目根目录构建: docker build -f docker/Dockerfile.babeldoc-fc -t babeldoc-fc:latest .
+FROM python:3.11-slim
+
+WORKDIR /code
+
+# 系统依赖（BabelDOC/ONNX 等可能用到；Debian Bookworm+ 用 libgl1 替代已废弃的 libgl1-mesa-glx）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 先安装 BabelDOC（按 tmp/BabelDOC 的 pyproject.toml）
+COPY tmp/BabelDOC /code/tmp/BabelDOC
+# hatchling 要求 readme 存在；若仓库/子模块未含 README.md 则在镜像内创建
+RUN test -f /code/tmp/BabelDOC/README.md || echo '# BabelDOC' > /code/tmp/BabelDOC/README.md
+RUN pip install --no-cache-dir -e /code/tmp/BabelDOC
+
+# babeldoc_fc 与 HTTP 层依赖
+COPY babeldoc_fc /code/babeldoc_fc
+RUN pip install --no-cache-dir -r /code/babeldoc_fc/requirements.txt
+
+# 工作目录保持项目根，便于 run_translate 解析 tmp/BabelDOC
+WORKDIR /code
+ENV PYTHONPATH=/code
+
+# 构建阶段全量预热 BabelDOC 缓存（需访问 Hugging Face / GitHub 等；见 prewarm_babeldoc_cache.py）
+COPY docker/prewarm_babeldoc_cache.py /code/docker/prewarm_babeldoc_cache.py
+RUN python /code/docker/prewarm_babeldoc_cache.py
+
+EXPOSE 9000
+CMD ["uvicorn", "babeldoc_fc.main:app", "--host", "0.0.0.0", "--port", "9000"]

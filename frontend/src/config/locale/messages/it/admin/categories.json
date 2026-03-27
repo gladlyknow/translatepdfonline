@@ -1,0 +1,52 @@
+{
+  "fields": {
+    "slug": "Slug",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "status": "Stato",
+    "created_at": "Creato il",
+    "updated_at": "Aggiornato il"
+  },
+  "list": {
+    "title": "Categorie",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "categories": "Categorie"
+    },
+    "buttons": {
+      "add": "Aggiungi categoria",
+      "edit": "Modifica categoria",
+      "view": "Vedi categoria",
+      "delete": "Elimina categoria"
+    },
+    "tabs": {
+      "all": "Tutte",
+      "published": "Pubblicate",
+      "pending": "In sospeso",
+      "draft": "Bozza",
+      "archived": "Archiviate"
+    }
+  },
+  "add": {
+    "title": "Aggiungi categoria",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "categories": "Categorie",
+      "add": "Aggiungi categoria"
+    },
+    "buttons": {
+      "submit": "Aggiungi categoria"
+    }
+  },
+  "edit": {
+    "title": "Modifica categoria",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "categories": "Categorie",
+      "edit": "Modifica categoria"
+    },
+    "buttons": {
+      "submit": "Modifica categoria"
+    }
+  }
+}

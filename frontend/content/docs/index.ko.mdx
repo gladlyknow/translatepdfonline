@@ -1,0 +1,78 @@
+---
+title: 소개
+description: Translate PDF Online — 아키텍처, 기능, 보안 및 오픈소스 준수.
+---
+
+## Translate PDF Online이란?
+
+**Translate PDF Online**은 가능한 한 레이아웃·그림·표를 유지하며 **PDF를 번역**하는 웹 서비스입니다. **영어, 중국어(간체), 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어** 등 학술·전문 PDF를 대상으로 하며, 언어 쌍은 계속 확장됩니다.
+
+- **웹사이트:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **문의:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## 오픈소스 및 크레딧
+
+번역 파이프라인은 **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** 및 **pdf2zh / BabelDOC** 생태계를 기반으로 합니다.
+
+## AGPL-3.0 준수
+
+**pdf2zh**에서 파생된 구성요소(AGPL-3.0)는 소스 코드 제공 등의 의무가 있을 수 있습니다. **참고:** [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). 배포 관련 문의: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_본 절은 투명성을 위한 안내이며 법률 자문이 아닙니다._
+
+## 시스템 아키텍처
+
+**프론트엔드와 백엔드가 분리**되어 있습니다.
+
+### 프론트(엣지)
+
+- **스택:** React / **Next.js**. **Cloudflare Pages / Workers**에 호스팅.
+- **역할:** UI, 인증, 결제 UI, 브라우저 내 PDF 미리보기, API 호출.
+
+### 객체 스토리지
+
+- **Cloudflare R2**에 업로드 PDF와 결과 저장(**S3** 호환 API).
+
+### 백엔드 API
+
+- 클라우드의 **Python(FastAPI 등)**. 계정, 크레딧, 작업 생성, **DeepSeek**, 큐 연동.
+
+### 비동기 워커
+
+- **Celery**(등): 레이아웃 분석, 텍스트 추출, 번역, **BabelDOC** 재렌더링.
+
+**데이터 흐름:** 브라우저 → Cloudflare의 Next.js → 백엔드 API → R2, 큐, DeepSeek API → 워커 → R2.
+
+## 핵심 기능
+
+### A. PDF 보기 및 영역 선택
+
+- `react-pdf-selection` 등 오버레이, 정규화 좌표, **PyMuPDF**·**DeepSeek** 부분 번역.
+
+### B. 나란히 비교 및 스크롤 동기화
+
+- **pdf.js**; 스크롤 비율로 동기화.
+
+### C. 작업 파이프라인
+
+1. 파싱 / 레이아웃  
+2. 번역(**DeepSeek**)  
+3. 렌더링(**BabelDOC**)
+
+## 번역 작업 공간(기록 패널)
+
+**[PDF 번역](/translate)** 화면에서 **기록** 열이 핵심입니다.
+
+- 현재 브라우저 세션(로그인 시 **계정**에 연결)의 **업로드 및 번역 작업**을 나열합니다(상태, 원문/번역 언어, 파일 이름).
+- 기록에서 **이전 작업을 열면** 미리보기, 번역 PDF 다운로드, 진행 상황 확인을 **같은 파일을 다시 업로드하지 않고** 할 수 있습니다.
+- 기록은 오른쪽 **PDF 미리보기** 및 작업 컨트롤과 연동됩니다.
+
+오래된 항목이 보이지 않으면 **보존 정책**(아래)으로 삭제되었거나 다른 기기·세션일 수 있습니다.
+
+## 보안 및 보존
+
+- **전송:** 엔드투엔드 **HTTPS**.
+- **보존:** **R2**의 번역 관련 객체는 약 **7일** 후 자동 삭제 예정(별도 정책 또는 법령이 없는 한).
+- **보안:** 합리적인 접근 제어 및 전송 암호화.
+
+[개인정보 처리방침](/privacy-policy) · [이용약관](/terms-of-service)

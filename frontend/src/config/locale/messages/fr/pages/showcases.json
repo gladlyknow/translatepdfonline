@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "title": "Vitrine",
+    "description": "Projets et outils utilisant Translate PDF Online"
+  },
+  "page": {
+    "title": "Vitrine",
+    "sections": {
+      "showcases": {
+        "id": "showcases",
+        "title": "Projets utilisant Translate PDF Online",
+        "description": "Simple à utiliser, rapide à mettre en ligne.",
+        "groups": [
+          { "name": "all", "title": "Tout" },
+          { "name": "ai-chatbot", "title": "Chatbot IA" },
+          { "name": "ai-image", "title": "Image IA" },
+          { "name": "ai-video", "title": "Vidéo IA" },
+          { "name": "ai-audio", "title": "Audio IA" },
+          { "name": "ai-music", "title": "Musique IA" },
+          { "name": "ai-coding", "title": "Code IA" },
+          { "name": "other", "title": "Autre" }
+        ],
+        "items": [
+          {
+            "title": "ThinkAny",
+            "description": "Moteur de recherche IA",
+            "url": "https://thinkany.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/7.png", "alt": "vitrine" },
+            "group": "ai-chatbot"
+          },
+          {
+            "title": "HeyBeauty",
+            "description": "Essayage virtuel IA",
+            "url": "https://heybeauty.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/5.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Wallpaper",
+            "description": "Générateur de fonds d’écran IA",
+            "url": "https://aiwallpaper.shop",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/1.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Cover",
+            "description": "Générateur de couvertures IA",
+            "url": "https://aicover.design",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/2.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "GPTs Works",
+            "description": "Annuaire GPTs",
+            "url": "https://gpts.works",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/3.png", "alt": "vitrine" },
+            "group": "other"
+          },
+          {
+            "title": "Melodisco",
+            "description": "Lecteur de musique IA",
+            "url": "https://melodis.co",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/4.png", "alt": "vitrine" },
+            "group": "ai-music"
+          },
+          {
+            "title": "Pagen",
+            "description": "Générateur de pages d’atterrissage IA",
+            "url": "https://pagen.so",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/6.png", "alt": "vitrine" },
+            "group": "ai-coding"
+          },
+          {
+            "title": "SoraFM",
+            "description": "Générateur de vidéos IA",
+            "url": "https://sorafm.trys.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/8.png", "alt": "vitrine" },
+            "group": "ai-video"
+          },
+          {
+            "title": "PodLM",
+            "description": "Générateur de podcasts IA",
+            "url": "https://podlm.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/9.png", "alt": "vitrine" },
+            "group": "ai-audio"
+          }
+        ]
+      }
+    }
+  }
+}

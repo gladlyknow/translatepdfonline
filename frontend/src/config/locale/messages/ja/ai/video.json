@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "AI 動画ジェネレーター",
+    "description": "AI モデルで動画を生成。テキスト→動画、画像→動画、動画→動画に対応。"
+  },
+  "page": {
+    "title": "AI 動画ジェネレーター",
+    "description": "AI モデルで動画を生成。テキスト→動画、画像→動画、動画→動画に対応。"
+  },
+  "generator": {
+    "title": "動画ジェネレーター",
+    "description": "AI モデルで動画を生成。テキスト→動画、画像→動画、動画→動画に対応。",
+    "tabs": {
+      "text-to-video": "テキストから動画",
+      "image-to-video": "画像から動画",
+      "video-to-video": "動画から動画"
+    },
+    "form": {
+      "provider": "プロバイダー",
+      "model": "モデル",
+      "select_provider": "プロバイダーを選択",
+      "select_model": "モデルを選択",
+      "prompt": "プロンプト",
+      "prompt_placeholder": "シーン、アクション、スタイルなどを記述してください",
+      "reference_image": "参照画像",
+      "reference_image_placeholder": "動画生成用の参照画像をアップロード",
+      "reference_video": "参照動画 URL",
+      "reference_video_placeholder": "参照動画の URL を入力",
+      "some_images_failed_to_upload": "画像のアップロードに失敗しました。削除して再アップロードしてください",
+      "prompt_too_long": "プロンプトが長すぎます。内容を減らしてください"
+    },
+    "generate": "動画を生成",
+    "checking_account": "アカウントを確認中...",
+    "loading": "読み込み中...",
+    "generating": "生成中...",
+    "sign_in_to_generate": "ログインして動画を生成",
+    "credits_cost": "{credits} クレジット消費",
+    "credits_remaining": "残り {credits} クレジット",
+    "buy_credits": "クレジットを購入",
+    "progress": "進捗",
+    "generated_videos": "動画プレビュー",
+    "ready_to_generate": "生成の準備完了",
+    "ready_for_generating": "生成待ち",
+    "no_videos_generated": "動画はまだありません"
+  }
+}

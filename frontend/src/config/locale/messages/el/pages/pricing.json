@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "title": "Τιμολόγηση",
+    "description": "Πιστώσεις μετάφρασης και πλάνα"
+  },
+  "page": {
+    "title": "Translate PDF Online — Τιμολόγηση",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "Τιμολόγηση",
+        "description": "Πληρωμή μέσω Creem. 10 πιστώσεις ανά μεταφρασμένη σελίδα PDF. Ανανέωση $5 / 500 πιστώσεις ανά πάσα στιγμή.",
+        "groups": [
+          { "name": "one-time", "title": "Ανανέωση" },
+          { "name": "monthly", "title": "Μηνιαίο", "is_featured": true },
+          { "name": "quarterly", "title": "Τριμηνιαίο" },
+          { "name": "semi-annual", "title": "6 μήνες" },
+          { "name": "yearly", "title": "Ετήσιο" }
+        ],
+        "items": [
+          {
+            "title": "500 πιστώσεις",
+            "description": "Πακέτο εφάπαξ — $5 για 500 πιστώσεις. Αγοράστε ξανά όταν εξαντληθούν.",
+            "features_title": "Περιλαμβάνει",
+            "features": [
+              "500 πιστώσεις μετάφρασης",
+              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "Οι πιστώσεις δεν λήγουν ποτέ"
+            ],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "Ανανεώστε όταν λιγοστέψουν οι πιστώσεις.",
+            "button": { "title": "Αγορά πιστώσεων", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-topup",
+            "product_name": "Translate PDF — 500 πιστώσεις (ανανέωση)",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "550 πιστώσεις / μήνα",
+            "description": "Μηνιαία συνδρομή — 550 πιστώσεις ανά κύκλο χρέωσης ($5/μήνα). Ακύρωση ανά πάσα στιγμή.",
+            "features_title": "Περιλαμβάνει",
+            "features": [
+              "550 πιστώσεις σε κάθε κύκλο χρέωσης",
+              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "Οι πιστώσεις συνδρομής λήγουν στο τέλος περιόδου· οι ανανεώσεις δεν λήγουν"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ μήνα",
+            "is_featured": true,
+            "tip": "Καλύτερη αξία αν μεταφράζετε τακτικά.",
+            "button": { "title": "Εγγραφή", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-monthly",
+            "product_name": "Translate PDF — Μηνιαίο (550 πιστώσεις)",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "Μηνιαίο",
+            "payment_providers": ["creem"],
+            "trial_subscription": true
+          },
+          {
+            "title": "1600 πιστώσεις / τρίμηνο",
+            "description": "Τριμηνιαίο πλάνο — $13 κάθε 3 μήνες, 1600 πιστώσεις ανά κύκλο.",
+            "features_title": "Περιλαμβάνει",
+            "features": [
+              "1600 πιστώσεις σε κάθε κύκλο χρέωσης",
+              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
+            ],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ τρίμηνο",
+            "is_featured": false,
+            "tip": "Λιγότερη ταλαιπωρία από το μηνιαίο.",
+            "button": { "title": "Εγγραφή τριμηνιαία", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "Translate PDF — Τριμηνιαίο (1600 πιστώσεις)",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "Τριμηνιαίο",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "3300 πιστώσεις / 6 μήνες",
+            "description": "Εξαμηνιαίο — $25 κάθε 6 μήνες, 3300 πιστώσεις ανά κύκλο.",
+            "features_title": "Περιλαμβάνει",
+            "features": [
+              "3300 πιστώσεις σε κάθε κύκλο χρέωσης",
+              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
+            ],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 6 μήνες",
+            "is_featured": false,
+            "tip": "Ισορροπία τιμής και δέσμευσης.",
+            "button": { "title": "Εγγραφή (6 μήνες)", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "Translate PDF — Εξαμηνιαίο (3300 πιστώσεις)",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "Εξαμηνιαίο",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "6500 πιστώσεις / έτος",
+            "description": "Ετήσιο πλάνο — $45/έτος, 6500 πιστώσεις ανά έτος.",
+            "features_title": "Περιλαμβάνει",
+            "features": [
+              "6500 πιστώσεις κάθε έτος",
+              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
+            ],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ έτος",
+            "is_featured": false,
+            "label": "Εξοικονομήστε 25% σε σχέση με το μηνιαίο",
+            "tip": "Χαμηλότερο κόστος ανά πίστωση από ένα έτος μηνιαίων πληρωμών.",
+            "button": { "title": "Εγγραφή ετήσια", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-yearly",
+            "product_name": "Translate PDF — Ετήσιο (6500 πιστώσεις)",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "Ετήσιο",
+            "payment_providers": ["creem"]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "Τρέχον πλάνο",
+    "processing": "Επεξεργασία"
+  }
+}

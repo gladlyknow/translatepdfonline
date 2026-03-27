@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "title": "Τίτλος",
+    "media_type": "Τύπος μέσου",
+    "provider": "Πάροχος",
+    "model": "Μοντέλο",
+    "prompt": "Prompt",
+    "options": "Επιλογές",
+    "status": "Κατάσταση",
+    "result": "Αποτέλεσμα",
+    "cost_credits": "Κόστος πιστώσεων",
+    "created_at": "Δημιουργήθηκε",
+    "action": "Ενέργεια"
+  },
+  "list": {
+    "title": "Εργασίες AI",
+    "tabs": { "all": "Όλες", "music": "Μουσική", "image": "Εικόνα", "video": "Βίντεο", "audio": "Ήχος", "text": "Κείμενο" },
+    "buttons": { "view": "Προβολή εργασίας", "refresh": "Ανανέωση εργασίας" },
+    "empty_message": "Δεν βρέθηκαν εργασίες"
+  }
+}

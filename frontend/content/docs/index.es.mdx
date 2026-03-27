@@ -1,0 +1,88 @@
+---
+title: Introducción
+description: Translate PDF Online — arquitectura, funciones, seguridad y cumplimiento de licencias abiertas.
+---
+
+## ¿Qué es Translate PDF Online?
+
+**Translate PDF Online** es un servicio web para **traducir documentos PDF** conservando, cuando es posible, el diseño, las figuras y las tablas. Está orientado a PDF académicos y profesionales en **inglés, chino (simplificado), español, francés, italiano, griego, japonés y coreano**, ampliando progresivamente más pares de idiomas.
+
+- **Sitio web:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **Contacto:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## Código abierto y créditos
+
+El pipeline de traducción se apoya en proyectos de código abierto, en particular **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** y el ecosistema **pdf2zh / BabelDOC** para traducción de PDF con conciencia de maquetación.
+
+Le recomendamos revisar el proyecto original para detalles de implementación y condiciones de licencia.
+
+## Cumplimiento AGPL-3.0
+
+Los componentes derivados de **pdf2zh** (AGPL-3.0) pueden implicar que los usuarios que usan el servicio por red puedan obtener el código fuente correspondiente a las partes cubiertas por AGPL, u otras obligaciones según la licencia.
+
+**Acceso al código:** Implementación de referencia: [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Para consultas sobre el código aplicable a nuestro despliegue: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_Esta sección es informativa y no constituye asesoramiento legal._
+
+## Arquitectura del sistema
+
+Arquitectura **frontal y backend separados**.
+
+### Frontal (edge)
+
+- **Stack:** React / **Next.js**.
+- **Alojamiento:** **Cloudflare Pages / Workers**.
+- **Función:** interfaz, autenticación, UI de facturación, vista previa y comparación de PDF, llamadas a la API.
+
+### Almacenamiento de objetos
+
+- **Cloudflare R2** guarda PDF subidos y resultados, con API compatible **S3**.
+- Ayuda a controlar costes de **egreso** frente a otros almacenes para descargas grandes.
+
+### API backend (servidores de aplicación)
+
+- **Stack:** Python (**FastAPI** u similar) en servidores en la nube (**ECS** / VPS).
+- **Función:** cuentas, créditos/suscripciones, creación de tareas, orquestación, integración con **DeepSeek** y colas de trabajos.
+
+### Workers asíncronos
+
+- **Celery** (o equivalente) ejecuta análisis de diseño (p. ej. **DocLayout-YOLO**), extracción de texto, llamadas de traducción y flujo **BabelDOC** para volver a colocar el texto en la estructura vectorial del PDF.
+
+**Flujo de datos (resumen):** navegador → Next.js en Cloudflare → API backend → R2, cola, API DeepSeek → workers → R2.
+
+## Funciones principales
+
+### A. Vista PDF y selección por área
+
+- **Librería:** `react-pdf-selection` (o similar) como capa interactiva sobre el visor.
+- **Flujo:** el usuario dibuja un rectángulo; el cliente obtiene **coordenadas normalizadas** y las envía al backend.
+- **Traducción parcial:** el backend usa **PyMuPDF** (o similar), llama a **DeepSeek** y devuelve el texto traducido.
+
+### B. Comparación lado a lado y scroll sincronizado
+
+- **Motor:** **pdf.js** (o similar) para dos paneles (origen y traducido).
+- **Sincronización:** se lee el scroll del panel izquierdo, se calcula la **proporción** y se aplica al derecho.
+
+### C. Cola de tareas y pipeline
+
+1. **Análisis / maquetación:** detección de párrafos, fórmulas, tablas, etc.
+2. **Traducción:** lotes enviados a **DeepSeek** (p. ej. DeepSeek-V3). Los costes en tokens son **orientativos** y dependen del precio oficial.
+3. **Renderizado:** **BabelDOC** reinserta el texto traducido preservando el estilo cuando es posible.
+
+## El espacio de trabajo de traducción (panel Historial)
+
+En la pantalla **[Traducir PDF](/translate)**, la columna **Historial** es clave en el flujo diario:
+
+- Muestra **subidas y tareas de traducción** vinculadas a la sesión del navegador (y a su **cuenta** si ha iniciado sesión): estado, idiomas de origen/destino y nombres de archivo.
+- Puede **abrir una tarea anterior** desde el historial para seguir previsualizando, descargar el PDF traducido o ver el progreso **sin volver a subir el mismo archivo**.
+- El historial se coordina con la **vista previa del PDF** y los controles de la derecha: al seleccionar una entrada se carga el contexto de esa tarea.
+
+Si no ve un elemento antiguo, puede haber sido eliminado por la **política de retención** (más abajo) o estar usando otro dispositivo o sesión.
+
+## Seguridad de datos y conservación
+
+- **Transporte:** **HTTPS** de extremo a extremo.
+- **Conservación:** los objetos en **R2** relacionados con traducciones se programan para **eliminación automática aproximadamente a los 7 días**, salvo otra política o requisito legal.
+- **Seguridad:** controles de acceso y cifrado razonables en tránsito; ningún servicio en línea garantiza seguridad absoluta.
+
+Para condiciones legales y pagos, consulte la [Política de privacidad](/privacy-policy) y los [Términos del servicio](/terms-of-service).

@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Γεννήτρια βίντεο AI",
+    "description": "Δημιουργήστε βίντεο με μοντέλα AI: κείμενο→βίντεο, εικόνα→βίντεο και βίντεο→βίντεο."
+  },
+  "page": {
+    "title": "Γεννήτρια βίντεο AI",
+    "description": "Δημιουργήστε βίντεο με μοντέλα AI: κείμενο→βίντεο, εικόνα→βίντεο και βίντεο→βίντεο."
+  },
+  "generator": {
+    "title": "Γεννήτρια βίντεο",
+    "description": "Δημιουργήστε βίντεο με μοντέλα AI: κείμενο→βίντεο, εικόνα→βίντεο και βίντεο→βίντεο.",
+    "tabs": {
+      "text-to-video": "Κείμενο σε βίντεο",
+      "image-to-video": "Εικόνα σε βίντεο",
+      "video-to-video": "Βίντεο σε βίντεο"
+    },
+    "form": {
+      "provider": "Πάροχος",
+      "model": "Μοντέλο",
+      "select_provider": "Επιλογή παρόχου",
+      "select_model": "Επιλογή μοντέλου",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Περιγράψτε τη σκηνή, την κίνηση, το στυλ κ.λπ.",
+      "reference_image": "Εικόνα αναφοράς",
+      "reference_image_placeholder": "Ανεβάστε εικόνα αναφοράς",
+      "reference_video": "URL βίντεο αναφοράς",
+      "reference_video_placeholder": "Εισάγετε URL βίντεο αναφοράς",
+      "some_images_failed_to_upload": "Αποτυχία μεταφόρτωσης εικόνας, διαγράψτε και ξανανεβάστε",
+      "prompt_too_long": "Πολύ μεγάλο prompt, μειώστε το κείμενο"
+    },
+    "generate": "Δημιουργία βίντεο",
+    "checking_account": "Έλεγχος λογαριασμού...",
+    "loading": "Φόρτωση...",
+    "generating": "Δημιουργία...",
+    "sign_in_to_generate": "Συνδεθείτε για δημιουργία βίντεο",
+    "credits_cost": "Κόστος {credits} πιστώσεων",
+    "credits_remaining": "Απομένουν {credits} πιστώσεις",
+    "buy_credits": "Αγορά πιστώσεων",
+    "progress": "Πρόοδος",
+    "generated_videos": "Προεπισκόπηση βίντεο",
+    "ready_to_generate": "Έτοιμο για δημιουργία",
+    "ready_for_generating": "Έτοιμο για δημιουργία",
+    "no_videos_generated": "Δεν δημιουργήθηκαν βίντεο"
+  }
+}

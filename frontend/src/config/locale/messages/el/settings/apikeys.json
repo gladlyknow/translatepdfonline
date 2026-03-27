@@ -1,0 +1,23 @@
+{
+  "fields": { "title": "Τίτλος", "key": "Κλειδί", "created_at": "Δημιουργήθηκε", "action": "Ενέργεια" },
+  "list": {
+    "title": "Κλειδιά API",
+    "empty_message": "Χωρίς κλειδιά API",
+    "buttons": { "add": "Δημιουργία κλειδιού API", "edit": "Επεξεργασία", "delete": "Διαγραφή" }
+  },
+  "add": {
+    "title": "Δημιουργία κλειδιού API",
+    "crumbs": { "apikeys": "Κλειδιά API", "add": "Δημιουργία κλειδιού API" },
+    "buttons": { "submit": "Δημιουργία" }
+  },
+  "edit": {
+    "title": "Επεξεργασία κλειδιού API",
+    "crumbs": { "apikeys": "Κλειδιά API", "edit": "Επεξεργασία κλειδιού API" },
+    "buttons": { "submit": "Ενημέρωση" }
+  },
+  "delete": {
+    "title": "Διαγραφή κλειδιού API",
+    "crumbs": { "apikeys": "Κλειδιά API", "delete": "Διαγραφή κλειδιού API" },
+    "buttons": { "submit": "Επιβεβαίωση διαγραφής" }
+  }
+}

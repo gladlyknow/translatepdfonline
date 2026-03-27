@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "transaction_no": "거래 번호",
+    "user": "사용자",
+    "amount": "금액",
+    "remaining": "잔여",
+    "type": "유형",
+    "scene": "장면",
+    "description": "설명",
+    "created_at": "생성일",
+    "expires_at": "만료일",
+    "metadata": "메타데이터",
+    "action": "작업"
+  },
+  "list": {
+    "title": "크레딧",
+    "crumbs": { "admin": "관리", "credits": "크레딧" },
+    "tabs": { "all": "전체", "grant": "지급", "consume": "소비" }
+  }
+}

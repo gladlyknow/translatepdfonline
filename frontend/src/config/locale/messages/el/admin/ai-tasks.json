@@ -1,0 +1,24 @@
+{
+  "fields": {
+    "task_id": "ID εργασίας",
+    "media_type": "Τύπος μέσου",
+    "provider": "Πάροχος",
+    "model": "Μοντέλο",
+    "prompt": "Prompt",
+    "options": "Επιλογές",
+    "user": "Χρήστης",
+    "status": "Κατάσταση",
+    "cost_credits": "Κόστος πιστώσεων",
+    "result": "Αποτέλεσμα",
+    "created_at": "Δημιουργήθηκε",
+    "action": "Ενέργεια",
+    "scene": "Σκηνή"
+  },
+  "list": {
+    "title": "Εργασίες AI",
+    "crumbs": { "admin": "Διαχείριση", "ai-tasks": "Εργασίες AI" },
+    "tabs": { "all": "Όλες", "music": "Μουσική", "image": "Εικόνα", "video": "Βίντεο", "audio": "Ήχος", "text": "Κείμενο" },
+    "buttons": { "view": "Προβολή εργασίας", "refresh": "Ανανέωση εργασίας" },
+    "empty_message": "Δεν βρέθηκαν εργασίες"
+  }
+}

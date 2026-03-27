@@ -1,0 +1,31 @@
+'use client';
+
+import type { ReactNode } from 'react';
+
+import { TranslateShellHeader } from '@/shared/components/translate/TranslateShellHeader';
+import type { UserNav } from '@/shared/types/blocks/common';
+
+import { TranslateHeaderAppearanceProvider } from '@/shared/contexts/translate-header-appearance';
+
+export function TranslateAppShell({
+  children,
+  footer,
+  userNav,
+}: {
+  children: ReactNode;
+  footer?: ReactNode;
+  /** 与落地页 Header 一致的用户菜单（含退出登录） */
+  userNav?: UserNav;
+}) {
+  return (
+    <TranslateHeaderAppearanceProvider defaultAppearance="onDark">
+      <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+        <TranslateShellHeader userNav={userNav} />
+        <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
+          {children}
+        </main>
+        {footer}
+      </div>
+    </TranslateHeaderAppearanceProvider>
+  );
+}

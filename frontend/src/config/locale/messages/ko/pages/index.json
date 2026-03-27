@@ -1,0 +1,326 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "variant": "translateDark",
+        "title": "Translate PDF Online",
+        "highlight_text": "AI 기반 PDF 번역",
+        "description": "레이아웃을 유지한 채 PDF를 번역합니다. 단, 표, 그림, 글꼴도 원본에 가깝게 유지됩니다. 영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어 등을 지원합니다. 브라우저에서 동작하며 설치가 필요 없습니다.",
+        "announcement": {
+          "badge": "신규",
+          "title": "레이아웃을 보존하는 전문 PDF 번역",
+          "url": "/translate"
+        },
+        "tip": "얼리 유저를 위한 런칭 가격",
+        "buttons": [
+          {
+            "title": "시작하기",
+            "icon": "Zap",
+            "url": "/translate",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
+            "title": "문서 보기",
+            "icon": "BookOpenText",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false,
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "PDF 번역 미리보기",
+          "width": 3840,
+          "height": 2424
+        },
+        "image_invert": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "PDF 번역 미리보기",
+          "width": 3840,
+          "height": 2424
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "Translate PDF Online이란",
+        "label": "제품",
+        "description": "원본 디자인을 유지하며 PDF 문서를 번역하는 웹 서비스입니다. 논문, 매뉴얼, 보고서, 도서에 적합하며 단순 텍스트 덤프가 아닙니다.",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "introduce",
+          "width": 3840,
+          "height": 2424
+        },
+        "items": [
+          {
+            "title": "레이아웃 보존 출력",
+            "description": "번역 PDF는 구조를 반영합니다. 다단 본문, 표, 이미지, 제목이 원본과 맞춰집니다.",
+            "icon": "RiLayoutLine",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "다양한 언어 쌍",
+            "description": "출발어와 도착어를 계속 늘어나는 목록에서 선택합니다. 학술·업무 문서에 적합합니다.",
+            "icon": "RiTranslate2",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "안전한 임시 저장",
+            "description": "파일은 HTTPS로 전송되며 처리 후 정해진 보존 정책에 따라 삭제됩니다.",
+            "icon": "RiShieldCheckLine",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "기록 및 작업 복구",
+            "description": "기록 패널에 업로드와 작업이 나열되어 같은 PDF를 다시 올리지 않고 작업을 다시 열 수 있습니다.",
+            "icon": "RiHistoryLine",
+            "image": {
+              "src": "/imgs/features/4.png",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "팀이 선택하는 이유",
+        "label": "혜택",
+        "description": "문서에 집중하고, 번역 후 서식 수정에 쫓기지 마세요.",
+        "items": [
+          {
+            "title": "밀도 높은 PDF에 맞춤",
+            "description": "학술·기술 레이아웃에 맞게 조정했습니다. 수식, 그림, 표는 파이프라인이 지원하는 범위에서 처리합니다.",
+            "icon": "RiFilePdf2Line",
+            "image": {
+              "src": "/imgs/features/dense_PDFs.png",
+              "alt": "benefits",
+              "width": 2511,
+              "height": 1233
+            }
+          },
+          {
+            "title": "나란히 미리보기",
+            "description": "다운로드 전 브라우저에서 원문과 번역 페이지를 동기 스크롤로 비교합니다.",
+            "icon": "RiSplitCellsHorizontal",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          },
+          {
+            "title": "선택적 페이지 범위",
+            "description": "전체 파일 또는 필요한 페이지만 번역해 시간과 크레딧을 절약합니다.",
+            "icon": "RiBookReadLine",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "PDF 번역 방법",
+        "description": "업로드부터 다운로드까지 세 단계:",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "usage",
+          "width": 1062,
+          "height": 741
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "업로드",
+            "description": "PDF를 끌어다 놓거나 파일을 선택합니다. 큰 문서는 번역 페이지에 표시된 한도 내에서 지원됩니다.",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage",
+              "width": 1062,
+              "height": 741
+            }
+          },
+          {
+            "title": "언어 선택 후 시작",
+            "description": "출발어와 도착어를 고르고 필요 시 페이지 범위를 설정한 뒤 번역을 시작합니다. 진행 상황은 같은 화면에서 확인합니다.",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage",
+              "width": 1390,
+              "height": 1252
+            }
+          },
+          {
+            "title": "다운로드",
+            "description": "작업이 끝나면 번역된 PDF를 받습니다. 파일이 남아 있는 동안 기록에서 언제든 다시 열 수 있습니다.",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "제공 기능",
+        "description": "실제 PDF 워크플로를 위한 실용 기능입니다.",
+        "items": [
+          {
+            "title": "벡터 친화 파이프라인",
+            "description": "BabelDOC 스타일 경로로 지원되는 곳에 텍스트를 PDF 구조에 다시 넣습니다.",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "크레딧 및 결제",
+            "description": "페이지와 제품 설정에 묶인 크레딧 모델로 번역한 만큼만 결제합니다.",
+            "icon": "RiCoinsLine"
+          },
+          {
+            "title": "계정 또는 게스트",
+            "description": "로그인으로 결제와 기기 간 기록, 또는 한 세션에서 시도.",
+            "icon": "RiUserLine"
+          },
+          {
+            "title": "엣지 호스팅 UI",
+            "description": "Cloudflare에서 빠른 첫 로드, 미리보기와 다운로드는 브라우저가 담당.",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "문서",
+            "description": "아키텍처, 보존, 컴플라이언스 안내는 /docs에서 투명하게 제공합니다.",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "개발자 친화 스택",
+            "description": "UI·스토리지·번역 워커 사이 API가 분명한 Next.js 앱.",
+            "icon": "RiCodeSSlashLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "진지한 문서를 위해",
+        "description": "단일 논문부터 대형 매뉴얼까지.",
+        "items": [
+          {
+            "title": "8+",
+            "description": "인터페이스 언어"
+          },
+          {
+            "title": "7",
+            "description": "기본 보존 일수"
+          },
+          {
+            "title": "1",
+            "description": "레이아웃 인식 파이프라인"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "자주 묻는 질문",
+        "description": "자세한 내용은 문서를 보거나 hello@translatepdfonline.com으로 문의하세요.",
+        "items": [
+          {
+            "question": "Translate PDF Online은 무엇이며 어떻게 동작하나요?",
+            "answer": "PDF를 업로드하고 출발어·도착어를 선택하면 레이아웃을 고려한 번역 파이프라인이 실행됩니다. 기술이 지원하는 범위에서 원본 구조를 반영한 새 PDF를 받습니다."
+          },
+          {
+            "question": "설치가 필요한가요?",
+            "answer": "아니요. 업로드와 미리보기는 브라우저에서 이루어지며 파일은 HTTPS로 전송됩니다."
+          },
+          {
+            "question": "어떤 언어를 지원하나요?",
+            "answer": "번역 페이지에 사용 가능한 출발어·도착어가 표시됩니다(예: 영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어). 쌍은 계속 추가합니다."
+          },
+          {
+            "question": "번역에 얼마나 걸리나요?",
+            "answer": "짧은 PDF는 몇 분 안에 끝나는 경우가 많습니다. 길거나 이미지가 많은 파일은 더 걸립니다. 페이지를 유지하거나 나중에 기록에서 작업을 여세요."
+          },
+          {
+            "question": "문서는 안전한가요?",
+            "answer": "트래픽은 암호화됩니다. 저장 객체는 문서에 설명된 보존 정책을 따릅니다(보통 약 7일 후 자동 삭제 등)."
+          },
+          {
+            "question": "특정 페이지만 번역할 수 있나요?",
+            "answer": "네. 작업 시작 시 페이지 범위를 설정해 문서 일부만 번역할 수 있습니다."
+          },
+          {
+            "question": "이전에 번역한 파일을 다시 보거나 미리보려면 어떻게 하나요?",
+            "answer": "번역 페이지에서 기록(History)을 열고 이전 작업을 선택하세요. 상태를 확인하고 브라우저에서 원본·번역 PDF를 미리 볼 수 있으며, 보존 기간 안이면 파일을 다시 업로드할 필요가 없습니다."
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "첫 PDF 번역하기",
+        "description": "번역 페이지에서 업로드 — 최근 작업은 기록에서 다시 엽니다.",
+        "buttons": [
+          {
+            "title": "번역 시작",
+            "url": "/translate",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "문서",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "뉴스레터 구독",
+        "description": "Translate PDF Online 소식을 받아보세요.",
+        "submit": {
+          "input": {
+            "placeholder": "이메일을 입력하세요"
+          },
+          "button": {
+            "title": "구독"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

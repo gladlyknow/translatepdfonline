@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "title": "事例紹介",
+    "description": "Translate PDF Online を利用しているプロジェクト"
+  },
+  "page": {
+    "title": "事例紹介",
+    "sections": {
+      "showcases": {
+        "id": "showcases",
+        "title": "Translate PDF Online を利用しているプロジェクト",
+        "description": "使いやすく、すばやく公開できます。",
+        "groups": [
+          { "name": "all", "title": "すべて" },
+          { "name": "ai-chatbot", "title": "AIチャットボット" },
+          { "name": "ai-image", "title": "AI画像" },
+          { "name": "ai-video", "title": "AI動画" },
+          { "name": "ai-audio", "title": "AIオーディオ" },
+          { "name": "ai-music", "title": "AI音楽" },
+          { "name": "ai-coding", "title": "AIコーディング" },
+          { "name": "other", "title": "その他" }
+        ],
+        "items": [
+          { "title": "ThinkAny", "description": "AI検索エンジン", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.png", "alt": "showcases" }, "group": "ai-chatbot" },
+          { "title": "HeyBeauty", "description": "AIバーチャル試着", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.png", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Wallpaper", "description": "AI壁紙ジェネレーター", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.png", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Cover", "description": "AIカバー生成", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.png", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "GPTs Works", "description": "GPTsディレクトリ", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.png", "alt": "showcases" }, "group": "other" },
+          { "title": "Melodisco", "description": "AIミュージックプレーヤー", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.png", "alt": "showcases" }, "group": "ai-music" },
+          { "title": "Pagen", "description": "AIランディングページ生成", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.png", "alt": "showcases" }, "group": "ai-coding" },
+          { "title": "SoraFM", "description": "AI動画ジェネレーター", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.png", "alt": "showcases" }, "group": "ai-video" },
+          { "title": "PodLM", "description": "AIポッドキャスト生成", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.png", "alt": "showcases" }, "group": "ai-audio" }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Générateur vidéo IA",
+    "description": "Générez des vidéos avec des modèles d’IA : texte vers vidéo, image vers vidéo et vidéo vers vidéo."
+  },
+  "page": {
+    "title": "Générateur vidéo IA",
+    "description": "Générez des vidéos avec des modèles d’IA : texte vers vidéo, image vers vidéo et vidéo vers vidéo."
+  },
+  "generator": {
+    "title": "Générateur vidéo",
+    "description": "Générez des vidéos avec des modèles d’IA : texte vers vidéo, image vers vidéo et vidéo vers vidéo.",
+    "tabs": {
+      "text-to-video": "Texte vers vidéo",
+      "image-to-video": "Image vers vidéo",
+      "video-to-video": "Vidéo vers vidéo"
+    },
+    "form": {
+      "provider": "Fournisseur",
+      "model": "Modèle",
+      "select_provider": "Choisir un fournisseur",
+      "select_model": "Choisir un modèle",
+      "prompt": "Invite",
+      "prompt_placeholder": "Décrivez la scène, l’action, le style, etc.",
+      "reference_image": "Image de référence",
+      "reference_image_placeholder": "Téléversez une image de référence pour la génération",
+      "reference_video": "URL de la vidéo de référence",
+      "reference_video_placeholder": "Saisissez l’URL de la vidéo de référence",
+      "some_images_failed_to_upload": "Échec du téléversement de l’image ; supprimez-la et téléversez à nouveau",
+      "prompt_too_long": "L’invite est trop longue ; réduisez le texte"
+    },
+    "generate": "Générer la vidéo",
+    "checking_account": "Vérification du compte...",
+    "loading": "Chargement...",
+    "generating": "Génération...",
+    "sign_in_to_generate": "Connectez-vous pour générer une vidéo",
+    "credits_cost": "Coût : {credits} crédits",
+    "credits_remaining": "Reste {credits} crédits",
+    "buy_credits": "Acheter des crédits",
+    "progress": "Progression",
+    "generated_videos": "Aperçu vidéo",
+    "ready_to_generate": "Prêt à générer",
+    "ready_for_generating": "Prêt pour la génération",
+    "no_videos_generated": "Aucune vidéo générée"
+  }
+}

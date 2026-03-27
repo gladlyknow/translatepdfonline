@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "title": "Prezzi",
+    "description": "Crediti di traduzione e piani"
+  },
+  "page": {
+    "title": "Translate PDF Online — Prezzi",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "Prezzi",
+        "description": "Pagamento con Creem. 10 crediti per pagina PDF tradotta. Ricarica $5 / 500 crediti in qualsiasi momento.",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "Ricarica"
+          },
+          {
+            "name": "monthly",
+            "title": "Mensile",
+            "is_featured": true
+          },
+          {
+            "name": "quarterly",
+            "title": "Trimestrale"
+          },
+          {
+            "name": "semi-annual",
+            "title": "6 mesi"
+          },
+          {
+            "name": "yearly",
+            "title": "Annuale"
+          }
+        ],
+        "items": [
+          {
+            "title": "500 crediti",
+            "description": "Pacchetto una tantum — $5 per 500 crediti. Ricarica quando ti servono.",
+            "features_title": "Include",
+            "features": [
+              "500 crediti di traduzione",
+              "10 crediti per pagina tradotta",
+              "I crediti non scadono mai"
+            ],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "Ricarica quando stai per finire i crediti.",
+            "button": {
+              "title": "Acquista crediti",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-topup",
+            "product_name": "Translate PDF — 500 crediti (ricarica)",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "550 crediti / mese",
+            "description": "Abbonamento mensile — 550 crediti a ogni ciclo di fatturazione ($5/mese). Annulla quando vuoi.",
+            "features_title": "Include",
+            "features": [
+              "550 crediti a ogni ciclo di fatturazione",
+              "10 crediti per pagina tradotta",
+              "I crediti dell’abbonamento scadono a fine periodo; le ricariche non scadono mai"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ mese",
+            "is_featured": true,
+            "tip": "La scelta migliore se traduci spesso.",
+            "button": {
+              "title": "Abbonati",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-monthly",
+            "product_name": "Translate PDF — Mensile (550 crediti)",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "Mensile",
+            "payment_providers": ["creem"],
+            "trial_subscription": true
+          },
+          {
+            "title": "1600 crediti / trimestre",
+            "description": "Piano trimestrale — $13 ogni 3 mesi, 1600 crediti per ciclo.",
+            "features_title": "Include",
+            "features": [
+              "1600 crediti a ogni ciclo di fatturazione",
+              "10 crediti per pagina tradotta",
+              "Annulla in qualsiasi momento dalla fatturazione"
+            ],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ trimestre",
+            "is_featured": false,
+            "tip": "Meno gestione rispetto al mensile.",
+            "button": {
+              "title": "Abbonati (trimestrale)",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "Translate PDF — Trimestrale (1600 crediti)",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "Trimestrale",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "3300 crediti / 6 mesi",
+            "description": "Semestrale — $25 ogni 6 mesi, 3300 crediti per ciclo.",
+            "features_title": "Include",
+            "features": [
+              "3300 crediti a ogni ciclo di fatturazione",
+              "10 crediti per pagina tradotta",
+              "Annulla in qualsiasi momento dalla fatturazione"
+            ],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 6 mesi",
+            "is_featured": false,
+            "tip": "Ottimo equilibrio tra prezzo e impegno.",
+            "button": {
+              "title": "Abbonati (6 mesi)",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "Translate PDF — Semestrale (3300 crediti)",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "Semestrale",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "6500 crediti / anno",
+            "description": "Piano annuale — $45/anno, 6500 crediti all’anno.",
+            "features_title": "Include",
+            "features": [
+              "6500 crediti ogni anno",
+              "10 crediti per pagina tradotta",
+              "Annulla in qualsiasi momento dalla fatturazione"
+            ],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ anno",
+            "is_featured": false,
+            "label": "Risparmia il 25% rispetto al mensile",
+            "tip": "Costo per credito più basso rispetto a un anno di piano mensile.",
+            "button": {
+              "title": "Abbonati (annuale)",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-yearly",
+            "product_name": "Translate PDF — Annuale (6500 crediti)",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "Annuale",
+            "payment_providers": ["creem"]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "Piano attuale",
+    "processing": "Elaborazione in corso"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Γεννήτρια μουσικής AI",
+    "description": "Δημιουργήστε μουσική με AI"
+  },
+  "page": {
+    "title": "Γεννήτρια μουσικής AI",
+    "description": "Δημιουργήστε μουσική με AI"
+  },
+  "generator": {
+    "title": "Γεννήτρια μουσικής",
+    "prompt": "Prompt",
+    "prompt_placeholder": "Μια ιστορία αγάπης του Ρωμαίου και της Ιουλιέτας",
+    "generate": "Δημιουργία μουσικής",
+    "loading": "Φόρτωση...",
+    "generating": "Δημιουργία...",
+    "sign_in_to_generate": "Συνδεθείτε για δημιουργία μουσικής",
+    "credits_cost": "Κόστος {credits} πιστώσεων",
+    "credits_remaining": "Απομένουν {credits} πιστώσεις",
+    "buy_credits": "Αγορά πιστώσεων",
+    "generation_progress": "Πρόοδος δημιουργίας",
+    "time_cost": "Μπορεί να διαρκέσει 2-3 λεπτά...",
+    "generated_song": "Δημιουργημένο τραγούδι",
+    "ready_to_play": "Έτοιμο για αναπαραγωγή",
+    "audio_generating": "Δημιουργία ήχου...",
+    "generating_song": "Δημιουργία τραγουδιού...",
+    "waiting_generation": "Περιμένετε όσο δημιουργούμε το έργο",
+    "no_song_generated": "Δεν δημιουργήθηκε τραγούδι",
+    "downloading": "Λήψη...",
+    "download_success": "Η λήψη ολοκληρώθηκε",
+    "download_failed": "Αποτυχία λήψης ήχου",
+    "form": {
+      "custom_mode": "Προσαρμοσμένη λειτουργία",
+      "title": "Τίτλος",
+      "title_placeholder": "The Sound of Silence",
+      "style": "Στυλ μουσικής",
+      "style_placeholder": "indie, electronic, synths, 120bpm, distorted",
+      "instrumental": "Οργανικό",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Ένα country folk τραγούδι για την αγάπη",
+      "model": "Μοντέλο",
+      "lyrics": "Στίχοι",
+      "lyrics_placeholder": "Γράψτε στίχους, δύο στροφές (8 γραμμές) για καλύτερο αποτέλεσμα"
+    }
+  }
+}

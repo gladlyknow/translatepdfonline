@@ -1,0 +1,327 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
+import { History, FileText, Loader2, XCircle, Trash2 } from 'lucide-react';
+import {
+  translateApi,
+  type TaskSummary,
+} from '@/shared/lib/translate-api';
+
+type Props = {
+  onSelectTask: (taskId: string) => void;
+};
+
+const CANCELLABLE_STATUSES = ['pending', 'processing'];
+const DELETABLE_STATUSES = ['completed', 'failed', 'cancelled'];
+
+export function HistoryPanel({ onSelectTask }: Props) {
+  const t = useTranslations('translate.home');
+  const [open, setOpen] = useState(false);
+  const [tasks, setTasks] = useState<TaskSummary[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [panelRect, setPanelRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const panelWidth =
+      typeof window !== 'undefined'
+        ? Math.min(320, window.innerWidth - 16)
+        : 320;
+    const left =
+      typeof window !== 'undefined'
+        ? Math.max(
+            8,
+            Math.min(rect.right - panelWidth, window.innerWidth - panelWidth - 8)
+          )
+        : rect.right - 320;
+    setPanelRect({ top: rect.bottom + 8, left, width: panelWidth });
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    translateApi
+      .listTasks()
+      .then((data: unknown) => {
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray((data as { items?: unknown })?.items)
+            ? (data as { items: TaskSummary[] }).items
+            : Array.isArray((data as { tasks?: unknown })?.tasks)
+              ? (data as { tasks: TaskSummary[] }).tasks
+              : [];
+        setTasks(list);
+      })
+      .catch(() => setTasks([]))
+      .finally(() => setLoading(false));
+  }, [open]);
+
+  const handleMouseEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => setOpen(false), 300);
+  };
+
+  const handleSelect = (taskId: string) => {
+    onSelectTask(taskId);
+    setOpen(false);
+  };
+
+  const handleCancel = async (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    if (cancellingId) return;
+    setCancellingId(taskId);
+    try {
+      await translateApi.cancelTask(taskId);
+      setTasks((prev) =>
+        prev.map((t) => {
+          const id = t.id ?? (t as { task_id?: string }).task_id ?? '';
+          return id === taskId ? { ...t, status: 'cancelled' } : t;
+        })
+      );
+    } catch {
+      setCancellingId(null);
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    if (deletingId) return;
+    setDeletingId(taskId);
+    try {
+      await translateApi.deleteTask(taskId);
+      setTasks((prev) =>
+        prev.filter((t) => {
+          const id = t.id ?? (t as { task_id?: string }).task_id ?? '';
+          return id !== taskId;
+        })
+      );
+    } catch {
+      setDeletingId(null);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  return (
+    <div className="relative flex items-stretch">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
+          open
+            ? 'border-zinc-800 bg-zinc-800 text-white dark:border-zinc-200 dark:bg-zinc-200 dark:text-zinc-900'
+            : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600'
+        }`}
+      >
+        <History size={18} />
+        <span className="hidden sm:inline">{t('history')}</span>
+      </button>
+
+      {open &&
+        typeof document !== 'undefined' &&
+        panelRect &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-[9998]"
+              aria-hidden
+              onClick={() => setOpen(false)}
+            />
+            <div
+              ref={panelRef}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className="fixed z-[9999] max-w-[calc(100vw-16px)] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+              style={{
+                top: panelRect.top,
+                left: panelRect.left,
+                width: panelRect.width,
+              }}
+            >
+              <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {t('history')}
+                </h3>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto p-2">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2
+                      size={24}
+                      className="animate-spin text-zinc-400"
+                    />
+                  </div>
+                ) : tasks.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                    {t('noHistory')}
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {tasks.map((task) => {
+                      const id =
+                        task.id ??
+                        (task as { task_id?: string }).task_id ??
+                        '';
+                      const filename = task.document_filename ?? '';
+                      const displayName =
+                        filename.length > 28
+                          ? `${filename.slice(0, 25)}…`
+                          : filename || id.slice(0, 8);
+                      const at = task.updated_at ?? task.created_at;
+                      const timeLabel =
+                        at && typeof at === 'string'
+                          ? (() => {
+                              const d = new Date(at);
+                              const now = Date.now();
+                              const diff = now - d.getTime();
+                              if (diff < 60_000) return '< 1 min';
+                              if (diff < 3600_000)
+                                return `${Math.floor(diff / 60_000)} min ago`;
+                              if (diff < 86400_000)
+                                return `${Math.floor(diff / 3600_000)} h ago`;
+                              return d.toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                year:
+                                  d.getFullYear() !== new Date().getFullYear()
+                                    ? 'numeric'
+                                    : undefined,
+                              });
+                            })()
+                          : '';
+                      const canCancel =
+                        CANCELLABLE_STATUSES.includes(task.status) ||
+                        task.status === 'queued';
+                      const canDelete =
+                        DELETABLE_STATUSES.includes(task.status);
+                      return (
+                        <li key={id}>
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => handleSelect(id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleSelect(id);
+                              }
+                            }}
+                            className="flex w-full cursor-pointer items-start gap-3 rounded-xl border border-zinc-100 p-3 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50"
+                          >
+                            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                              <FileText
+                                size={16}
+                                className="text-zinc-500"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200"
+                                title={filename || id}
+                              >
+                                {displayName}
+                              </p>
+                              <p className="text-[10px] uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                {task.source_lang} → {task.target_lang}
+                                {task.page_range
+                                  ? ` · pp. ${task.page_range}`
+                                  : ''}{' '}
+                                · {task.status}
+                              </p>
+                              {task.page_range_user_input ? (
+                                <p className="mt-0.5 text-[10px] leading-snug text-amber-800 dark:text-amber-200/90">
+                                  {t('pageRangeAdjustedNotice', {
+                                    userRange: task.page_range_user_input,
+                                    effectiveRange: task.page_range ?? '',
+                                    docPages:
+                                      typeof task.document_page_count ===
+                                      'number'
+                                        ? task.document_page_count
+                                        : '—',
+                                  })}
+                                </p>
+                              ) : null}
+                              {timeLabel ? (
+                                <p className="mt-0.5 text-[10px] text-zinc-400 dark:text-zinc-500">
+                                  {timeLabel}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div
+                              className="flex shrink-0 items-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {canCancel ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleCancel(e, id)}
+                                  disabled={cancellingId === id}
+                                  className="rounded-lg border border-red-200 bg-red-50 px-2 py-1.5 text-[10px] font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                                  title={t('cancel')}
+                                >
+                                  {cancellingId === id ? (
+                                    <Loader2
+                                      size={12}
+                                      className="animate-spin"
+                                    />
+                                  ) : (
+                                    <XCircle size={12} className="inline" />
+                                  )}
+                                  <span className="ml-1">{t('cancel')}</span>
+                                </button>
+                              ) : null}
+                              {canDelete ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDelete(e, id)}
+                                  disabled={deletingId === id}
+                                  className="rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-[10px] font-medium text-zinc-600 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                                  title={t('delete')}
+                                >
+                                  {deletingId === id ? (
+                                    <Loader2
+                                      size={12}
+                                      className="animate-spin"
+                                    />
+                                  ) : (
+                                    <Trash2 size={12} className="inline" />
+                                  )}
+                                  <span className="ml-1">{t('delete')}</span>
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </>,
+          document.body
+        )}
+    </div>
+  );
+}

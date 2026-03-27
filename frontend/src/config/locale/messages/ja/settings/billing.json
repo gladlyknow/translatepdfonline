@@ -1,0 +1,53 @@
+{
+  "fields": {
+    "subscription_no": "サブスク番号",
+    "interval": "間隔",
+    "provider": "プロバイダー",
+    "current_period": "現在の期間",
+    "plan": "プラン",
+    "status": "ステータス",
+    "amount": "金額",
+    "created_at": "作成日時",
+    "end_time": "終了日時",
+    "action": "操作"
+  },
+  "view": {
+    "title": "現在のプラン",
+    "tip": "サブスクリプションは {date} に自動更新されます",
+    "end_tip": "サブスクリプションは {date} に自動解約されます",
+    "no_subscription": "プランなし",
+    "buttons": {
+      "adjust": "プランを変更",
+      "subscribe": "申し込む",
+      "manage": "サブスクを管理",
+      "cancel": "サブスクを解約"
+    }
+  },
+  "list": {
+    "title": "サブスク履歴",
+    "tabs": {
+      "all": "すべて",
+      "active": "有効",
+      "pending_cancel": "解約待ち",
+      "canceled": "解約済み",
+      "trialing": "トライアル",
+      "paused": "一時停止",
+      "expired": "期限切れ"
+    }
+  },
+  "cancel": {
+    "title": "サブスクを解約",
+    "description": "本当に解約しますか？",
+    "fields": {
+      "subscription_no": "サブスク番号",
+      "subscription_amount": "サブスク金額",
+      "interval_cycle": "請求サイクル",
+      "subscription_created_at": "サブスク作成日",
+      "current_period": "現在の期間",
+      "start_at": "開始",
+      "end_at": "終了"
+    },
+    "crumbs": { "settings": "設定", "billing": "請求", "cancel": "サブスク解約" },
+    "buttons": { "confirm_cancel": "解約を確定" }
+  }
+}

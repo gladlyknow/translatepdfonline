@@ -1,0 +1,35 @@
+---
+title: 什么是 Translate PDF Online？
+description: 在线翻译 PDF 并尽量保留版式，支持中英西等语言，积分与订阅支付，数据安全说明见官网文档。
+created_at: 2026-03-25
+author_name: Translate PDF Online
+author_image: /favicon.svg
+image: /imgs/features/landing-page.png
+---
+
+**Translate PDF Online** 面向需要将 **PDF 文档** 在 **英语、简体中文、西班牙语** 等语言之间转换的用户与团队，在流水线能力范围内尽量保留分栏、表格、插图与版式。
+
+## 能做什么
+
+- **上传 PDF**，选择源语言与目标语言，**下载译文 PDF**。  
+- 使用 **积分**（例如按翻译页数计费）或 **订阅** 方案；通过 **Creem** 安全支付。  
+- 在支持的功能下，于浏览器中 **预览、对比** 原文与译文。
+
+## 实现概要
+
+前端为 **Next.js**，部署在 **Cloudflare** 边缘；文件存放在 **R2**；后端 API 与异步 Worker 负责版式分析与渲染；翻译对接 **DeepSeek** 等。流水线参考社区项目 **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** 与 **BabelDOC / pdf2zh** 生态。
+
+更完整的架构说明与 **AGPL** 透明信息见 **[文档](/docs)**。
+
+## 隐私与保留
+
+对象存储中的上传与生成文件约在 **7 天** 后按策略自动删除，详见 **[《隐私政策》](/privacy-policy)**。请勿上传您无权处理的文档。
+
+## 快速开始
+
+1. 打开 **[www.translatepdfonline.com](https://www.translatepdfonline.com)**。  
+2. 登录并进入 **翻译** 页面（或对应语言路径）。  
+3. 上传 PDF、选择语言并创建任务。  
+4. 如需购买积分或订阅，前往 **[定价](/pricing)**。
+
+**联系：** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)

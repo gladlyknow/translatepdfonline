@@ -1,0 +1,7 @@
+{
+  "pdf_font_unsupported": "This PDF uses fonts that are not suitable for text extraction. Use a PDF with a text layer or run OCR first.",
+  "tounicode_missing": "This PDF is missing ToUnicode mapping. Use a PDF with a text layer or run OCR first.",
+  "font_subset_corrupt": "This PDF may have corrupt font subsets. Try re-exporting the PDF or run OCR first.",
+  "no_paragraphs": "We couldn't find readable text to translate in this PDF. It may be scanned, image-only, or use a layout we don't fully support yet—this isn't your fault. We're actively improving support for these files in upcoming releases. Try \"Preprocess with OCR\" or a PDF where you can select text with the cursor.",
+  "ocr_preprocess_failed": "OCR preprocessing failed. Ensure OCRmyPDF and Tesseract are installed, or try again later."
+}

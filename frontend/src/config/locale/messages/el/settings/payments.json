@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "order_no": "Αρ. παραγγελίας",
+    "user": "Χρήστης",
+    "amount": "Ποσό",
+    "product_name": "Όνομα προϊόντος",
+    "price": "Τιμή",
+    "paid_amount": "Πληρωμένο ποσό",
+    "discount_amount": "Ποσό έκπτωσης",
+    "description": "Περιγραφή",
+    "type": "Τύπος",
+    "provider": "Πάροχος",
+    "created_at": "Δημιουργήθηκε",
+    "status": "Κατάσταση",
+    "action": "Ενέργεια",
+    "actions": { "view_invoice": "Προβολή τιμολογίου" }
+  },
+  "list": {
+    "title": "Πληρωμές",
+    "description": "Δείτε τις πληρωμές σας",
+    "tabs": { "all": "Όλες", "one-time": "Εφάπαξ", "subscription": "Συνδρομή", "renew": "Ανανέωση" }
+  }
+}

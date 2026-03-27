@@ -1,0 +1,34 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "Όνομα",
+    "title": "Τίτλος",
+    "description": "Περιγραφή",
+    "status": "Κατάσταση",
+    "sort": "Ταξινόμηση",
+    "created_at": "Δημιουργήθηκε",
+    "updated_at": "Ενημερώθηκε",
+    "permissions": "Δικαιώματα",
+    "actions": "Ενέργειες"
+  },
+  "list": {
+    "title": "Ρόλοι",
+    "crumbs": { "admin": "Διαχείριση", "roles": "Ρόλοι" },
+    "buttons": {
+      "create": "Δημιουργία ρόλου",
+      "edit": "Επεξεργασία ρόλου",
+      "edit_permissions": "Επεξεργασία δικαιωμάτων",
+      "delete": "Διαγραφή ρόλου"
+    }
+  },
+  "edit": {
+    "title": "Επεξεργασία ρόλου",
+    "crumbs": { "admin": "Διαχείριση", "roles": "Ρόλοι", "edit": "Επεξεργασία ρόλου" },
+    "buttons": { "submit": "Ενημέρωση" }
+  },
+  "edit_permissions": {
+    "title": "Επεξεργασία δικαιωμάτων",
+    "crumbs": { "admin": "Διαχείριση", "roles": "Ρόλοι", "edit_permissions": "Επεξεργασία δικαιωμάτων" },
+    "buttons": { "submit": "Ενημέρωση" }
+  }
+}

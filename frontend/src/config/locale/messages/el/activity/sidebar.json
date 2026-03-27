@@ -1,0 +1,15 @@
+{
+  "title": "Δραστηριότητα",
+  "nav": {
+    "items": [
+      { "title": "Εργασίες AI", "url": "/activity/ai-tasks", "icon": "RiTaskLine" },
+      { "title": "Συνομιλίες AI", "url": "/activity/chats", "icon": "RiChat2Line" }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      { "title": "Δραστηριότητα", "url": "/activity", "icon": "Activity" },
+      { "title": "Ρυθμίσεις", "url": "/settings", "icon": "Settings" }
+    ]
+  }
+}

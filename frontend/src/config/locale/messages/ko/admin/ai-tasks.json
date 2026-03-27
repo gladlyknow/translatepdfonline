@@ -1,0 +1,24 @@
+{
+  "fields": {
+    "task_id": "작업 ID",
+    "media_type": "미디어 유형",
+    "provider": "제공자",
+    "model": "모델",
+    "prompt": "프롬프트",
+    "options": "옵션",
+    "user": "사용자",
+    "status": "상태",
+    "cost_credits": "소비 크레딧",
+    "result": "결과",
+    "created_at": "생성일",
+    "action": "작업",
+    "scene": "장면"
+  },
+  "list": {
+    "title": "AI 작업",
+    "crumbs": { "admin": "관리", "ai-tasks": "AI 작업" },
+    "tabs": { "all": "전체", "music": "음악", "image": "이미지", "video": "동영상", "audio": "오디오", "text": "텍스트" },
+    "buttons": { "view": "작업 보기", "refresh": "작업 새로고침" },
+    "empty_message": "작업이 없습니다"
+  }
+}

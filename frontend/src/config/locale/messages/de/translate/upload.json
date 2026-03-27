@@ -1,0 +1,12 @@
+{
+  "dropzone": "PDF hier ablegen oder klicken zum Auswählen",
+  "uploading": "Wird hochgeladen…",
+  "success": "Upload erfolgreich",
+  "error": "Upload fehlgeschlagen",
+  "selectPdfOnly": "Bitte eine PDF-Datei wählen",
+  "loginRequired": "Bitte anmelden, um Dateien hochzuladen.",
+  "loginHintQuotaExceeded": "Anonymes Upload-Limit erreicht. Bitte oben rechts anmelden.",
+  "storageUnavailable": "Speicher ist nicht konfiguriert. Bitte später erneut versuchen.",
+  "fileTooLarge": "Datei zu groß. Maximal 100 MB.",
+  "fileNotice": "Ihre Datei wird verschlüsselt übertragen. Sie wird 7 Tage zum Download aufbewahrt, danach dauerhaft von unseren Servern gelöscht."
+}

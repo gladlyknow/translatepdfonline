@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Generatore musica IA",
+    "description": "Genera musica straordinaria con l’IA"
+  },
+  "page": {
+    "title": "Generatore musica IA",
+    "description": "Genera musica straordinaria con l’IA"
+  },
+  "generator": {
+    "title": "Generatore musica",
+    "prompt": "Prompt",
+    "prompt_placeholder": "Una storia d’amore tra Romeo e Giulietta",
+    "generate": "Genera musica",
+    "loading": "Caricamento...",
+    "generating": "Generazione...",
+    "sign_in_to_generate": "Accedi per generare musica",
+    "credits_cost": "Costo {credits} crediti",
+    "credits_remaining": "Rimangono {credits} crediti",
+    "buy_credits": "Acquista crediti",
+    "generation_progress": "Avanzamento generazione",
+    "time_cost": "Può richiedere 2-3 minuti...",
+    "generated_song": "Brano generato",
+    "ready_to_play": "Pronto per la riproduzione",
+    "audio_generating": "Generazione audio...",
+    "generating_song": "Generazione brano...",
+    "waiting_generation": "Attendi mentre creiamo il capolavoro",
+    "no_song_generated": "Nessun brano generato",
+    "downloading": "Download...",
+    "download_success": "Download completato",
+    "download_failed": "Download audio non riuscito",
+    "form": {
+      "custom_mode": "Modalità personalizzata",
+      "title": "Titolo",
+      "title_placeholder": "The Sound of Silence",
+      "style": "Stile musicale",
+      "style_placeholder": "indie, elettronica, synth, 120bpm, distorto",
+      "instrumental": "Strumentale",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Una canzone folk country sull’amore",
+      "model": "Modello",
+      "lyrics": "Testo",
+      "lyrics_placeholder": "Scrivi il testo, due strofe (8 righe) per il risultato migliore"
+    }
+  }
+}

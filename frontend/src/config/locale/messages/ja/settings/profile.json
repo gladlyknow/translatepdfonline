@@ -1,0 +1,9 @@
+{
+  "fields": { "email": "メール", "name": "名前", "avatar": "アバター" },
+  "edit": {
+    "title": "プロフィール",
+    "description": "プロフィールを更新",
+    "crumbs": { "settings": "設定", "profile": "プロフィール" },
+    "buttons": { "submit": "保存" }
+  }
+}

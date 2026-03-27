@@ -1,0 +1,23 @@
+{
+  "fields": { "title": "제목", "key": "키", "created_at": "생성일", "action": "작업" },
+  "list": {
+    "title": "API 키",
+    "empty_message": "API 키가 없습니다",
+    "buttons": { "add": "API 키 만들기", "edit": "편집", "delete": "삭제" }
+  },
+  "add": {
+    "title": "API 키 만들기",
+    "crumbs": { "apikeys": "API 키", "add": "API 키 만들기" },
+    "buttons": { "submit": "만들기" }
+  },
+  "edit": {
+    "title": "API 키 편집",
+    "crumbs": { "apikeys": "API 키", "edit": "API 키 편집" },
+    "buttons": { "submit": "업데이트" }
+  },
+  "delete": {
+    "title": "API 키 삭제",
+    "crumbs": { "apikeys": "API 키", "delete": "API 키 삭제" },
+    "buttons": { "submit": "삭제 확인" }
+  }
+}

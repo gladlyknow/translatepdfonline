@@ -1,0 +1,9 @@
+{
+  "fields": { "email": "Email", "name": "Όνομα", "avatar": "Άβαταρ" },
+  "edit": {
+    "title": "Προφίλ",
+    "description": "Ενημερώστε το προφίλ σας",
+    "crumbs": { "settings": "Ρυθμίσεις", "profile": "Προφίλ" },
+    "buttons": { "submit": "Αποθήκευση" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "fields": {
+    "title": "Titolo",
+    "key": "Chiave",
+    "user": "Utente",
+    "status": "Stato",
+    "created_at": "Creato il",
+    "action": "Azione"
+  },
+  "list": {
+    "title": "Chiavi API",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "apikeys": "Chiavi API"
+    }
+  }
+}

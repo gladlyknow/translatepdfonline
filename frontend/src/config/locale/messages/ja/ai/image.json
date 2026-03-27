@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "title": "AI 画像ジェネレーター",
+    "description": "AI モデルで画像を生成。テキスト→画像と画像→画像に対応。"
+  },
+  "page": {
+    "title": "AI 画像ジェネレーター",
+    "description": "AI モデルで画像を生成。テキスト→画像と画像→画像に対応。"
+  },
+  "generator": {
+    "title": "画像ジェネレーター",
+    "description": "AI モデルで画像を生成。テキスト→画像と画像→画像に対応。",
+    "tabs": {
+      "text-to-image": "テキストから画像",
+      "image-to-image": "画像から画像"
+    },
+    "form": {
+      "provider": "プロバイダー",
+      "model": "モデル",
+      "select_provider": "プロバイダーを選択",
+      "select_model": "モデルを選択",
+      "prompt": "プロンプト",
+      "prompt_placeholder": "色、形、質感などを記述してください",
+      "reference_image": "参照画像",
+      "reference_image_placeholder": "参照画像をアップロード（複数可）",
+      "some_images_failed_to_upload": "一部の画像がアップロードできませんでした。削除して再アップロードしてください",
+      "prompt_too_long": "プロンプトが長すぎます。内容を減らしてください"
+    },
+    "generate": "画像を生成",
+    "checking_account": "アカウントを確認中...",
+    "loading": "読み込み中...",
+    "generating": "生成中...",
+    "sign_in_to_generate": "ログインして画像を生成",
+    "credits_cost": "{credits} クレジット消費",
+    "credits_remaining": "残り {credits} クレジット",
+    "buy_credits": "クレジットを購入",
+    "progress": "進捗",
+    "generated_images": "画像プレビュー",
+    "ready_to_generate": "生成の準備完了",
+    "ready_for_generating": "生成待ち",
+    "no_images_generated": "画像はまだありません"
+  }
+}

@@ -1,0 +1,78 @@
+---
+title: はじめに
+description: Translate PDF Online — アーキテクチャ、機能、セキュリティ、オープンソースコンプライアンス。
+---
+
+## Translate PDF Online とは
+
+**Translate PDF Online** は、可能な限りレイアウト・図表を保ちながら **PDF を翻訳する** Web サービスです。**英語、簡体字中国語、スペイン語、フランス語、イタリア語、ギリシャ語、日本語、韓国語** などの学術・業務 PDF を想定し、言語ペアは今後も拡張します。
+
+- **ウェブサイト:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **お問い合わせ:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## オープンソースとクレジット
+
+翻訳パイプラインは、特に **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** および **pdf2zh / BabelDOC** エコシステムに基づいています。
+
+## AGPL-3.0 について
+
+**pdf2zh** 由来のコンポーネント（AGPL-3.0）にはソース提供等の義務が生じる場合があります。**参照:** [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)。当社デプロイに関する問い合わせ: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)。
+
+※本節は透明性のための説明であり、法的助言ではありません。
+
+## システム構成
+
+**フロントエンドとバックエンドを分離** しています。
+
+### フロント（エッジ）
+
+- **スタック:** React / **Next.js**。**Cloudflare Pages / Workers** で配信。
+- **役割:** UI、認証、課金 UI、ブラウザ内 PDF プレビュー、API 呼び出し。
+
+### オブジェクトストレージ
+
+- **Cloudflare R2**（**S3** 互換 API）にアップロード PDF と成果物を保存。
+
+### バックエンド API
+
+- クラウド上の **Python（FastAPI 等）**。ユーザー、クレジット、タスク、**DeepSeek**、キュー連携。
+
+### 非同期ワーカー
+
+- **Celery**（等）でレイアウト解析、テキスト抽出、翻訳、**BabelDOC** による再レンダリング。
+
+**データフロー（概要）:** ブラウザ → Cloudflare 上の Next.js → バックエンド API → R2、キュー、DeepSeek API → ワーカー → R2。
+
+## 主な機能
+
+### A. PDF 表示と範囲選択
+
+- `react-pdf-selection` 等のオーバーレイ、正規化座標、**PyMuPDF** と **DeepSeek** による部分翻訳。
+
+### B. 並列比較とスクロール同期
+
+- **pdf.js** による二ペイン。**スクロール比率** で同期。
+
+### C. タスクパイプライン
+
+1. 解析 / レイアウト  
+2. 翻訳（**DeepSeek**）  
+3. レンダリング（**BabelDOC**）
+
+## 翻訳ワークスペース（履歴パネル）
+
+**[PDF を翻訳](/translate)** 画面では、**履歴** 列がワークフローの中心です。
+
+- 現在のブラウザセッション（ログイン時は **アカウント** に紐づく）の **アップロードと翻訳タスク** を一覧表示します（状態、言語、ファイル名など）。
+- 履歴から **過去のタスクを開く** と、プレビュー再開、翻訳 PDF のダウンロード、進捗確認ができ、**同じファイルを再アップロードする必要はありません**。
+- 履歴は右側の **PDF プレビュー** およびタスク操作と連動します。
+
+古い項目が見えない場合は、**保存期間ポリシー**（後述）で削除されたか、別端末・別セッションの可能性があります。
+
+## セキュリティと保存期間
+
+- **転送:** エンドツーエンド **HTTPS**（Cloudflare からオリジン含む）。
+- **保存:** **R2** 上の翻訳関連オブジェクトは、製品設定や法令で別段がない限り **約 7 日** で自動削除の予定です。
+- **セキュリティ:** 合理的なアクセス制御と転送時の暗号化。オンラインサービスに絶対的な安全は保証できません。
+
+[プライバシーポリシー](/privacy-policy) · [利用規約](/terms-of-service)

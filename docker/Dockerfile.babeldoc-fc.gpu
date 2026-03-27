@@ -1,0 +1,41 @@
+# BabelDOC FC 自定义容器镜像（GPU 版，用于阿里云 FC GPU 函数）
+# 在项目根目录构建: docker build -f docker/Dockerfile.babeldoc-fc.gpu -t babeldoc-fc:gpu .
+# 需在具备 NVIDIA 环境或阿里云 GPU 镜像仓库中构建
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+
+WORKDIR /code
+
+# 系统依赖 + Python 3.10（与 BabelDOC requires-python 兼容）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3.10-venv \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/python3.10 /usr/bin/python3
+
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 使用 venv 安装依赖，避免与系统 Python 冲突
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# 先安装 BabelDOC（使用 [cuda] 安装 onnxruntime-gpu，与 CUDA 11.8 兼容）
+COPY tmp/BabelDOC /code/tmp/BabelDOC
+RUN pip install --no-cache-dir -e "/code/tmp/BabelDOC[cuda]"
+
+# babeldoc_fc 与 HTTP 层依赖
+COPY babeldoc_fc /code/babeldoc_fc
+RUN pip install --no-cache-dir -r /code/babeldoc_fc/requirements.txt
+
+WORKDIR /code
+ENV PYTHONPATH=/code
+
+# 构建阶段全量预热 BabelDOC 缓存（需访问 Hugging Face / GitHub 等）
+COPY docker/prewarm_babeldoc_cache.py /code/docker/prewarm_babeldoc_cache.py
+RUN python /code/docker/prewarm_babeldoc_cache.py
+
+EXPOSE 9000
+CMD ["uvicorn", "babeldoc_fc.main:app", "--host", "0.0.0.0", "--port", "9000"]

@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "id": "ID",
+    "code": "コード",
+    "title": "タイトル",
+    "resource": "リソース",
+    "action": "操作",
+    "description": "説明",
+    "created_at": "作成日時",
+    "updated_at": "更新日時"
+  },
+  "list": {
+    "title": "権限",
+    "crumbs": { "admin": "管理", "permissions": "権限" }
+  }
+}

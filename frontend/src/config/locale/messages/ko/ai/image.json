@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "title": "AI 이미지 생성기",
+    "description": "AI 모델로 이미지 생성. 텍스트→이미지와 이미지→이미지를 지원합니다."
+  },
+  "page": {
+    "title": "AI 이미지 생성기",
+    "description": "AI 모델로 이미지 생성. 텍스트→이미지와 이미지→이미지를 지원합니다."
+  },
+  "generator": {
+    "title": "이미지 생성기",
+    "description": "AI 모델로 이미지 생성. 텍스트→이미지와 이미지→이미지를 지원합니다.",
+    "tabs": {
+      "text-to-image": "텍스트에서 이미지",
+      "image-to-image": "이미지에서 이미지"
+    },
+    "form": {
+      "provider": "제공자",
+      "model": "모델",
+      "select_provider": "제공자 선택",
+      "select_model": "모델 선택",
+      "prompt": "프롬프트",
+      "prompt_placeholder": "색, 형태, 질감 등을 설명하세요",
+      "reference_image": "참조 이미지",
+      "reference_image_placeholder": "참조 이미지 업로드(여러 장 가능)",
+      "some_images_failed_to_upload": "일부 이미지 업로드에 실패했습니다. 삭제 후 다시 업로드하세요",
+      "prompt_too_long": "프롬프트가 너무 깁니다. 내용을 줄이세요"
+    },
+    "generate": "이미지 생성",
+    "checking_account": "계정 확인 중...",
+    "loading": "로딩 중...",
+    "generating": "생성 중...",
+    "sign_in_to_generate": "로그인하여 이미지 생성",
+    "credits_cost": "{credits}크레딧 소비",
+    "credits_remaining": "남은 크레딧 {credits}",
+    "buy_credits": "크레딧 구매",
+    "progress": "진행률",
+    "generated_images": "이미지 미리보기",
+    "ready_to_generate": "생성 준비 완료",
+    "ready_for_generating": "생성 대기",
+    "no_images_generated": "생성된 이미지 없음"
+  }
+}

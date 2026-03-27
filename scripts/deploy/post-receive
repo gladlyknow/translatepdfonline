@@ -1,0 +1,18 @@
+#!/bin/bash
+# 推送后自动部署（虚拟环境在项目根 .venv）
+# 安装：cp scripts/deploy/post-receive /data/translatepdfonline/.git/hooks/post-receive && chmod +x /data/translatepdfonline/.git/hooks/post-receive
+set -e
+WORKTREE=/data/translatepdfonline
+cd "$WORKTREE"
+export PATH="$WORKTREE/.venv/bin:$PATH"
+pip install -U -q pip
+pip install -q -r backend/requirements.txt
+pip install -q gunicorn
+cd backend && alembic upgrade head 2>/dev/null || true
+systemctl restart translatepdfonline-api translatepdfonline-celery
+# 部署 Nginx 配置并重载
+cp -f "$WORKTREE/scripts/deploy/translatepdfonline.conf" /etc/nginx/conf.d/translatepdfonline.conf
+nginx -t && systemctl reload nginx
+# 清理工作区，避免下次 push 因“有未提交改动”被拒（不删未跟踪文件，.env 保留）
+cd "$WORKTREE" && git reset --hard HEAD
+echo "Deploy done."

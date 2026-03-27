@@ -1,0 +1,12 @@
+{
+  "dropzone": "Trascina qui il PDF o clicca per selezionare",
+  "uploading": "Caricamento in corso...",
+  "success": "Caricamento completato",
+  "error": "Caricamento non riuscito",
+  "selectPdfOnly": "Seleziona un file PDF",
+  "loginRequired": "Accedi per caricare i file.",
+  "loginHintQuotaExceeded": "Quota di caricamento anonimo superata. Accedi (in alto a destra) per continuare.",
+  "storageUnavailable": "L’archiviazione non è configurata. Riprova più tardi.",
+  "fileTooLarge": "Il file è troppo grande. Dimensione massima 100 MB.",
+  "fileNotice": "Il file viene trasmesso su connessioni crittografate. Viene conservato 7 giorni per il download, poi eliminato definitivamente dai nostri server."
+}

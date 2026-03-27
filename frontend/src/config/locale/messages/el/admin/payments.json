@@ -1,0 +1,36 @@
+{
+  "fields": {
+    "order_no": "Αρ. παραγγελίας",
+    "user": "Χρήστης",
+    "amount": "Ποσό",
+    "product": "Προϊόν",
+    "description": "Περιγραφή",
+    "type": "Τύπος",
+    "provider": "Πάροχος",
+    "created_at": "Δημιουργήθηκε",
+    "status": "Κατάσταση",
+    "action": "Ενέργεια"
+  },
+  "list": {
+    "title": "Πληρωμές",
+    "crumbs": { "admin": "Διαχείριση", "payments": "Πληρωμές" },
+    "tabs": { "all": "Όλες", "subscription": "Συνδρομή", "one-time": "Εφάπαξ" },
+    "filters": {
+      "status": {
+        "title": "Κατάσταση",
+        "options": { "all": "Όλες", "paid": "Πληρωμένη", "created": "Δημιουργήθηκε", "failed": "Απέτυχε" }
+      },
+      "provider": {
+        "title": "Πάροχος",
+        "options": {
+          "all": "Όλοι",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "PayPal"
+        }
+      }
+    },
+    "search": { "order_no": { "title": "Αρ. παραγγελίας", "placeholder": "Αρ. παραγγελίας" } }
+  }
+}

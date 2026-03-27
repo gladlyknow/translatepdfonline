@@ -1,0 +1,26 @@
+---
+title: 'Translate PDF Online — 首次发布'
+description: '保留版式的 PDF 在线翻译、云存储与 DeepSeek 翻译流水线。'
+date: '2026-03-01'
+tags: ['Translate PDF Online', 'PDF', '发布']
+version: '1.0.0'
+---
+
+![Translate PDF Online](/imgs/features/landing-page.png)
+
+**Translate PDF Online** 现已在 **www.translatepdfonline.com** 提供服务：上传学术与商业 PDF，在 **英语、简体中文、西班牙语** 等语言间翻译，并在支持范围内尽量保留版式。
+
+## 要点
+
+- **Cloudflare** 上托管的 **Next.js** 应用，含登录与翻译工作台  
+- **R2** 存储上传与生成文件；全站 **HTTPS**  
+- **异步 Worker** 进行版式分析（如 DocLayout-YOLO）与 **BabelDOC** 类重排版  
+- **DeepSeek** API 翻译；按翻译页数 **积分** 计费  
+- 流水线参考 **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** 与 **pdf2zh / BabelDOC** 生态  
+
+## 政策
+
+- **隐私政策**与**服务条款**说明数据用途、对象存储中文件约 **7 天**保留及禁止使用情形。  
+- 上游 **AGPL** 相关透明说明见 **[文档](/docs)**。
+
+**联系：** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)

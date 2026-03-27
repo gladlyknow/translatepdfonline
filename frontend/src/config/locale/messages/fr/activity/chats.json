@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "title": "Titre",
+    "status": "Statut",
+    "model": "Modèle",
+    "provider": "Fournisseur",
+    "created_at": "Créé le",
+    "action": "Action"
+  },
+  "list": {
+    "title": "Discussions IA",
+    "tabs": { "all": "Toutes", "pending": "En attente", "completed": "Terminées", "failed": "Échouées" },
+    "buttons": { "view": "Voir la discussion", "new": "Nouvelle discussion" },
+    "empty_message": "Aucune discussion"
+  }
+}

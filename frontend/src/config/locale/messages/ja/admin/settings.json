@@ -1,0 +1,49 @@
+{
+  "groups": {
+    "email_auth": "メール認証",
+    "google_auth": "Google 認証",
+    "github_auth": "GitHub 認証",
+    "basic_payment": "基本決済",
+    "stripe": "Stripe",
+    "creem": "Creem",
+    "paypal": "PayPal",
+    "resend": "Resend",
+    "r2": "Cloudflare R2",
+    "s3": "AWS S3",
+    "openrouter": "OpenRouter",
+    "replicate": "Replicate",
+    "fal": "Fal",
+    "google_analytics": "Google Analytics",
+    "clarity": "Clarity",
+    "plausible": "Plausible",
+    "openpanel": "OpenPanel",
+    "vercel_analytics": "Vercel Analytics",
+    "adsense": "AdSense",
+    "affonso": "Affonso",
+    "promotekit": "PromoteKit",
+    "tawk": "Tawk",
+    "crisp": "Crisp",
+    "credit": "クレジット",
+    "appinfo": "アプリ情報",
+    "user_role": "ユーザーロール",
+    "translate_fc": "PDF 翻訳（FC）"
+  },
+  "edit": {
+    "title": "設定",
+    "crumbs": { "admin": "管理", "settings": "設定" },
+    "tabs": {
+      "general": "一般",
+      "auth": "認証",
+      "payment": "決済",
+      "credit": "クレジット",
+      "email": "メール",
+      "storage": "ストレージ",
+      "ai": "AI",
+      "analytics": "分析",
+      "ads": "広告",
+      "affiliate": "アフィリエイト",
+      "customer_service": "カスタマーサポート"
+    },
+    "buttons": { "submit": "保存" }
+  }
+}

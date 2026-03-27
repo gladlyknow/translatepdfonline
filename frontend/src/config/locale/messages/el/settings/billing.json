@@ -1,0 +1,53 @@
+{
+  "fields": {
+    "subscription_no": "Αρ. συνδρομής",
+    "interval": "Διάστημα",
+    "provider": "Πάροχος",
+    "current_period": "Τρέχουσα περίοδος",
+    "plan": "Πλάνο",
+    "status": "Κατάσταση",
+    "amount": "Ποσό",
+    "created_at": "Δημιουργήθηκε",
+    "end_time": "Λήξη",
+    "action": "Ενέργεια"
+  },
+  "view": {
+    "title": "Τρέχον πλάνο",
+    "tip": "Η συνδρομή σας θα ανανεωθεί αυτόματα στις {date}",
+    "end_tip": "Η συνδρομή σας θα ακυρωθεί αυτόματα στις {date}",
+    "no_subscription": "Χωρίς πλάνο",
+    "buttons": {
+      "adjust": "Προσαρμογή πλάνου",
+      "subscribe": "Εγγραφή",
+      "manage": "Διαχείριση συνδρομής",
+      "cancel": "Ακύρωση συνδρομής"
+    }
+  },
+  "list": {
+    "title": "Ιστορικό συνδρομών",
+    "tabs": {
+      "all": "Όλες",
+      "active": "Ενεργές",
+      "pending_cancel": "Ακύρωση σε εκκρεμότητα",
+      "canceled": "Ακυρωμένες",
+      "trialing": "Δοκιμή",
+      "paused": "Σε παύση",
+      "expired": "Ληγμένες"
+    }
+  },
+  "cancel": {
+    "title": "Ακύρωση συνδρομής",
+    "description": "Είστε βέβαιοι ότι θέλετε ακύρωση;",
+    "fields": {
+      "subscription_no": "Αρ. συνδρομής",
+      "subscription_amount": "Ποσό συνδρομής",
+      "interval_cycle": "Κύκλος χρέωσης",
+      "subscription_created_at": "Δημιουργήθηκε συνδρομή",
+      "current_period": "Τρέχουσα περίοδος",
+      "start_at": "Έναρξη",
+      "end_at": "Λήξη"
+    },
+    "crumbs": { "settings": "Ρυθμίσεις", "billing": "Χρέωση", "cancel": "Ακύρωση συνδρομής" },
+    "buttons": { "confirm_cancel": "Επιβεβαίωση ακύρωσης" }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "transaction_no": "取引番号",
+    "description": "説明",
+    "type": "種類",
+    "scene": "シーン",
+    "credits": "クレジット",
+    "expires_at": "有効期限",
+    "created_at": "作成日時",
+    "action": "操作"
+  },
+  "list": {
+    "title": "クレジット履歴",
+    "tabs": { "all": "すべて", "grant": "付与", "consume": "消費" }
+  },
+  "view": {
+    "title": "クレジット残高",
+    "buttons": { "purchase": "クレジットを購入" }
+  }
+}

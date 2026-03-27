@@ -1,0 +1,12 @@
+{
+  "dropzone": "Déposez le PDF ici ou cliquez pour sélectionner",
+  "uploading": "Téléversement...",
+  "success": "Téléversement réussi",
+  "error": "Échec du téléversement",
+  "selectPdfOnly": "Veuillez sélectionner un fichier PDF",
+  "loginRequired": "Connectez-vous pour téléverser des fichiers.",
+  "loginHintQuotaExceeded": "Quota de téléversement anonyme dépassé. Connectez-vous (en haut à droite) pour continuer.",
+  "storageUnavailable": "Le stockage n’est pas configuré. Réessayez plus tard.",
+  "fileTooLarge": "Le fichier est trop volumineux. Taille maximale : 100 Mo.",
+  "fileNotice": "Votre fichier est transmis via des connexions chiffrées. Il est conservé 7 jours pour le téléchargement, puis définitivement supprimé de nos serveurs."
+}

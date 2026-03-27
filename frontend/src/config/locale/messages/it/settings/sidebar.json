@@ -1,0 +1,46 @@
+{
+  "title": "Impostazioni",
+  "nav": {
+    "items": [
+      {
+        "title": "Profilo",
+        "url": "/settings/profile",
+        "icon": "User"
+      },
+      {
+        "title": "Fatturazione",
+        "url": "/settings/billing",
+        "icon": "CreditCard"
+      },
+      {
+        "title": "Pagamenti",
+        "url": "/settings/payments",
+        "icon": "DollarSign"
+      },
+      {
+        "title": "Crediti",
+        "url": "/settings/credits",
+        "icon": "Coins"
+      },
+      {
+        "title": "Chiavi API",
+        "url": "/settings/apikeys",
+        "icon": "RiKeyLine"
+      }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      {
+        "title": "Attività",
+        "url": "/activity",
+        "icon": "Activity"
+      },
+      {
+        "title": "Impostazioni",
+        "url": "/settings",
+        "icon": "Settings"
+      }
+    ]
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "variant": "translateDark",
+        "title": "Translate PDF Online",
+        "highlight_text": "KI-gestützte PDF-Übersetzung",
+        "description": "PDFs übersetzen bei erhaltener Seitenlayout: Spalten, Tabellen, Abbildungen und Schriften. Sprachen u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch — im Browser, ohne Installation.",
+        "announcement": {
+          "badge": "Neu",
+          "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
+          "url": "/translate"
+        },
+        "tip": "Einführungspreis für frühe Nutzer",
+        "buttons": [
+          {
+            "title": "Loslegen",
+            "icon": "Zap",
+            "url": "/translate",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
+            "title": "Dokumentation",
+            "icon": "BookOpenText",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false,
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Vorschau der PDF-Übersetzung",
+          "width": 3840,
+          "height": 2424
+        },
+        "image_invert": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Vorschau der PDF-Übersetzung",
+          "width": 3840,
+          "height": 2424
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "Was ist Translate PDF Online",
+        "label": "Produkt",
+        "description": "Webdienst zum Übersetzen von PDFs bei erhaltener ursprünglicher Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "introduce",
+          "width": 3840,
+          "height": 2424
+        },
+        "items": [
+          {
+            "title": "Ausgabe mit erhaltenem Layout",
+            "description": "Übersetzte PDFs spiegeln die Struktur: mehrspaltiger Text, Tabellen, Bilder und Überschriften wie in der Quelle.",
+            "icon": "RiLayoutLine",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Viele Sprachpaare",
+            "description": "Quell- und Zielsprache aus einer wachsenden Liste wählen — für akademische und professionelle Dokumente.",
+            "icon": "RiTranslate2",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Sichere, zeitlich begrenzte Speicherung",
+            "description": "Dateien werden per HTTPS übertragen und nach der Aufbewahrungsrichtlinie gelöscht.",
+            "icon": "RiShieldCheckLine",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Verlauf und Aufgaben fortsetzen",
+            "description": "Der Verlauf listet Uploads und Aufgaben — Arbeit ohne erneutes Hochladen desselben PDFs fortsetzen.",
+            "icon": "RiHistoryLine",
+            "image": {
+              "src": "/imgs/features/4.png",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "Warum Teams uns wählen",
+        "label": "Vorteile",
+        "description": "Konzentrieren Sie sich auf den Inhalt — nicht auf Formatkorrektur nach der Übersetzung.",
+        "items": [
+          {
+            "title": "Für dichte PDFs",
+            "description": "Ausgelegt auf akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen, soweit die Pipeline es erlaubt.",
+            "icon": "RiFilePdf2Line",
+            "image": {
+              "src": "/imgs/features/dense_PDFs.png",
+              "alt": "benefits",
+              "width": 2511,
+              "height": 1233
+            }
+          },
+          {
+            "title": "Seitenweise Gegenüberstellung",
+            "description": "Quelle und Übersetzung im Browser mit synchronisiertem Scrollen vergleichen — vor dem Download.",
+            "icon": "RiSplitCellsHorizontal",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          },
+          {
+            "title": "Optionale Seitenbereiche",
+            "description": "Ganze Datei oder nur benötigte Seiten übersetzen — Zeit und Credits sparen.",
+            "icon": "RiBookReadLine",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "So übersetzen Sie Ihr PDF",
+        "description": "Drei Schritte vom Upload bis zum Download:",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "usage",
+          "width": 1062,
+          "height": 741
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "Hochladen",
+            "description": "PDF ablegen oder Datei wählen. Große Dokumente unterliegen den auf der Übersetzungsseite angezeigten Grenzen.",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage",
+              "width": 1062,
+              "height": 741
+            }
+          },
+          {
+            "title": "Sprachen wählen und starten",
+            "description": "Quelle und Ziel wählen, optional Seitenbereich, dann Übersetzung starten. Fortschritt auf derselben Seite.",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage",
+              "width": 1390,
+              "height": 1252
+            }
+          },
+          {
+            "title": "Herunterladen",
+            "description": "Nach Abschluss übersetztes PDF herunterladen. Aufgabe aus dem Verlauf erneut öffnen, solange die Datei verfügbar ist.",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "Was Sie erhalten",
+        "description": "Konkrete Funktionen für Ihre PDF-Workflows.",
+        "items": [
+          {
+            "title": "Vektor-orientierte Pipeline",
+            "description": "BabelDOC-ähnlicher Ansatz: Text zurück in die PDF-Struktur, wo möglich.",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "Credits und Abrechnung",
+            "description": "Nutzungsbasiert mit Credit-Modell nach Seiten und Produkten.",
+            "icon": "RiCoinsLine"
+          },
+          {
+            "title": "Konto oder Gast",
+            "description": "Anmelden für Abrechnung und geräteübergreifenden Verlauf — oder in einer Sitzung ausprobieren.",
+            "icon": "RiUserLine"
+          },
+          {
+            "title": "Edge-gehostete Oberfläche",
+            "description": "Schneller erster Aufbau auf Cloudflare; Vorschau und Download im Browser.",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "Dokumentation",
+            "description": "Architektur, Aufbewahrung und Compliance unter /docs.",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "Nachvollziehbarer Stack",
+            "description": "Next.js-App mit klaren APIs zwischen UI, Speicher und Übersetzungs-Worker.",
+            "icon": "RiCodeSSlashLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "Für anspruchsvolle Dokumente",
+        "description": "Vom Artikel bis zu umfangreichen Handbüchern.",
+        "items": [
+          {
+            "title": "10+",
+            "description": "Oberflächensprachen"
+          },
+          {
+            "title": "7",
+            "description": "Tage Standard-Aufbewahrung"
+          },
+          {
+            "title": "1",
+            "description": "Layout-sensible Pipeline"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "Häufige Fragen",
+        "description": "Mehr in der Dokumentation oder per E-Mail hello@translatepdfonline.com.",
+        "items": [
+          {
+            "question": "Was ist Translate PDF Online und wie funktioniert es?",
+            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache; wir führen eine übersetzungs-Pipeline aus, die das Layout respektiert. Sie laden ein neues PDF herunter, das die ursprüngliche Struktur widerspiegelt, soweit die Technik das erlaubt."
+          },
+          {
+            "question": "Muss ich Software installieren?",
+            "answer": "Nein. Upload und Vorschau im Browser. Übertragung per HTTPS."
+          },
+          {
+            "question": "Welche Sprachen werden unterstützt?",
+            "answer": "Die Übersetzungsseite listet die verfügbaren Sprachen (u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch). Weitere Paare werden ergänzt."
+          },
+          {
+            "question": "Wie lange dauert die Übersetzung?",
+            "answer": "Kurze PDFs oft in wenigen Minuten; lange oder stark bebilderte länger. Seite offen lassen oder später im Verlauf die Aufgabe öffnen."
+          },
+          {
+            "question": "Ist mein Dokument sicher?",
+            "answer": "Der Datenverkehr ist verschlüsselt. Gespeicherte Dateien unterliegen der in der Dokumentation beschriebenen Aufbewahrung (in der Regel automatische Löschung nach etwa sieben Tagen, sofern nicht anders angegeben)."
+          },
+          {
+            "question": "Kann ich nur bestimmte Seiten übersetzen?",
+            "answer": "Ja. Geben Sie beim Start einen Seitenbereich an."
+          },
+          {
+            "question": "Wie öffne ich eine frühere Übersetzung erneut oder sehe sie in der Vorschau?",
+            "answer": "Öffnen Sie die Übersetzungsseite und nutzen Sie den Verlauf. Wählen Sie eine frühere Aufgabe, um den Status zu sehen und Quell- sowie übersetzte PDFs im Browser in der Vorschau anzuzeigen—ohne erneuten Upload, solange die Dateien laut Aufbewahrungsrichtlinie noch verfügbar sind."
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "Übersetzen Sie Ihr erstes PDF",
+        "description": "Upload auf der Übersetzungsseite — Verlauf für kürzliche Aufgaben nutzen.",
+        "buttons": [
+          {
+            "title": "Jetzt übersetzen",
+            "url": "/translate",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "Dokumentation",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "Newsletter",
+        "description": "Neuigkeiten von Translate PDF Online.",
+        "submit": {
+          "input": {
+            "placeholder": "Ihre E-Mail"
+          },
+          "button": {
+            "title": "Abonnieren"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

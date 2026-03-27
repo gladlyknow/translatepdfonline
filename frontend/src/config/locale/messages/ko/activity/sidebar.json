@@ -1,0 +1,15 @@
+{
+  "title": "활동",
+  "nav": {
+    "items": [
+      { "title": "AI 작업", "url": "/activity/ai-tasks", "icon": "RiTaskLine" },
+      { "title": "AI 채팅", "url": "/activity/chats", "icon": "RiChat2Line" }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      { "title": "활동", "url": "/activity", "icon": "Activity" },
+      { "title": "설정", "url": "/settings", "icon": "Settings" }
+    ]
+  }
+}

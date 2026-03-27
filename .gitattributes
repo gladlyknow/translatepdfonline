@@ -1,0 +1,4 @@
+# 强制 shell 脚本与 deploy 配置使用 LF，避免在 Linux 上执行报错
+*.sh text eol=lf
+scripts/deploy/post-receive text eol=lf
+scripts/deploy/setup-push-hook.sh text eol=lf

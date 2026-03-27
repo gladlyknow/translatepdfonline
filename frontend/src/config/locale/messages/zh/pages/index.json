@@ -1,0 +1,324 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "variant": "translateDark",
+        "title": "在线 PDF 翻译",
+        "highlight_text": "AI 精准翻译",
+        "description": "在保留版式的前提下翻译 PDF——分栏、表格、插图与字体尽量与原文一致。支持英语、中文、西班牙语、法语、意大利语、希腊语、日语、韩语等。浏览器内完成，无需安装。",
+        "announcement": {
+          "badge": "全新",
+          "title": "专业级版式保留 PDF 翻译",
+          "url": "/translate"
+        },
+        "tip": "早期用户专享上线价",
+        "buttons": [
+          {
+            "title": "立即开始",
+            "icon": "Zap",
+            "url": "/translate",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
+            "title": "阅读文档",
+            "icon": "BookOpenText",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false,
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "PDF 翻译预览",
+          "width": 3840,
+          "height": 2424
+        },
+        "image_invert": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "PDF 翻译预览",
+          "width": 3840,
+          "height": 2424
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "什么是在线 PDF 翻译",
+        "label": "产品",
+        "description": "面向论文、手册、报告与书籍的网页翻译服务，在可行范围内保留原始版面设计，而不是输出纯文本。",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "introduce",
+          "width": 3840,
+          "height": 2424
+        },
+        "items": [
+          {
+            "title": "版式保留输出",
+            "description": "译文 PDF 尽量还原结构：多栏、表格、图片与标题与源文件对齐。",
+            "icon": "RiLayoutLine",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "多语言对",
+            "description": "从不断增长的语言列表中选择源语言与目标语言，适合学术与专业文档。",
+            "icon": "RiTranslate2",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "安全与临时存储",
+            "description": "通过 HTTPS 传输，处理完成后按固定保留策略从服务器删除。",
+            "icon": "RiShieldCheckLine",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "历史与任务恢复",
+            "description": "「历史」栏列出上传与翻译任务，可重新打开任务，无需重复上传同一 PDF。",
+            "icon": "RiHistoryLine",
+            "image": {
+              "src": "/imgs/features/4.png",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "为什么选择我们",
+        "label": "优势",
+        "description": "专注文档本身，而不是翻译后再手工修版式。",
+        "items": [
+          {
+            "title": "为复杂 PDF 优化",
+            "description": "面向学术与技术排版——在流水线支持的范围内处理公式、插图与表格。",
+            "icon": "RiFilePdf2Line",
+            "image": {
+              "src": "/imgs/features/user-billing.png",
+              "alt": "benefits",
+              "width": 2410,
+              "height": 1662
+            }
+          },
+          {
+            "title": "并排预览",
+            "description": "浏览器内左右对照原文与译文，同步滚动后再下载。",
+            "icon": "RiSplitCellsHorizontal",
+            "image": {
+              "src": "/imgs/features/admin-settings.png",
+              "alt": "benefits"
+            }
+          },
+          {
+            "title": "可选页范围",
+            "description": "整本翻译或仅翻译指定页面，节省时间与积分。",
+            "icon": "RiBookReadLine",
+            "image": {
+              "src": "/imgs/features/landing-page.png",
+              "alt": "benefits",
+              "width": 3840,
+              "height": 2424
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "如何翻译 PDF",
+        "description": "三步完成上传至下载：",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "usage",
+          "width": 1062,
+          "height": 741
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "上传",
+            "description": "拖入 PDF 或选择文件。大文档请在翻译页查看当前限制说明。",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage",
+              "width": 1062,
+              "height": 741
+            }
+          },
+          {
+            "title": "选择语言并开始",
+            "description": "选择源语言与目标语言，可选页码范围后开始翻译。同一页面可查看进度。",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage",
+              "width": 1390,
+              "height": 1252
+            }
+          },
+          {
+            "title": "下载",
+            "description": "完成后下载译文 PDF。在文件仍可用期间，可随时从历史重新打开任务。",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "你能获得什么",
+        "description": "面向真实 PDF 工作流的实用能力。",
+        "items": [
+          {
+            "title": "矢量友好流水线",
+            "description": "采用类 BabelDOC 路径，在支持时将文本写回 PDF 结构。",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "积分与计费",
+            "description": "按页与产品规则计费，用积分支付实际翻译量。",
+            "icon": "RiCoinsLine"
+          },
+          {
+            "title": "账号或访客",
+            "description": "登录可跨设备查看账单与历史；也可在单次会话内体验流程。",
+            "icon": "RiUserLine"
+          },
+          {
+            "title": "边缘托管界面",
+            "description": "Cloudflare 边缘加速首屏；预览与下载在浏览器完成。",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "公开文档",
+            "description": "/docs 提供架构、保留策略与合规说明。",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "可维护技术栈",
+            "description": "Next.js 应用，UI、存储与翻译 Worker 之间 API 清晰。",
+            "icon": "RiCodeSSlashLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "为严肃文档而造",
+        "description": "从单篇论文到大部头手册。",
+        "items": [
+          {
+            "title": "8+",
+            "description": "界面语言"
+          },
+          {
+            "title": "7",
+            "description": "天默认保留"
+          },
+          {
+            "title": "1",
+            "description": "条版式感知流水线"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "常见问题",
+        "description": "更多说明见文档或邮件 hello@translatepdfonline.com。",
+        "items": [
+          {
+            "question": "什么是在线 PDF 翻译？怎么用？",
+            "answer": "上传 PDF，选择源语言与目标语言，我们运行版式感知翻译流水线，您下载尽量保留结构的新 PDF。"
+          },
+          {
+            "question": "需要安装软件吗？",
+            "answer": "不需要。上传与预览在浏览器完成，文件经 HTTPS 传输。"
+          },
+          {
+            "question": "支持哪些语言？",
+            "answer": "翻译页下拉框列出当前可用的源/目标语言（如英、中、西、法、意、希、日、韩等），会持续增加。"
+          },
+          {
+            "question": "翻译要多久？",
+            "answer": "短文档通常数分钟内完成；长文档或扫描件更久。可留在页面等待，或稍后从历史打开任务。"
+          },
+          {
+            "question": "文档安全吗？",
+            "answer": "传输加密。存储对象按文档所述保留策略处理（通常约 7 天后自动删除，除非另有说明）。"
+          },
+          {
+            "question": "能只翻译部分页面吗？",
+            "answer": "可以。开始任务时设置页码范围即可。"
+          },
+          {
+            "question": "如何查看或预览以前翻译过的文件？",
+            "answer": "打开翻译页，点击「历史」打开历史列表，选择之前的翻译任务即可重新进入：可查看状态，并在浏览器中预览原文与译文的 PDF，无需再次上传（在保留期限内文件仍可用）。"
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "翻译你的第一份 PDF",
+        "description": "在翻译页上传——用「历史」随时回到最近的任务。",
+        "buttons": [
+          {
+            "title": "开始翻译",
+            "url": "/translate",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "文档",
+            "url": "/docs",
+            "target": "_blank",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "订阅更新",
+        "description": "获取在线 PDF 翻译的产品动态。",
+        "submit": {
+          "input": {
+            "placeholder": "输入邮箱"
+          },
+          "button": {
+            "title": "订阅"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

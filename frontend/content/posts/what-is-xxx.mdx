@@ -1,0 +1,35 @@
+---
+title: What is Translate PDF Online?
+description: Online PDF translation that keeps layout—English, Chinese, and Spanish—with credits, secure storage, and docs at translatepdfonline.com.
+created_at: 2026-03-25
+author_name: Translate PDF Online
+author_image: /favicon.svg
+image: /imgs/features/landing-page.png
+---
+
+**Translate PDF Online** helps researchers and teams translate **PDF documents** between **English, Chinese (Simplified), and Spanish** while preserving columns, tables, figures, and typography where the pipeline allows.
+
+## What you can do
+
+- **Upload a PDF**, choose source and target languages, and **download a translated PDF**.  
+- Use **credits** (e.g. per translated page) or **subscription** plans; pay securely via **Creem**.  
+- Preview and compare originals and translations in the browser when the product UI exposes those features.
+
+## How it works (high level)
+
+Our stack combines a **Next.js** front end (hosted on **Cloudflare** edge), **R2** storage for files, backend APIs, asynchronous workers for layout analysis and rendering, and **DeepSeek** (and related tooling) for translation. The pipeline builds on open-source work such as **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** and the **BabelDOC / pdf2zh** ecosystem.
+
+More detail, architecture diagrams (text), and **AGPL** transparency are in the **[Documentation](/docs)**.
+
+## Privacy and retention
+
+Uploaded and generated files in object storage are scheduled for **automatic deletion after about seven days**, as described in our **[Privacy Policy](/privacy-policy)**. Please do not upload documents you are not allowed to process.
+
+## Get started
+
+1. Open **[www.translatepdfonline.com](https://www.translatepdfonline.com)**.  
+2. Sign in and go to **Translate** (or your locale path).  
+3. Upload a PDF, pick languages, and start a job.  
+4. Buy credits or subscribe on **[Pricing](/pricing)** if needed.
+
+**Support:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)

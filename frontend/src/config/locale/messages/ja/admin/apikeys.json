@@ -1,0 +1,14 @@
+{
+  "fields": {
+    "title": "タイトル",
+    "key": "キー",
+    "user": "ユーザー",
+    "status": "ステータス",
+    "created_at": "作成日時",
+    "action": "操作"
+  },
+  "list": {
+    "title": "API キー",
+    "crumbs": { "admin": "管理", "apikeys": "API キー" }
+  }
+}

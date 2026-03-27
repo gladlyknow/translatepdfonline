@@ -1,0 +1,78 @@
+---
+title: Introduzione
+description: Translate PDF Online — architettura, funzionalità, sicurezza e conformità open source.
+---
+
+## Cos’è Translate PDF Online?
+
+**Translate PDF Online** è un servizio web per **tradurre PDF** preservando layout, figure e tabelle quando possibile. È pensato per documenti accademici e professionali in **inglese, cinese (semplificato), spagnolo, francese, italiano, greco, giapponese, coreano**, con altre lingue nel tempo.
+
+- **Sito:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **Contatto:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## Open source e crediti
+
+La pipeline si basa su progetti open source, in particolare **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** e l’ecosistema **pdf2zh / BabelDOC**.
+
+## Conformità AGPL-3.0
+
+I componenti derivati da **pdf2zh** (AGPL-3.0) possono richiedere l’accesso al codice sorgente. **Riferimento:** [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Per il nostro deployment: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_Questa sezione è informativa e non è consulenza legale._
+
+## Architettura
+
+**Front end e back end separati.**
+
+### Front (edge)
+
+- **Stack:** React / **Next.js** su **Cloudflare Pages / Workers**.
+- **Ruolo:** UI, autenticazione, pagamenti, anteprima PDF, chiamate API.
+
+### Object storage
+
+- **Cloudflare R2** con API compatibili **S3**.
+
+### API backend
+
+- **Python (FastAPI)** su cloud; account, crediti, task, **DeepSeek**, code.
+
+### Worker asincroni
+
+- **Celery** (o simile): analisi layout, estrazione, traduzione, **BabelDOC**.
+
+**Flusso:** browser → Next.js (Cloudflare) → API → R2, code, DeepSeek → worker → R2.
+
+## Funzionalità principali
+
+### A. Visualizzazione PDF e selezione area
+
+- Overlay interattivo (es. `react-pdf-selection`), coordinate normalizzate, traduzione parziale con **PyMuPDF** e **DeepSeek**.
+
+### B. Confronto affiancato
+
+- **pdf.js**; scroll sincronizzato tramite rapporto.
+
+### C. Pipeline delle task
+
+1. Parsing / layout  
+2. Traduzione (**DeepSeek**)  
+3. Rendering (**BabelDOC**)
+
+## Area di traduzione (pannello Cronologia)
+
+Nella pagina **[Traduci PDF](/translate)**, la colonna **Cronologia** è centrale:
+
+- Elenca **caricamenti e task di traduzione** della sessione (e dell’**account** se connessi): stato, lingue, nomi file.
+- **Riapri un task** dalla cronologia per anteprima, download del PDF tradotto o stato avanzamento **senza ricaricare lo stesso file**.
+- La cronologia lavora con l’**anteprima PDF** e i controlli a destra.
+
+Se manca una voce, potrebbe essere stata rimossa dalla **policy di retention** o usate sessione/dispositivo diversi.
+
+## Sicurezza e retention
+
+- **Trasporto:** **HTTPS** end-to-end.
+- **Retention:** eliminazione automatica in **R2** dopo circa **7 giorni**, salvo diversa policy.
+- **Sicurezza:** controlli di accesso e crittografia in transito ragionevoli.
+
+[Privacy](/privacy-policy) · [Termini](/terms-of-service)

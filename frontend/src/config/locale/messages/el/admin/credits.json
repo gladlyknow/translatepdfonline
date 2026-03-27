@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "transaction_no": "Αρ. συναλλαγής",
+    "user": "Χρήστης",
+    "amount": "Ποσό",
+    "remaining": "Υπόλοιπο",
+    "type": "Τύπος",
+    "scene": "Σκηνή",
+    "description": "Περιγραφή",
+    "created_at": "Δημιουργήθηκε",
+    "expires_at": "Λήγει",
+    "metadata": "Μεταδεδομένα",
+    "action": "Ενέργεια"
+  },
+  "list": {
+    "title": "Πιστώσεις",
+    "crumbs": { "admin": "Διαχείριση", "credits": "Πιστώσεις" },
+    "tabs": { "all": "Όλα", "grant": "Πίστωση", "consume": "Κατανάλωση" }
+  }
+}

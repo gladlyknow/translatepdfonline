@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "subscription_no": "구독 번호",
+    "user": "사용자",
+    "amount": "금액",
+    "interval": "주기",
+    "provider": "제공자",
+    "created_at": "생성일",
+    "current_period_start": "현재 기간 시작",
+    "current_period_end": "현재 기간 종료",
+    "status": "상태",
+    "description": "설명",
+    "action": "작업"
+  },
+  "list": {
+    "title": "구독",
+    "crumbs": { "admin": "관리", "subscriptions": "구독" },
+    "tabs": { "all": "전체", "month": "월", "year": "년" }
+  }
+}

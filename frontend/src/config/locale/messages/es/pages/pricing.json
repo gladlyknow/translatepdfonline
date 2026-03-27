@@ -1,0 +1,201 @@
+{
+  "metadata": {
+    "title": "Pricing",
+    "description": "Translation credits and plans"
+  },
+  "page": {
+    "title": "Translate PDF Online — Pricing",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "Pricing",
+        "description": "Pay with Creem. 10 credits per translated PDF page. Top up $5 / 500 credits anytime.",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "Top up"
+          },
+          {
+            "name": "monthly",
+            "title": "Monthly",
+            "is_featured": true
+          },
+          {
+            "name": "quarterly",
+            "title": "Quarterly"
+          },
+          {
+            "name": "semi-annual",
+            "title": "6 months"
+          },
+          {
+            "name": "yearly",
+            "title": "Yearly"
+          }
+        ],
+        "items": [
+          {
+            "title": "500 credits",
+            "description": "One-time pack — $5 for 500 credits. Buy again whenever you run low.",
+            "features_title": "Includes",
+            "features": [
+              "500 translation credits",
+              "10 credits per translated page",
+              "Credits never expire"
+            ],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "Top up when you run low.",
+            "button": {
+              "title": "Buy credits",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-topup",
+            "product_name": "Translate PDF — 500 credits (top up)",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": [
+              "creem"
+            ]
+          },
+          {
+            "title": "550 credits / month",
+            "description": "Monthly subscription — 550 credits each billing cycle ($5/month). Cancel anytime.",
+            "features_title": "Includes",
+            "features": [
+              "550 credits every billing cycle",
+              "10 credits per translated page",
+              "Subscription credits expire at period end; top-ups never expire"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ month",
+            "is_featured": true,
+            "tip": "Best value if you translate regularly.",
+            "button": {
+              "title": "Subscribe",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-monthly",
+            "product_name": "Translate PDF — Monthly (550 credits)",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "Monthly",
+            "payment_providers": [
+              "creem"
+            ],
+            "trial_subscription": true
+          },
+          {
+            "title": "1600 credits / quarter",
+            "description": "Quarterly plan — $13 every 3 months, 1600 credits per cycle.",
+            "features_title": "Includes",
+            "features": [
+              "1600 credits every billing cycle",
+              "10 credits per translated page",
+              "Cancel anytime from billing"
+            ],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ quarter",
+            "is_featured": false,
+            "tip": "Lower hassle than monthly.",
+            "button": {
+              "title": "Subscribe quarterly",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "Translate PDF — Quarterly (1600 credits)",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "Quarterly",
+            "payment_providers": [
+              "creem"
+            ]
+          },
+          {
+            "title": "3300 credits / 6 months",
+            "description": "Semi-annual — $25 every 6 months, 3300 credits per cycle.",
+            "features_title": "Includes",
+            "features": [
+              "3300 credits every billing cycle",
+              "10 credits per translated page",
+              "Cancel anytime from billing"
+            ],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 6 months",
+            "is_featured": false,
+            "tip": "Strong balance of price and commitment.",
+            "button": {
+              "title": "Subscribe (6 mo)",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "Translate PDF — Semi-annual (3300 credits)",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "Semi-annual",
+            "payment_providers": [
+              "creem"
+            ]
+          },
+          {
+            "title": "6500 credits / year",
+            "description": "Yearly plan — $45/year, 6500 credits per year.",
+            "features_title": "Includes",
+            "features": [
+              "6500 credits every year",
+              "10 credits per translated page",
+              "Cancel anytime from billing"
+            ],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ year",
+            "is_featured": false,
+            "label": "Save 25% compared to Monthly",
+            "tip": "Lowest cost per credit vs paying monthly for a year.",
+            "button": {
+              "title": "Subscribe yearly",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
+            "product_id": "translate-credits-yearly",
+            "product_name": "Translate PDF — Yearly (6500 credits)",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "Yearly",
+            "payment_providers": [
+              "creem"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "Current Plan",
+    "processing": "Processing"
+  }
+}

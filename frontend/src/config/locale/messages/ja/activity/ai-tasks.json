@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "title": "タイトル",
+    "media_type": "メディア種別",
+    "provider": "プロバイダー",
+    "model": "モデル",
+    "prompt": "プロンプト",
+    "options": "オプション",
+    "status": "ステータス",
+    "result": "結果",
+    "cost_credits": "消費クレジット",
+    "created_at": "作成日時",
+    "action": "操作"
+  },
+  "list": {
+    "title": "AI タスク",
+    "tabs": { "all": "すべて", "music": "音楽", "image": "画像", "video": "動画", "audio": "音声", "text": "テキスト" },
+    "buttons": { "view": "タスクを見る", "refresh": "タスクを更新" },
+    "empty_message": "タスクがありません"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Ρυθμίσεις",
+  "nav": {
+    "items": [
+      { "title": "Προφίλ", "url": "/settings/profile", "icon": "User" },
+      { "title": "Χρέωση", "url": "/settings/billing", "icon": "CreditCard" },
+      { "title": "Πληρωμές", "url": "/settings/payments", "icon": "DollarSign" },
+      { "title": "Πιστώσεις", "url": "/settings/credits", "icon": "Coins" },
+      { "title": "Κλειδιά API", "url": "/settings/apikeys", "icon": "RiKeyLine" }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      { "title": "Δραστηριότητα", "url": "/activity", "icon": "Activity" },
+      { "title": "Ρυθμίσεις", "url": "/settings", "icon": "Settings" }
+    ]
+  }
+}

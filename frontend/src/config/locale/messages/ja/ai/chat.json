@@ -1,0 +1,61 @@
+{
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "Translate PDF Online",
+        "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [{ "title": "新しいチャット", "icon": "Plus", "url": "/chat", "variant": "outline" }],
+    "main_navs": [{ "items": [{ "title": "履歴", "icon": "History", "url": "/chat/history" }] }],
+    "bottom_nav": { "items": [] },
+    "user": {
+      "nav": { "items": [{ "title": "プロフィール", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          { "title": "ホーム", "url": "/", "icon": "Home", "target": "_blank" },
+          { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+          { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+          { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+          { "title": "メール", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
+  },
+  "library": {
+    "title": "ライブラリ",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "もっと見る",
+    "actions": { "edit_title": "タイトルを編集", "share": "共有", "delete": "削除" }
+  },
+  "generator": {
+    "title": "今日は何を手伝いましょうか？",
+    "input_placeholder": "何でも聞いてください"
+  },
+  "history": {
+    "title": "チャット履歴",
+    "description": "過去の会話を確認・再開できます。",
+    "empty": "まだ会話がありません。",
+    "error": "会話の読み込みに失敗しました。",
+    "retry": "再試行",
+    "signin": "履歴を見るにはログインしてください。",
+    "summary": "{total} 件中 {from}-{to} 件を表示",
+    "perPage": "1 ページあたり",
+    "prev": "前へ",
+    "next": "次へ",
+    "open": "チャットを開く",
+    "untitled": "無題の会話"
+  }
+}

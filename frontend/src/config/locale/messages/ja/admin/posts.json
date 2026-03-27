@@ -1,0 +1,39 @@
+{
+  "fields": {
+    "slug": "スラッグ",
+    "title": "タイトル",
+    "description": "説明",
+    "image": "画像",
+    "content": "本文",
+    "categories": "カテゴリ",
+    "tags": "タグ",
+    "author_name": "著者名",
+    "author_role": "著者の役割",
+    "author_image": "著者画像",
+    "status": "ステータス",
+    "created_at": "作成日時",
+    "updated_at": "更新日時",
+    "deleted_at": "削除日時"
+  },
+  "list": {
+    "title": "投稿",
+    "crumbs": { "admin": "管理", "posts": "投稿" },
+    "buttons": {
+      "add": "投稿を追加",
+      "edit": "投稿を編集",
+      "view": "投稿を表示",
+      "delete": "投稿を削除"
+    },
+    "tabs": { "all": "すべて", "published": "公開", "pending": "保留", "draft": "下書き", "archived": "アーカイブ" }
+  },
+  "add": {
+    "title": "投稿を追加",
+    "crumbs": { "admin": "管理", "posts": "投稿", "add": "投稿を追加" },
+    "buttons": { "submit": "投稿を追加" }
+  },
+  "edit": {
+    "title": "投稿を編集",
+    "crumbs": { "admin": "管理", "posts": "投稿", "edit": "投稿を編集" },
+    "buttons": { "submit": "投稿を更新" }
+  }
+}

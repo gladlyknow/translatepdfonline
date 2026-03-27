@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "title": "Blog",
+    "description": "Découvrez les dernières fonctionnalités, solutions et actualités du produit."
+  },
+  "page": {
+    "title": "Blog — Translate PDF Online",
+    "sections": {
+      "blog": {
+        "id": "blog",
+        "title": "Blog",
+        "description": "Découvrez les dernières fonctionnalités, solutions et actualités du produit."
+      }
+    }
+  },
+  "messages": {
+    "all": "Tout",
+    "no_content": "Aucun contenu",
+    "crumb": "Blog",
+    "toc": "Table des matières"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "transaction_no": "Αρ. συναλλαγής",
+    "description": "Περιγραφή",
+    "type": "Τύπος",
+    "scene": "Σκηνή",
+    "credits": "Πιστώσεις",
+    "expires_at": "Λήγει",
+    "created_at": "Δημιουργήθηκε",
+    "action": "Ενέργεια"
+  },
+  "list": {
+    "title": "Ιστορικό πιστώσεων",
+    "tabs": { "all": "Όλα", "grant": "Πίστωση", "consume": "Κατανάλωση" }
+  },
+  "view": {
+    "title": "Υπόλοιπο πιστώσεων",
+    "buttons": { "purchase": "Αγορά πιστώσεων" }
+  }
+}

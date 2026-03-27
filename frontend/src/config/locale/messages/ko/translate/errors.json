@@ -1,0 +1,7 @@
+{
+  "pdf_font_unsupported": "이 PDF의 글꼴은 텍스트 추출에 적합하지 않습니다. 텍스트 레이어가 있는 PDF를 사용하거나 먼저 OCR을 실행하세요.",
+  "tounicode_missing": "이 PDF에 ToUnicode 매핑이 없습니다. 텍스트 레이어가 있는 PDF를 사용하거나 먼저 OCR을 실행하세요.",
+  "font_subset_corrupt": "글꼴 서브셋이 손상되었을 수 있습니다. PDF를 다시보내거나 먼저 OCR을 시도하세요.",
+  "no_paragraphs": "이 PDF에서 번역할 수 있는 텍스트를 찾지 못했습니다. 스캔본이거나 이미지만 있거나 아직 완전히 지원하지 않는 레이아웃일 수 있습니다. 귀하의 잘못이 아닙니다. 향후 릴리스에서 지원을 개선하고 있습니다. \"OCR로 전처리\"를 시도하거나 커서로 텍스트를 선택할 수 있는 PDF를 사용하세요.",
+  "ocr_preprocess_failed": "OCR 전처리에 실패했습니다. OCRmyPDF와 Tesseract가 설치되어 있는지 확인하거나 나중에 다시 시도하세요."
+}

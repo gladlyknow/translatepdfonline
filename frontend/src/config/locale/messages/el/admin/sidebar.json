@@ -1,0 +1,81 @@
+{
+  "header": {
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+      "url": "/admin"
+    },
+    "show_trigger": false
+  },
+  "main_navs": [
+    {
+      "title": "Σύστημα",
+      "items": [
+        {
+          "title": "Χρήστες και δικαιώματα",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            { "title": "Χρήστες", "url": "/admin/users", "icon": "User" },
+            { "title": "Ρόλοι", "url": "/admin/roles", "icon": "Users" },
+            { "title": "Δικαιώματα", "url": "/admin/permissions", "icon": "ShieldCheck" }
+          ]
+        },
+        {
+          "title": "Σελίδες και περιεχόμενο",
+          "icon": "FileText",
+          "children": [
+            { "title": "Κατηγορίες", "icon": "Folder", "url": "/admin/categories" },
+            { "title": "Άρθρα", "icon": "FileText", "url": "/admin/posts" }
+          ]
+        },
+        {
+          "title": "Πληρωμές και πιστώσεις",
+          "icon": "DollarSign",
+          "children": [
+            { "title": "Πληρωμές", "url": "/admin/payments", "icon": "DollarSign" },
+            { "title": "Συνδρομές", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            { "title": "Πιστώσεις", "url": "/admin/credits", "icon": "Coins" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Επιχειρησιακά",
+      "items": [
+        { "title": "Εργασίες AI", "url": "/admin/ai-tasks", "icon": "Brain" },
+        { "title": "Συνομιλίες AI", "url": "/admin/chats", "icon": "MessageCircle" }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      { "title": "Ρυθμίσεις", "url": "/admin/settings/general", "icon": "Settings" },
+      { "title": "Κλειδιά API", "url": "/admin/apikeys", "icon": "Key" }
+    ]
+  },
+  "user": {
+    "nav": {
+      "items": [
+        { "title": "Προφίλ", "url": "/settings/profile", "icon": "User", "target": "_blank" }
+      ]
+    },
+    "show_email": false,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        { "title": "Αρχική", "url": "/", "icon": "Home", "target": "_blank" },
+        { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+        { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+        { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+        { "title": "Email", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": false
+  },
+  "variant": "sidebar"
+}

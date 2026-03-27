@@ -1,0 +1,128 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "在线 PDF 翻译",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "在线 PDF 翻译",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "PDF 翻译",
+          "url": "/translate",
+          "icon": "FileText"
+        },
+        {
+          "title": "价格",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "账单",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "活动",
+          "url": "/activity",
+          "icon": "Activity"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": "专业 AI PDF 翻译，保留版式与字体；支持多语言对。立即 <a href='/translate' target='_self'>开始翻译</a>。"
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "在线 PDF 翻译",
+      "description": "浏览器内版式保留翻译；多语言对。HTTPS 传输，按策略定期从服务器删除文件。",
+      "logo": {
+        "src": "/favicon.svg",
+        "alt": "在线 PDF 翻译",
+        "width": 32,
+        "height": 32
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "关于",
+          "children": [
+            {
+              "title": "PDF 翻译",
+              "url": "/translate",
+              "target": "_self"
+            },
+            {
+              "title": "价格",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/translatep73025",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/translatepdfonline",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/cJnmgtMEZd",
+          "target": "_blank"
+        },
+        {
+          "title": "邮箱",
+          "icon": "Mail",
+          "url": "mailto:hello@translatepdfonline.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "隐私政策",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "服务条款",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}

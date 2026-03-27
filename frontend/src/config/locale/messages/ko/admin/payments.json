@@ -1,0 +1,36 @@
+{
+  "fields": {
+    "order_no": "주문 번호",
+    "user": "사용자",
+    "amount": "금액",
+    "product": "상품",
+    "description": "설명",
+    "type": "유형",
+    "provider": "제공자",
+    "created_at": "생성일",
+    "status": "상태",
+    "action": "작업"
+  },
+  "list": {
+    "title": "결제",
+    "crumbs": { "admin": "관리", "payments": "결제" },
+    "tabs": { "all": "전체", "subscription": "구독", "one-time": "일회성" },
+    "filters": {
+      "status": {
+        "title": "상태",
+        "options": { "all": "전체", "paid": "결제됨", "created": "생성됨", "failed": "실패" }
+      },
+      "provider": {
+        "title": "제공자",
+        "options": {
+          "all": "전체",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "PayPal"
+        }
+      }
+    },
+    "search": { "order_no": { "title": "주문 번호", "placeholder": "주문 번호" } }
+  }
+}

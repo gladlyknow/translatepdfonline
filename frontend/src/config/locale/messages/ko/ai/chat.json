@@ -1,0 +1,61 @@
+{
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "Translate PDF Online",
+        "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [{ "title": "새 채팅", "icon": "Plus", "url": "/chat", "variant": "outline" }],
+    "main_navs": [{ "items": [{ "title": "기록", "icon": "History", "url": "/chat/history" }] }],
+    "bottom_nav": { "items": [] },
+    "user": {
+      "nav": { "items": [{ "title": "프로필", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          { "title": "홈", "url": "/", "icon": "Home", "target": "_blank" },
+          { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+          { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+          { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+          { "title": "이메일", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
+  },
+  "library": {
+    "title": "라이브러리",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "더 보기",
+    "actions": { "edit_title": "제목 편집", "share": "공유", "delete": "삭제" }
+  },
+  "generator": {
+    "title": "오늘 무엇을 도와드릴까요?",
+    "input_placeholder": "무엇이든 물어보세요"
+  },
+  "history": {
+    "title": "채팅 기록",
+    "description": "이전 대화를 확인하고 다시 열 수 있습니다.",
+    "empty": "아직 대화가 없습니다.",
+    "error": "대화를 불러오지 못했습니다.",
+    "retry": "다시 시도",
+    "signin": "기록을 보려면 로그인하세요.",
+    "summary": "총 {total}건 중 {from}-{to}건 표시",
+    "perPage": "페이지당",
+    "prev": "이전",
+    "next": "다음",
+    "open": "채팅 열기",
+    "untitled": "제목 없는 대화"
+  }
+}

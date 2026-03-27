@@ -1,0 +1,11 @@
+{
+  "prevPage": "이전",
+  "nextPage": "다음",
+  "loading": "로딩 중...",
+  "loadFailed": "로드 실패",
+  "noPdf": "PDF 없음",
+  "pageNotTranslated": "이 페이지는 번역되지 않았습니다",
+  "zoomIn": "확대",
+  "zoomOut": "축소",
+  "zoomReset": "줌 초기화"
+}

@@ -1,0 +1,9 @@
+{
+  "fields": { "email": "이메일", "name": "이름", "avatar": "아바타" },
+  "edit": {
+    "title": "프로필",
+    "description": "프로필 업데이트",
+    "crumbs": { "settings": "설정", "profile": "프로필" },
+    "buttons": { "submit": "저장" }
+  }
+}

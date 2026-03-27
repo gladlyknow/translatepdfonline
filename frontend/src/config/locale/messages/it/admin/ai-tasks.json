@@ -1,0 +1,37 @@
+{
+  "fields": {
+    "task_id": "ID attività",
+    "media_type": "Tipo di media",
+    "provider": "Fornitore",
+    "model": "Modello",
+    "prompt": "Prompt",
+    "options": "Opzioni",
+    "user": "Utente",
+    "status": "Stato",
+    "cost_credits": "Crediti utilizzati",
+    "result": "Risultato",
+    "created_at": "Creato il",
+    "action": "Azione",
+    "scene": "Scenario"
+  },
+  "list": {
+    "title": "Attività IA",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "ai-tasks": "Attività IA"
+    },
+    "tabs": {
+      "all": "Tutte",
+      "music": "Musica",
+      "image": "Immagine",
+      "video": "Video",
+      "audio": "Audio",
+      "text": "Testo"
+    },
+    "buttons": {
+      "view": "Vedi attività",
+      "refresh": "Aggiorna attività"
+    },
+    "empty_message": "Nessuna attività trovata"
+  }
+}

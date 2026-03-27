@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "Générateur de musique IA",
+    "description": "Générez de la musique remarquable avec l’IA"
+  },
+  "page": {
+    "title": "Générateur de musique IA",
+    "description": "Générez de la musique remarquable avec l’IA"
+  },
+  "generator": {
+    "title": "Générateur de musique",
+    "prompt": "Invite",
+    "prompt_placeholder": "Une histoire d’amour entre Roméo et Juliette",
+    "generate": "Générer la musique",
+    "loading": "Chargement...",
+    "generating": "Génération...",
+    "sign_in_to_generate": "Connectez-vous pour générer de la musique",
+    "credits_cost": "Coût : {credits} crédits",
+    "credits_remaining": "Reste {credits} crédits",
+    "buy_credits": "Acheter des crédits",
+    "generation_progress": "Progression de la génération",
+    "time_cost": "Cela peut prendre 2 à 3 minutes...",
+    "generated_song": "Morceau généré",
+    "ready_to_play": "Prêt à la lecture",
+    "audio_generating": "Génération audio...",
+    "generating_song": "Génération du morceau...",
+    "waiting_generation": "Veuillez patienter pendant la création",
+    "no_song_generated": "Aucun morceau généré",
+    "downloading": "Téléchargement...",
+    "download_success": "Téléchargement terminé",
+    "download_failed": "Échec du téléchargement audio",
+    "form": {
+      "custom_mode": "Mode personnalisé",
+      "title": "Titre",
+      "title_placeholder": "The Sound of Silence",
+      "style": "Style musical",
+      "style_placeholder": "indie, électronique, synthés, 120 bpm, distorsion",
+      "instrumental": "Instrumental",
+      "prompt": "Invite",
+      "prompt_placeholder": "Une chanson folk country sur l’amour",
+      "model": "Modèle",
+      "lyrics": "Paroles",
+      "lyrics_placeholder": "Rédigez vos paroles, deux couplets (8 vers) pour un meilleur résultat"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+---
+title: Einführung
+description: Translate PDF Online — Architektur, Funktionen, Sicherheit und Open-Source-Compliance.
+---
+
+## Was ist Translate PDF Online?
+
+**Translate PDF Online** ist ein Webdienst zum Übersetzen von PDF-Dokumenten bei möglichst erhaltener Seitenlayout, Abbildungen und Tabellen. Gedacht für akademische und professionelle PDFs in **Englisch, Chinesisch (Vereinfacht), Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch** und weiteren Sprachpaaren.
+
+- **Website:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **Kontakt:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## Open Source und Danksagungen
+
+Unsere Übersetzungs-Pipeline baut auf Community-Open-Source, insbesondere **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** und dem **pdf2zh / BabelDOC**-Ökosystem für layoutbewusste PDF-Übersetzung.
+
+Wir empfehlen, das Upstream-Projekt für Implementierungsdetails und Lizenzbedingungen zu prüfen.
+
+## AGPL-3.0-Compliance
+
+Von **pdf2zh** (AGPL-3.0) abgeleitete Komponenten können erfordern, dass Nutzer, die den Dienst über ein Netzwerk nutzen, den entsprechenden Quellcode für die AGPL-gedeckten Teile erhalten können — oder dass das Projekt sonst den AGPL-Pflichten nachkommt.
+
+**Quellcode:** Referenz-Implementierung: [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Fragen zu deployment-spezifischen Quellangeboten: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_Dieser Abschnitt dient der Transparenz; keine Rechtsberatung. Bitte Anwalt für Ihre AGPL-Pflichten konsultieren._
+
+## Systemarchitektur
+
+Wir trennen **Frontend und Backend**.
+
+### Frontend (Edge)
+
+- **Stack:** React / **Next.js**.
+- **Hosting:** **Cloudflare Pages / Workers**.
+- **Rolle:** UI, Authentifizierung, Billing-UI, PDF-Vorschau und -vergleich im Browser, Aufrufe der Backend-APIs.
+
+### Objektspeicher
+
+- **Cloudflare R2** für hochgeladene PDFs und Ausgaben, **S3-kompatible** APIs.
+- R2 hilft, **Egress**-Kosten bei großen Downloads zu begrenzen.
+
+### Backend-API
+
+- **Stack:** Python (**FastAPI** o. Ä.) auf skalierbaren Servern (**ECS** / VPS).
+- **Rolle:** Konten, Credits/Abos, Aufgaben, Orchestrierung, Anbindung an **DeepSeek** und Worker-Warteschlangen.
+
+### Asynchrone Worker
+
+- **Celery** (o. Ä.) für CPU-/IO-lastige Schritte: Layout-Analyse (z. B. **DocLayout-YOLO**), Textextraktion, Übersetzungsaufrufe und **BabelDOC**-artiges Neuzeichnen, damit übersetzter Text in die PDF-Vektorstruktur zurückgelegt wird, wo unterstützt.
+
+**Datenfluss (kurz):** Browser → Next.js auf Cloudflare → Backend-API → R2, Warteschlange, DeepSeek-API → Worker → R2.
+
+## Kernfunktionen
+
+### A. PDF-Ansicht und Bereichsauswahl
+
+- **Bibliothek:** `react-pdf-selection` (o. Ä.) überlagert die Interaktion.
+- **Ablauf:** Nutzer zieht ein Rechteck; Client sendet **normalisierte Koordinaten** an das Backend.
+- **Teilübersetzung:** Backend extrahiert mit **PyMuPDF** (o. Ä.) Text aus der Region, ruft **DeepSeek** auf und liefert Text für Inline-/Overlay-Anzeige.
+
+### B. Seitenweise Gegenüberstellung und Scroll-Sync
+
+- **Engine:** **pdf.js** (o. Ä.) rendert zwei PDF-Bereiche (Quelle und Übersetzung).
+- **Sync:** Scroll-Position links → **Scroll-Verhältnis** → rechte Ansicht angepasst.
+
+### C. Aufgaben-Pipeline
+
+1. **Parse / Layout:** Worker erkennen Absätze, Gleichungen, Tabellen.
+2. **Übersetzen:** Batches an **DeepSeek** (z. B. DeepSeek-V3). Tokenkosten variieren.
+3. **Render:** **BabelDOC** schreibt übersetzte Zeichenketten zurück in die PDF-Struktur, wo möglich.
+
+## Arbeitsbereich „Übersetzen“ (Verlauf)
+
+Auf **[PDF übersetzen](/translate)** ist die **Verlauf**-Spalte zentral:
+
+- Sie listet **Uploads und Übersetzungsaufgaben** für die aktuelle Sitzung (und Ihr **Konto**, wenn angemeldet) mit Status, Sprachen und Dateinamen.
+- **Alte Aufgabe öffnen** — Vorschau, Download des übersetzten PDFs oder Fortschritt **ohne erneutes Hochladen derselben Datei**.
+- Zusammenarbeit mit **PDF-Vorschau** und Steuerung rechts: Eintrag wählen lädt den Kontext der Aufgabe.
+
+Wenn ein Eintrag fehlt, kann **Aufbewahrungsrichtlinie** (siehe unten) oder ein anderes Gerät/Sitzung der Grund sein.
+
+## Datensicherheit und Aufbewahrung
+
+- **Transport:** **HTTPS** End-to-End (inkl. Cloudflare zum Origin).
+- **Aufbewahrung:** Ausgaben und zugehörige Objekte in **R2** werden in der Regel **nach etwa 7 Tagen** automatisch gelöscht, sofern nicht anders in den Produkteinstellungen oder gesetzlich vorgeschrieben.
+- **Sicherheit:** Angemessene Zugriffskontrollen und Verschlüsselung während der Übertragung; absolute Sicherheit kann kein Onlinedienst garantieren.
+
+Rechtliches, Datenschutz und Zahlungen: [Datenschutz](/privacy-policy) und [Nutzungsbedingungen](/terms-of-service).

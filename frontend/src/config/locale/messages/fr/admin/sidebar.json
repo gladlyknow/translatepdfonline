@@ -1,0 +1,77 @@
+{
+  "header": {
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+      "url": "/admin"
+    },
+    "show_trigger": false
+  },
+  "main_navs": [
+    {
+      "title": "Système",
+      "items": [
+        {
+          "title": "Utilisateurs et droits",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            { "title": "Utilisateurs", "url": "/admin/users", "icon": "User" },
+            { "title": "Rôles", "url": "/admin/roles", "icon": "Users" },
+            { "title": "Permissions", "url": "/admin/permissions", "icon": "ShieldCheck" }
+          ]
+        },
+        {
+          "title": "Pages et contenu",
+          "icon": "FileText",
+          "children": [
+            { "title": "Catégories", "icon": "Folder", "url": "/admin/categories" },
+            { "title": "Articles", "icon": "FileText", "url": "/admin/posts" }
+          ]
+        },
+        {
+          "title": "Paiements et crédits",
+          "icon": "DollarSign",
+          "children": [
+            { "title": "Paiements", "url": "/admin/payments", "icon": "DollarSign" },
+            { "title": "Abonnements", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            { "title": "Crédits", "url": "/admin/credits", "icon": "Coins" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Activité commerciale",
+      "items": [
+        { "title": "Tâches IA", "url": "/admin/ai-tasks", "icon": "Brain" },
+        { "title": "Discussions IA", "url": "/admin/chats", "icon": "MessageCircle" }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      { "title": "Paramètres", "url": "/admin/settings/general", "icon": "Settings" },
+      { "title": "Clés API", "url": "/admin/apikeys", "icon": "Key" }
+    ]
+  },
+  "user": {
+    "nav": { "items": [{ "title": "Profil", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+    "show_email": false,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
+        { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+        { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+        { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+        { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": false
+  },
+  "variant": "sidebar"
+}

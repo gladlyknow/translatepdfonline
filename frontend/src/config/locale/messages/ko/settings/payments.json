@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "order_no": "주문 번호",
+    "user": "사용자",
+    "amount": "금액",
+    "product_name": "상품명",
+    "price": "가격",
+    "paid_amount": "결제 금액",
+    "discount_amount": "할인 금액",
+    "description": "설명",
+    "type": "유형",
+    "provider": "제공자",
+    "created_at": "생성일",
+    "status": "상태",
+    "action": "작업",
+    "actions": { "view_invoice": "청구서 보기" }
+  },
+  "list": {
+    "title": "결제 내역",
+    "description": "결제 내역을 확인합니다",
+    "tabs": { "all": "전체", "one-time": "일회성", "subscription": "구독", "renew": "갱신" }
+  }
+}

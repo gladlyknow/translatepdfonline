@@ -1,0 +1,51 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "Όνομα",
+    "avatar": "Άβαταρ",
+    "email": "Email",
+    "email_verified": "Email επαληθευμένο",
+    "remaining_credits": "Υπόλοιπο πιστώσεων",
+    "created_at": "Δημιουργήθηκε",
+    "actions": "Ενέργειες",
+    "roles": "Ρόλοι",
+    "ip": "IP",
+    "locale": "Γλώσσα",
+    "utm_source": "Πηγή UTM"
+  },
+  "list": {
+    "title": "Χρήστες",
+    "crumbs": { "admin": "Διαχείριση", "users": "Χρήστες" },
+    "buttons": {
+      "add": "Προσθήκη χρήστη",
+      "edit": "Επεξεργασία χρήστη",
+      "view": "Προβολή χρήστη",
+      "delete": "Διαγραφή χρήστη",
+      "edit_roles": "Επεξεργασία ρόλων",
+      "grant_credits": "Χορήγηση πιστώσεων"
+    },
+    "search": { "email": { "title": "Email", "placeholder": "Email" } }
+  },
+  "edit": {
+    "title": "Επεξεργασία χρήστη",
+    "crumbs": { "admin": "Διαχείριση", "users": "Χρήστες", "edit": "Επεξεργασία" },
+    "buttons": { "submit": "Ενημέρωση" }
+  },
+  "edit_roles": {
+    "title": "Επεξεργασία ρόλων",
+    "crumbs": { "admin": "Διαχείριση", "users": "Χρήστες", "edit_roles": "Επεξεργασία ρόλων" },
+    "buttons": { "submit": "Ενημέρωση" }
+  },
+  "grant_credits": {
+    "title": "Χορήγηση πιστώσεων",
+    "crumbs": { "admin": "Διαχείριση", "users": "Χρήστες", "grant_credits": "Χορήγηση πιστώσεων" },
+    "buttons": { "submit": "Χορήγηση" },
+    "fields": {
+      "credits": "Ποσό πιστώσεων",
+      "valid_days": "Ημέρες ισχύος πιστώσεων",
+      "valid_days_tip": "0 σημαίνει χωρίς λήξη",
+      "description": "Περιγραφή χορήγησης",
+      "description_placeholder": "Χορήγηση πιστώσεων από διαχειριστή"
+    }
+  }
+}

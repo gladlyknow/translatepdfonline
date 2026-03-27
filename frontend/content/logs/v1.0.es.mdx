@@ -1,0 +1,26 @@
+---
+title: 'Translate PDF Online — Lanzamiento inicial'
+description: 'Traducción de PDF con conservación de diseño, almacenamiento en la nube y pipeline con DeepSeek.'
+date: '2026-03-01'
+tags: ['Translate PDF Online', 'PDF', 'Lanzamiento']
+version: '1.0.0'
+---
+
+![Translate PDF Online](/imgs/features/landing-page.png)
+
+**Translate PDF Online** está disponible en **www.translatepdfonline.com**: suba PDF académicos o profesionales, traduzca entre **inglés**, **chino (simplificado)** y **español** (y más idiomas con el tiempo) y descargue PDF traducidos conservando el diseño cuando el sistema lo permita.
+
+## Aspectos destacados
+
+- **Aplicación web** en **Cloudflare** (Next.js) con inicio de sesión y área de traducción  
+- Almacenamiento **R2**; **HTTPS** en todo el tráfico  
+- **Workers** asíncronos para análisis de maquetación (p. ej. DocLayout-YOLO) y re-render tipo **BabelDOC**  
+- API **DeepSeek**; facturación por **créditos** por página traducida  
+- Pipeline alineado con **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** y el ecosistema **pdf2zh / BabelDOC**  
+
+## Políticas
+
+- **Privacidad** y **Términos** describen el uso de datos, retención de archivos de unos **7 días** en almacenamiento de objetos y usos prohibidos.  
+- La transparencia **AGPL** para componentes upstream está en la **[Documentación](/docs)**.
+
+**Contacto:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)

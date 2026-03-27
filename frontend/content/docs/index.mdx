@@ -1,0 +1,88 @@
+---
+title: Introduction
+description: Translate PDF Online — architecture, features, security, and open-source compliance.
+---
+
+## What is Translate PDF Online?
+
+**Translate PDF Online** is a web service for translating PDF documents while preserving layout, figures, and tables where possible. It is designed for academic and professional PDFs across **English, Chinese (Simplified), Spanish, French, Italian, Greek, Japanese, Korean, German, Russian**, and more language pairs over time.
+
+- **Website:** [www.translatepdfonline.com](https://www.translatepdfonline.com)
+- **Contact:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+
+## Open source and credits
+
+Our translation pipeline builds on community open-source work, in particular **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** and the wider **pdf2zh / BabelDOC** ecosystem for layout-aware PDF translation.
+
+We encourage you to review the upstream project for implementation details and license terms.
+
+## AGPL-3.0 compliance
+
+Components derived from **pdf2zh** (AGPL-3.0) may require that users who interact with the service over a network can obtain corresponding source code for the AGPL-covered parts, or that the project otherwise complies with AGPL obligations.
+
+**Source access:** Upstream reference implementation and related code: [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). For questions about our deployment-specific source offerings, contact [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+
+_This section is for transparency; it is not legal advice. Consult counsel for your AGPL obligations._
+
+## System architecture
+
+We use a **separated front end and back end**.
+
+### Front end (edge)
+
+- **Stack:** React / **Next.js** application.
+- **Hosting:** **Cloudflare Pages / Workers** (edge delivery).
+- **Role:** UI, authentication flows, billing UI, PDF preview and comparison in the browser, and calls to backend APIs.
+
+### Object storage
+
+- **Cloudflare R2** stores uploaded PDFs and generated outputs, with **S3-compatible** APIs.
+- R2 helps control **egress** costs for large PDF downloads compared to many object stores.
+
+### Backend API (application servers)
+
+- **Stack:** Python (**FastAPI** or similar) on elastic cloud servers (**ECS** / VPS-class hosting).
+- **Role:** User accounts, credits and subscriptions metadata, task creation, orchestration, and integration with the translation model provider (**DeepSeek** API) and worker queues.
+
+### Async workers
+
+- **Celery** (or equivalent) workers run CPU- and IO-heavy steps: layout analysis (e.g. **DocLayout-YOLO**), text extraction, translation calls, and **BabelDOC**-style re-rendering so translated text is placed back into the PDF vector structure where supported.
+
+**Data flow (summary):** Browser → Next.js on Cloudflare → Backend API → R2, task queue, DeepSeek API → workers → R2.
+
+## Core features
+
+### A. PDF viewing and area selection
+
+- **Library:** `react-pdf-selection` (or equivalent) overlays an interaction layer on the PDF view.
+- **Flow:** The user draws a rectangle; the client reads **normalized coordinates** for that page region and sends them to the backend.
+- **Partial translation:** The backend uses **PyMuPDF** (or similar) to extract text from the region, calls **DeepSeek** for translation, and returns text for inline or overlay display.
+
+### B. Side-by-side comparison and scroll sync
+
+- **Engine:** **pdf.js** (or equivalent) renders two PDF panes (source and translated).
+- **Sync:** The left pane’s `scroll` position is read, a **scroll ratio** is computed, and the right pane is updated so both views stay aligned even when page lengths differ slightly.
+
+### C. Task pipeline
+
+1. **Parse / layout:** Workers run layout detection (paragraphs, equations, tables) as configured.
+2. **Translate:** Batches are sent to **DeepSeek** (e.g. DeepSeek-V3). Token costs vary with document size and model pricing—treat public pricing as **indicative** and subject to change.
+3. **Render:** **BabelDOC** (and related tooling) writes translated strings back into the PDF structure while preserving style where possible.
+
+## Using the translate workspace (History panel)
+
+On the **[Translate PDF](/translate)** screen, the **History** column is central to your workflow:
+
+- It lists **uploads and translation tasks** tied to your current browser session (and to your **account** when you are signed in), including status, source/target languages, and filenames.
+- **Open a past task** from History to resume preview, download the translated PDF, or monitor progress—**without uploading the same file again**.
+- History works together with the **PDF preview** and task controls on the right: selecting an entry loads that task’s context so you can continue where you left off.
+
+If you do not see an older item, it may have been removed by **retention policy** (see below) or you may be on a different device or session.
+
+## Data security and retention
+
+- **Transport:** **HTTPS** end-to-end (including Cloudflare to origin).
+- **Retention:** Translated outputs and related objects in **R2** are scheduled for **automatic deletion after approximately 7 days** unless a different retention rule is stated in product settings or law requires otherwise.
+- **Security:** We apply reasonable access controls and encryption in transit; no online service can guarantee absolute security.
+
+For legal terms, privacy, and payment processing, see our [Privacy Policy](/privacy-policy) and [Terms of Service](/terms-of-service).

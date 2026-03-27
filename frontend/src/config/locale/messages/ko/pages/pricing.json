@@ -1,0 +1,139 @@
+{
+  "metadata": {
+    "title": "요금",
+    "description": "번역 크레딧 및 요금제"
+  },
+  "page": {
+    "title": "Translate PDF Online — 요금",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "요금",
+        "description": "Creem으로 결제합니다. 번역된 PDF 페이지당 10크레딧. $5 / 500크레딧을 언제든 충전할 수 있습니다.",
+        "groups": [
+          { "name": "one-time", "title": "충전" },
+          { "name": "monthly", "title": "월간", "is_featured": true },
+          { "name": "quarterly", "title": "분기" },
+          { "name": "semi-annual", "title": "6개월" },
+          { "name": "yearly", "title": "연간" }
+        ],
+        "items": [
+          {
+            "title": "500 크레딧",
+            "description": "일회성 팩 — $5에 500크레딧. 부족할 때마다 다시 구매하세요.",
+            "features_title": "포함 사항",
+            "features": ["번역 크레딧 500", "번역 페이지당 10크레딧", "크레딧 만료 없음"],
+            "interval": "one-time",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "",
+            "is_featured": false,
+            "tip": "크레딧이 부족해지면 충전하세요.",
+            "button": { "title": "크레딧 구매", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-topup",
+            "product_name": "Translate PDF — 500크레딧(충전)",
+            "credits": 500,
+            "valid_days": 0,
+            "group": "one-time",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "550 크레딧 / 월",
+            "description": "월 구독 — 청구 주기마다 550크레딧($5/월). 언제든 해지 가능.",
+            "features_title": "포함 사항",
+            "features": [
+              "각 청구 주기마다 550크레딧",
+              "번역 페이지당 10크레딧",
+              "구독 크레딧은 기간 종료 시 만료·충전분은 만료 없음"
+            ],
+            "interval": "month",
+            "amount": 500,
+            "currency": "USD",
+            "price": "$5",
+            "unit": "/ 월",
+            "is_featured": true,
+            "tip": "자주 번역하시면 가장 알맞습니다.",
+            "button": { "title": "구독하기", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-monthly",
+            "product_name": "Translate PDF — 월간(550크레딧)",
+            "credits": 550,
+            "valid_days": 0,
+            "group": "monthly",
+            "plan_name": "월간",
+            "payment_providers": ["creem"],
+            "trial_subscription": true
+          },
+          {
+            "title": "1600 크레딧 / 분기",
+            "description": "분기 요금제 — 3개월마다 $13, 주기당 1600크레딧.",
+            "features_title": "포함 사항",
+            "features": ["각 청구 주기마다 1600크레딧", "번역 페이지당 10크레딧", "청구에서 언제든 해지"],
+            "interval": "quarter",
+            "amount": 1300,
+            "currency": "USD",
+            "price": "$13",
+            "unit": "/ 분기",
+            "is_featured": false,
+            "tip": "월간보다 관리가 덜 번거롭습니다.",
+            "button": { "title": "분기 구독", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-quarterly",
+            "product_name": "Translate PDF — 분기(1600크레딧)",
+            "credits": 1600,
+            "valid_days": 0,
+            "group": "quarterly",
+            "plan_name": "분기",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "3300 크레딧 / 6개월",
+            "description": "반기 — 6개월마다 $25, 주기당 3300크레딧.",
+            "features_title": "포함 사항",
+            "features": ["각 청구 주기마다 3300크레딧", "번역 페이지당 10크레딧", "청구에서 언제든 해지"],
+            "interval": "six-months",
+            "amount": 2500,
+            "currency": "USD",
+            "price": "$25",
+            "unit": "/ 6개월",
+            "is_featured": false,
+            "tip": "가격과 약정의 균형이 좋습니다.",
+            "button": { "title": "6개월 구독", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-semiannual",
+            "product_name": "Translate PDF — 반기(3300크레딧)",
+            "credits": 3300,
+            "valid_days": 0,
+            "group": "semi-annual",
+            "plan_name": "반기",
+            "payment_providers": ["creem"]
+          },
+          {
+            "title": "6500 크레딧 / 년",
+            "description": "연간 요금제 — $45/년, 매년 6500크레딧.",
+            "features_title": "포함 사항",
+            "features": ["매년 6500크레딧", "번역 페이지당 10크레딧", "청구에서 언제든 해지"],
+            "interval": "year",
+            "amount": 4500,
+            "currency": "USD",
+            "price": "$45",
+            "unit": "/ 년",
+            "is_featured": false,
+            "label": "월간을 1년 내면 대비 25% 절약",
+            "tip": "1년간 월간 결제 대비 크레딧 단가가 가장 낮습니다.",
+            "button": { "title": "연간 구독", "url": "/pricing", "icon": "FileText" },
+            "product_id": "translate-credits-yearly",
+            "product_name": "Translate PDF — 연간(6500크레딧)",
+            "credits": 6500,
+            "valid_days": 0,
+            "group": "yearly",
+            "plan_name": "연간",
+            "payment_providers": ["creem"]
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "현재 요금제",
+    "processing": "처리 중"
+  }
+}

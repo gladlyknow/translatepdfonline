@@ -1,0 +1,23 @@
+{
+  "fields": { "title": "Titre", "key": "Clé", "created_at": "Créé le", "action": "Action" },
+  "list": {
+    "title": "Clés API",
+    "empty_message": "Aucune clé API",
+    "buttons": { "add": "Créer une clé API", "edit": "Modifier", "delete": "Supprimer" }
+  },
+  "add": {
+    "title": "Créer une clé API",
+    "crumbs": { "apikeys": "Clés API", "add": "Créer une clé API" },
+    "buttons": { "submit": "Créer" }
+  },
+  "edit": {
+    "title": "Modifier la clé API",
+    "crumbs": { "apikeys": "Clés API", "edit": "Modifier la clé API" },
+    "buttons": { "submit": "Mettre à jour" }
+  },
+  "delete": {
+    "title": "Supprimer la clé API",
+    "crumbs": { "apikeys": "Clés API", "delete": "Supprimer la clé API" },
+    "buttons": { "submit": "Confirmer la suppression" }
+  }
+}

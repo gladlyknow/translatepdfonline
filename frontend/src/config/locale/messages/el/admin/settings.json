@@ -1,0 +1,49 @@
+{
+  "groups": {
+    "email_auth": "Σύνδεση email",
+    "google_auth": "Σύνδεση Google",
+    "github_auth": "Σύνδεση GitHub",
+    "basic_payment": "Βασική πληρωμή",
+    "stripe": "Stripe",
+    "creem": "Creem",
+    "paypal": "PayPal",
+    "resend": "Resend",
+    "r2": "Cloudflare R2",
+    "s3": "AWS S3",
+    "openrouter": "OpenRouter",
+    "replicate": "Replicate",
+    "fal": "Fal",
+    "google_analytics": "Google Analytics",
+    "clarity": "Clarity",
+    "plausible": "Plausible",
+    "openpanel": "OpenPanel",
+    "vercel_analytics": "Vercel Analytics",
+    "adsense": "AdSense",
+    "affonso": "Affonso",
+    "promotekit": "PromoteKit",
+    "tawk": "Tawk",
+    "crisp": "Crisp",
+    "credit": "Πιστώσεις",
+    "appinfo": "Πληροφορίες εφαρμογής",
+    "user_role": "Ρόλος χρήστη",
+    "translate_fc": "Μετάφραση PDF (FC)"
+  },
+  "edit": {
+    "title": "Ρυθμίσεις",
+    "crumbs": { "admin": "Διαχείριση", "settings": "Ρυθμίσεις" },
+    "tabs": {
+      "general": "Γενικά",
+      "auth": "Ταυτοποίηση",
+      "payment": "Πληρωμή",
+      "credit": "Πιστώσεις",
+      "email": "Email",
+      "storage": "Αποθήκευση",
+      "ai": "AI",
+      "analytics": "Αναλυτικά",
+      "ads": "Διαφημίσεις",
+      "affiliate": "Συνεργάτες",
+      "customer_service": "Υποστήριξη πελατών"
+    },
+    "buttons": { "submit": "Αποθήκευση" }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "Nome",
+    "avatar": "Avatar",
+    "email": "Email",
+    "email_verified": "Email verificata",
+    "remaining_credits": "Crediti rimanenti",
+    "created_at": "Creato il",
+    "actions": "Azioni",
+    "roles": "Ruoli",
+    "ip": "IP",
+    "locale": "Lingua",
+    "utm_source": "Fonte UTM"
+  },
+  "list": {
+    "title": "Utenti",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "users": "Utenti"
+    },
+    "buttons": {
+      "add": "Aggiungi utente",
+      "edit": "Modifica utente",
+      "view": "Vedi utente",
+      "delete": "Elimina utente",
+      "edit_roles": "Modifica ruoli",
+      "grant_credits": "Assegna crediti"
+    },
+    "search": {
+      "email": {
+        "title": "Email",
+        "placeholder": "Email"
+      }
+    }
+  },
+  "edit": {
+    "title": "Modifica utente",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "users": "Utenti",
+      "edit": "Modifica"
+    },
+    "buttons": {
+      "submit": "Aggiorna"
+    }
+  },
+  "edit_roles": {
+    "title": "Modifica ruoli",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "users": "Utenti",
+      "edit_roles": "Modifica ruoli"
+    },
+    "buttons": {
+      "submit": "Aggiorna"
+    }
+  },
+  "grant_credits": {
+    "title": "Assegna crediti",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "users": "Utenti",
+      "grant_credits": "Assegna crediti"
+    },
+    "buttons": {
+      "submit": "Assegna"
+    },
+    "fields": {
+      "credits": "Importo crediti",
+      "valid_days": "Giorni di validità crediti",
+      "valid_days_tip": "0 significa senza scadenza",
+      "description": "Descrizione assegnazione crediti",
+      "description_placeholder": "Crediti assegnati dall’amministratore"
+    }
+  }
+}

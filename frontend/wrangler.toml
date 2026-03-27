@@ -1,0 +1,28 @@
+# 由 scripts/generate-wrangler.js 生成（勿手改产物）。
+# Cloudflare：Git 里「Build variables」默认只在构建可见，不进 Worker 运行时；脚本把白名单键从构建 env 写入 [vars] 再 deploy。
+# Postgres：有 HYPERDRIVE 绑定时 `getPostgresDb()` 使用 Hyperdrive 连接串；否则用 `DATABASE_URL`（见 src/core/db/postgres.ts）。
+# Hyperdrive 源库在 Cloudflare Dashboard 配置；本地 wrangler dev 推荐 CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE（勿提交密码）。
+# HYPERDRIVE_CONFIG_ID：构建时注入，或部署前把下方 id 换成 Dashboard 中的配置 ID。
+# 运行时专用：Worker → Settings → Variables and secrets（与 Build 页不是同一处）。
+name = "translatepdfonline"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+keep_names = false
+
+[assets]
+binding = "ASSETS"
+directory = ".open-next/assets"
+
+[observability]
+enabled = true
+
+[vars]
+# 构建环境未命中白名单变量。若变量只配在「Build」里，运行时本不会有；请见脚本头注释。
+# 或在 Worker → Settings → Variables and secrets 配置运行时变量 + wrangler deploy --keep-vars。
+
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "1f0a3251f43343c3872e5f882ff3d879"
+

@@ -1,0 +1,51 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "이름",
+    "avatar": "아바타",
+    "email": "이메일",
+    "email_verified": "이메일 인증됨",
+    "remaining_credits": "남은 크레딧",
+    "created_at": "생성일",
+    "actions": "작업",
+    "roles": "역할",
+    "ip": "IP",
+    "locale": "로케일",
+    "utm_source": "UTM 소스"
+  },
+  "list": {
+    "title": "사용자",
+    "crumbs": { "admin": "관리", "users": "사용자" },
+    "buttons": {
+      "add": "사용자 추가",
+      "edit": "사용자 편집",
+      "view": "사용자 보기",
+      "delete": "사용자 삭제",
+      "edit_roles": "역할 편집",
+      "grant_credits": "크레딧 지급"
+    },
+    "search": { "email": { "title": "이메일", "placeholder": "이메일" } }
+  },
+  "edit": {
+    "title": "사용자 편집",
+    "crumbs": { "admin": "관리", "users": "사용자", "edit": "편집" },
+    "buttons": { "submit": "업데이트" }
+  },
+  "edit_roles": {
+    "title": "역할 편집",
+    "crumbs": { "admin": "관리", "users": "사용자", "edit_roles": "역할 편집" },
+    "buttons": { "submit": "업데이트" }
+  },
+  "grant_credits": {
+    "title": "크레딧 지급",
+    "crumbs": { "admin": "관리", "users": "사용자", "grant_credits": "크레딧 지급" },
+    "buttons": { "submit": "지급" },
+    "fields": {
+      "credits": "크레딧 수량",
+      "valid_days": "유효 일수",
+      "valid_days_tip": "0은 만료 없음",
+      "description": "지급 설명",
+      "description_placeholder": "관리자 크레딧 지급"
+    }
+  }
+}

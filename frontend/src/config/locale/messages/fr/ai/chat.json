@@ -1,0 +1,61 @@
+{
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "Translate PDF Online",
+        "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [{ "title": "Nouvelle discussion", "icon": "Plus", "url": "/chat", "variant": "outline" }],
+    "main_navs": [{ "items": [{ "title": "Historique", "icon": "History", "url": "/chat/history" }] }],
+    "bottom_nav": { "items": [] },
+    "user": {
+      "nav": { "items": [{ "title": "Profil", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
+          { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+          { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+          { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+          { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
+  },
+  "library": {
+    "title": "Bibliothèque",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "Plus",
+    "actions": { "edit_title": "Modifier le titre", "share": "Partager", "delete": "Supprimer" }
+  },
+  "generator": {
+    "title": "En quoi puis-je vous aider aujourd’hui ?",
+    "input_placeholder": "Vous pouvez me poser n’importe quelle question"
+  },
+  "history": {
+    "title": "Historique des discussions",
+    "description": "Consultez et rouvrez vos conversations précédentes.",
+    "empty": "Aucune conversation pour le moment.",
+    "error": "Échec du chargement des conversations.",
+    "retry": "Réessayer",
+    "signin": "Connectez-vous pour voir l’historique des discussions.",
+    "summary": "{from}-{to} sur {total}",
+    "perPage": "Par page",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "open": "Ouvrir la discussion",
+    "untitled": "Conversation sans titre"
+  }
+}

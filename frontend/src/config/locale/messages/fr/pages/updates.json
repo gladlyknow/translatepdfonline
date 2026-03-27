@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "Journal des mises à jour",
+    "description": "Consultez l’historique des mises à jour du produit : nouvelles fonctionnalités et améliorations."
+  },
+  "page": {
+    "sections": {
+      "updates": {
+        "id": "updates",
+        "title": "Journal des mises à jour",
+        "description": "Consultez l’historique des mises à jour du produit : nouvelles fonctionnalités et améliorations."
+      }
+    }
+  }
+}

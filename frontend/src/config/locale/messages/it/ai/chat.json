@@ -1,0 +1,121 @@
+{
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "Translate PDF Online",
+        "logo": {
+          "src": "/favicon.svg",
+          "alt": "Translate PDF Online"
+        },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [
+      {
+        "title": "Nuova chat",
+        "icon": "Plus",
+        "url": "/chat",
+        "variant": "outline"
+      }
+    ],
+    "main_navs": [
+      {
+        "items": [
+          {
+            "title": "Cronologia",
+            "icon": "History",
+            "url": "/chat/history"
+          }
+        ]
+      }
+    ],
+    "bottom_nav": {
+      "items": []
+    },
+    "user": {
+      "nav": {
+        "items": [
+          {
+            "title": "Profilo",
+            "url": "/settings/profile",
+            "icon": "User",
+            "target": "_blank"
+          }
+        ]
+      },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          {
+            "title": "Home",
+            "url": "/",
+            "icon": "Home",
+            "target": "_blank"
+          },
+          {
+            "title": "GitHub",
+            "url": "https://github.com/translatepdfonline",
+            "icon": "Github",
+            "target": "_blank"
+          },
+          {
+            "title": "Twitter",
+            "url": "https://x.com/translatep73025",
+            "icon": "RiTwitterXFill",
+            "target": "_blank"
+          },
+          {
+            "title": "Discord",
+            "url": "https://discord.gg/cJnmgtMEZd",
+            "icon": "RiDiscordFill",
+            "target": "_blank"
+          },
+          {
+            "title": "Email",
+            "url": "mailto:support@your-domain.com",
+            "icon": "Mail",
+            "target": "_blank"
+          }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
+  },
+  "library": {
+    "title": "Libreria",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "Altro",
+    "actions": {
+      "edit_title": "Modifica titolo",
+      "share": "Condividi",
+      "delete": "Elimina"
+    }
+  },
+  "generator": {
+    "title": "Come posso aiutarti oggi?",
+    "input_placeholder": "Puoi chiedermi qualsiasi cosa"
+  },
+  "history": {
+    "title": "Cronologia chat",
+    "description": "Rivedi e riapri le conversazioni precedenti.",
+    "empty": "Ancora nessuna conversazione.",
+    "error": "Impossibile caricare le conversazioni.",
+    "retry": "Riprova",
+    "signin": "Accedi per vedere la cronologia chat.",
+    "summary": "{from}-{to} di {total}",
+    "perPage": "Per pagina",
+    "prev": "Precedente",
+    "next": "Successiva",
+    "open": "Apri chat",
+    "untitled": "Conversazione senza titolo"
+  }
+}

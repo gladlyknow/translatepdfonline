@@ -1,0 +1,49 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "Nome",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "status": "Stato",
+    "sort": "Ordinamento",
+    "created_at": "Creato il",
+    "updated_at": "Aggiornato il",
+    "permissions": "Permessi",
+    "actions": "Azioni"
+  },
+  "list": {
+    "title": "Ruoli",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "roles": "Ruoli"
+    },
+    "buttons": {
+      "create": "Crea ruolo",
+      "edit": "Modifica ruolo",
+      "edit_permissions": "Modifica permessi",
+      "delete": "Elimina ruolo"
+    }
+  },
+  "edit": {
+    "title": "Modifica ruolo",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "roles": "Ruoli",
+      "edit": "Modifica ruolo"
+    },
+    "buttons": {
+      "submit": "Aggiorna"
+    }
+  },
+  "edit_permissions": {
+    "title": "Modifica permessi",
+    "crumbs": {
+      "admin": "Amministrazione",
+      "roles": "Ruoli",
+      "edit_permissions": "Modifica permessi"
+    },
+    "buttons": {
+      "submit": "Aggiorna"
+    }
+  }
+}

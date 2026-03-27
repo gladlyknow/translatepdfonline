@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "title": "Esempi",
+    "description": "Progetti che utilizzano Translate PDF Online"
+  },
+  "page": {
+    "title": "Esempi",
+    "sections": {
+      "showcases": {
+        "id": "showcases",
+        "title": "Progetti che utilizzano Translate PDF Online",
+        "description": "Semplice da usare e veloce da mettere online.",
+        "groups": [
+          {
+            "name": "all",
+            "title": "Tutti"
+          },
+          {
+            "name": "ai-chatbot",
+            "title": "Chatbot IA"
+          },
+          {
+            "name": "ai-image",
+            "title": "Immagini IA"
+          },
+          {
+            "name": "ai-video",
+            "title": "Video IA"
+          },
+          {
+            "name": "ai-audio",
+            "title": "Audio IA"
+          },
+          {
+            "name": "ai-music",
+            "title": "Musica IA"
+          },
+          {
+            "name": "ai-coding",
+            "title": "Programmazione IA"
+          },
+          {
+            "name": "other",
+            "title": "Altro"
+          }
+        ],
+        "items": [
+          {
+            "title": "ThinkAny",
+            "description": "Motore di ricerca IA",
+            "url": "https://thinkany.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/7.png",
+              "alt": "showcases"
+            },
+            "group": "ai-chatbot"
+          },
+          {
+            "title": "HeyBeauty",
+            "description": "Prova virtuale IA",
+            "url": "https://heybeauty.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/5.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Wallpaper",
+            "description": "Generatore di sfondi IA",
+            "url": "https://aiwallpaper.shop",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/1.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Cover",
+            "description": "Generatore di copertine IA",
+            "url": "https://aicover.design",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/2.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "GPTs Works",
+            "description": "Directory GPT",
+            "url": "https://gpts.works",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/3.png",
+              "alt": "showcases"
+            },
+            "group": "other"
+          },
+          {
+            "title": "Melodisco",
+            "description": "Lettore musicale IA",
+            "url": "https://melodis.co",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/4.png",
+              "alt": "showcases"
+            },
+            "group": "ai-music"
+          },
+          {
+            "title": "Pagen",
+            "description": "Generatore di landing page IA",
+            "url": "https://pagen.so",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/6.png",
+              "alt": "showcases"
+            },
+            "group": "ai-coding"
+          },
+          {
+            "title": "SoraFM",
+            "description": "Generatore di video IA",
+            "url": "https://sorafm.trys.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/8.png",
+              "alt": "showcases"
+            },
+            "group": "ai-video"
+          },
+          {
+            "title": "PodLM",
+            "description": "Generatore di podcast IA",
+            "url": "https://podlm.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/9.png",
+              "alt": "showcases"
+            },
+            "group": "ai-audio"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "header": {
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+      "url": "/admin"
+    },
+    "show_trigger": false
+  },
+  "main_navs": [
+    {
+      "title": "시스템",
+      "items": [
+        {
+          "title": "사용자 및 권한",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            { "title": "사용자", "url": "/admin/users", "icon": "User" },
+            { "title": "역할", "url": "/admin/roles", "icon": "Users" },
+            { "title": "권한", "url": "/admin/permissions", "icon": "ShieldCheck" }
+          ]
+        },
+        {
+          "title": "페이지 및 콘텐츠",
+          "icon": "FileText",
+          "children": [
+            { "title": "카테고리", "icon": "Folder", "url": "/admin/categories" },
+            { "title": "게시물", "icon": "FileText", "url": "/admin/posts" }
+          ]
+        },
+        {
+          "title": "결제 및 크레딧",
+          "icon": "DollarSign",
+          "children": [
+            { "title": "결제", "url": "/admin/payments", "icon": "DollarSign" },
+            { "title": "구독", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            { "title": "크레딧", "url": "/admin/credits", "icon": "Coins" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "비즈니스",
+      "items": [
+        { "title": "AI 작업", "url": "/admin/ai-tasks", "icon": "Brain" },
+        { "title": "AI 채팅", "url": "/admin/chats", "icon": "MessageCircle" }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      { "title": "설정", "url": "/admin/settings/general", "icon": "Settings" },
+      { "title": "API 키", "url": "/admin/apikeys", "icon": "Key" }
+    ]
+  },
+  "user": {
+    "nav": { "items": [{ "title": "프로필", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+    "show_email": false,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        { "title": "홈", "url": "/", "icon": "Home", "target": "_blank" },
+        { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+        { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+        { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+        { "title": "이메일", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": false
+  },
+  "variant": "sidebar"
+}

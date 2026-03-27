@@ -1,0 +1,77 @@
+{
+  "header": {
+    "brand": {
+      "title": "Translate PDF Online",
+      "logo": { "src": "/favicon.svg", "alt": "Translate PDF Online" },
+      "url": "/admin"
+    },
+    "show_trigger": false
+  },
+  "main_navs": [
+    {
+      "title": "システム",
+      "items": [
+        {
+          "title": "ユーザーと権限",
+          "icon": "User",
+          "is_expand": true,
+          "children": [
+            { "title": "ユーザー", "url": "/admin/users", "icon": "User" },
+            { "title": "ロール", "url": "/admin/roles", "icon": "Users" },
+            { "title": "権限", "url": "/admin/permissions", "icon": "ShieldCheck" }
+          ]
+        },
+        {
+          "title": "ページとコンテンツ",
+          "icon": "FileText",
+          "children": [
+            { "title": "カテゴリ", "icon": "Folder", "url": "/admin/categories" },
+            { "title": "投稿", "icon": "FileText", "url": "/admin/posts" }
+          ]
+        },
+        {
+          "title": "支払いとクレジット",
+          "icon": "DollarSign",
+          "children": [
+            { "title": "支払い", "url": "/admin/payments", "icon": "DollarSign" },
+            { "title": "サブスクリプション", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            { "title": "クレジット", "url": "/admin/credits", "icon": "Coins" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ビジネス",
+      "items": [
+        { "title": "AI タスク", "url": "/admin/ai-tasks", "icon": "Brain" },
+        { "title": "AI チャット", "url": "/admin/chats", "icon": "MessageCircle" }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      { "title": "設定", "url": "/admin/settings/general", "icon": "Settings" },
+      { "title": "API キー", "url": "/admin/apikeys", "icon": "Key" }
+    ]
+  },
+  "user": {
+    "nav": { "items": [{ "title": "プロフィール", "url": "/settings/profile", "icon": "User", "target": "_blank" }] },
+    "show_email": false,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        { "title": "ホーム", "url": "/", "icon": "Home", "target": "_blank" },
+        { "title": "GitHub", "url": "https://github.com/translatepdfonline", "icon": "Github", "target": "_blank" },
+        { "title": "Twitter", "url": "https://x.com/translatep73025", "icon": "RiTwitterXFill", "target": "_blank" },
+        { "title": "Discord", "url": "https://discord.gg/cJnmgtMEZd", "icon": "RiDiscordFill", "target": "_blank" },
+        { "title": "メール", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": false
+  },
+  "variant": "sidebar"
+}

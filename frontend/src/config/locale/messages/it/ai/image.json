@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "title": "Generatore immagini IA",
+    "description": "Genera immagini con modelli IA: testo→immagine e immagine→immagine."
+  },
+  "page": {
+    "title": "Generatore immagini IA",
+    "description": "Genera immagini con modelli IA: testo→immagine e immagine→immagine."
+  },
+  "generator": {
+    "title": "Generatore immagini",
+    "description": "Genera immagini con modelli IA: testo→immagine e immagine→immagine.",
+    "tabs": {
+      "text-to-image": "Testo in immagine",
+      "image-to-image": "Immagine in immagine"
+    },
+    "form": {
+      "provider": "Fornitore",
+      "model": "Modello",
+      "select_provider": "Seleziona fornitore",
+      "select_model": "Seleziona modello",
+      "prompt": "Prompt",
+      "prompt_placeholder": "Descrivi l’immagine: colore, forma, texture, ecc.",
+      "reference_image": "Immagine di riferimento",
+      "reference_image_placeholder": "Carica immagini di riferimento, più immagini supportate",
+      "some_images_failed_to_upload": "Alcune immagini non sono state caricate, eliminale e ricarica",
+      "prompt_too_long": "Prompt troppo lungo, riduci il testo"
+    },
+    "generate": "Genera immagini",
+    "checking_account": "Verifica account...",
+    "loading": "Caricamento...",
+    "generating": "Generazione...",
+    "sign_in_to_generate": "Accedi per generare immagini",
+    "credits_cost": "Costo {credits} crediti",
+    "credits_remaining": "Rimangono {credits} crediti",
+    "buy_credits": "Acquista crediti",
+    "progress": "Avanzamento",
+    "generated_images": "Anteprima immagini",
+    "ready_to_generate": "Pronto per generare",
+    "ready_for_generating": "Pronto alla generazione",
+    "no_images_generated": "Nessuna immagine generata"
+  }
+}

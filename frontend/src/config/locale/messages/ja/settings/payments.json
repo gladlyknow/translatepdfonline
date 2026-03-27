@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "order_no": "注文番号",
+    "user": "ユーザー",
+    "amount": "金額",
+    "product_name": "商品名",
+    "price": "価格",
+    "paid_amount": "支払済み金額",
+    "discount_amount": "割引額",
+    "description": "説明",
+    "type": "種類",
+    "provider": "プロバイダー",
+    "created_at": "作成日時",
+    "status": "ステータス",
+    "action": "操作",
+    "actions": { "view_invoice": "請求書を見る" }
+  },
+  "list": {
+    "title": "支払い",
+    "description": "支払い履歴を表示",
+    "tabs": { "all": "すべて", "one-time": "買い切り", "subscription": "サブスク", "renew": "更新" }
+  }
+}

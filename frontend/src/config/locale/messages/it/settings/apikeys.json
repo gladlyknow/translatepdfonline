@@ -1,0 +1,47 @@
+{
+  "fields": {
+    "title": "Titolo",
+    "key": "Chiave",
+    "created_at": "Creato il",
+    "action": "Azione"
+  },
+  "list": {
+    "title": "Chiavi API",
+    "empty_message": "Nessuna chiave API",
+    "buttons": {
+      "add": "Crea chiave API",
+      "edit": "Modifica",
+      "delete": "Elimina"
+    }
+  },
+  "add": {
+    "title": "Crea chiave API",
+    "crumbs": {
+      "apikeys": "Chiavi API",
+      "add": "Crea chiave API"
+    },
+    "buttons": {
+      "submit": "Crea"
+    }
+  },
+  "edit": {
+    "title": "Modifica chiave API",
+    "crumbs": {
+      "apikeys": "Chiavi API",
+      "edit": "Modifica chiave API"
+    },
+    "buttons": {
+      "submit": "Aggiorna"
+    }
+  },
+  "delete": {
+    "title": "Elimina chiave API",
+    "crumbs": {
+      "apikeys": "Chiavi API",
+      "delete": "Elimina chiave API"
+    },
+    "buttons": {
+      "submit": "Conferma eliminazione"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# API 服务：gunicorn + uvicorn，监听 8000
+# 安装：cp scripts/deploy/translatepdfonline-api.service /etc/systemd/system/
+# 虚拟环境为项目根 .venv：/data/translatepdfonline/.venv
+[Unit]
+Description=translatepdfonline API (gunicorn+uvicorn)
+After=network.target
+
+[Service]
+Type=notify
+User=root
+WorkingDirectory=/data/translatepdfonline/backend
+Environment="PATH=/data/translatepdfonline/.venv/bin"
+ExecStart=/data/translatepdfonline/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000 -w 2 --timeout 15
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
