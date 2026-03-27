@@ -3,9 +3,16 @@
 import { useEffect, useState } from 'react';
 
 import { envConfigs } from '@/config';
+import { cn } from '@/shared/lib/utils';
 import { Brand as BrandType } from '@/shared/types/blocks/common';
 
-export function Copyright({ brand }: { brand: BrandType }) {
+export function Copyright({
+  brand,
+  className,
+}: {
+  brand: BrandType;
+  className?: string;
+}) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   useEffect(() => {
@@ -15,7 +22,7 @@ export function Copyright({ brand }: { brand: BrandType }) {
   const displayYear = Math.max(currentYear ?? 2026, 2026);
 
   return (
-    <div className={`text-muted-foreground text-sm`}>
+    <div className={cn('text-muted-foreground text-sm', className)}>
       © {displayYear}{' '}
       <a
         href={brand?.url || envConfigs.app_url}

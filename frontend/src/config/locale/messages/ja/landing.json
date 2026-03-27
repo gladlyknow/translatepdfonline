@@ -54,7 +54,7 @@
     "id": "footer",
     "brand": {
       "title": "Translate PDF Online",
-      "description": "レイアウトを保ったままブラウザでPDFを翻訳。多数の言語ペア。通信は暗号化され、ファイルは定められた保持期間後に削除されます。",
+      "description": "レイアウトを保ったままブラウザで PDF を翻訳。多数の言語ペア。通信は暗号化され、ファイルは定められた保持期間に従い削除されます。",
       "logo": {
         "src": "/favicon.svg",
         "alt": "Translate PDF Online",
@@ -63,25 +63,9 @@
       },
       "url": "/"
     },
-    "nav": {
-      "items": [
-        {
-          "title": "案内",
-          "children": [
-            {
-              "title": "PDFを翻訳",
-              "url": "/translate",
-              "target": "_self"
-            },
-            {
-              "title": "料金",
-              "url": "/pricing",
-              "target": "_self"
-            }
-          ]
-        }
-      ]
-    },
+    "support_label": "サポート：",
+    "support_email": "hello@translatepdfonline.com",
+    "payments_statement": "お支払いは Creem により安全に処理されます。",
     "social": {
       "items": [
         {
@@ -101,27 +85,22 @@
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/cJnmgtMEZd",
           "target": "_blank"
-        },
-        {
-          "title": "メール",
-          "icon": "Mail",
-          "url": "mailto:hello@translatepdfonline.com",
-          "target": "_self"
         }
       ]
     },
     "agreement": {
       "items": [
         {
-          "title": "プライバシーポリシー",
-          "url": "/privacy-policy"
-        },
-        {
           "title": "利用規約",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "プライバシーポリシー",
+          "url": "/privacy-policy"
         }
       ]
     },
+    "show_built_with": false,
     "show_theme": true,
     "show_locale": true
   }

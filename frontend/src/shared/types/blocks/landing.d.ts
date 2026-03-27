@@ -60,6 +60,10 @@ export interface Footer extends Section {
   show_locale?: boolean;
   show_built_with?: boolean;
   className?: string;
+  /** Visible mailto + Creem line (React-rendered link, not HTML string) */
+  support_label?: string;
+  support_email?: string;
+  payments_statement?: string;
 }
 
 // hero props for hero component

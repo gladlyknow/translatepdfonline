@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Come funziona",
         "title": "Come tradurre il tuo PDF",
-        "description": "Tre passaggi dal caricamento al download:",
+        "description": "Dal caricamento al download e alla cronologia:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Carica",
             "description": "Trascina un PDF o scegli un file. I documenti grandi sono supportati entro i limiti indicati nella pagina di traduzione.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Carica un PDF",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Scegli le lingue e avvia",
-            "description": "Imposta lingua sorgente e destinazione, opzionalmente un intervallo di pagine, poi avvia la traduzione. Segui l’avanzamento nella stessa schermata.",
+            "title": "Lingua di partenza",
+            "description": "Seleziona la lingua del documento così il motore traduce dalla sorgente corretta.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Scegli la lingua di partenza",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Lingua di arrivo",
+            "description": "Scegli la lingua di destinazione e avvia il processo.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Scegli la lingua di arrivo",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Scarica",
-            "description": "Al termine scarica il PDF tradotto. Riaprilo dalla Cronologia finché il file è disponibile.",
+            "description": "Al termine scarica il PDF tradotto dalla stessa schermata.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Scarica il PDF tradotto",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "Cronologia",
+            "description": "Riapri le traduzioni completate dalla cronologia finché il file è disponibile.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Cronologia traduzioni",
+              "width": 245,
+              "height": 302
             }
           }
         ],

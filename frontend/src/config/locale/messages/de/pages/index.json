@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Ablauf",
         "title": "So übersetzen Sie Ihr PDF",
-        "description": "Drei Schritte vom Upload bis zum Download:",
+        "description": "Vom Upload bis Download und Verlauf:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Hochladen",
             "description": "PDF ablegen oder Datei wählen. Große Dokumente unterliegen den auf der Übersetzungsseite angezeigten Grenzen.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "PDF hochladen",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Sprachen wählen und starten",
-            "description": "Quelle und Ziel wählen, optional Seitenbereich, dann Übersetzung starten. Fortschritt auf derselben Seite.",
+            "title": "Quellsprache",
+            "description": "Wählen Sie die Sprache des Dokuments, damit die Engine korrekt aus der Quelle übersetzt.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Quellsprache wählen",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Zielsprache",
+            "description": "Wählen Sie die Zielsprache und starten Sie den Auftrag.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Zielsprache wählen",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Herunterladen",
-            "description": "Nach Abschluss übersetztes PDF herunterladen. Aufgabe aus dem Verlauf erneut öffnen, solange die Datei verfügbar ist.",
+            "description": "Nach Abschluss laden Sie das übersetzte PDF auf derselben Seite herunter.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Übersetztes PDF herunterladen",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "Verlauf",
+            "description": "Abgeschlossene Übersetzungen können Sie im Verlauf erneut öffnen, solange die Datei verfügbar ist.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Übersetzungsverlauf",
+              "width": 245,
+              "height": 302
             }
           }
         ],
@@ -236,7 +260,7 @@
         "description": "Vom Artikel bis zu umfangreichen Handbüchern.",
         "items": [
           {
-            "title": "10+",
+            "title": "8+",
             "description": "Oberflächensprachen"
           },
           {

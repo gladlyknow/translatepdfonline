@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Cómo funciona",
         "title": "Cómo traducir su PDF",
-        "description": "Tres pasos desde la carga hasta la descarga:",
+        "description": "Desde la carga hasta la descarga y el historial:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Subir",
             "description": "Arrastre un PDF o elija un archivo. Los documentos grandes están sujetos a los límites indicados en la página de traducción.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Subir un PDF",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Elegir idiomas e iniciar",
-            "description": "Seleccione origen y destino, opcionalmente un rango de páginas, e inicie la traducción. Siga el progreso en la misma pantalla.",
+            "title": "Idioma de origen",
+            "description": "Seleccione el idioma del documento para que el motor traduzca desde la fuente correcta.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Elegir idioma de origen",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Idioma de destino",
+            "description": "Elija el idioma al que desea traducir el PDF e inicie el trabajo.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Elegir idioma de destino",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Descargar",
-            "description": "Cuando termine el trabajo, descargue el PDF traducido. Vuelva a abrirlo desde el Historial mientras el archivo siga disponible.",
+            "description": "Cuando termine, descargue el PDF traducido desde la misma pantalla.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Descargar PDF traducido",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "Historial",
+            "description": "Vuelva a abrir traducciones terminadas desde el historial mientras el archivo siga disponible.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Historial de traducciones",
+              "width": 245,
+              "height": 302
             }
           }
         ],

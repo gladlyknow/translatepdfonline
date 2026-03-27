@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "如何工作",
         "title": "如何翻译 PDF",
-        "description": "三步完成上传至下载：",
+        "description": "从上传到下载与历史记录：",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "上传",
             "description": "拖入 PDF 或选择文件。大文档请在翻译页查看当前限制说明。",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "上传 PDF 文件",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "选择语言并开始",
-            "description": "选择源语言与目标语言，可选页码范围后开始翻译。同一页面可查看进度。",
+            "title": "源语言",
+            "description": "选择文档语言，确保从正确的源文进行翻译。",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "选择源语言",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "目标语言",
+            "description": "选择要翻译成的语言，然后开始翻译任务。",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "选择目标语言",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "下载",
-            "description": "完成后下载译文 PDF。在文件仍可用期间，可随时从历史重新打开任务。",
+            "description": "完成后在同一界面下载译文 PDF。",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "下载翻译后的 PDF",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "历史记录",
+            "description": "在文件仍可用期间，可随时从历史重新打开已完成的任务。",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "翻译历史记录",
+              "width": 245,
+              "height": 302
             }
           }
         ],
@@ -241,7 +265,7 @@
           },
           {
             "title": "7",
-            "description": "天默认保留"
+            "description": "默认保留天数"
           },
           {
             "title": "1",

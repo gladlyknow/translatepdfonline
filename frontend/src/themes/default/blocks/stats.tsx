@@ -21,7 +21,7 @@ export function Stats({
             <h2 className="text-foreground mb-4 text-3xl font-semibold tracking-tight md:text-4xl">
               {section.title}
             </h2>
-            <p className="text-muted-foreground mb-6 md:mb-12 lg:mb-16">
+            <p className="text-muted-foreground mb-6 font-mono text-sm md:mb-12 md:text-base lg:mb-16">
               {section.description}
             </p>
           </div>
@@ -34,10 +34,12 @@ export function Stats({
                 <h3 className="sr-only">
                   {item.title} {item.description}
                 </h3>
-                <div className="text-primary text-5xl font-bold">
+                <div className="text-foreground text-5xl font-bold tabular-nums tracking-tight">
                   {item.title}
                 </div>
-                <p>{item.description}</p>
+                <p className="text-muted-foreground font-mono text-sm">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>

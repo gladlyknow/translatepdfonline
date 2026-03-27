@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Как это работает",
         "title": "Как перевести PDF",
-        "description": "Три шага от загрузки до скачивания:",
+        "description": "От загрузки до скачивания и истории:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Загрузить",
             "description": "Перетащите PDF или выберите файл. Крупные документы — в пределах лимитов на странице перевода.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Загрузить PDF",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Выбрать языки и запустить",
-            "description": "Источник и цель, при необходимости диапазон страниц, затем запуск. Прогресс на той же странице.",
+            "title": "Исходный язык",
+            "description": "Укажите язык документа, чтобы перевод шёл с корректного исходного текста.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Выбор исходного языка",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Язык перевода",
+            "description": "Выберите целевой язык и запустите задание.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Выбор языка перевода",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Скачать",
-            "description": "После завершения скачайте переведённый PDF. Откройте задачу из истории, пока файл доступен.",
+            "description": "После завершения скачайте переведённый PDF на той же странице.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Скачать переведённый PDF",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "История",
+            "description": "Готовые переводы можно снова открыть из истории, пока файл доступен.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "История переводов",
+              "width": 245,
+              "height": 302
             }
           }
         ],
@@ -236,7 +260,7 @@
         "description": "От статьи до объёмных руководств.",
         "items": [
           {
-            "title": "10+",
+            "title": "8+",
             "description": "языков интерфейса"
           },
           {

@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "料金",
         "description": "Creem でお支払い。翻訳済み PDF 1 ページあたり 10 クレジット。$5 / 500 クレジットをいつでもチャージできます。",
+        "footnote_usd": "表示価格は USD です。",
+        "footnote_summary": "サブスクリプションはいつでも解約できます。クレジット利用後の返金はできません。",
+        "terms_link_text": "詳細は利用規約へ",
+        "terms_path": "/terms-of-service",
         "groups": [
           { "name": "one-time", "title": "チャージ" },
           { "name": "monthly", "title": "月額", "is_featured": true },

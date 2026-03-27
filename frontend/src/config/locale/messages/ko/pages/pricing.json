@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "요금",
         "description": "Creem으로 결제합니다. 번역된 PDF 페이지당 10크레딧. $5 / 500크레딧을 언제든 충전할 수 있습니다.",
+        "footnote_usd": "가격은 USD 기준으로 표시됩니다.",
+        "footnote_summary": "구독은 언제든 해지할 수 있습니다. 크레딧 사용 후 환불은 불가합니다.",
+        "terms_link_text": "전체 정책: 서비스 약관",
+        "terms_path": "/terms-of-service",
         "groups": [
           { "name": "one-time", "title": "충전" },
           { "name": "monthly", "title": "월간", "is_featured": true },

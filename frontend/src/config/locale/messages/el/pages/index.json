@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Πώς λειτουργεί",
         "title": "Πώς να μεταφράσετε το PDF σας",
-        "description": "Τρία βήματα από το ανέβασμα έως τη λήψη:",
+        "description": "Από το ανέβασμα έως τη λήψη και το ιστορικό:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Ανέβασμα",
             "description": "Αφήστε ένα PDF ή επιλέξτε αρχείο. Μεγάλα έγγραφα υποστηρίζονται εντός των ορίων στη σελίδα μετάφρασης.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Ανέβασμα PDF",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Επιλογή γλωσσών και έναρξη",
-            "description": "Ορίστε πηγή και στόχο, προαιρετικά εύρος σελίδων, μετά ξεκινήστε. Παρακολουθήστε την πρόοδο στην ίδια οθόνη.",
+            "title": "Γλώσσα πηγής",
+            "description": "Επιλέξτε τη γλώσσα του εγγράφου ώστε η μηχανή να μεταφράζει από τη σωστή πηγή.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Επιλογή γλώσσας πηγής",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Γλώσσα στόχου",
+            "description": "Επιλέξτε τη γλώσσα-στόχο και ξεκινήστε την εργασία.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Επιλογή γλώσσας στόχου",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Λήψη",
-            "description": "Όταν τελειώσει η εργασία, κατεβάστε το μεταφρασμένο PDF. Ανοίξτε ξανά από το Ιστορικό όσο το αρχείο είναι διαθέσιμο.",
+            "description": "Όταν τελειώσει, κατεβάστε το μεταφρασμένο PDF από την ίδια οθόνη.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Λήψη μεταφρασμένου PDF",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "Ιστορικό",
+            "description": "Ανοίξτε ξανά ολοκληρωμένες μεταφράσεις από το ιστορικό όσο το αρχείο είναι διαθέσιμο.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Ιστορικό μεταφράσεων",
+              "width": 245,
+              "height": 302
             }
           }
         ],

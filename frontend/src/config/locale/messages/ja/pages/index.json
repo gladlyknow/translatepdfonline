@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "使い方",
         "title": "PDF の翻訳手順",
-        "description": "アップロードからダウンロードまでの 3 ステップ：",
+        "description": "アップロードからダウンロード、履歴まで：",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "アップロード",
             "description": "PDF をドロップまたはファイルを選択。大きな文書も翻訳ページに表示される上限内で対応します。",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "PDF をアップロード",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "言語を選んで開始",
-            "description": "ソースとターゲットを選び、必要ならページ範囲を設定して翻訳を開始。進捗は同じ画面で確認できます。",
+            "title": "原文の言語",
+            "description": "文書の言語を選び、正しい原文から翻訳されるようにします。",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "原文の言語を選択",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "訳文の言語",
+            "description": "翻訳先の言語を選び、ジョブを開始します。",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "訳文の言語を選択",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "ダウンロード",
-            "description": "完了したら翻訳済み PDF をダウンロード。ファイルが利用可能な間は履歴からいつでも開けます。",
+            "description": "完了したら、同じ画面から翻訳済み PDF をダウンロードします。",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "翻訳済み PDF をダウンロード",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "履歴",
+            "description": "ファイルが利用可能な間は、履歴から完了した翻訳をいつでも開けます。",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "翻訳履歴",
+              "width": 245,
+              "height": 302
             }
           }
         ],

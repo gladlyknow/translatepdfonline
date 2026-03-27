@@ -63,25 +63,9 @@
       },
       "url": "/"
     },
-    "nav": {
-      "items": [
-        {
-          "title": "Πληροφορίες",
-          "children": [
-            {
-              "title": "Μετάφραση PDF",
-              "url": "/translate",
-              "target": "_self"
-            },
-            {
-              "title": "Τιμές",
-              "url": "/pricing",
-              "target": "_self"
-            }
-          ]
-        }
-      ]
-    },
+    "support_label": "Υποστήριξη:",
+    "support_email": "hello@translatepdfonline.com",
+    "payments_statement": "Οι πληρωμές επεξεργάζονται με ασφάλεια μέσω Creem.",
     "social": {
       "items": [
         {
@@ -101,27 +85,22 @@
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/cJnmgtMEZd",
           "target": "_blank"
-        },
-        {
-          "title": "Email",
-          "icon": "Mail",
-          "url": "mailto:hello@translatepdfonline.com",
-          "target": "_self"
         }
       ]
     },
     "agreement": {
       "items": [
         {
-          "title": "Πολιτική απορρήτου",
-          "url": "/privacy-policy"
-        },
-        {
           "title": "Όροι χρήσης",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "Πολιτική απορρήτου",
+          "url": "/privacy-policy"
         }
       ]
     },
+    "show_built_with": false,
     "show_theme": true,
     "show_locale": true
   }

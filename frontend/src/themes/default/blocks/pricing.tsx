@@ -6,6 +6,7 @@ import { Check, Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import { Link } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common';
 import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
 import { Badge } from '@/shared/components/ui/badge';
@@ -427,17 +428,25 @@ export function Pricing({
                       </span>
                     )}
 
-                    <div className="my-3 block text-2xl font-semibold">
-                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-400 dark:to-indigo-300">
+                    <div className="my-3 flex flex-wrap items-baseline gap-2">
+                      <span
+                        className={cn(
+                          'text-2xl font-semibold',
+                          TRANSLATE_PRIMARY_PRICE_GRADIENT_CLASSNAME
+                        )}
+                      >
                         {displayedItem.price}
-                      </span>{' '}
+                      </span>
+                      {displayedItem.currency?.toUpperCase() === 'USD' ? (
+                        <span className="text-muted-foreground text-xs font-medium uppercase">
+                          USD
+                        </span>
+                      ) : null}
                       {displayedItem.unit ? (
                         <span className="text-muted-foreground text-sm font-normal">
                           {displayedItem.unit}
                         </span>
-                      ) : (
-                        ''
-                      )}
+                      ) : null}
                     </div>
 
                     {currencies.length > 1 && (
@@ -536,6 +545,25 @@ export function Pricing({
             );
           })}
         </div>
+
+        {(section.footnote_usd ||
+          section.footnote_summary ||
+          section.terms_link_text) && (
+          <div className="text-muted-foreground mx-auto mt-14 max-w-2xl space-y-3 px-4 text-center text-sm text-balance">
+            {section.footnote_usd ? <p>{section.footnote_usd}</p> : null}
+            {section.footnote_summary ? <p>{section.footnote_summary}</p> : null}
+            {section.terms_link_text ? (
+              <p>
+                <Link
+                  href={section.terms_path || '/terms-of-service'}
+                  className="text-primary underline underline-offset-2"
+                >
+                  {section.terms_link_text}
+                </Link>
+              </p>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <PaymentModal

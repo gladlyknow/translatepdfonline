@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "Tarifs",
         "description": "Paiement via Creem. 10 crédits par page PDF traduite. Rechargez 5 $ / 500 crédits à tout moment.",
+        "footnote_usd": "Tous les prix sont indiqués en USD.",
+        "footnote_summary": "Vous pouvez annuler l’abonnement à tout moment. Aucun remboursement une fois les crédits utilisés.",
+        "terms_link_text": "Politique complète : Conditions d’utilisation",
+        "terms_path": "/terms-of-service",
         "groups": [
           { "name": "one-time", "title": "Recharge" },
           { "name": "monthly", "title": "Mensuel", "is_featured": true },

@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "Pricing",
         "description": "Pay with Creem. 10 credits per translated PDF page. Top up $5 / 500 credits anytime.",
+        "footnote_usd": "Все цены указаны в USD.",
+        "footnote_summary": "Подписку можно отменить в любой момент. После использования кредитов возврат средств не производится.",
+        "terms_link_text": "Полные условия: Условия использования",
+        "terms_path": "/terms-of-service",
         "groups": [
           {
             "name": "one-time",

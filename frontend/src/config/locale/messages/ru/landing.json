@@ -54,7 +54,7 @@
     "id": "footer",
     "brand": {
       "title": "Translate PDF Online",
-      "description": "Перевод PDF в браузере с сохранением вёрстки страницы. Много языковых пар; шифрованная передача и удаление по политике хранения.",
+      "description": "Перевод PDF в браузере с сохранением вёрстки страницы. Много языковых пар; шифрованная передача и удаление файлов по политике хранения.",
       "logo": {
         "src": "/favicon.svg",
         "alt": "Translate PDF Online",
@@ -63,25 +63,9 @@
       },
       "url": "/"
     },
-    "nav": {
-      "items": [
-        {
-          "title": "Обзор",
-          "children": [
-            {
-              "title": "Перевести PDF",
-              "url": "/translate",
-              "target": "_self"
-            },
-            {
-              "title": "Тарифы",
-              "url": "/pricing",
-              "target": "_self"
-            }
-          ]
-        }
-      ]
-    },
+    "support_label": "Поддержка:",
+    "support_email": "hello@translatepdfonline.com",
+    "payments_statement": "Платежи безопасно обрабатываются через Creem.",
     "social": {
       "items": [
         {
@@ -101,27 +85,22 @@
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/cJnmgtMEZd",
           "target": "_blank"
-        },
-        {
-          "title": "Почта",
-          "icon": "Mail",
-          "url": "mailto:hello@translatepdfonline.com",
-          "target": "_self"
         }
       ]
     },
     "agreement": {
       "items": [
         {
-          "title": "Конфиденциальность",
-          "url": "/privacy-policy"
-        },
-        {
           "title": "Условия использования",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "Конфиденциальность",
+          "url": "/privacy-policy"
         }
       ]
     },
+    "show_built_with": false,
     "show_theme": true,
     "show_locale": true
   }

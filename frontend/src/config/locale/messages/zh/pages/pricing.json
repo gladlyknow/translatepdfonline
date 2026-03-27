@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "定价",
         "description": "通过 Creem 支付。每翻译 1 页 PDF 消耗 10 积分；不足时可随时 $5 加购 500 积分。",
+        "footnote_usd": "标价单位为美元（USD）。",
+        "footnote_summary": "订阅可随时取消。积分一经使用恕不退款。",
+        "terms_link_text": "完整政策见《服务条款》",
+        "terms_path": "/terms-of-service",
         "groups": [
           {
             "name": "one-time",

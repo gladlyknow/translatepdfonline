@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { Link, useRouter, usePathname } from '@/core/i18n/navigation';
 import { useAppContext } from '@/shared/contexts/app';
+import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
 import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
@@ -88,6 +89,7 @@ export function TranslatePageClient() {
   const pathname = usePathname();
   const { user, fetchUserCredits, setIsShowSignModal } = useAppContext();
   const { setAppearance } = useTranslateHeaderAppearance();
+  const footerWorkbench = useTranslateFooterWorkbenchOptional();
   const { resolvedTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
 
@@ -158,6 +160,11 @@ export function TranslatePageClient() {
   useEffect(() => {
     setThemeMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!footerWorkbench) return;
+    footerWorkbench.setWorkbenchOpen(Boolean(documentId));
+  }, [documentId, footerWorkbench]);
 
   const effectiveDocumentPageCount = useMemo(
     () =>

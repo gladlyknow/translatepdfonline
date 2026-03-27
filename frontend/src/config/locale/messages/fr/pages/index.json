@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "Fonctionnement",
         "title": "Comment traduire votre PDF",
-        "description": "Trois étapes du téléversement au téléchargement :",
+        "description": "Du téléversement au téléchargement et à l’historique :",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Téléverser",
             "description": "Déposez un PDF ou choisissez un fichier. Les gros documents respectent les limites indiquées sur la page de traduction.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Téléverser un PDF",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Choisir les langues et lancer",
-            "description": "Sélectionnez source et cible, optionnellement une plage de pages, puis lancez la traduction. Suivez l’avancement sur la même page.",
+            "title": "Langue source",
+            "description": "Indiquez la langue du document pour que le moteur traduise depuis la bonne source.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Choisir la langue source",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Langue cible",
+            "description": "Choisissez la langue cible, puis lancez la tâche.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Choisir la langue cible",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Télécharger",
-            "description": "Une fois terminé, téléchargez le PDF traduit. Rouvrez la tâche depuis l’historique tant que le fichier est disponible.",
+            "description": "Une fois terminé, téléchargez le PDF traduit sur la même page.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Télécharger le PDF traduit",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "Historique",
+            "description": "Rouvrez les traductions terminées depuis l’historique tant que le fichier est disponible.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Historique des traductions",
+              "width": 245,
+              "height": 302
             }
           }
         ],

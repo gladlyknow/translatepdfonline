@@ -10,6 +10,10 @@
         "id": "pricing",
         "title": "Prezzi",
         "description": "Pagamento con Creem. 10 crediti per pagina PDF tradotta. Ricarica $5 / 500 crediti in qualsiasi momento.",
+        "footnote_usd": "Tutti i prezzi sono in USD.",
+        "footnote_summary": "Gli abbonamenti sono annullabili in qualsiasi momento. Nessun rimborso dopo l’uso dei crediti.",
+        "terms_link_text": "Norme complete: Termini di servizio",
+        "terms_path": "/terms-of-service",
         "groups": [
           {
             "name": "one-time",

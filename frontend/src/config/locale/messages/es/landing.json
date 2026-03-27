@@ -54,7 +54,7 @@
     "id": "footer",
     "brand": {
       "title": "Translate PDF Online",
-      "description": "Traducción de PDF en el navegador con diseño preservado. Múltiples pares de idiomas; tráfico cifrado y retención limitada de archivos.",
+      "description": "Traducción de PDF en el navegador con diseño preservado. Múltiples pares de idiomas; tráfico cifrado y eliminación de archivos según una política de retención definida.",
       "logo": {
         "src": "/favicon.svg",
         "alt": "Translate PDF Online",
@@ -63,25 +63,9 @@
       },
       "url": "/"
     },
-    "nav": {
-      "items": [
-        {
-          "title": "Información",
-          "children": [
-            {
-              "title": "Traducir PDF",
-              "url": "/translate",
-              "target": "_self"
-            },
-            {
-              "title": "Precios",
-              "url": "/pricing",
-              "target": "_self"
-            }
-          ]
-        }
-      ]
-    },
+    "support_label": "Soporte:",
+    "support_email": "hello@translatepdfonline.com",
+    "payments_statement": "Pagos procesados de forma segura por Creem.",
     "social": {
       "items": [
         {
@@ -101,27 +85,22 @@
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/cJnmgtMEZd",
           "target": "_blank"
-        },
-        {
-          "title": "Correo",
-          "icon": "Mail",
-          "url": "mailto:hello@translatepdfonline.com",
-          "target": "_self"
         }
       ]
     },
     "agreement": {
       "items": [
         {
-          "title": "Política de privacidad",
-          "url": "/privacy-policy"
-        },
-        {
           "title": "Términos del servicio",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "Política de privacidad",
+          "url": "/privacy-policy"
         }
       ]
     },
+    "show_built_with": false,
     "show_theme": true,
     "show_locale": true
   }

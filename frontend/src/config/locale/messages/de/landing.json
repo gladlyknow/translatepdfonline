@@ -63,25 +63,9 @@
       },
       "url": "/"
     },
-    "nav": {
-      "items": [
-        {
-          "title": "Überblick",
-          "children": [
-            {
-              "title": "PDF übersetzen",
-              "url": "/translate",
-              "target": "_self"
-            },
-            {
-              "title": "Preise",
-              "url": "/pricing",
-              "target": "_self"
-            }
-          ]
-        }
-      ]
-    },
+    "support_label": "Support:",
+    "support_email": "hello@translatepdfonline.com",
+    "payments_statement": "Zahlungen sicher über Creem abgewickelt.",
     "social": {
       "items": [
         {
@@ -101,27 +85,22 @@
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/cJnmgtMEZd",
           "target": "_blank"
-        },
-        {
-          "title": "E-Mail",
-          "icon": "Mail",
-          "url": "mailto:hello@translatepdfonline.com",
-          "target": "_self"
         }
       ]
     },
     "agreement": {
       "items": [
         {
-          "title": "Datenschutz",
-          "url": "/privacy-policy"
-        },
-        {
           "title": "Nutzungsbedingungen",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "Datenschutz",
+          "url": "/privacy-policy"
         }
       ]
     },
+    "show_built_with": false,
     "show_theme": true,
     "show_locale": true
   }

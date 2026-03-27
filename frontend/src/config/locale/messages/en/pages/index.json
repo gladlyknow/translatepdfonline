@@ -151,13 +151,15 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
+        "carousel": true,
+        "label": "How it works",
         "title": "How to translate your PDF",
-        "description": "Three steps from upload to download:",
+        "description": "From upload to download and history:",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 1062,
-          "height": 741
+          "width": 863,
+          "height": 256
         },
         "image_position": "left",
         "text_align": "center",
@@ -166,28 +168,50 @@
             "title": "Upload",
             "description": "Drop a PDF or pick a file. Large documents are supported within the limits shown on the translate page.",
             "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage",
-              "width": 1062,
-              "height": 741
+              "src": "/imgs/features/upload_pdf.png",
+              "alt": "Upload a PDF file",
+              "width": 863,
+              "height": 256
             }
           },
           {
-            "title": "Choose languages & start",
-            "description": "Pick source and target, optionally set a page range, then start translation. Track progress on the same screen.",
+            "title": "Source language",
+            "description": "Select the document language so the engine translates from the correct source.",
             "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage",
-              "width": 1390,
-              "height": 1252
+              "src": "/imgs/features/choose_language_source.png",
+              "alt": "Choose source language",
+              "width": 254,
+              "height": 409
+            }
+          },
+          {
+            "title": "Target language",
+            "description": "Pick the language you want the PDF translated into, then start the job.",
+            "image": {
+              "src": "/imgs/features/choose_language_target.png",
+              "alt": "Choose target language",
+              "width": 257,
+              "height": 411
             }
           },
           {
             "title": "Download",
-            "description": "When the job finishes, download the translated PDF. Reopen anytime from History while the file is still available.",
+            "description": "When the job finishes, download the translated PDF from the same screen.",
             "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
+              "src": "/imgs/features/download.png",
+              "alt": "Download translated PDF",
+              "width": 257,
+              "height": 124
+            }
+          },
+          {
+            "title": "History",
+            "description": "Reopen finished translations from History while the file is still available.",
+            "image": {
+              "src": "/imgs/features/history.png",
+              "alt": "Translation history",
+              "width": 245,
+              "height": 302
             }
           }
         ],

@@ -65,4 +65,9 @@ export interface Pricing {
   groups?: PricingGroup[];
   className?: string;
   sr_only_title?: string;
+  /** Below pricing cards: USD notice, refund summary, link to terms */
+  footnote_usd?: string;
+  footnote_summary?: string;
+  terms_link_text?: string;
+  terms_path?: string;
 }

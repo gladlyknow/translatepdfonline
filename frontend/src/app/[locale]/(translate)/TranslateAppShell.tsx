@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { TranslateShellHeader } from '@/shared/components/translate/TranslateShellHeader';
 import type { UserNav } from '@/shared/types/blocks/common';
 
+import { TranslateFooterWorkbenchProvider } from '@/shared/contexts/translate-footer-workbench';
 import { TranslateHeaderAppearanceProvider } from '@/shared/contexts/translate-header-appearance';
 
 export function TranslateAppShell({
@@ -19,13 +20,15 @@ export function TranslateAppShell({
 }) {
   return (
     <TranslateHeaderAppearanceProvider defaultAppearance="onDark">
-      <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-        <TranslateShellHeader userNav={userNav} />
-        <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
-          {children}
-        </main>
-        {footer}
-      </div>
+      <TranslateFooterWorkbenchProvider>
+        <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+          <TranslateShellHeader userNav={userNav} />
+          <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
+            {children}
+          </main>
+          {footer}
+        </div>
+      </TranslateFooterWorkbenchProvider>
     </TranslateHeaderAppearanceProvider>
   );
 }

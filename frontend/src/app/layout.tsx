@@ -108,7 +108,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* SVG 优先：标签页小尺寸下栅格 PNG 易把对角渐变看成「条纹」；PNG/ICO 作回退（pnpm run brand:icons 与 favicon.svg 同源） */}
+        {/* 标签页图标：勿再声明 32×32 PNG 为 rel=icon，否则 Chrome 常选栅格图；对角渐变压到 ~16px 会出现摩尔纹（条纹）。优先 SVG；ICO 仅作旧环境/书签回退（pnpm run brand:icons） */}
         <link
           rel="icon"
           href={envConfigs.app_favicon}
@@ -119,7 +119,6 @@ export default async function RootLayout({
           }
           sizes="any"
         />
-        <link rel="icon" type="image/png" sizes="32x32" href="/brand/logo-32.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/brand/logo-180.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
