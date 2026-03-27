@@ -118,7 +118,7 @@
             "description": "Ottimizzato per layout accademici e tecnici — formule, figure e tabelle dove la pipeline li supporta.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
@@ -129,10 +129,10 @@
             "description": "Confronta pagine originali e tradotte nel browser con scorrimento sincronizzato prima del download.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Traduci l’intero file o solo le pagine necessarie per risparmiare tempo e crediti.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

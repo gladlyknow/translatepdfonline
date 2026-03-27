@@ -118,7 +118,7 @@
             "description": "Ausgelegt auf akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen, soweit die Pipeline es erlaubt.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
@@ -129,10 +129,10 @@
             "description": "Quelle und Übersetzung im Browser mit synchronisiertem Scrollen vergleichen — vor dem Download.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Ganze Datei oder nur benötigte Seiten übersetzen — Zeit und Credits sparen.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

@@ -118,7 +118,7 @@
             "description": "학술·기술 레이아웃에 맞게 조정했습니다. 수식, 그림, 표는 파이프라인이 지원하는 범위에서 처리합니다.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
@@ -129,10 +129,10 @@
             "description": "다운로드 전 브라우저에서 원문과 번역 페이지를 동기 스크롤로 비교합니다.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "전체 파일 또는 필요한 페이지만 번역해 시간과 크레딧을 절약합니다.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

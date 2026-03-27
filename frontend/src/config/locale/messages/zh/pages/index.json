@@ -118,10 +118,10 @@
             "description": "面向学术与技术排版——在流水线支持的范围内处理公式、插图与表格。",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/user-billing.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
-              "width": 2410,
-              "height": 1662
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -129,8 +129,10 @@
             "description": "浏览器内左右对照原文与译文，同步滚动后再下载。",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/admin-settings.png",
-              "alt": "benefits"
+              "src": "/imgs/features/dense_PDFs.png",
+              "alt": "benefits",
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -138,10 +140,10 @@
             "description": "整本翻译或仅翻译指定页面，节省时间与积分。",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

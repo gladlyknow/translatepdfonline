@@ -118,7 +118,7 @@
             "description": "Ориентация на академическую и техническую вёрстку — уравнения, рисунки и таблицы, насколько позволяет конвейер.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
@@ -129,10 +129,10 @@
             "description": "Сравнивайте источник и перевод в браузере с синхронной прокруткой перед скачиванием.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Переводите весь файл или только нужные страницы — экономьте время и кредиты.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

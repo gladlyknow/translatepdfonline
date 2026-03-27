@@ -118,10 +118,10 @@
             "description": "Orientado a maquetación académica y técnica: fórmulas, figuras y tablas cuando el pipeline lo permite.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/user-billing.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
-              "width": 2410,
-              "height": 1662
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -129,10 +129,10 @@
             "description": "Compare origen y traducción en el navegador con desplazamiento sincronizado antes de descargar.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Traduzca el archivo completo o solo las páginas que necesite para ahorrar tiempo y créditos.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]

@@ -118,7 +118,7 @@
             "description": "Βελτιστοποιημένο για ακαδημαϊκές και τεχνικές διατάξεις — εξισώσεις, σχήματα και πίνακες όπου υποστηρίζει η ροή.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/landing-page.png",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
@@ -129,10 +129,10 @@
             "description": "Συγκρίνετε πηγαίες και μεταφρασμένες σελίδες στον browser με συγχρονισμένη κύλιση πριν το κατέβασμα.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/dense_PDFs.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 2511,
+              "height": 1233
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Μεταφράστε ολόκληρο το αρχείο ή μόνο τις σελίδες που χρειάζεστε για εξοικονόμηση χρόνου και πιστώσεων.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/page_range.png",
               "alt": "benefits",
-              "width": 3840,
-              "height": 2424
+              "width": 295,
+              "height": 439
             }
           }
         ]
