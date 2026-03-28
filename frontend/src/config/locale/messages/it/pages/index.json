@@ -42,16 +42,16 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Anteprima traduzione PDF",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Anteprima traduzione PDF",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         }
       },
       "introduce": {
@@ -61,10 +61,10 @@
         "label": "Prodotto",
         "description": "Un servizio web per tradurre documenti PDF mantenendo il design originale. Pensato per articoli, manuali, report e libri — non per semplici estratti di testo.",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "introduce",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "items": [
           {
@@ -118,10 +118,10 @@
             "description": "Ottimizzato per layout accademici e tecnici — formule, figure e tabelle dove la pipeline li supporta.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/landing-page_new.png",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 1820,
+              "height": 1111
             }
           },
           {

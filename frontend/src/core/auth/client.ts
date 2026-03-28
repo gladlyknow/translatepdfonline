@@ -1,4 +1,3 @@
-import { oneTapClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 import { envConfigs } from '@/config';
@@ -86,7 +85,7 @@ const authBaseURL = isBrowser
   ? `${window.location.origin}/api/auth`
   : envConfigs.auth_url;
 
-// create default auth client, without plugins
+// Google 登录：仅用弹窗内 signIn.social → OAuth 重定向，不加载 accounts.google.com/gsi/client（无 One Tap）。
 export const authClient = createAuthClient({
   baseURL: authBaseURL,
   fetchOptions: {
@@ -100,56 +99,4 @@ export const authClient = createAuthClient({
   },
 });
 
-// export default auth client methods
 export const { useSession, signIn, signUp, signOut } = authClient;
-
-// get auth client with plugins
-export function getAuthClient(configs: Record<string, string>) {
-  const authClient = createAuthClient({
-    baseURL: authBaseURL,
-    plugins: getAuthPlugins(configs),
-    fetchOptions: {
-      // Avoid amplifying request storms (e.g. during env/db switching in dev).
-      // IMPORTANT: auth mutations (sign-in/sign-up) must be non-retriable,
-      // otherwise we may send verification emails multiple times.
-      retry: 0,
-      customFetchImpl: createGetSessionThrottledFetch({
-        minIntervalMs: AUTH_GET_SESSION_MIN_INTERVAL_MS,
-      }),
-    },
-  });
-
-  return authClient;
-}
-
-// get auth plugins with configs
-function getAuthPlugins(configs: Record<string, string>) {
-  const authPlugins = [];
-
-  // 服务端在 getPublicConfigs 中下发 google_one_tap_server_ready（不暴露 secret）
-  if (
-    configs.google_client_id &&
-    configs.google_one_tap_enabled === 'true' &&
-    configs.google_one_tap_server_ready === 'true'
-  ) {
-    authPlugins.push(
-      oneTapClient({
-        clientId: configs.google_client_id,
-        autoSelect: false,
-        cancelOnTapOutside: false,
-        context: 'signin',
-        // GIS 已弃用 use_fedcm_for_prompt（浏览器侧 FedCM 由 Chrome 策略决定）。
-        // 显式关闭 FedCM「按钮」路径；One Tap prompt 仍可能走 FedCM，故在 app 层延迟调用并支持关闭自动弹出。
-        additionalOptions: {
-          use_fedcm_for_button: false,
-        },
-        promptOptions: {
-          baseDelay: 1000,
-          maxAttempts: 1,
-        },
-      })
-    );
-  }
-
-  return authPlugins;
-}

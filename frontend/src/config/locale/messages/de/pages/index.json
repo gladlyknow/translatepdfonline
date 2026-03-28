@@ -42,16 +42,16 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Vorschau der PDF-Übersetzung",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Vorschau der PDF-Übersetzung",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         }
       },
       "introduce": {
@@ -61,10 +61,10 @@
         "label": "Produkt",
         "description": "Webdienst zum Übersetzen von PDFs bei erhaltener ursprünglicher Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "introduce",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "items": [
           {
@@ -118,10 +118,10 @@
             "description": "Ausgelegt auf akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen, soweit die Pipeline es erlaubt.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/landing-page_new.png",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 1820,
+              "height": 1111
             }
           },
           {

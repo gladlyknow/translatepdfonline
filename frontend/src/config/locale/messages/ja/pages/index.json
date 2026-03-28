@@ -42,16 +42,16 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "PDF 翻訳のプレビュー",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "PDF 翻訳のプレビュー",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         }
       },
       "introduce": {
@@ -61,10 +61,10 @@
         "label": "プロダクト",
         "description": "元のデザインを保ちながら PDF 文書を翻訳するウェブサービスです。論文、マニュアル、レポート、書籍向けで、単なるテキストの羅列ではありません。",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "introduce",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "items": [
           {
@@ -118,10 +118,10 @@
             "description": "学術・技術レイアウト向けに調整。数式、図、表はパイプラインが対応する範囲で扱います。",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/landing-page_new.png",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 1820,
+              "height": 1111
             }
           },
           {

@@ -420,11 +420,12 @@ export async function getSettings() {
     },
     {
       name: 'google_one_tap_enabled',
-      title: 'OneTap Enabled',
+      title: 'One Tap (removed)',
       type: 'switch',
       value: 'false',
       group: 'google_auth',
       tab: 'auth',
+      tip: 'Legacy toggle; no longer used. Google sign-in uses OAuth redirect from the sign-in modal only (no gsi script / no auto prompt).',
     },
     {
       name: 'google_client_id',
@@ -963,7 +964,6 @@ export async function getSettings() {
 export const publicSettingNames = [
   'email_auth_enabled',
   'google_auth_enabled',
-  'google_one_tap_enabled',
   'google_client_id',
   'github_auth_enabled',
   'select_payment_enabled',

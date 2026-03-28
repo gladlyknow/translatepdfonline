@@ -609,7 +609,10 @@ export function TranslatePageClient() {
   /** 工作台 */
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
-      <aside className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r">
+      <aside
+        id="translate-workbench-aside"
+        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
+      >
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
             {tHome('workbenchModel')}

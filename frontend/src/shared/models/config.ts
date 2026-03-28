@@ -153,13 +153,5 @@ export async function getPublicConfigs(): Promise<Configs> {
     }
   }
 
-  const oneTapServerReady =
-    Boolean(allConfigs.google_client_id?.trim()) &&
-    allConfigs.google_one_tap_enabled === 'true' &&
-    Boolean(allConfigs.google_client_secret?.trim());
-
-  return {
-    ...publicConfigs,
-    google_one_tap_server_ready: oneTapServerReady ? 'true' : 'false',
-  };
+  return publicConfigs;
 }

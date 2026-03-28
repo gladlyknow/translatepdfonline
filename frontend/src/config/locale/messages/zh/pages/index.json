@@ -42,16 +42,16 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "PDF 翻译预览",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "PDF 翻译预览",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         }
       },
       "introduce": {
@@ -61,10 +61,10 @@
         "label": "产品",
         "description": "面向论文、手册、报告与书籍的网页翻译服务，在可行范围内保留原始版面设计，而不是输出纯文本。",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "introduce",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "items": [
           {
@@ -118,10 +118,10 @@
             "description": "面向学术与技术排版——在流水线支持的范围内处理公式、插图与表格。",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/landing-page_new.png",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 1820,
+              "height": 1111
             }
           },
           {

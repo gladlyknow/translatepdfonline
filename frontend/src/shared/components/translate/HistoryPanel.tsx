@@ -8,6 +8,7 @@ import {
   translateApi,
   type TaskSummary,
 } from '@/shared/lib/translate-api';
+import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
 
 type Props = {
   onSelectTask: (taskId: string) => void;
@@ -24,29 +25,69 @@ export function HistoryPanel({ onSelectTask }: Props) {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [panelRect, setPanelRect] = useState<{
-    top: number;
     left: number;
     width: number;
+    maxHeight: number;
+    placement: 'below' | 'above';
+    top?: number;
+    bottom?: number;
   } | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open || !buttonRef.current) return;
+  const updatePanelPosition = () => {
+    if (!buttonRef.current || typeof window === 'undefined') return;
     const rect = buttonRef.current.getBoundingClientRect();
-    const panelWidth =
-      typeof window !== 'undefined'
-        ? Math.min(320, window.innerWidth - 16)
-        : 320;
-    const left =
-      typeof window !== 'undefined'
-        ? Math.max(
-            8,
-            Math.min(rect.right - panelWidth, window.innerWidth - panelWidth - 8)
-          )
-        : rect.right - 320;
-    setPanelRect({ top: rect.bottom + 8, left, width: panelWidth });
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const margin = 8;
+    const panelWidth = Math.min(320, vw - 16);
+    const left = Math.max(
+      8,
+      Math.min(rect.right - panelWidth, vw - panelWidth - 8)
+    );
+
+    const spaceBelow = vh - rect.bottom - margin;
+    const spaceAbove = rect.top - margin;
+    /** 整块面板（标题+列表）高度不得超过该侧视口内可用空间 */
+    const hardCap = Math.min(vh - margin * 2, vh * 0.9);
+    const belowH = Math.min(hardCap, Math.max(0, spaceBelow - margin));
+    const aboveH = Math.min(hardCap, Math.max(0, spaceAbove - margin));
+    const useBelow = belowH >= aboveH;
+    const rawMax = useBelow ? belowH : aboveH;
+    const maxHeight =
+      rawMax > 0 ? Math.min(hardCap, rawMax) : Math.min(hardCap, 360);
+
+    if (useBelow) {
+      setPanelRect({
+        placement: 'below',
+        top: rect.bottom + margin,
+        left,
+        width: panelWidth,
+        maxHeight,
+      });
+    } else {
+      setPanelRect({
+        placement: 'above',
+        bottom: vh - rect.top + margin,
+        left,
+        width: panelWidth,
+        maxHeight,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    updatePanelPosition();
+    const onResize = () => updatePanelPosition();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onResize, true);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onResize, true);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -67,6 +108,8 @@ export function HistoryPanel({ onSelectTask }: Props) {
       .catch(() => setTasks([]))
       .finally(() => setLoading(false));
   }, [open]);
+
+  usePreventBackgroundWheel(open, panelRef);
 
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {
@@ -143,8 +186,9 @@ export function HistoryPanel({ onSelectTask }: Props) {
         panelRect &&
         createPortal(
           <>
+            {/* 必须低于 Dialog/Sheet（z-50），否则登录、积分等弹窗会被全屏遮罩挡住 */}
             <div
-              className="fixed inset-0 z-[9998]"
+              className="fixed inset-0 z-40"
               aria-hidden
               onClick={() => setOpen(false)}
             />
@@ -152,19 +196,22 @@ export function HistoryPanel({ onSelectTask }: Props) {
               ref={panelRef}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="fixed z-[9999] max-w-[calc(100vw-16px)] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+              className="fixed z-[45] flex max-w-[calc(100vw-16px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
               style={{
-                top: panelRect.top,
                 left: panelRect.left,
                 width: panelRect.width,
+                maxHeight: panelRect.maxHeight,
+                ...(panelRect.placement === 'below'
+                  ? { top: panelRect.top }
+                  : { bottom: panelRect.bottom }),
               }}
             >
-              <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+              <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   {t('history')}
                 </h3>
               </div>
-              <div className="max-h-[60vh] overflow-y-auto p-2">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2 [scrollbar-gutter:stable]">
                 {loading ? (
                   <div className="flex justify-center py-8">
                     <Loader2

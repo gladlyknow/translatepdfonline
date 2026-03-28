@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Link } from '@/core/i18n/navigation';
@@ -195,6 +196,8 @@ export function TranslationForm({
     need: number | null;
     have: number | null;
   }>({ open: false, need: null, have: null });
+
+  usePreventBackgroundWheel(creditsModal.open, null);
 
   const taskInProgress =
     taskStatus === 'queued' || taskStatus === 'processing';

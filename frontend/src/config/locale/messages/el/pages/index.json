@@ -42,16 +42,16 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Προεπισκόπηση μετάφρασης PDF",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "Προεπισκόπηση μετάφρασης PDF",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         }
       },
       "introduce": {
@@ -61,10 +61,10 @@
         "label": "Προϊόν",
         "description": "Υπηρεσία web για μετάφραση εγγράφων PDF διατηρώντας το αρχικό σχεδιασμό. Για εργασίες, εγχειρίδια, αναφορές και βιβλία — όχι απλή εξαγωγή κειμένου.",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "/imgs/features/landing-page_new.png",
           "alt": "introduce",
-          "width": 3840,
-          "height": 2424
+          "width": 1820,
+          "height": 1111
         },
         "items": [
           {
@@ -118,10 +118,10 @@
             "description": "Βελτιστοποιημένο για ακαδημαϊκές και τεχνικές διατάξεις — εξισώσεις, σχήματα και πίνακες όπου υποστηρίζει η ροή.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page.png",
+              "src": "/imgs/features/landing-page_new.png",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 1820,
+              "height": 1111
             }
           },
           {

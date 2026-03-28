@@ -11,7 +11,6 @@ import {
   useState,
 } from 'react';
 
-import { getAuthClient } from '@/core/auth/client';
 import { envConfigs } from '@/config';
 import { User } from '@/shared/models/user';
 
@@ -28,7 +27,6 @@ export interface ContextValue {
   fetchConfigs: () => Promise<void>;
   fetchUserCredits: () => Promise<void>;
   fetchUserInfo: () => Promise<void>;
-  showOneTap: (configs: Record<string, string>) => Promise<void>;
 }
 
 const AppContext = createContext({} as ContextValue);
@@ -118,28 +116,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const showOneTap = useCallback(async (configs: Record<string, string>) => {
-    try {
-      // Defer past first paint / locale navigation to reduce FedCM "signal is aborted" noise.
-      await new Promise<void>((resolve) => setTimeout(resolve, 450));
-      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
-        return;
-      }
-
-      const authClient = getAuthClient(configs);
-      await authClient.oneTap({
-        callbackURL: '/',
-        onPromptNotification: (notification: any) => {
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('One Tap prompt notification:', notification);
-          }
-        },
-      });
-    } catch {
-      // One Tap dismissed, FedCM AbortError, or transient GIS failures — non-fatal.
-    }
-  }, []);
-
   useEffect(() => {
     userRef.current = user;
   }, [user]);
@@ -158,7 +134,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       fetchConfigs,
       fetchUserCredits,
       fetchUserInfo,
-      showOneTap,
     }),
     [
       user,
@@ -169,7 +144,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       fetchConfigs,
       fetchUserCredits,
       fetchUserInfo,
-      showOneTap,
     ]
   );
 

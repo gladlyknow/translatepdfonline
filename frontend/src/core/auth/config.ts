@@ -1,5 +1,4 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { oneTap } from 'better-auth/plugins';
 import { getLocale } from 'next-intl/server';
 
 import { db } from '@/core/db';
@@ -282,13 +281,7 @@ export async function getAuthOptions(configs: Record<string, string>) {
         }
       : {}),
     socialProviders: await getSocialProviders(configs),
-    // One Tap 回调需校验/换票，与 Google OAuth 一致：必须同时配置 client id + secret（仅 id 会 500）
-    plugins:
-      configs.google_client_id &&
-      configs.google_client_secret &&
-      configs.google_one_tap_enabled === 'true'
-        ? [oneTap()]
-        : [],
+    plugins: [],
   };
 }
 

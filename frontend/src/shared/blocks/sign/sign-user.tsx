@@ -25,7 +25,6 @@ import { cn } from '@/shared/lib/utils';
 import { User as UserType } from '@/shared/models/user';
 import { NavItem, UserNav } from '@/shared/types/blocks/common';
 
-import { isGoogleOneTapAutoPromptEnabled } from '@/shared/lib/google-one-tap-flags';
 import { SmartIcon } from '../common/smart-icon';
 import { SignModal } from './sign-modal';
 
@@ -56,7 +55,6 @@ export function SignUser({
 
   // get app context values
   const {
-    configs,
     fetchConfigs,
     setIsShowSignModal,
     isCheckSign,
@@ -64,7 +62,6 @@ export function SignUser({
     user,
     setUser,
     fetchUserInfo,
-    showOneTap,
   } = useAppContext();
 
   // get session
@@ -75,34 +72,13 @@ export function SignUser({
   // In dev (React StrictMode) effects can run twice; ensure we don't spam getSession().
   const didFallbackSyncRef = useRef(false);
 
-  // one tap initialized
-  const oneTapInitialized = useRef(false);
-
   useEffect(() => {
     fetchConfigs();
   }, []);
 
-  // set is check sign
   useEffect(() => {
     setIsCheckSign(isPending);
-  }, [isPending]);
-
-  // show one tap if not initialized
-  useEffect(() => {
-    if (
-      isGoogleOneTapAutoPromptEnabled &&
-      configs &&
-      configs.google_client_id &&
-      configs.google_one_tap_enabled === 'true' &&
-      configs.google_one_tap_server_ready === 'true' &&
-      !session &&
-      !isPending &&
-      !oneTapInitialized.current
-    ) {
-      oneTapInitialized.current = true;
-      showOneTap(configs);
-    }
-  }, [configs, session, isPending, showOneTap]);
+  }, [isPending, setIsCheckSign]);
 
   // set user
   useEffect(() => {

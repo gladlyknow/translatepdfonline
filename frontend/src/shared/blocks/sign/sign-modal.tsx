@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 
+import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
+
 import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
@@ -29,6 +31,8 @@ export function SignModal({ callbackUrl = '/' }: { callbackUrl?: string }) {
   const { isShowSignModal, setIsShowSignModal } = useAppContext();
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
+
+  usePreventBackgroundWheel(isShowSignModal, null);
 
   if (isDesktop) {
     return (
