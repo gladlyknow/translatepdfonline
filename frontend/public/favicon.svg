@@ -1,11 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <defs>
-    <linearGradient id="faviconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0f172a" />
-      <stop offset="100%" style="stop-color:#0369a1" />
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="9" ry="9" fill="url(#faviconGrad)" />
+  <!-- Solid fill: diagonal gradients moire at ~16px tab size; matches brand:icons -->
+  <rect width="32" height="32" rx="9" ry="9" fill="#0369a1" />
   <text
     x="16"
     y="22"

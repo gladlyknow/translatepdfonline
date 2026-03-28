@@ -49,6 +49,21 @@ function effectiveDatabaseUrlFromEnv(): string {
 
 export type ConfigMap = Record<string, string>;
 
+/**
+ * 为 `/favicon.svg` 等静态路径追加 `?v=`，减轻浏览器/CDN 强缓存导致线上仍显示旧图标。
+ * 可设 `NEXT_PUBLIC_ASSET_VERSION`；否则用 package.json 的 version（发版即变）。
+ */
+export function cacheBustedPublicPath(path: string): string {
+  if (!path?.trim()) return path;
+  const trimmed = path.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const v =
+    process.env.NEXT_PUBLIC_ASSET_VERSION?.trim() || packageJson.version;
+  if (!v) return trimmed;
+  const sep = trimmed.includes('?') ? '&' : '?';
+  return `${trimmed}${sep}v=${encodeURIComponent(v)}`;
+}
+
 export const envConfigs: ConfigMap = {
   app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Translate PDF Online',

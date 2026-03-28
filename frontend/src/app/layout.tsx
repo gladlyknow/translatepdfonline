@@ -4,7 +4,7 @@ import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
-import { envConfigs } from '@/config';
+import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
 import { getAllConfigs } from '@/shared/models/config';
@@ -108,10 +108,10 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* 标签页图标：勿再声明 32×32 PNG 为 rel=icon，否则 Chrome 常选栅格图；对角渐变压到 ~16px 会出现摩尔纹（条纹）。优先 SVG；ICO 仅作旧环境/书签回退（pnpm run brand:icons） */}
+        {/* 标签页图标：rel=icon 优先 SVG；ICO 作回退。SVG 勿用对角渐变（小尺寸摩尔纹）。href 带 ?v= 便于刷新缓存。 */}
         <link
           rel="icon"
-          href={envConfigs.app_favicon}
+          href={cacheBustedPublicPath(envConfigs.app_favicon)}
           type={
             envConfigs.app_favicon.endsWith('.svg')
               ? 'image/svg+xml'
@@ -119,8 +119,11 @@ export default async function RootLayout({
           }
           sizes="any"
         />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/brand/logo-180.png" />
+        <link rel="shortcut icon" href={cacheBustedPublicPath('/favicon.ico')} />
+        <link
+          rel="apple-touch-icon"
+          href={cacheBustedPublicPath('/brand/logo-180.png')}
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         {/* inject locales */}

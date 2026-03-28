@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-从与 public/favicon.svg 一致的视觉（圆角、对角渐变、白字 T）栅格化为 PNG。
+从与 public/favicon.svg 一致的视觉（圆角、纯色底 #0369a1、白字 T）栅格化为 PNG。
 仅使用 Python 标准库，无需 Pillow/sharp。
 
 运行（在 frontend 目录）: pnpm run brand:icons
@@ -13,9 +13,8 @@ import struct
 import zlib
 from pathlib import Path
 
-# 与 favicon.svg 中 linearGradient 一致
-C0 = (0x0F, 0x17, 0x2A)  # #0f172a
-C1 = (0x03, 0x69, 0xA1)  # #0369a1
+# 与 favicon.svg 实心底一致（避免小尺寸渐变摩尔纹）
+BG = (0x03, 0x69, 0xA1)  # #0369a1
 WHITE = (0xFF, 0xFF, 0xFF)
 # viewBox 32×32 上 rx=9
 RX_RATIO = 9 / 32
@@ -37,17 +36,6 @@ def _in_round_rect(x: float, y: float, w: int, h: int, r: float) -> bool:
         if dx * dx + dy * dy <= r * r + 0.25:
             return True
     return False
-
-
-def _gradient_rgb(x: float, y: float, w: int, h: int) -> tuple[int, int, int]:
-    # 对角 t：等价于 SVG x1=0,y1=0 -> x2=100%,y2=100%
-    t = ((x / max(w - 1, 1)) + (y / max(h - 1, 1))) / 2
-    t = max(0.0, min(1.0, t))
-    return (
-        int(C0[0] + (C1[0] - C0[0]) * t),
-        int(C0[1] + (C1[1] - C0[1]) * t),
-        int(C0[2] + (C1[2] - C0[2]) * t),
-    )
 
 
 def _draw_t(px: int, py: int, w: int, h: int) -> bool:
@@ -82,8 +70,7 @@ def render_rgba(size: int) -> bytes:
             if _draw_t(x, y, w, h):
                 row.extend([*WHITE, 255])
             else:
-                rgb = _gradient_rgb(float(x), float(y), w, h)
-                row.extend([*rgb, 255])
+                row.extend([*BG, 255])
         rows.append(bytes(row))
     return b"".join(rows)
 

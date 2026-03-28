@@ -2,7 +2,7 @@
 export const TRANSLATE_MODEL_DISPLAY_NAME = 'DeepSeek V3';
 
 /**
- * 主 CTA 按钮：与品牌 favicon.svg 对角渐变一致（slate-900 → sky-700 / #0f172a → #0369a1）。
+ * 主 CTA 按钮：品牌色 slate→sky 渐变（favicon 小图标为纯色以避免摩尔纹，大按钮仍可用渐变）。
  * 用于翻译工作台「开始翻译」、定价支付、首页 translateDark 主按钮等。
  */
 export const TRANSLATE_PRIMARY_CTA_CLASSNAME =

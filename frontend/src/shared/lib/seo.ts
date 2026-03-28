@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { envConfigs } from '@/config';
+import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
 
 // get metadata for page component
@@ -75,7 +75,10 @@ export function getMetadata(
 
     const appUrl = envConfigs.app_url || '';
     const favicon = envConfigs.app_favicon ?? '/favicon.ico';
-    const iconUrl = favicon.startsWith('http') ? favicon : `${appUrl}${favicon}`;
+    const faviconPath = cacheBustedPublicPath(favicon);
+    const iconUrl = faviconPath.startsWith('http')
+      ? faviconPath
+      : `${appUrl}${faviconPath}`;
 
     return {
       title:
@@ -95,7 +98,7 @@ export function getMetadata(
       },
       icons: {
         icon: iconUrl,
-        apple: `${appUrl}/brand/logo-180.png`,
+        apple: `${appUrl}${cacheBustedPublicPath('/brand/logo-180.png')}`,
       },
 
       openGraph: {
