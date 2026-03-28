@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "이용 방법",
+        "label": "",
         "title": "PDF 번역 방법",
         "description": "업로드부터 다운로드와 기록까지:",
         "image": {

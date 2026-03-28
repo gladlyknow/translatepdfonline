@@ -39,8 +39,15 @@ export function FeaturesStep({
         <div className="@container relative container">
           <ScrollAnimation>
             <div className="mx-auto max-w-2xl text-center">
-              <span className="text-primary">{section.label}</span>
-              <h2 className="text-foreground mt-4 text-4xl font-semibold">
+              {section.label ? (
+                <span className="text-primary">{section.label}</span>
+              ) : null}
+              <h2
+                className={cn(
+                  'text-foreground text-4xl font-semibold',
+                  section.label ? 'mt-4' : ''
+                )}
+              >
                 {section.title}
               </h2>
               <p className="text-muted-foreground mt-4 text-lg text-balance">

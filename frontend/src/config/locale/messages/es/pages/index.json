@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "Cómo funciona",
+        "label": "",
         "title": "Cómo traducir su PDF",
         "description": "Desde la carga hasta la descarga y el historial:",
         "image": {

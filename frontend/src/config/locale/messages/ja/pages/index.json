@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "使い方",
+        "label": "",
         "title": "PDF の翻訳手順",
         "description": "アップロードからダウンロード、履歴まで：",
         "image": {

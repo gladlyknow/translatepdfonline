@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "Πώς λειτουργεί",
+        "label": "",
         "title": "Πώς να μεταφράσετε το PDF σας",
         "description": "Από το ανέβασμα έως τη λήψη και το ιστορικό:",
         "image": {

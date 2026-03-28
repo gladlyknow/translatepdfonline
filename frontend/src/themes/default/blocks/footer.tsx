@@ -92,6 +92,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                       key={iidx}
                       href={subItem.url || ''}
                       target={subItem.target || ''}
+                      title={subItem.title || ''}
                       className="text-muted-foreground hover:text-primary block break-words duration-150"
                     >
                       <span className="break-words">{subItem.title || ''}</span>
@@ -131,7 +132,11 @@ export function Footer({ footer }: { footer: FooterType }) {
                 <span className="font-medium text-foreground">
                   {supportLabel}
                 </span>{' '}
-                <a href={`mailto:${supportEmail}`} className={supportMailtoClass}>
+                <a
+                  href={`mailto:${supportEmail}`}
+                  className={supportMailtoClass}
+                  title={`${supportLabel} ${supportEmail}`}
+                >
                   {supportEmail}
                 </a>
               </p>
@@ -146,6 +151,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
+                  title={item.title || ''}
                   className="text-muted-foreground hover:text-foreground bg-background inline-flex cursor-pointer rounded-full p-2 transition-colors duration-150"
                   aria-label={item.title || 'Social media link'}
                 >

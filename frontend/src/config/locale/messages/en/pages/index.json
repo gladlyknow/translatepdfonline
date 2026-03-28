@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "How it works",
+        "label": "",
         "title": "How to translate your PDF",
         "description": "From upload to download and history:",
         "image": {

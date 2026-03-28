@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "Как это работает",
+        "label": "",
         "title": "Как перевести PDF",
         "description": "От загрузки до скачивания и истории:",
         "image": {

@@ -70,6 +70,7 @@ export function Blog({
                 key={idx}
                 href={item.url || ''}
                 target={item.target || '_self'}
+                title={item.title || ''}
                 className="w-full p-4 md:w-1/3"
               >
                 <div className="border-border flex flex-col overflow-clip rounded-xl border">

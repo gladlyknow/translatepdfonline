@@ -17,6 +17,17 @@ type Props = {
 const CANCELLABLE_STATUSES = ['pending', 'processing'];
 const DELETABLE_STATUSES = ['completed', 'failed', 'cancelled'];
 
+function taskTimeMs(task: TaskSummary): number {
+  const raw = task.updated_at ?? task.created_at;
+  if (!raw || typeof raw !== 'string') return 0;
+  const ms = new Date(raw).getTime();
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+function sortTasksNewestFirst(list: TaskSummary[]): TaskSummary[] {
+  return [...list].sort((a, b) => taskTimeMs(b) - taskTimeMs(a));
+}
+
 export function HistoryPanel({ onSelectTask }: Props) {
   const t = useTranslations('translate.home');
   const [open, setOpen] = useState(false);
@@ -103,7 +114,7 @@ export function HistoryPanel({ onSelectTask }: Props) {
             : Array.isArray((data as { tasks?: unknown })?.tasks)
               ? (data as { tasks: TaskSummary[] }).tasks
               : [];
-        setTasks(list);
+        setTasks(sortTasksNewestFirst(list));
       })
       .catch(() => setTasks([]))
       .finally(() => setLoading(false));
@@ -224,7 +235,13 @@ export function HistoryPanel({ onSelectTask }: Props) {
                     {t('noHistory')}
                   </p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul
+                    className={
+                      panelRect.placement === 'above'
+                        ? 'flex flex-col-reverse gap-2'
+                        : 'flex flex-col gap-2'
+                    }
+                  >
                     {tasks.map((task) => {
                       const id =
                         task.id ??

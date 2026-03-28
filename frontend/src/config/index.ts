@@ -72,6 +72,11 @@ export const envConfigs: ConfigMap = {
   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.svg',
   app_preview_image:
     process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.png',
+  /** 与 `public/preview.png` 像素尺寸一致，供 OG/Twitter meta；若更换预览图请同步改此值或设对应 env */
+  app_preview_image_width:
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_WIDTH ?? '2540',
+  app_preview_image_height:
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_HEIGHT ?? '1270',
   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
   appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',

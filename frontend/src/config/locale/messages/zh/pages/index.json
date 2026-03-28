@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "如何工作",
+        "label": "",
         "title": "如何翻译 PDF",
         "description": "从上传到下载与历史记录：",
         "image": {

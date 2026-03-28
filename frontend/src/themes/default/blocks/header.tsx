@@ -100,6 +100,7 @@ export function Header({ header }: { header: HeaderType }) {
                   <Link
                     href={item.url || ''}
                     target={item.target || '_self'}
+                    title={item.title ?? ''}
                     className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:bg-muted/30 hover:text-foreground ${
                       item.is_active || pathname.endsWith(item.url as string)
                         ? 'bg-muted/40 text-muted-foreground'
@@ -179,6 +180,7 @@ export function Header({ header }: { header: HeaderType }) {
                             <Link
                               href={subItem.url || ''}
                               onClick={closeMenu}
+                              title={subItem.title ?? ''}
                               className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
                             >
                               <div
@@ -200,6 +202,7 @@ export function Header({ header }: { header: HeaderType }) {
                   <Link
                     href={item.url || ''}
                     onClick={closeMenu}
+                    title={item.title ?? ''}
                     className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal"
                   >
                     {item.title}
@@ -233,6 +236,7 @@ export function Header({ header }: { header: HeaderType }) {
           <Link
             href={href}
             target={target || '_self'}
+            title={title}
             className="grid grid-cols-[auto_1fr] gap-3.5"
           >
             <div className="bg-background ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow-sm ring-1">
@@ -300,6 +304,7 @@ export function Header({ header }: { header: HeaderType }) {
                         key={idx}
                         href={button.url || ''}
                         target={button.target || '_self'}
+                        title={button.title ?? ''}
                         className={cn(
                           'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                           'h-7 px-3 ring-0',

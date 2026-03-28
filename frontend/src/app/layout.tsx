@@ -125,6 +125,11 @@ export default async function RootLayout({
           href={cacheBustedPublicPath('/brand/logo-180.png')}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* Bing Webmaster Tools — keep after verification succeeds */}
+        <meta
+          name="msvalidate.01"
+          content="6EBFE9DC98D628BCDAB6A9BBCF26C8D0"
+        />
 
         {/* inject locales */}
         {locales ? (

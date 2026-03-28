@@ -85,6 +85,7 @@ export function FeaturesList({
                       <Link
                         href={button.url ?? ''}
                         target={button.target ?? '_self'}
+                        title={button.title ?? ''}
                         className={cn(
                           'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                           'h-9 px-4 py-2',

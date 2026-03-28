@@ -62,7 +62,11 @@ export function Cta({
                     )}
                     key={idx}
                   >
-                    <Link href={href} target={button.target || '_self'}>
+                    <Link
+                      href={href}
+                      target={button.target || '_self'}
+                      title={button.title ?? ''}
+                    >
                       {button.icon && (
                         <SmartIcon name={button.icon as string} />
                       )}

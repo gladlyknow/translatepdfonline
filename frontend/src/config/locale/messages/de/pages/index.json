@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "Ablauf",
+        "label": "",
         "title": "So übersetzen Sie Ihr PDF",
         "description": "Vom Upload bis Download und Verlauf:",
         "image": {

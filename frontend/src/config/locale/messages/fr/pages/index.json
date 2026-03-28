@@ -152,7 +152,7 @@
         "block": "features-step",
         "id": "usage",
         "carousel": true,
-        "label": "Fonctionnement",
+        "label": "",
         "title": "Comment traduire votre PDF",
         "description": "Du téléversement au téléchargement et à l’historique :",
         "image": {

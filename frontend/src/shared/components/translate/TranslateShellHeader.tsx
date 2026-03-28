@@ -26,6 +26,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
     >
       <Link
         href="/"
+        title={t('brandShort')}
         className={
           onDark
             ? 'flex items-center gap-2 text-zinc-100'
@@ -63,6 +64,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
       <nav className="flex items-center gap-1 sm:gap-4" aria-label={t('navAria')}>
         <Link
           href="/pricing"
+          title={t('pricing')}
           className={
             onDark
               ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
@@ -83,6 +85,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
         </Link>
         <Link
           href="/translate#translate-history"
+          title={t('historyNav')}
           className={
             onDark
               ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'

@@ -135,7 +135,11 @@ export function Showcases({
                     >
                       <Image
                         src={item.image?.src ?? ''}
-                        alt={item.image?.alt ?? ''}
+                        alt={
+                          item.image?.alt ||
+                          item.title ||
+                          'Showcase preview'
+                        }
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         fill
                         className="rounded-t-lg object-cover transition-transform duration-300"
@@ -162,6 +166,7 @@ export function Showcases({
                             <Link
                               href={(item as any).button.url || ''}
                               target={(item as any).button.target || '_self'}
+                              title={(item as any).button.title ?? ''}
                             >
                               {(item as any).button.icon && (
                                 <SmartIcon
@@ -183,7 +188,12 @@ export function Showcases({
             return hasButton ? (
               <div key={index}>{cardContent}</div>
             ) : (
-              <Link key={index} href={item.url || ''} target={item.target}>
+              <Link
+                key={index}
+                href={item.url || ''}
+                target={item.target}
+                title={item.title || ''}
+              >
                 {cardContent}
               </Link>
             );

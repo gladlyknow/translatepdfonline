@@ -556,6 +556,7 @@ export function Pricing({
               <p>
                 <Link
                   href={section.terms_path || '/terms-of-service'}
+                  title={section.terms_link_text ?? ''}
                   className="text-primary underline underline-offset-2"
                 >
                   {section.terms_link_text}

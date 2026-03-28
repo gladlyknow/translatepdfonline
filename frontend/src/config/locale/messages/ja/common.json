@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "Translate PDF Online",
-    "description": "ブラウザでレイアウトを保ったPDF翻訳。多数の言語ペア。HTTPS配信と期間限定のファイル保持。",
+    "title": "Translate PDF Online | レイアウトを保つブラウザPDF翻訳",
+    "description": "ブラウザでPDFをレイアウト・フォント・表構造を保ったまま多言語翻訳。HTTPS配信と期間限定の安全なファイル保持に対応。論文・報告書・ビジネス文書向け。クライアント不要でアップロード後すぐ開始できます。",
     "keywords": "pdf翻訳, レイアウト保持 pdf, オンラインpdf翻訳, 多言語pdf, 学術pdf翻訳, babeldoc, deepseek"
   },
   "sign": {

@@ -21,6 +21,9 @@ export function Hero({
 }) {
   const isTranslateDark = section.variant === 'translateDark';
   const highlightText = section.highlight_text ?? '';
+  const heroImageAltFallback =
+    section.title?.replace(/<[^>]*>/g, '').trim() ||
+    'Translate PDF Online product screenshot';
   let texts = null;
   if (highlightText) {
     texts = section.title?.split(highlightText, 2);
@@ -62,6 +65,7 @@ export function Hero({
         <Link
           href={section.announcement.url || ''}
           target={section.announcement.target || '_self'}
+          title={section.announcement.title ?? ''}
           className={cn(
             'group mx-auto mb-8 flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md transition-colors duration-300',
             isTranslateDark
@@ -180,7 +184,11 @@ export function Hero({
                   )}
                   key={idx}
                 >
-                  <Link href={button.url ?? ''} target={button.target ?? '_self'}>
+                  <Link
+                    href={button.url ?? ''}
+                    target={button.target ?? '_self'}
+                    title={button.title ?? ''}
+                  >
                     {button.icon && <SmartIcon name={button.icon as string} />}
                     <span>{button.title}</span>
                   </Link>
@@ -253,7 +261,7 @@ export function Hero({
                     alt={
                       section.image_invert?.alt ||
                       section.image?.alt ||
-                      ''
+                      heroImageAltFallback
                     }
                     width={
                       section.image_invert?.width ||
@@ -280,7 +288,11 @@ export function Hero({
                     <Image
                       className="border-border/25 relative z-2 hidden w-full border dark:block"
                       src={section.image_invert.src}
-                      alt={section.image_invert.alt || section.image?.alt || ''}
+                      alt={
+                        section.image_invert.alt ||
+                        section.image?.alt ||
+                        heroImageAltFallback
+                      }
                       width={
                         section.image_invert.width || section.image?.width || 1200
                       }
@@ -300,7 +312,11 @@ export function Hero({
                     <Image
                       className="border-border/25 relative z-2 block w-full border dark:hidden"
                       src={section.image.src}
-                      alt={section.image.alt || section.image_invert?.alt || ''}
+                      alt={
+                        section.image.alt ||
+                        section.image_invert?.alt ||
+                        heroImageAltFallback
+                      }
                       width={
                         section.image.width || section.image_invert?.width || 1200
                       }
@@ -328,7 +344,7 @@ export function Hero({
           <div className="from-background/80 via-background/80 to-background absolute inset-0 z-10 bg-gradient-to-b" />
           <Image
             src={section.background_image.src}
-            alt={section.background_image.alt || ''}
+            alt={section.background_image.alt || heroImageAltFallback}
             className="object-cover opacity-60 blur-[0px]"
             fill
             loading="lazy"

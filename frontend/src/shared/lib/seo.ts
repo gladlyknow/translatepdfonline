@@ -80,6 +80,21 @@ export function getMetadata(
       ? faviconPath
       : `${appUrl}${faviconPath}`;
 
+    const ogImageW = parseInt(envConfigs.app_preview_image_width, 10);
+    const ogImageH = parseInt(envConfigs.app_preview_image_height, 10);
+    const ogImageDims =
+      Number.isFinite(ogImageW) &&
+      Number.isFinite(ogImageH) &&
+      ogImageW > 0 &&
+      ogImageH > 0
+        ? { width: ogImageW, height: ogImageH }
+        : {};
+
+    const ogImageEntry = {
+      url: imageUrl.toString(),
+      ...ogImageDims,
+    };
+
     return {
       title:
         passedMetadata.title ||
@@ -108,14 +123,14 @@ export function getMetadata(
         title,
         description,
         siteName: appName,
-        images: [imageUrl.toString()],
+        images: [ogImageEntry],
       },
 
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: [imageUrl.toString()],
+        images: [ogImageEntry],
         site: envConfigs.app_url,
       },
 

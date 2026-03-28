@@ -133,10 +133,17 @@ export async function getAllConfigs(): Promise<Configs> {
     }
   });
 
-  const configs = {
+  const configs: Configs = {
     ...envConfigs,
     ...dbConfigs,
   };
+
+  // 本地/CI 无数据库或未在后台写入 adsense_code 时：用 NEXT_PUBLIC_ADSENSE_CLIENT 补齐，
+  // 使 /ads.txt 与 layout 中 AdSense 与 ADSENSE_CODE 覆盖逻辑一致（均需 ca-pub-… 前缀）。
+  const adsFromPublic = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
+  if (!String(configs.adsense_code ?? '').trim() && adsFromPublic) {
+    configs.adsense_code = adsFromPublic;
+  }
 
   return configs;
 }

@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { CloudDownload, Languages, Upload } from 'lucide-react';
+import {
+  BookOpen,
+  CloudDownload,
+  History,
+  Languages,
+  Upload,
+} from 'lucide-react';
 
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
 import {
@@ -51,22 +57,15 @@ export function TranslateLandingSections({
     t('trustMultilang'),
   ];
 
+  const stepIconClass =
+    'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-900 to-sky-700 text-white shadow-[0_4px_14px_0_rgba(3,105,161,0.3)] ring-1 ring-white/15 dark:from-slate-800 dark:to-sky-600 dark:shadow-[0_4px_18px_0_rgba(56,189,248,0.18)] dark:ring-white/10';
+
   const steps = [
-    {
-      icon: Upload,
-      title: t('step1Title'),
-      desc: t('step1Desc'),
-    },
-    {
-      icon: Languages,
-      title: t('step2Title'),
-      desc: t('step2Desc'),
-    },
-    {
-      icon: CloudDownload,
-      title: t('step3Title'),
-      desc: t('step3Desc'),
-    },
+    { icon: Upload, title: t('step1Title'), desc: t('step1Desc') },
+    { icon: BookOpen, title: t('step2Title'), desc: t('step2Desc') },
+    { icon: Languages, title: t('step3Title'), desc: t('step3Desc') },
+    { icon: CloudDownload, title: t('step4Title'), desc: t('step4Desc') },
+    { icon: History, title: t('step5Title'), desc: t('step5Desc') },
   ];
 
   const formatPills = [
@@ -164,20 +163,23 @@ export function TranslateLandingSections({
         </div>
       </section>
 
-      {/* 三步 — 浅色区 */}
+      {/* 与首页「如何翻译 PDF」相同的五步说明；图标 slate→sky 渐变与全站主 CTA 一致 */}
       <section className="border-t border-zinc-200 bg-zinc-50 py-14 dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-center text-xl font-semibold text-zinc-900 dark:text-zinc-50 sm:text-2xl">
             {t('stepsSectionTitle')}
           </h2>
-          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-6">
+          <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-zinc-600 dark:text-zinc-400">
+            {t('stepsSectionDescription')}
+          </p>
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-5">
             {steps.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
                 className="flex flex-col items-center text-center sm:items-start sm:text-left"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
-                  <Icon className="h-6 w-6" aria-hidden />
+                <span className={stepIconClass}>
+                  <Icon className="h-6 w-6" aria-hidden strokeWidth={2} />
                 </span>
                 <h3 className="mt-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">
                   {title}
