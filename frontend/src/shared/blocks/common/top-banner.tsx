@@ -217,17 +217,23 @@ export function TopBanner({
       <div
         ref={bannerRef}
         className={cn(
-          'bg-background/95 text-foreground border-border fixed top-0 right-0 left-0 z-[51] hidden min-h-12 border-b py-1 shadow-sm backdrop-blur-sm md:block',
+          'bg-background/95 text-foreground border-border fixed top-0 right-0 left-0 z-[51] block min-h-12 border-b py-1 shadow-sm backdrop-blur-sm',
           className
         )}
       >
         <div className="container py-2.5">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-1 items-center justify-center gap-3">
-              <div
-                className="text-sm text-foreground [&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:decoration-foreground"
-                dangerouslySetInnerHTML={{ __html: String(text ?? '') }}
-              />
+            <div className="flex min-w-0 flex-1 items-center justify-center gap-3 px-1">
+              {typeof text === 'string' ? (
+                <div
+                  className="text-center text-sm text-foreground [&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:decoration-foreground"
+                  dangerouslySetInnerHTML={{ __html: text }}
+                />
+              ) : (
+                <div className="text-center text-sm text-foreground [&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:decoration-foreground">
+                  {text}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-shrink-0 items-center gap-2">

@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Επαγγελματική μετάφραση PDF στον browser — διατήρηση διάταξης, γραμματοσειρών και εικόνων. Πολλά ζεύγη γλωσσών. Ανοίξτε τη <a href='/translate' target='_self'>σελίδα μετάφρασης</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Εγγραφείτε και λάβετε ",
+      "promoCredits": "30 πιστώσεις",
+      "promoMiddle": " — ",
+      "promoFree": "δωρεάν",
+      "promoAfter": "μετάφραση για περίπου 3 σελίδες PDF (10 πιστώσεις ανά σελίδα).",
+      "buttonText": "Εγγραφή",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

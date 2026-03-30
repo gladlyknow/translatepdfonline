@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Professional PDF translation in the browser — layout, fonts, and figures preserved. Multiple language pairs. Open the <a href='/translate' target='_self'>translate page</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Sign up and get ",
+      "promoCredits": "30 credits",
+      "promoMiddle": " — ",
+      "promoFree": "free",
+      "promoAfter": "translation for about 3 PDF pages (10 credits per page).",
+      "buttonText": "Sign up",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

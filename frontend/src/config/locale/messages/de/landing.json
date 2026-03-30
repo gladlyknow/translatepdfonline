@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Professionelle PDF-Übersetzung im Browser — Layout, Schriften und Abbildungen bleiben erhalten. Viele Sprachpaare. <a href='/translate' target='_self'>Übersetzungsseite öffnen</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Registrieren Sie sich und erhalten Sie ",
+      "promoCredits": "30 Credits",
+      "promoMiddle": " — ",
+      "promoFree": "kostenlos",
+      "promoAfter": "Übersetzung für etwa 3 PDF-Seiten (10 Credits pro Seite).",
+      "buttonText": "Registrieren",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

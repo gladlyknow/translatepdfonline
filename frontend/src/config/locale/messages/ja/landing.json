@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "ブラウザ上でプロ品質のPDF翻訳 — レイアウト・フォント・図を保持。多言語ペアに対応。<a href='/translate' target='_self'>翻訳ページ</a>を開く。"
+      "id": "signup-bonus-2026",
+      "promoBefore": "登録で",
+      "promoCredits": "30 クレジット",
+      "promoMiddle": "。",
+      "promoFree": "無料",
+      "promoAfter": "で約 3 ページ分の PDF 翻訳（1 ページ 10 クレジット）。",
+      "buttonText": "登録",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

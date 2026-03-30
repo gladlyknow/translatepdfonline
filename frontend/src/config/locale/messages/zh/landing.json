@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "专业 AI PDF 翻译，保留版式与字体；支持多语言对。立即 <a href='/translate' target='_self'>开始翻译</a>。"
+      "id": "signup-bonus-2026",
+      "promoBefore": "注册即送",
+      "promoCredits": "30 积分",
+      "promoMiddle": "。",
+      "promoFree": "免费",
+      "promoAfter": "翻译约 3 页 PDF（每页 10 积分）。",
+      "buttonText": "注册",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

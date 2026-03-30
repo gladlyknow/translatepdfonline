@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "브라우저에서 전문가 수준의 PDF 번역 — 레이아웃·글꼴·그림을 유지합니다. 다양한 언어 쌍을 지원합니다. <a href='/translate' target='_self'>번역 페이지</a>로 이동하세요."
+      "id": "signup-bonus-2026",
+      "promoBefore": "가입 시 ",
+      "promoCredits": "30 크레딧",
+      "promoMiddle": ", ",
+      "promoFree": "무료",
+      "promoAfter": "로 약 3페이지 PDF 번역(페이지당 10 크레딧).",
+      "buttonText": "가입하기",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

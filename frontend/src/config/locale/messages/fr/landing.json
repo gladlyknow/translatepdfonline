@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Traduction PDF professionnelle dans le navigateur — mise en page, polices et figures préservées. Plusieurs paires de langues. Ouvrez la <a href='/translate' target='_self'>page de traduction</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Inscrivez-vous pour obtenir ",
+      "promoCredits": "30 crédits",
+      "promoMiddle": " — ",
+      "promoFree": "gratuit",
+      "promoAfter": " : traduction d’environ 3 pages PDF (10 crédits par page).",
+      "buttonText": "S’inscrire",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

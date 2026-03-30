@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Профессиональный перевод PDF в браузере — сохраняются вёрстка, шрифты и иллюстрации. Много языковых пар. <a href='/translate' target='_self'>Открыть страницу перевода</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Зарегистрируйтесь и получите ",
+      "promoCredits": "30 кредитов",
+      "promoMiddle": " — ",
+      "promoFree": "бесплатно",
+      "promoAfter": "перевод примерно 3 страниц PDF (10 кредитов за страницу).",
+      "buttonText": "Регистрация",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {

@@ -47,7 +47,16 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Traducción profesional de PDF con IA que conserva diseño, fuentes e imágenes. Varios idiomas disponibles. Visite la <a href='/translate' target='_self'>página de traducción</a>."
+      "id": "signup-bonus-2026",
+      "promoBefore": "Regístrese y obtenga ",
+      "promoCredits": "30 créditos",
+      "promoMiddle": " — ",
+      "promoFree": "gratis",
+      "promoAfter": "traducción de unas 3 páginas PDF (10 créditos por página).",
+      "buttonText": "Registrarse",
+      "href": "/sign-up",
+      "target": "_self",
+      "dismissedExpiryDays": 1
     }
   },
   "footer": {
