@@ -4,7 +4,11 @@ import { nanoid } from 'nanoid';
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
 import { getTranslateAuth } from '../../translate/auth';
-import { dispatchPendingOcrJobs, enqueueOcrTask } from '@/shared/lib/ocr-queue';
+import {
+  dispatchPendingOcrJobs,
+  enqueueOcrTask,
+  sendOcrPipelineQueueMessage,
+} from '@/shared/lib/ocr-queue';
 import { isCloudflareWorker } from '@/shared/lib/env';
 
 const ALLOWED_TRANSLATE_LANGS = new Set([
@@ -75,27 +79,30 @@ export async function POST(req: Request) {
       JSON.stringify({ task_id: taskId, document_id: doc.id, source_lang: sourceLang, target_lang: targetLang })
     );
 
-    const running = dispatchPendingOcrJobs(
-      Math.min(
-        8,
-        Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '3', 10) || 3)
-      )
-    );
-    if (isCloudflareWorker) {
-      try {
-        const ctx = getCloudflareContext() as unknown as {
-          ctx?: { waitUntil?: (p: Promise<unknown>) => void };
-        };
-        if (ctx?.ctx?.waitUntil) {
-          ctx.ctx.waitUntil(running);
-        } else {
+    const queuedOnCf = await sendOcrPipelineQueueMessage(taskId);
+    if (!queuedOnCf) {
+      const running = dispatchPendingOcrJobs(
+        Math.min(
+          8,
+          Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '3', 10) || 3)
+        )
+      );
+      if (isCloudflareWorker) {
+        try {
+          const ctx = getCloudflareContext() as unknown as {
+            ctx?: { waitUntil?: (p: Promise<unknown>) => void };
+          };
+          if (ctx?.ctx?.waitUntil) {
+            ctx.ctx.waitUntil(running);
+          } else {
+            void running;
+          }
+        } catch {
           void running;
         }
-      } catch {
+      } else {
         void running;
       }
-    } else {
-      void running;
     }
 
     return Response.json({ task_id: taskId });

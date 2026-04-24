@@ -11,8 +11,19 @@ import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header
 /**
  * 翻译页专用顶栏：品牌区（T + PDF）链首页、Pricing / Docs / History、登录与用户菜单
  */
-export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
+export function TranslateShellHeader({
+  userNav,
+  variant = 'translate',
+}: {
+  userNav?: UserNav;
+  variant?: 'translate' | 'ocr';
+}) {
   const t = useTranslations('translate.shell');
+  const brand = variant === 'ocr' ? t('brandShortOcr') : t('brandShort');
+  const historyHref =
+    variant === 'ocr'
+      ? '/ocrtranslator#translate-history'
+      : '/translate/upload#translate-history';
   const { appearance } = useTranslateHeaderAppearance();
   const onDark = appearance === 'onDark';
 
@@ -26,7 +37,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
     >
       <Link
         href="/"
-        title={t('brandShort')}
+        title={brand}
         className={
           onDark
             ? 'flex items-center gap-2 text-zinc-100'
@@ -58,7 +69,20 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
             aria-hidden
           />
         </span>
-        <span className="hidden text-sm font-semibold sm:inline">{t('brandShort')}</span>
+        <span className="hidden flex-col items-start sm:flex">
+          <span className="text-sm font-semibold leading-tight">{brand}</span>
+          {variant === 'ocr' ? (
+            <span
+              className={
+                onDark
+                  ? 'text-[10px] font-medium leading-tight text-zinc-400'
+                  : 'text-[10px] font-medium leading-tight text-zinc-500 dark:text-zinc-400'
+              }
+            >
+              {t('brandSubtitleOcr')}
+            </span>
+          ) : null}
+        </span>
       </Link>
 
       <nav className="flex items-center gap-1 sm:gap-4" aria-label={t('navAria')}>
@@ -84,7 +108,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
           {t('docs')}
         </Link>
         <Link
-          href="/translate/upload#translate-history"
+          href={historyHref}
           title={t('historyNav')}
           className={
             onDark

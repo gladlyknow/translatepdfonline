@@ -1,5 +1,7 @@
 {
   "brandShort": "Перевод PDF",
+  "brandShortOcr": "OCR-перевод",
+  "brandSubtitleOcr": "Сканы и PDF с изображениями",
   "navAria": "Основное меню",
   "pricing": "Тарифы",
   "docs": "Документация",

@@ -1,5 +1,7 @@
 {
   "brandShort": "翻译 PDF",
+  "brandShortOcr": "OCR 翻译",
+  "brandSubtitleOcr": "扫描件与图片型 PDF",
   "navAria": "主导航",
   "pricing": "定价",
   "docs": "文档",

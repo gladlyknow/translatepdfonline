@@ -30,6 +30,7 @@ export async function GET(
     let sourcePdfUrl: string | null = null;
     let primaryFileUrl: string | null = null;
     let mdFileUrl: string | null = null;
+    let ocrParseResultUrl: string | null = null;
     const outputs: { filename: string; download_url: string }[] = [];
     if (await isR2Configured()) {
       try {
@@ -63,6 +64,19 @@ export async function GET(
           });
         } catch (_) {}
       }
+      if (task.preprocessWithOcr && task.status === 'completed') {
+        const parseKey = `translations/${taskId}/ocr-parse-result.json`;
+        try {
+          const jsonDisp = 'attachment; filename="ocr-parse-result.json"';
+          ocrParseResultUrl = await createPresignedGet(parseKey, 3600, {
+            responseContentDisposition: jsonDisp,
+          });
+          outputs.push({
+            filename: 'ocr-parse-result.json',
+            download_url: ocrParseResultUrl,
+          });
+        } catch (_) {}
+      }
     }
     return Response.json({
       task: {
@@ -81,12 +95,14 @@ export async function GET(
         progress_stage: task.progressStage,
         progress_current: task.progressCurrent,
         progress_total: task.progressTotal,
+        preprocess_with_ocr: task.preprocessWithOcr,
       },
       document_filename: documentFilename,
       document_size_bytes: documentSizeBytes,
       outputs,
       primary_file_url: primaryFileUrl,
       source_pdf_url: sourcePdfUrl,
+      ocr_parse_result_url: ocrParseResultUrl,
       can_download: true,
     });
   } catch (e) {

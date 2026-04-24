@@ -1,5 +1,7 @@
 {
   "brandShort": "Translate PDF",
+  "brandShortOcr": "OCR 翻訳",
+  "brandSubtitleOcr": "スキャン・画像中心の PDF",
   "navAria": "メイン",
   "pricing": "料金",
   "docs": "ドキュメント",

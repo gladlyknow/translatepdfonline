@@ -1,5 +1,7 @@
 {
   "brandShort": "Translate PDF",
+  "brandShortOcr": "OCR Translator",
+  "brandSubtitleOcr": "Scans & image PDFs",
   "navAria": "Main",
   "pricing": "Pricing",
   "docs": "Docs",

@@ -72,6 +72,7 @@ export interface TaskDetail {
   progress_stage?: string | null;
   progress_current?: number | null;
   progress_total?: number | null;
+  preprocess_with_ocr?: boolean;
 }
 
 export interface TranslateResponse {
@@ -124,7 +125,10 @@ export interface TaskView {
   document_size_bytes?: number;
   outputs: TaskOutputFile[];
   primary_file_url?: string | null;
+  /** 与 GET view 响应字段一致（源 PDF 预签名） */
   source_pdf_url?: string | null;
+  /** OCR 任务完成后的 parse JSON presigned GET */
+  ocr_parse_result_url?: string | null;
   can_download?: boolean;
 }
 
@@ -266,6 +270,12 @@ export const translateApi = {
 
   getTaskView: (taskId: string) =>
     fetchTranslateApi<TaskView>(`/api/tasks/${taskId}/view`),
+
+  patchOcrParseResult: (taskId: string, body: unknown) =>
+    fetchTranslateApi<{ ok: boolean; object_key: string }>(
+      `/api/tasks/${taskId}/ocr-parse-result`,
+      { method: 'PATCH', body: JSON.stringify(body) }
+    ),
 
   getTaskOutputPreviewUrl: (taskId: string, page = 1) =>
     fetchTranslateApi<DocumentPreviewUrlResponse>(

@@ -1,0 +1,23 @@
+# OCR queue consumer worker for translatepdfonline
+name = "translatepdfonline_quenues"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+keep_names = false
+
+[observability]
+enabled = true
+
+[vars]
+# Optional: you can inject these via CI build env + generate-wrangler flow,
+# or configure directly in Worker Settings -> Variables and secrets.
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "1f0a3251f43343c3872e5f882ff3d879"
+
+[[queues.consumers]]
+queue = "translatepdfonline"
+max_batch_size = 1
+max_batch_timeout = 30
+max_retries = 5

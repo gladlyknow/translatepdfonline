@@ -1,7 +1,8 @@
+import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { getAllConfigs } from '@/shared/models/config';
 import { createPresignedGet, putObject } from '@/shared/lib/translate-r2';
-import { tryLoadOcrPdfCjkFontBytes } from '@/shared/lib/ocr-export-pdf-font-bytes';
+import { loadOcrPdfCjkFontBytesAsync } from '@/shared/lib/ocr-export-pdf-font-bytes';
 
 const BAIDU_TOKEN_URL = 'https://aip.baidubce.com/oauth/2.0/token';
 const BAIDU_TASK_URL =
@@ -232,7 +233,13 @@ function extractParseResultUrl(payload: unknown): string {
   return '';
 }
 
-async function resolveOcrMarkdown(payload: unknown): Promise<string> {
+/**
+ * 解析 Baidu OCR 结果为 Markdown，并返回应持久化到 R2 的 JSON（来自 parse_result_url 或原始 payload）。
+ */
+async function resolveOcrMarkdownAndStoragePayload(payload: unknown): Promise<{
+  markdown: string;
+  parseJson: unknown;
+}> {
   const parseResultUrl = extractParseResultUrl(payload);
   if (parseResultUrl) {
     const res = await fetch(parseResultUrl);
@@ -240,10 +247,19 @@ async function resolveOcrMarkdown(payload: unknown): Promise<string> {
       throw new Error(`Failed to fetch OCR parse_result_url (${res.status})`);
     }
     const json = (await res.json()) as unknown;
-    const md = buildMarkdownFromOcrPayload(json);
-    if (md) return md;
+    const mdFromJson = buildMarkdownFromOcrPayload(json);
+    if (mdFromJson.trim()) {
+      return { markdown: mdFromJson, parseJson: json };
+    }
+    return {
+      markdown: buildMarkdownFromOcrPayload(payload),
+      parseJson: json,
+    };
   }
-  return buildMarkdownFromOcrPayload(payload);
+  return {
+    markdown: buildMarkdownFromOcrPayload(payload),
+    parseJson: payload,
+  };
 }
 
 export async function translateMarkdownWithDeepSeek(params: {
@@ -272,7 +288,9 @@ export async function translateMarkdownWithDeepSeek(params: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'deepseek-chat',
+      model:
+        String(process.env.OCR_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || '')
+          .trim() || 'deepseek-chat',
       temperature: 0.2,
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -317,9 +335,10 @@ function wrapLineByWidth(
 
 export async function markdownToSimplePdfBytes(markdown: string): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
   let font = await doc.embedFont(StandardFonts.Helvetica);
   let useCjkFont = false;
-  const cjkBytes = tryLoadOcrPdfCjkFontBytes();
+  const cjkBytes = await loadOcrPdfCjkFontBytesAsync();
   if (cjkBytes) {
     try {
       font = await doc.embedFont(cjkBytes, { subset: true });
@@ -396,6 +415,8 @@ export async function runOcrTranslatePipeline(params: {
   targetLang: string;
   outputPdfObjectKey: string;
   outputMdObjectKey: string;
+  /** R2 键，如 translations/{taskId}/ocr-parse-result.json */
+  outputParseResultObjectKey: string;
 }): Promise<{
   markdown: string;
   translatedMarkdown: string;
@@ -436,10 +457,23 @@ export async function runOcrTranslatePipeline(params: {
     JSON.stringify({ baidu_task_id: baiduTaskId, elapsed_ms: Date.now() - pollStartedAt })
   );
 
-  const markdown = await resolveOcrMarkdown(latestResult);
+  const { markdown, parseJson } =
+    await resolveOcrMarkdownAndStoragePayload(latestResult);
   if (!markdown.trim()) {
     throw new Error('OCR produced empty text');
   }
+  const parseBytes = new TextEncoder().encode(
+    JSON.stringify(parseJson, null, 2)
+  );
+  await putObject(
+    params.outputParseResultObjectKey,
+    parseBytes,
+    'application/json; charset=utf-8'
+  );
+  console.log(
+    '[ocr/pipeline] parse_result_json_uploaded',
+    JSON.stringify({ key: params.outputParseResultObjectKey })
+  );
   const translatedMarkdown = await translateMarkdownWithDeepSeek({
     markdown,
     sourceLang: params.sourceLang,

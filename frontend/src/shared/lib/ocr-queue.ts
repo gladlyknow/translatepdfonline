@@ -1,7 +1,43 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { and, asc, eq, isNull, lte, or } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
 import { runOcrTranslatePipeline } from '@/shared/lib/ocr-translate';
+
+export type OcrPipelineQueueBody = { taskId: string };
+
+/**
+ * 向 Cloudflare Queues 投递 OCR 任务（需在 Dashboard 创建 `ocr-pipeline-queue` 并部署带 producer 绑定的 Worker）。
+ * 非 Worker 或未配置绑定时返回 false，由调用方回退到 waitUntil(dispatchPendingOcrJobs)。
+ */
+export async function sendOcrPipelineQueueMessage(taskId: string): Promise<boolean> {
+  try {
+    const wrapped = getCloudflareContext() as unknown as {
+      env?: { OCR_PIPELINE_QUEUE?: { send: (b: OcrPipelineQueueBody) => Promise<void> } };
+    };
+    const q = wrapped?.env?.OCR_PIPELINE_QUEUE;
+    if (!q || typeof q.send !== 'function') return false;
+    await q.send({ taskId });
+    console.log('[ocr/queue] enqueued', JSON.stringify({ task_id: taskId }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Queues consumer 入口：与 OpenNext 默认 `fetch` 导出合并为 `export default { fetch, queue }` 时调用。
+ * batch 建议 max_batch_size=1，避免长任务并行占满 CPU。
+ */
+export async function handleOcrPipelineQueueBatch(batch: {
+  messages: Array<{ body: OcrPipelineQueueBody }>;
+}): Promise<void> {
+  for (const msg of batch.messages) {
+    const taskId = msg.body?.taskId;
+    if (!taskId || typeof taskId !== 'string') continue;
+    await invokeOcrPipelineForTask(taskId);
+  }
+}
 
 const DEFAULT_OCR_BATCH_SIZE = 4;
 
@@ -98,6 +134,7 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
 
   const outputPdfObjectKey = `translations/${taskId}/ocr-output.pdf`;
   const outputMdObjectKey = `translations/${taskId}/ocr-output.md`;
+  const outputParseResultObjectKey = `translations/${taskId}/ocr-parse-result.json`;
   const prevAttempts = row.fcDispatchAttemptCount ?? 0;
   const thisAttempt = prevAttempts + 1;
 
@@ -110,6 +147,7 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
       targetLang: row.targetLang,
       outputPdfObjectKey,
       outputMdObjectKey,
+      outputParseResultObjectKey,
     });
 
     await db()

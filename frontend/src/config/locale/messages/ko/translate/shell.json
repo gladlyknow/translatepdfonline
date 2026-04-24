@@ -1,5 +1,7 @@
 {
   "brandShort": "Translate PDF",
+  "brandShortOcr": "OCR 번역",
+  "brandSubtitleOcr": "스캔·이미지 중심 PDF",
   "navAria": "메인",
   "pricing": "요금",
   "docs": "문서",

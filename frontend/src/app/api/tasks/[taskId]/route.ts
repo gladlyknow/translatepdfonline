@@ -36,6 +36,7 @@ export async function GET(
       progress_stage: task.progressStage,
       progress_current: task.progressCurrent,
       progress_total: task.progressTotal,
+      preprocess_with_ocr: task.preprocessWithOcr,
     });
   } catch (e) {
     console.error('get task failed:', e);

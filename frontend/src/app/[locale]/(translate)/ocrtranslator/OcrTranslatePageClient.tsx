@@ -18,7 +18,6 @@ import {
   type TaskView,
   type UILang,
 } from '@/shared/lib/translate-api';
-import { TRANSLATE_MODEL_DISPLAY_NAME } from '@/config/translate-ui';
 import {
   Loader2,
   Download,
@@ -32,6 +31,14 @@ const PdfViewerPane = dynamic(
   () =>
     import('@/shared/components/translate/PdfViewerPane').then((m) => ({
       default: m.PdfViewerPane,
+    })),
+  { ssr: false }
+);
+
+const OcrParseWorkbench = dynamic(
+  () =>
+    import('@/shared/ocr-workbench/OcrParseWorkbench').then((m) => ({
+      default: m.OcrParseWorkbench,
     })),
   { ssr: false }
 );
@@ -96,6 +103,7 @@ export function OcrTranslatePageClient() {
   const tHome = useTranslations('translate.home');
   const tTranslate = useTranslations('translate.translate');
   const tPdf = useTranslations('translate.pdfViewer');
+  const tOcrWb = useTranslations('translate.ocrWorkbench');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -143,6 +151,7 @@ export function OcrTranslatePageClient() {
   const [refreshing, setRefreshing] = useState(false);
   const [starting, setStarting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [mainTab, setMainTab] = useState<'preview' | 'workbench'>('preview');
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -584,6 +593,11 @@ export function OcrTranslatePageClient() {
     outputs.find((o) => o.filename.toLowerCase().endsWith('.pdf')) ?? null;
   const mdOutput =
     outputs.find((o) => o.filename.toLowerCase().endsWith('.md')) ?? null;
+  const ocrParseResultUrl = taskView?.ocr_parse_result_url ?? null;
+
+  useEffect(() => {
+    if (!ocrParseResultUrl) setMainTab('preview');
+  }, [ocrParseResultUrl]);
 
   if (!documentId) {
     return (
@@ -608,12 +622,14 @@ export function OcrTranslatePageClient() {
       >
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            {tHome('workbenchModel')}
+            {tHome('workbenchModelOcr')}
           </p>
           <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-zinc-100">
-            {TRANSLATE_MODEL_DISPLAY_NAME}
+            {tHome('workbenchPipelineTitle')}
           </p>
-          <p className="mt-0.5 text-[11px] text-zinc-500">OCR + DeepSeek</p>
+          <p className="mt-0.5 text-[11px] text-zinc-500">
+            {tHome('workbenchPipelineHint')}
+          </p>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
@@ -667,10 +683,10 @@ export function OcrTranslatePageClient() {
 
         <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-3 dark:border-blue-900/50 dark:bg-blue-950/40">
           <p className="text-xs font-medium text-blue-900/90 dark:text-blue-200/90">
-            OCR Translator
+            {tHome('workbenchOcrInfoTitle')}
           </p>
           <p className="mt-1 text-[11px] leading-relaxed text-blue-900/80 dark:text-blue-100/80">
-            OCR parse by Baidu Qianfan, then translation by DeepSeek.
+            {tHome('workbenchOcrInfoBody')}
           </p>
         </div>
 
@@ -803,63 +819,104 @@ export function OcrTranslatePageClient() {
           </div>
         )}
 
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-            <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-              {tHome('sourceLabel')}
-            </p>
-            <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
-              <PdfViewerPane
-                key={`source-ocr-${documentId}-${currentPage}`}
-                fileUrl={sourcePdfUrl ?? ''}
-                mode="source"
-                page={currentPage}
-                onPageChange={handleSourcePageChange}
-                totalPages={
-                  effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
+        {taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
+          <div className="flex shrink-0 gap-1 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/80">
+            <button
+              type="button"
+              onClick={() => setMainTab('preview')}
+              className={
+                mainTab === 'preview'
+                  ? 'rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
+                  : 'rounded-md px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-800'
+              }
+            >
+              {tOcrWb('tabPreview')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMainTab('workbench')}
+              className={
+                mainTab === 'workbench'
+                  ? 'rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
+                  : 'rounded-md px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-800'
+              }
+            >
+              {tOcrWb('tabWorkbench')}
+            </button>
+          </div>
+        ) : null}
+
+        {mainTab === 'workbench' && taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
+          <div className="min-h-0 min-w-0 flex-1 overflow-hidden p-3 md:p-4">
+            <div className="mx-auto flex h-full min-h-[420px] max-w-6xl flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[560px]">
+              <OcrParseWorkbench
+                taskId={taskId}
+                parseResultUrl={ocrParseResultUrl}
+                sourcePdfUrl={
+                  taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
                 }
-                onPdfNumPages={setSourceNumPagesFromViewer}
-                scale={pdfZoom}
-                onScaleChange={setPdfZoom}
-                showZoomControls
               />
             </div>
           </div>
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-            <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-              {tHome('targetLabel')}
-            </p>
-            <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
-              {taskStatus === 'completed' && targetPdfUrl && !isPageTranslated ? (
-                <div className="flex h-full min-h-[280px] items-center justify-center">
-                  <span className="text-zinc-500">{tPdf('pageNotTranslated')}</span>
-                </div>
-              ) : (
+        ) : (
+          <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
+            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+              <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                {tHome('sourceLabel')}
+              </p>
+              <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
                 <PdfViewerPane
-                  key={`target-ocr-${taskId ?? ''}-${targetPage}`}
-                  fileUrl={targetPdfUrl ?? ''}
-                  mode="target"
-                  placeholder={
-                    taskId && !targetPdfUrl
-                      ? taskAwaitingResult
-                        ? t('targetPlaceholder')
-                        : tPdf('noPdf')
-                      : undefined
-                  }
-                  page={targetPdfUrl ? targetPage : undefined}
-                  onPageChange={targetPdfUrl ? setTargetPage : undefined}
+                  key={`source-ocr-${documentId}-${currentPage}`}
+                  fileUrl={sourcePdfUrl ?? ''}
+                  mode="source"
+                  page={currentPage}
+                  onPageChange={handleSourcePageChange}
                   totalPages={
-                    effectiveTargetTotalPages > 0 ? effectiveTargetTotalPages : undefined
+                    effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
                   }
-                  onPdfNumPages={setTargetNumPagesFromViewer}
+                  onPdfNumPages={setSourceNumPagesFromViewer}
                   scale={pdfZoom}
                   onScaleChange={setPdfZoom}
-                  showZoomControls={false}
+                  showZoomControls
                 />
-              )}
+              </div>
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+              <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                {tHome('targetLabel')}
+              </p>
+              <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
+                {taskStatus === 'completed' && targetPdfUrl && !isPageTranslated ? (
+                  <div className="flex h-full min-h-[280px] items-center justify-center">
+                    <span className="text-zinc-500">{tPdf('pageNotTranslated')}</span>
+                  </div>
+                ) : (
+                  <PdfViewerPane
+                    key={`target-ocr-${taskId ?? ''}-${targetPage}`}
+                    fileUrl={targetPdfUrl ?? ''}
+                    mode="target"
+                    placeholder={
+                      taskId && !targetPdfUrl
+                        ? taskAwaitingResult
+                          ? t('targetPlaceholder')
+                          : tPdf('noPdf')
+                        : undefined
+                    }
+                    page={targetPdfUrl ? targetPage : undefined}
+                    onPageChange={targetPdfUrl ? setTargetPage : undefined}
+                    totalPages={
+                      effectiveTargetTotalPages > 0 ? effectiveTargetTotalPages : undefined
+                    }
+                    onPdfNumPages={setTargetNumPagesFromViewer}
+                    scale={pdfZoom}
+                    onScaleChange={setPdfZoom}
+                    showZoomControls={false}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
