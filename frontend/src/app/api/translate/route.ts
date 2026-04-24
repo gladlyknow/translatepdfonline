@@ -127,7 +127,7 @@ function detectLikelyScannedPdf(params: {
   if (range) {
     const hit = parseTranslatePageRange(range);
     if (hit) {
-      effectivePages = Math.max(1, hit.end - hit.start + 1);
+      effectivePages = Math.max(1, hit[1] - hit[0] + 1);
     }
   }
   if (effectivePages <= 0) {
