@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "New",
           "title": "Professional layout-preserving PDF translation",
-          "url": "/translate"
+          "url": "/translate/upload"
         },
         "tip": "Special launch pricing for early users",
         "buttons": [
           {
             "title": "Get Started",
             "icon": "Zap",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "variant": "dark"
           },
@@ -316,7 +316,7 @@
         "buttons": [
           {
             "title": "Start translating",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "icon": "Zap"
           },

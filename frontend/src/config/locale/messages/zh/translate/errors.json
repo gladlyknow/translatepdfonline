@@ -3,5 +3,6 @@
   "tounicode_missing": "该 PDF 缺少 ToUnicode 映射，建议使用带文本层的 PDF 或先进行 OCR 预处理。",
   "font_subset_corrupt": "该 PDF 字体子集可能损坏，建议重新生成 PDF 或先进行 OCR 预处理。",
   "no_paragraphs": "这份 PDF 里暂时读不到可翻译的正文，常见于扫描件、纯图片页或特殊排版，并不是您的操作有误。我们已在持续优化这类文档的支持，后续版本会逐步改善。您也可以尝试勾选「OCR 预处理」，或换一份能用鼠标选中文字的 PDF。",
-  "ocr_preprocess_failed": "OCR 预处理失败，请检查是否已安装 OCRmyPDF 与 Tesseract，或稍后重试。"
+  "ocr_preprocess_failed": "OCR 预处理失败，请检查是否已安装 OCRmyPDF 与 Tesseract，或稍后重试。",
+  "scan_detected_use_ocr": "系统判断该文件疑似扫描件，建议使用 OCR Translator，避免 BabelDOC 重试失败造成资源浪费。"
 }

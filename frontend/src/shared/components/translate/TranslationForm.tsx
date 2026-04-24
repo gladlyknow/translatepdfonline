@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Link } from '@/core/i18n/navigation';
+import { Link, useRouter } from '@/core/i18n/navigation';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
@@ -176,6 +177,8 @@ export function TranslationForm({
   const t = useTranslations('translate.translate');
   const tHome = useTranslations('translate.home');
   const tLang = useTranslations('translate.languages');
+  const tErrors = useTranslations('translate.errors');
+  const router = useRouter();
   const [innerSource, setInnerSource] = useState<UILang | ''>('');
   const [innerTarget, setInnerTarget] = useState<UILang | ''>('');
   const isLangControlled =
@@ -196,6 +199,12 @@ export function TranslationForm({
     need: number | null;
     have: number | null;
   }>({ open: false, need: null, have: null });
+  const [ocrSuggestion, setOcrSuggestion] = useState<{
+    documentId: string;
+    sourceLang: UILang;
+    targetLang: UILang;
+  } | null>(null);
+  const [ocrNavigating, setOcrNavigating] = useState(false);
 
   usePreventBackgroundWheel(creditsModal.open, null);
 
@@ -203,6 +212,17 @@ export function TranslationForm({
     taskStatus === 'queued' || taskStatus === 'processing';
   const submitDisabled =
     submitting || taskInProgress || !sourceLang || !targetLang;
+
+  const handleGoOcr = () => {
+    if (!ocrSuggestion || ocrNavigating) return;
+    setOcrNavigating(true);
+    const qs = new URLSearchParams({
+      document: ocrSuggestion.documentId,
+      source_lang: ocrSuggestion.sourceLang,
+      target_lang: ocrSuggestion.targetLang,
+    });
+    router.push(`/ocrtranslator?${qs.toString()}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,6 +237,8 @@ export function TranslationForm({
     setSubmitting(true);
     setError(null);
     setLoginHint(null);
+    setOcrSuggestion(null);
+    setOcrNavigating(false);
     setCreditsModal((s) => ({ ...s, open: false }));
     const rangeTrimmedRaw = pageRange?.trim() || '';
     const rangeTrimmed =
@@ -337,6 +359,19 @@ export function TranslationForm({
           return;
         }
       }
+      if (err.status === 409) {
+        const code =
+          typeof err.body?.code === 'string' ? err.body.code : '';
+        if (code === 'scan_detected_use_ocr' && sourceLang && targetLang) {
+          setError(tErrors('scan_detected_use_ocr'));
+          setOcrSuggestion({
+            documentId,
+            sourceLang,
+            targetLang,
+          });
+          return;
+        }
+      }
       if (err.status === 403) {
         const msg = err.message || '';
         if (msg.includes('quota') || msg.includes('login')) {
@@ -408,6 +443,19 @@ export function TranslationForm({
               {error ?? loginHint}
             </span>
           </div>
+        )}
+        {ocrSuggestion && (
+          <button
+            type="button"
+            onClick={handleGoOcr}
+            disabled={ocrNavigating}
+            className="w-full rounded-xl border border-amber-300 bg-amber-50 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              {ocrNavigating ? <Loader2 size={14} className="animate-spin" /> : null}
+              {t('preprocessWithOcr')}
+            </span>
+          </button>
         )}
         <button
           type="submit"
@@ -502,6 +550,19 @@ export function TranslationForm({
             </span>
           </div>
         )}
+        {ocrSuggestion && (
+          <button
+            type="button"
+            onClick={handleGoOcr}
+            disabled={ocrNavigating}
+            className="min-h-[32px] shrink-0 whitespace-nowrap rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              {ocrNavigating ? <Loader2 size={12} className="animate-spin" /> : null}
+              {t('preprocessWithOcr')}
+            </span>
+          </button>
+        )}
       </form>
       </>
     );
@@ -559,6 +620,19 @@ export function TranslationForm({
         <span className="text-sm text-amber-700 dark:text-amber-300">
           {loginHint}
         </span>
+      )}
+      {ocrSuggestion && (
+        <button
+          type="button"
+          onClick={handleGoOcr}
+          disabled={ocrNavigating}
+          className="min-h-[40px] rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            {ocrNavigating ? <Loader2 size={14} className="animate-spin" /> : null}
+            {t('preprocessWithOcr')}
+          </span>
+        </button>
       )}
       <button
         type="submit"

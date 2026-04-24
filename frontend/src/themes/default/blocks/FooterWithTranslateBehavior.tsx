@@ -14,7 +14,9 @@ export function FooterWithTranslateBehavior({
   const pathname = usePathname();
   const t = useTranslations('translate.home');
   const workbenchCtx = useTranslateFooterWorkbenchOptional();
-  const isTranslatePage = pathname?.includes('/translate') ?? false;
+  const isTranslatePage =
+    (pathname?.includes('/translate') ?? false) ||
+    (pathname?.includes('/ocrtranslator') ?? false);
   const [expanded, setExpanded] = useState(false);
 
   const workbenchOpen = workbenchCtx?.workbenchOpen ?? false;

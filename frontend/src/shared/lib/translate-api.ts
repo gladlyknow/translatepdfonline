@@ -46,6 +46,7 @@ export interface TaskSummary {
   status: string;
   source_lang: string;
   target_lang: string;
+  preprocess_with_ocr?: boolean;
   created_at: string;
   document_filename?: string | null;
   page_range?: string | null;
@@ -241,6 +242,20 @@ export const translateApi = {
         page_range: pageRange ?? null,
         source_slice_object_key: sourceSliceObjectKey ?? null,
         preprocess_with_ocr: preprocessWithOcr === true,
+      }),
+    }),
+
+  createOcrTask: (
+    documentId: string,
+    sourceLang: UILang,
+    targetLang: UILang
+  ) =>
+    fetchTranslateApi<{ task_id: string }>('/api/ocr/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        document_id: documentId,
+        source_lang: sourceLang,
+        target_lang: targetLang,
       }),
     }),
 

@@ -11,7 +11,8 @@ import { defaultLocale, locales } from '@/config/locale';
 const PUBLIC_PATHS = [
   '/',
   '/pricing',
-  '/translate',
+  '/translate/upload',
+  '/ocrtranslator',
   '/docs',
   '/blog',
   '/updates',

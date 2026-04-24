@@ -97,6 +97,73 @@ function summarizeFcEndpoint(fcUrl: string) {
   }
 }
 
+type ScanPrecheckResult = {
+  likelyScanned: boolean;
+  reason: string;
+  confidence: 'low' | 'medium' | 'high';
+};
+
+/**
+ * 轻量扫描件预判（不调用外部 OCR / FC）：
+ * - 主要依据单页平均体积（扫描图像页通常显著更大）
+ * - 辅助依据文件名关键词
+ * 仅在高置信场景阻断，避免误拦截普通文本 PDF。
+ */
+function detectLikelyScannedPdf(params: {
+  filename: string | null | undefined;
+  sizeBytes: number | null | undefined;
+  pageCount: number | null | undefined;
+  pageRange: string | null;
+}): ScanPrecheckResult {
+  const filename = (params.filename || '').toLowerCase();
+  const sizeBytes = Number(params.sizeBytes || 0);
+  const pageCount = Number(params.pageCount || 0);
+  const range = params.pageRange?.trim() || '';
+
+  const hasScanHintInName =
+    /scan|scanned|ocr|image-only|图片|扫描|影印/.test(filename);
+
+  let effectivePages = pageCount > 0 ? pageCount : 0;
+  if (range) {
+    const hit = parseTranslatePageRange(range);
+    if (hit) {
+      effectivePages = Math.max(1, hit.end - hit.start + 1);
+    }
+  }
+  if (effectivePages <= 0) {
+    return {
+      likelyScanned: false,
+      reason: 'page_count_unknown',
+      confidence: 'low',
+    };
+  }
+
+  const avgBytesPerPage = sizeBytes / Math.max(1, effectivePages);
+  const hugeImagePages = avgBytesPerPage >= 900 * 1024;
+  const mediumImagePages = avgBytesPerPage >= 600 * 1024;
+  const veryLargeFile = sizeBytes >= 30 * 1024 * 1024;
+
+  if (hugeImagePages && (effectivePages >= 2 || hasScanHintInName)) {
+    return {
+      likelyScanned: true,
+      reason: 'avg_page_size_very_high',
+      confidence: 'high',
+    };
+  }
+  if (mediumImagePages && veryLargeFile && hasScanHintInName) {
+    return {
+      likelyScanned: true,
+      reason: 'filename_scan_hint_and_large_image_pdf',
+      confidence: 'medium',
+    };
+  }
+  return {
+    likelyScanned: false,
+    reason: 'not_enough_scan_signals',
+    confidence: 'low',
+  };
+}
+
 /** 与前端 UILang / LanguageSelector 一致；FC 内可再规范化（如 zh → zh_cn） */
 const ALLOWED_TRANSLATE_LANGS = new Set([
   'en',
@@ -182,6 +249,38 @@ export async function POST(req: Request) {
       pageRange = hit.effectiveRange;
       pageRangeUserInputDb = hit.userInputToStore;
       pageRangeAdjusted = hit.adjusted;
+    }
+
+    const scanPrecheck = detectLikelyScannedPdf({
+      filename: doc.filename,
+      sizeBytes: doc.sizeBytes,
+      pageCount: doc.pageCount,
+      pageRange,
+    });
+    if (scanPrecheck.likelyScanned) {
+      console.log(
+        '[translate] scan_precheck_blocked',
+        JSON.stringify({
+          document_id: documentId,
+          page_range: pageRange,
+          page_count: doc.pageCount ?? null,
+          file_size_bytes: doc.sizeBytes ?? null,
+          scan_reason: scanPrecheck.reason,
+          confidence: scanPrecheck.confidence,
+        })
+      );
+      return Response.json(
+        {
+          detail:
+            'This PDF looks like a scanned/image document. Please use OCR Translator to avoid unnecessary BabelDOC FC retries.',
+          code: 'scan_detected_use_ocr',
+          document_id: documentId,
+          ocr_redirect_url: '/ocrtranslator',
+          scan_reason: scanPrecheck.reason,
+          confidence: scanPrecheck.confidence,
+        },
+        { status: 409 }
+      );
     }
 
     if (isTranslateCreditsEnabled()) {

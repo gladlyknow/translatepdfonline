@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "신규",
           "title": "레이아웃을 보존하는 전문 PDF 번역",
-          "url": "/translate"
+          "url": "/translate/upload"
         },
         "tip": "얼리 유저를 위한 런칭 가격",
         "buttons": [
           {
             "title": "시작하기",
             "icon": "Zap",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "variant": "dark"
           },
@@ -316,7 +316,7 @@
         "buttons": [
           {
             "title": "번역 시작",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "icon": "Zap"
           },

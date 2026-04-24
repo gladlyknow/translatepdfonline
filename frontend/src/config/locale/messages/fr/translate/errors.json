@@ -3,5 +3,6 @@
   "tounicode_missing": "Ce PDF n’a pas de mappage ToUnicode. Utilisez un PDF avec une couche texte ou lancez d’abord l’OCR.",
   "font_subset_corrupt": "Ce PDF peut avoir des sous-ensembles de polices corrompus. Réexportez le PDF ou lancez d’abord l’OCR.",
   "no_paragraphs": "Nous n’avons pas trouvé de texte lisible à traduire dans ce PDF. Il est peut-être scanné, uniquement image, ou utilise une mise en page que nous ne prenons pas encore entièrement en charge — ce n’est pas de votre faute. Nous améliorons la prise en charge dans les prochaines versions. Essayez « Prétraiter par OCR » ou un PDF où vous pouvez sélectionner le texte au curseur.",
-  "ocr_preprocess_failed": "Échec du prétraitement OCR. Vérifiez qu’OCRmyPDF et Tesseract sont installés, ou réessayez plus tard."
+  "ocr_preprocess_failed": "Échec du prétraitement OCR. Vérifiez qu’OCRmyPDF et Tesseract sont installés, ou réessayez plus tard.",
+  "scan_detected_use_ocr": "Ce fichier semble être un PDF scanné. Nous recommandons OCR Translator pour éviter les échecs répétés de BabelDOC."
 }

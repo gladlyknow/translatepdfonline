@@ -31,6 +31,35 @@ import { cn } from '@/shared/lib/utils';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Header as HeaderType } from '@/shared/types/blocks/landing';
 
+function NavItemIcon({
+  item,
+  className,
+}: {
+  item: NavItem;
+  className?: string;
+}) {
+  const url =
+    typeof item.icon_url === 'string' && item.icon_url.trim() !== ''
+      ? item.icon_url.trim()
+      : null;
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt=""
+        className={cn('size-4 shrink-0', className)}
+        width={16}
+        height={16}
+        decoding="async"
+      />
+    );
+  }
+  if (item.icon) {
+    return <SmartIcon name={item.icon as string} className={className} />;
+  }
+  return null;
+}
+
 // For Next.js hydration mismatch warning, conditionally render NavigationMenuTrigger only after mount to avoid inconsistency between server/client render
 function NavigationMenuTrigger(
   props: React.ComponentProps<typeof RawNavigationMenuTrigger>
@@ -107,7 +136,7 @@ export function Header({ header }: { header: HeaderType }) {
                         : ''
                     }`}
                   >
-                    {item.icon && <SmartIcon name={item.icon as string} />}
+                    <NavItemIcon item={item} />
                     {item.title}
                   </Link>
                 </NavigationMenuLink>
@@ -117,9 +146,7 @@ export function Header({ header }: { header: HeaderType }) {
             return (
               <NavigationMenuItem key={idx}>
                 <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-foreground">
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} className="h-4 w-4" />
-                  )}
+                  <NavItemIcon item={item} className="h-4 w-4" />
                   {item.title}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
@@ -133,9 +160,7 @@ export function Header({ header }: { header: HeaderType }) {
                           title={subItem.title || ''}
                           description={subItem.description || ''}
                         >
-                          {subItem.icon && (
-                            <SmartIcon name={subItem.icon as string} />
-                          )}
+                          <NavItemIcon item={subItem} />
                         </ListItem>
                       ))}
                     </ul>
@@ -187,9 +212,7 @@ export function Header({ header }: { header: HeaderType }) {
                                 aria-hidden
                                 className="flex items-center justify-center *:size-4"
                               >
-                                {subItem.icon && (
-                                  <SmartIcon name={subItem.icon as string} />
-                                )}
+                                <NavItemIcon item={subItem} />
                               </div>
                               <div className="text-base">{subItem.title}</div>
                             </Link>
@@ -203,9 +226,15 @@ export function Header({ header }: { header: HeaderType }) {
                     href={item.url || ''}
                     onClick={closeMenu}
                     title={item.title ?? ''}
-                    className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal"
+                    className="data-[state=open]:bg-muted grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-3 text-lg **:!font-normal"
                   >
-                    {item.title}
+                    <div
+                      aria-hidden
+                      className="flex size-9 items-center justify-center *:size-4"
+                    >
+                      <NavItemIcon item={item} />
+                    </div>
+                    <span className="text-base">{item.title}</span>
                   </Link>
                 )}
               </AccordionItem>

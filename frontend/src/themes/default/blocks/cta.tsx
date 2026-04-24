@@ -13,7 +13,12 @@ import { Section } from '@/shared/types/blocks/landing';
 
 function isTranslatePath(url: string) {
   const u = url.split('?')[0]?.replace(/\/$/, '') ?? '';
-  return u === '/translate' || u.endsWith('/translate');
+  return (
+    u === '/translate' ||
+    u.endsWith('/translate') ||
+    u === '/translate/upload' ||
+    u.endsWith('/translate/upload')
+  );
 }
 
 export function Cta({

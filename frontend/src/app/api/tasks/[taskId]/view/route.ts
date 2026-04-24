@@ -29,6 +29,7 @@ export async function GET(
     const documentSizeBytes = doc?.sizeBytes ?? 0;
     let sourcePdfUrl: string | null = null;
     let primaryFileUrl: string | null = null;
+    let mdFileUrl: string | null = null;
     const outputs: { filename: string; download_url: string }[] = [];
     if (await isR2Configured()) {
       try {
@@ -47,6 +48,18 @@ export async function GET(
           outputs.push({
             filename: 'translation.pdf',
             download_url: primaryFileUrl,
+          });
+        } catch (_) {}
+      }
+      if (task.outputPrimaryPath && task.status === 'completed') {
+        try {
+          const mdDisp = 'attachment; filename="translation.md"';
+          mdFileUrl = await createPresignedGet(task.outputPrimaryPath, 3600, {
+            responseContentDisposition: mdDisp,
+          });
+          outputs.push({
+            filename: 'translation.md',
+            download_url: mdFileUrl,
           });
         } catch (_) {}
       }

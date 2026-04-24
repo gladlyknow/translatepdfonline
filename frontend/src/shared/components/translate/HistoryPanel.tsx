@@ -12,6 +12,7 @@ import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background
 
 type Props = {
   onSelectTask: (taskId: string) => void;
+  taskFilter?: 'all' | 'ocr' | 'normal';
 };
 
 const CANCELLABLE_STATUSES = ['pending', 'processing'];
@@ -28,7 +29,7 @@ function sortTasksNewestFirst(list: TaskSummary[]): TaskSummary[] {
   return [...list].sort((a, b) => taskTimeMs(b) - taskTimeMs(a));
 }
 
-export function HistoryPanel({ onSelectTask }: Props) {
+export function HistoryPanel({ onSelectTask, taskFilter = 'all' }: Props) {
   const t = useTranslations('translate.home');
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState<TaskSummary[]>([]);
@@ -114,11 +115,19 @@ export function HistoryPanel({ onSelectTask }: Props) {
             : Array.isArray((data as { tasks?: unknown })?.tasks)
               ? (data as { tasks: TaskSummary[] }).tasks
               : [];
-        setTasks(sortTasksNewestFirst(list));
+        const filtered =
+          taskFilter === 'all'
+            ? list
+            : list.filter((task) =>
+                taskFilter === 'ocr'
+                  ? Boolean(task.preprocess_with_ocr)
+                  : !Boolean(task.preprocess_with_ocr)
+              );
+        setTasks(sortTasksNewestFirst(filtered));
       })
       .catch(() => setTasks([]))
       .finally(() => setLoading(false));
-  }, [open]);
+  }, [open, taskFilter]);
 
   usePreventBackgroundWheel(open, panelRef);
 

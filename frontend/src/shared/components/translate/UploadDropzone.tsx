@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { CloudUpload } from 'lucide-react';
 import { useSession } from '@/core/auth/client';
 import { translateApi } from '@/shared/lib/translate-api';
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024; // 100 MB, must match server
+const PENDING_PICK_AFTER_LOGIN_KEY = 'translate_pending_pick_after_login';
 
 export type UploadedFileStatus = 'idle' | 'uploading' | 'uploaded' | 'failed';
 
@@ -30,6 +31,7 @@ type Props = {
   variant?: 'default' | 'hero';
   /** 与 variant=hero 配合：深色渐变 Hero 上的玻璃态与发光描边 */
   heroTone?: 'light' | 'dark';
+  onRequireSignIn?: () => void;
 };
 
 export function UploadDropzone({
@@ -38,10 +40,12 @@ export function UploadDropzone({
   compactToolbar = false,
   variant = 'default',
   heroTone = 'light',
+  onRequireSignIn,
 }: Props) {
   const t = useTranslations('translate.upload');
   const tHome = useTranslations('translate.home');
   const inputId = useId();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { data: session, isPending: sessionPending } = useSession();
   const isLoggedIn = Boolean(session?.user);
   const [dragging, setDragging] = useState(false);
@@ -50,6 +54,7 @@ export function UploadDropzone({
   const [error, setError] = useState<string | null>(null);
   const [uploadedInfo, setUploadedInfo] = useState<UploadedInfo | null>(null);
   const [loginHint, setLoginHint] = useState<string | null>(null);
+  const [pendingPickAfterLogin, setPendingPickAfterLogin] = useState(false);
 
   useEffect(() => {
     if (initialFile) {
@@ -63,10 +68,39 @@ export function UploadDropzone({
     }
   }, [initialFile]);
 
+  function handleRequireSignIn() {
+    setPendingPickAfterLogin(true);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(PENDING_PICK_AFTER_LOGIN_KEY, '1');
+    }
+    onRequireSignIn?.();
+    setLoginHint(t('loginRequired'));
+    setError(null);
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.sessionStorage.getItem(PENDING_PICK_AFTER_LOGIN_KEY) === '1') {
+      setPendingPickAfterLogin(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn || !pendingPickAfterLogin || uploading) return;
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem(PENDING_PICK_AFTER_LOGIN_KEY);
+    }
+    setPendingPickAfterLogin(false);
+    setLoginHint(null);
+    setTimeout(() => {
+      inputRef.current?.click();
+    }, 60);
+  }, [isLoggedIn, pendingPickAfterLogin, uploading]);
+
   const uploadFile = useCallback(
     async (file: File) => {
       if (!isLoggedIn) {
-        setError(t('loginRequired'));
+        handleRequireSignIn();
         return;
       }
       if (file.type !== 'application/pdf') {
@@ -142,7 +176,7 @@ export function UploadDropzone({
         setUploadProgress(0);
       }
     },
-    [onUploaded, t, isLoggedIn]
+    [onUploaded, t, isLoggedIn, handleRequireSignIn]
   );
 
   const handleDrop = useCallback(
@@ -150,19 +184,19 @@ export function UploadDropzone({
       e.preventDefault();
       setDragging(false);
       if (!isLoggedIn) {
-        setError(t('loginRequired'));
+        handleRequireSignIn();
         return;
       }
       const file = e.dataTransfer.files[0];
       if (file) uploadFile(file);
     },
-    [uploadFile, isLoggedIn, t]
+    [uploadFile, isLoggedIn, handleRequireSignIn]
   );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!isLoggedIn) {
-        setError(t('loginRequired'));
+        handleRequireSignIn();
         e.target.value = '';
         return;
       }
@@ -170,7 +204,7 @@ export function UploadDropzone({
       if (file) uploadFile(file);
       e.target.value = '';
     },
-    [uploadFile, isLoggedIn, t]
+    [uploadFile, isLoggedIn, handleRequireSignIn]
   );
 
   const hasFile = !!uploadedInfo;
@@ -202,21 +236,22 @@ export function UploadDropzone({
     <div
       onDragOver={(e) => {
         e.preventDefault();
-        if (isLoggedIn) setDragging(true);
+        setDragging(true);
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
-      className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors ${minH} ${
+      className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 ${minH} ${
         disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'
       } ${
         dragging
           ? heroDark
-            ? 'border-sky-400 bg-sky-500/15'
-            : 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+            ? 'border-sky-300 bg-sky-500/20 ring-2 ring-sky-300/40'
+            : 'border-blue-500 bg-blue-50 ring-2 ring-blue-300/40 dark:bg-blue-950/30 dark:ring-blue-700/40'
           : borderTone
       }`}
     >
       <input
+        ref={inputRef}
         type="file"
         accept="application/pdf"
         onChange={handleChange}
@@ -226,6 +261,12 @@ export function UploadDropzone({
       />
       <label
         htmlFor={disabled ? undefined : inputId}
+        onClick={(e) => {
+          if (!isLoggedIn) {
+            e.preventDefault();
+            handleRequireSignIn();
+          }
+        }}
         className={`flex min-h-[44px] w-full flex-col items-center justify-center gap-2 ${
           isHero ? 'px-6 py-10' : compactToolbar ? 'px-3 py-3' : 'px-4 py-6'
         } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}

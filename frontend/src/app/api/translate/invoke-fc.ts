@@ -33,6 +33,12 @@ function fcFetchSignal(): AbortSignal | undefined {
 function errorCodeFromFcErrorBodySnippet(snippet: string): string | null {
   const low = snippet.toLowerCase();
   if (
+    low.includes('too many cid paragraphs') ||
+    low.includes('cid paragraphs')
+  ) {
+    return 'scan_detected_use_ocr';
+  }
+  if (
     low.includes('no paragraphs') ||
     low.includes('contains no paragraphs') ||
     low.includes('extracttexterror')
@@ -112,6 +118,7 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
       and(
         eq(translationTasks.id, taskId),
         eq(translationTasks.status, 'queued'),
+        eq(translationTasks.preprocessWithOcr, false),
         or(
           isNull(translationTasks.fcInvokeLeaseUntil),
           lte(translationTasks.fcInvokeLeaseUntil, now)
@@ -267,15 +274,35 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
   }
 
   if (RETRYABLE_STATUS.has(status)) {
-    const delay =
-      retryAfterMs ?? fcBackoffMs(thisAttempt);
-    const nextAt = new Date(Date.now() + delay);
     let snippet = '';
     try {
       snippet = (await res.text()).slice(0, 400);
     } catch {
       snippet = '';
     }
+    const derivedCode = errorCodeFromFcErrorBodySnippet(snippet);
+    if (derivedCode === 'scan_detected_use_ocr') {
+      await db()
+        .update(translationTasks)
+        .set({
+          fcLastHttpStatus: status,
+          fcLastInvokedAt: new Date(),
+          status: 'failed',
+          errorCode: derivedCode,
+          errorMessage: `FC HTTP ${status}: ${snippet}`.slice(0, 500),
+          progressPercent: 0,
+          fcInvokeLeaseUntil: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(translationTasks.id, taskId));
+      console.warn(
+        '[translate/invoke-fc] classified_as_scanned_skip_retry',
+        JSON.stringify({ task_id: taskId, http_status: status })
+      );
+      return;
+    }
+    const delay = retryAfterMs ?? fcBackoffMs(thisAttempt);
+    const nextAt = new Date(Date.now() + delay);
     await db()
       .update(translationTasks)
       .set({
@@ -349,6 +376,7 @@ export async function dispatchPendingTranslateFcJobs(limit = 8): Promise<{
       .where(
         and(
           eq(translationTasks.status, 'queued'),
+          eq(translationTasks.preprocessWithOcr, false),
           or(
             isNull(translationTasks.fcNextAttemptAt),
             lte(translationTasks.fcNextAttemptAt, now)

@@ -84,7 +84,7 @@ export function TranslateShellHeader({ userNav }: { userNav?: UserNav }) {
           {t('docs')}
         </Link>
         <Link
-          href="/translate#translate-history"
+          href="/translate/upload#translate-history"
           title={t('historyNav')}
           className={
             onDark

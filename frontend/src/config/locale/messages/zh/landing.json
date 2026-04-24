@@ -15,8 +15,13 @@
       "items": [
         {
           "title": "PDF 翻译",
-          "url": "/translate",
+          "url": "/translate/upload",
           "icon": "FileText"
+        },
+        {
+          "title": "OCR",
+          "url": "/ocrtranslator",
+          "icon_url": "/imgs/branding/generalocr.svg"
         },
         {
           "title": "价格",

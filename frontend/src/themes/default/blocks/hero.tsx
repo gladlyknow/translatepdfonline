@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Link } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common';
@@ -19,6 +20,7 @@ export function Hero({
   section: Section;
   className?: string;
 }) {
+  const tHome = useTranslations('translate.home');
   const isTranslateDark = section.variant === 'translateDark';
   const highlightText = section.highlight_text ?? '';
   const heroImageAltFallback =
@@ -195,6 +197,26 @@ export function Hero({
                 </Button>
               );
             })}
+          </div>
+        )}
+
+        {isTranslateDark && (
+          <div className="mx-auto mt-6 w-full max-w-2xl rounded-2xl border border-sky-200/80 bg-white/90 p-5 text-center shadow-sm dark:border-sky-900/40 dark:bg-slate-900/50 dark:shadow-[0_0_24px_-8px_rgba(56,189,248,0.2)]">
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              {tHome('homeOcrBridgeTitle')}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+              {tHome('homeOcrBridgeBody')}
+            </p>
+            <Button
+              asChild
+              size="default"
+              className={cn('mt-4 px-5 text-sm', TRANSLATE_PRIMARY_CTA_CLASSNAME)}
+            >
+              <Link href="/ocrtranslator" title={tHome('homeOcrBridgeCta')}>
+                <span>{tHome('homeOcrBridgeCta')}</span>
+              </Link>
+            </Button>
           </div>
         )}
 

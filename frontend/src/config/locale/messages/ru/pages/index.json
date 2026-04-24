@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "Новое",
           "title": "Профессиональный перевод PDF с сохранением вёрстки",
-          "url": "/translate"
+          "url": "/translate/upload"
         },
         "tip": "Вводная цена для ранних пользователей",
         "buttons": [
           {
             "title": "Начать",
             "icon": "Zap",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "variant": "dark"
           },
@@ -316,7 +316,7 @@
         "buttons": [
           {
             "title": "Начать перевод",
-            "url": "/translate",
+            "url": "/translate/upload",
             "target": "_self",
             "icon": "Zap"
           },

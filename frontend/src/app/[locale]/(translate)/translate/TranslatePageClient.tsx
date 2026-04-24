@@ -10,7 +10,6 @@ import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
-import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
 import { TranslationForm } from '@/shared/components/translate/TranslationForm';
 import { HistoryPanel } from '@/shared/components/translate/HistoryPanel';
 import {
@@ -32,6 +31,7 @@ const PdfViewerPane = dynamic(
 );
 
 const TASK_PARAM = 'task';
+const DOCUMENT_PARAM = 'document';
 const POLL_INTERVAL_MS_ACTIVE = 2000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
 
@@ -56,6 +56,16 @@ function isNoParagraphsFailure(
     m.includes('contains no paragraphs') ||
     m.includes('extracttexterror')
   );
+}
+
+function isScanLikelyFailure(
+  code: string | null | undefined,
+  message: string | null | undefined
+): boolean {
+  if (code === 'scan_detected_use_ocr') return true;
+  if (!message) return false;
+  const m = message.toLowerCase();
+  return m.includes('too many cid paragraphs') || m.includes('cid paragraphs');
 }
 
 function parsePageRange(range: string | null): [number, number] | null {
@@ -84,6 +94,7 @@ export function TranslatePageClient() {
   const tHome = useTranslations('translate.home');
   const tPdf = useTranslations('translate.pdfViewer');
   const tErrors = useTranslations('translate.errors');
+  const tTranslate = useTranslations('translate.translate');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -130,6 +141,7 @@ export function TranslatePageClient() {
     number | null
   >(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [ocrRedirecting, setOcrRedirecting] = useState(false);
   const [translateBilling, setTranslateBilling] = useState<{
     enabled: boolean;
     creditsPerPage: number;
@@ -258,6 +270,23 @@ export function TranslatePageClient() {
             name: view.document_filename,
             size: view.document_size_bytes ?? 0,
           });
+        } else if (detail.document_id) {
+          blockAutoDocumentLoadRef.current = false;
+          setDocumentId(detail.document_id);
+          try {
+            const d = await translateApi.getDocument(detail.document_id);
+            if (cancelled) return;
+            setFilename(d.filename);
+            setLastUploadedFile({
+              name: d.filename,
+              size: d.size_bytes ?? 0,
+            });
+          } catch {
+            if (!cancelled) {
+              setFilename(null);
+              setLastUploadedFile(null);
+            }
+          }
         }
       } catch {
         if (!cancelled) {
@@ -274,27 +303,51 @@ export function TranslatePageClient() {
   }, [searchParams, pathname, router]);
 
   useEffect(() => {
-    if (documentId) return;
     if (searchParams.get(TASK_PARAM)) return;
-    if (blockAutoDocumentLoadRef.current) {
-      return;
-    }
+    const docParam = searchParams.get(DOCUMENT_PARAM)?.trim();
+    if (!docParam) return;
+
     let cancelled = false;
-    translateApi
-      .listDocuments()
-      .then((docs) => {
-        if (!cancelled && docs.length > 0) {
-          const doc = docs[0];
-          setDocumentId(doc.id);
-          setFilename(doc.filename);
-          setLastUploadedFile({ name: doc.filename, size: doc.size_bytes });
-        }
-      })
-      .catch(() => {});
+    (async () => {
+      try {
+        const doc = await translateApi.getDocument(docParam);
+        if (cancelled) return;
+        blockAutoDocumentLoadRef.current = false;
+        setDocumentId(doc.id);
+        setFilename(doc.filename);
+        setLastUploadedFile({
+          name: doc.filename,
+          size: doc.size_bytes ?? 0,
+        });
+        setTaskId(null);
+        setTaskView(null);
+        setTaskDetail(null);
+        setTaskStatus(null);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(DOCUMENT_PARAM);
+        const next = params.toString() ? `${pathname}?${params}` : pathname;
+        router.replace(next);
+      } catch {
+        if (cancelled) return;
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(DOCUMENT_PARAM);
+        router.replace(
+          params.toString() ? `${pathname}?${params}` : pathname
+        );
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, [documentId, searchParams]);
+  }, [searchParams, pathname, router]);
+
+  useEffect(() => {
+    if (documentId) return;
+    const hasTask = Boolean(searchParams.get(TASK_PARAM)?.trim());
+    const hasDoc = Boolean(searchParams.get(DOCUMENT_PARAM)?.trim());
+    if (hasTask || hasDoc) return;
+    router.replace('/translate/upload');
+  }, [documentId, searchParams, router]);
 
   useEffect(() => {
     if (!documentId) {
@@ -510,6 +563,7 @@ export function TranslatePageClient() {
       setTaskDetail(null);
       setTaskStatus(null);
       updateTaskInUrl(null);
+      router.replace('/translate/upload');
     } finally {
       setDeletingDocId(null);
     }
@@ -528,6 +582,12 @@ export function TranslatePageClient() {
     (taskStatus == null ||
       taskStatus === 'queued' ||
       taskStatus === 'processing');
+
+  const handleRequireSignInForUpload = () => {
+    const qs = searchParams.toString();
+    const redirectTo = qs ? `${pathname}?${qs}` : pathname;
+    router.push(`/sign-in?redirect=${encodeURIComponent(redirectTo)}`);
+  };
 
   const statusLabel = (s: string) => {
     const keyMap: Record<string, string> = {
@@ -590,18 +650,12 @@ export function TranslatePageClient() {
     taskView?.task ??
     (taskStatus === 'failed' && taskDetail ? taskDetail : null);
 
-  /** 漏斗首页：无文档 */
+  /** 正在从 URL（task / document）恢复工作台 */
   if (!documentId) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-        <TranslateLandingSections
-          onUploaded={handleUploaded}
-          initialFile={lastUploadedFile}
-          sourceLang={sourceLang}
-          targetLang={targetLang}
-          onSourceLangChange={setSourceLang}
-          onTargetLangChange={setTargetLang}
-        />
+      <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 p-8 text-zinc-600 dark:text-zinc-400">
+        <Loader2 className="h-10 w-10 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
+        <p className="text-center text-sm">{t('restoring')}</p>
       </div>
     );
   }
@@ -662,6 +716,7 @@ export function TranslatePageClient() {
               onUploaded={handleUploaded}
               initialFile={lastUploadedFile}
               compactToolbar
+              onRequireSignIn={handleRequireSignInForUpload}
             />
           </div>
           <button
@@ -791,6 +846,8 @@ export function TranslatePageClient() {
                     failedTaskInfo.error_message
                   )
                     ? tErrors('no_paragraphs')
+                    : failedTaskInfo.error_code === 'scan_detected_use_ocr'
+                      ? tErrors('scan_detected_use_ocr')
                     : failedTaskInfo.error_message ??
                       (failedTaskInfo.error_code
                         ? tErrors(
@@ -800,9 +857,47 @@ export function TranslatePageClient() {
                               | 'font_subset_corrupt'
                               | 'no_paragraphs'
                               | 'ocr_preprocess_failed'
+                              | 'scan_detected_use_ocr'
                           )
                         : '')}
                 </p>
+              )}
+            {taskStatus === 'failed' &&
+              failedTaskInfo &&
+              isScanLikelyFailure(
+                failedTaskInfo.error_code,
+                failedTaskInfo.error_message
+              ) &&
+              documentId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (ocrRedirecting) return;
+                    setOcrRedirecting(true);
+                    const qs = new URLSearchParams({
+                      document: documentId,
+                      source_lang:
+                        sourceLang ||
+                        (taskView?.task?.source_lang as UILang | undefined) ||
+                        'en',
+                      target_lang:
+                        targetLang ||
+                        (taskView?.task?.target_lang as UILang | undefined) ||
+                        'zh',
+                    });
+                    router.push(`/ocrtranslator?${qs.toString()}`);
+                    setTimeout(() => setOcrRedirecting(false), 3000);
+                  }}
+                  disabled={ocrRedirecting}
+                  className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {ocrRedirecting ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : null}
+                    {tTranslate('preprocessWithOcr')}
+                  </span>
+                </button>
               )}
             {taskStatus === 'completed' &&
               !targetPdfUrl &&

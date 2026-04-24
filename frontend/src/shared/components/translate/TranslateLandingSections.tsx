@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -30,6 +31,9 @@ type Props = {
   targetLang: UILang | '';
   onSourceLangChange: (v: UILang | '') => void;
   onTargetLangChange: (v: UILang | '') => void;
+  onRequireSignIn?: () => void;
+  /** 漏斗顶栏（例如上传页的 History） */
+  funnelToolbar?: ReactNode;
 };
 
 export function TranslateLandingSections({
@@ -39,6 +43,8 @@ export function TranslateLandingSections({
   targetLang,
   onSourceLangChange,
   onTargetLangChange,
+  onRequireSignIn,
+  funnelToolbar,
 }: Props) {
   const t = useTranslations('translate.home');
   const { resolvedTheme } = useTheme();
@@ -105,6 +111,11 @@ export function TranslateLandingSections({
         />
 
         <div className="relative z-[1] mx-auto flex w-full max-w-4xl flex-col items-center px-4 pb-10 pt-8 sm:pb-14 sm:pt-12">
+          {funnelToolbar ? (
+            <div className="mb-6 flex w-full flex-wrap items-center justify-end gap-2">
+              {funnelToolbar}
+            </div>
+          ) : null}
           <h1 className="text-center text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl md:text-[2.35rem] md:leading-tight">
             {t('heroTitle')}
           </h1>
@@ -118,6 +129,7 @@ export function TranslateLandingSections({
               initialFile={initialFile}
               variant="hero"
               heroTone={isDarkFunnel ? 'dark' : 'light'}
+              onRequireSignIn={onRequireSignIn}
             />
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               {formatPills.map((label) => (
@@ -145,7 +157,7 @@ export function TranslateLandingSections({
           </div>
 
           <div className="mt-12 w-full">
-            <BeforeAfterPdfCompare />
+            <BeforeAfterPdfCompare imageFit="contain" />
           </div>
 
           <div className="mt-12 w-full border-t border-zinc-200 pt-8 dark:border-white/10">
