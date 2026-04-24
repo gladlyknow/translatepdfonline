@@ -16,6 +16,7 @@ enabled = true
 binding = "HYPERDRIVE"
 id = "1f0a3251f43343c3872e5f882ff3d879"
 
+
 [[queues.consumers]]
 queue = "translatepdfonline"
 max_batch_size = 1
