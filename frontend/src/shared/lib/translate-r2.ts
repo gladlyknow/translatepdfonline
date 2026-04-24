@@ -18,6 +18,8 @@ export type TranslateR2S3Credentials = {
   accessKeyId: string;
   secretAccessKey: string;
   endpoint: string;
+  /** 记录最终配置来源，便于排查 Cloudflare 运行时读取链路 */
+  source?: 'db' | 'env' | 'mixed';
 };
 
 /** Env-only (Worker secrets / .env). */
@@ -37,38 +39,82 @@ function getR2EnvFromProcess(): TranslateR2S3Credentials {
   };
 }
 
+function getR2EnvFromDb(c: Record<string, unknown>): TranslateR2S3Credentials {
+  return {
+    bucket: String(c.r2_bucket_name ?? '').trim(),
+    accessKeyId: String(c.r2_access_key ?? '').trim(),
+    secretAccessKey: String(c.r2_secret_key ?? '').trim(),
+    endpoint: String(c.r2_endpoint ?? '')
+      .trim()
+      .replace(/\/$/, ''),
+  };
+}
+
+function normalizeHttpsEndpoint(raw: string): string {
+  const s = String(raw || '').trim().replace(/\/$/, '');
+  if (!s) return '';
+  try {
+    const u = new URL(s);
+    if (u.protocol !== 'https:' || !u.host) return '';
+    return `${u.protocol}//${u.host}${u.pathname}`.replace(/\/$/, '');
+  } catch {
+    return '';
+  }
+}
+
+function summarizeR2Key(key: string): string {
+  const s = String(key || '').trim();
+  if (!s) return '(empty)';
+  return s.length > 96 ? `${s.slice(0, 96)}...` : s;
+}
+
 /**
  * Full S3-compatible R2 config for signing. Merges Worker env with DB `r2_*` settings
  * (same keys as admin / storage.ts) so production can rely on DB-only R2 config.
  */
 export async function resolveTranslateR2S3Env(): Promise<TranslateR2S3Credentials | null> {
-  const p = getR2EnvFromProcess();
-  let bucket = p.bucket;
-  let accessKeyId = p.accessKeyId;
-  let secretAccessKey = p.secretAccessKey;
-  let endpoint = p.endpoint;
-
-  const needDb = !(bucket && accessKeyId && secretAccessKey && endpoint);
-  if (needDb) {
-    try {
-      const c = await getAllConfigs();
-      if (!bucket) bucket = String(c.r2_bucket_name ?? '').trim();
-      if (!accessKeyId) accessKeyId = String(c.r2_access_key ?? '').trim();
-      if (!secretAccessKey) secretAccessKey = String(c.r2_secret_key ?? '').trim();
-      if (!endpoint) {
-        endpoint = String(c.r2_endpoint ?? '')
-          .trim()
-          .replace(/\/$/, '');
-      }
-    } catch {
-      // getAllConfigs may fail without DB; keep process-only partials
-    }
+  const fromEnv = getR2EnvFromProcess();
+  const envNormalized: TranslateR2S3Credentials = {
+    ...fromEnv,
+    endpoint: normalizeHttpsEndpoint(fromEnv.endpoint),
+  };
+  let dbNormalized: TranslateR2S3Credentials | null = null;
+  try {
+    const c = await getAllConfigs();
+    const raw = getR2EnvFromDb(c as Record<string, unknown>);
+    dbNormalized = { ...raw, endpoint: normalizeHttpsEndpoint(raw.endpoint) };
+  } catch {
+    // DB 读取失败时走 fallback
   }
 
-  if (bucket && accessKeyId && secretAccessKey && endpoint) {
-    return { bucket, accessKeyId, secretAccessKey, endpoint };
+  // Cloudflare 运行时要求：优先使用数据库配置；本地 Node 保持 env 优先。
+  const primary = isCloudflareWorker ? dbNormalized : envNormalized;
+  const fallback = isCloudflareWorker ? envNormalized : dbNormalized;
+
+  const bucket = String(primary?.bucket || fallback?.bucket || '').trim();
+  const accessKeyId = String(primary?.accessKeyId || fallback?.accessKeyId || '').trim();
+  const secretAccessKey = String(
+    primary?.secretAccessKey || fallback?.secretAccessKey || ''
+  ).trim();
+  const endpoint = normalizeHttpsEndpoint(
+    String(primary?.endpoint || fallback?.endpoint || '')
+  );
+
+  if (!(bucket && accessKeyId && secretAccessKey && endpoint)) {
+    return null;
   }
-  return null;
+
+  const source: TranslateR2S3Credentials['source'] =
+    bucket === primary?.bucket &&
+    accessKeyId === primary?.accessKeyId &&
+    secretAccessKey === primary?.secretAccessKey &&
+    endpoint === primary?.endpoint
+      ? isCloudflareWorker
+        ? 'db'
+        : 'env'
+      : 'mixed';
+
+  return { bucket, accessKeyId, secretAccessKey, endpoint, source };
 }
 
 /** Public R2 base URL (e.g. https://pub-xxx.r2.dev) for local dev to avoid S3 API connection timeout. */
@@ -159,6 +205,22 @@ export async function createPresignedPut(
 ): Promise<string> {
   const creds = await resolveTranslateR2S3Env();
   if (!creds) throw new Error('R2 not configured');
+  console.log(
+    '[r2/presign_put] config_resolved',
+    JSON.stringify({
+      source: creds.source ?? 'unknown',
+      endpoint_host: (() => {
+        try {
+          return new URL(creds.endpoint).host;
+        } catch {
+          return '(invalid)';
+        }
+      })(),
+      bucket: creds.bucket,
+      key: summarizeR2Key(key),
+      worker: isCloudflareWorker,
+    })
+  );
   if (isCloudflareWorker) {
     return createPresignedPutWorker(creds, key, contentType, expiresInSeconds);
   }
@@ -186,6 +248,24 @@ export async function createPresignedGet(
   options?: CreatePresignedGetOptions
 ): Promise<string> {
   const creds = await resolveTranslateR2S3Env();
+  if (creds) {
+    console.log(
+      '[r2/presign_get] config_resolved',
+      JSON.stringify({
+        source: creds.source ?? 'unknown',
+        endpoint_host: (() => {
+          try {
+            return new URL(creds.endpoint).host;
+          } catch {
+            return '(invalid)';
+          }
+        })(),
+        bucket: creds.bucket,
+        key: summarizeR2Key(key),
+        worker: isCloudflareWorker,
+      })
+    );
+  }
   if (isCloudflareWorker) {
     if (!creds) throw new Error('R2 not configured');
     return createPresignedGetWorker(creds, key, expiresInSeconds, options);

@@ -596,8 +596,14 @@ export function OcrTranslatePageClient() {
   const ocrParseResultUrl = taskView?.ocr_parse_result_url ?? null;
 
   useEffect(() => {
-    if (!ocrParseResultUrl) setMainTab('preview');
-  }, [ocrParseResultUrl]);
+    if (!ocrParseResultUrl) {
+      setMainTab('preview');
+      return;
+    }
+    if (taskStatus === 'completed') {
+      setMainTab('workbench');
+    }
+  }, [ocrParseResultUrl, taskStatus]);
 
   if (!documentId) {
     return (

@@ -96,6 +96,15 @@ export function OcrParseWorkbench({
 
   const page = doc?.pages[pageIndex] ?? null;
 
+  const pickDefaultLayoutId = useCallback((nextDoc: { pages?: Array<{ layouts?: Array<{ layout_id: string; type?: string }> }> } | null | undefined): string | null => {
+    const layouts = nextDoc?.pages?.[0]?.layouts ?? [];
+    if (layouts.length === 0) return null;
+    const textLike =
+      layouts.find((ly) => ly.type !== 'image' && ly.type !== 'table') ??
+      layouts[0];
+    return textLike?.layout_id ?? null;
+  }, []);
+
   useEffect(() => {
     if (!parseResultUrl) {
       setLoadState('idle');
@@ -118,7 +127,7 @@ export function OcrParseWorkbench({
         }
         reset(parsed.data);
         setPageIndex(0);
-        setSelectedLayoutId(null);
+        setSelectedLayoutId(pickDefaultLayoutId(parsed.data));
         setLoadState('ok');
       } catch (e) {
         if (cancelled) return;
@@ -129,7 +138,18 @@ export function OcrParseWorkbench({
     return () => {
       cancelled = true;
     };
-  }, [parseResultUrl, reset]);
+  }, [parseResultUrl, reset, pickDefaultLayoutId]);
+
+  useEffect(() => {
+    if (!doc || !page) return;
+    const exists = selectedLayoutId
+      ? page.layouts.some((ly) => ly.layout_id === selectedLayoutId)
+      : false;
+    if (!exists) {
+      const first = page.layouts[0]?.layout_id ?? null;
+      if (first) setSelectedLayoutId(first);
+    }
+  }, [doc, page, selectedLayoutId, pageIndex]);
 
   useEffect(() => {
     if (!page) return;
@@ -527,6 +547,11 @@ export function OcrParseWorkbench({
           </Button>
         </div>
       </div>
+      {!selectedLayoutId ? (
+        <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+          Select a text block on the canvas, then drag/resize or edit style in the toolbar.
+        </p>
+      ) : null}
 
       <div
         className={cn(
