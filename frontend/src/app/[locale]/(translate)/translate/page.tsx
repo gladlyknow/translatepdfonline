@@ -18,7 +18,7 @@ export default async function TranslatePage({
   const task = sp.task?.trim();
   const document = sp.document?.trim();
   if (!task && !document) {
-    redirect({ href: '/translate/upload', locale });
+    redirect({ href: '/upload', locale });
   }
 
   return <TranslatePageClient />;

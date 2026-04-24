@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "全新",
           "title": "专业级版式保留 PDF 翻译",
-          "url": "/translate/upload"
+            "url": "/upload"
         },
         "tip": "早期用户专享上线价",
         "buttons": [
           {
             "title": "立即开始",
             "icon": "Zap",
-            "url": "/translate/upload",
+            "url": "/upload",
             "target": "_self",
             "variant": "dark"
           },
@@ -316,7 +316,7 @@
         "buttons": [
           {
             "title": "开始翻译",
-            "url": "/translate/upload",
+            "url": "/upload",
             "target": "_self",
             "icon": "Zap"
           },

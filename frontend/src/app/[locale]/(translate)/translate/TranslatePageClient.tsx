@@ -346,7 +346,7 @@ export function TranslatePageClient() {
     const hasTask = Boolean(searchParams.get(TASK_PARAM)?.trim());
     const hasDoc = Boolean(searchParams.get(DOCUMENT_PARAM)?.trim());
     if (hasTask || hasDoc) return;
-    router.replace('/translate/upload');
+    router.replace('/upload');
   }, [documentId, searchParams, router]);
 
   useEffect(() => {
@@ -563,7 +563,7 @@ export function TranslatePageClient() {
       setTaskDetail(null);
       setTaskStatus(null);
       updateTaskInUrl(null);
-      router.replace('/translate/upload');
+      router.replace('/upload');
     } finally {
       setDeletingDocId(null);
     }

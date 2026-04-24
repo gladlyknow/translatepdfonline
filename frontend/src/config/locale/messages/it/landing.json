@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "Traduci PDF",
-          "url": "/translate/upload",
+          "url": "/upload",
           "icon": "FileText"
         },
         {

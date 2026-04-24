@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDFを翻訳",
-          "url": "/translate/upload",
+          "url": "/upload",
           "icon": "FileText"
         },
         {

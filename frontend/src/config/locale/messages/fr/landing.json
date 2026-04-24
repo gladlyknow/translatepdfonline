@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "Traduire un PDF",
-          "url": "/translate/upload",
+          "url": "/upload",
           "icon": "FileText"
         },
         {

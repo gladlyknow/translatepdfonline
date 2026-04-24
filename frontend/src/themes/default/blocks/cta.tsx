@@ -16,8 +16,8 @@ function isTranslatePath(url: string) {
   return (
     u === '/translate' ||
     u.endsWith('/translate') ||
-    u === '/translate/upload' ||
-    u.endsWith('/translate/upload')
+    u === '/upload' ||
+    u.endsWith('/upload')
   );
 }
 

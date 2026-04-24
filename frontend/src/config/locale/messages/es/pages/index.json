@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "Nuevo",
           "title": "Traducción profesional que respeta el diseño",
-          "url": "/translate/upload"
+            "url": "/upload"
         },
         "tip": "Precio de lanzamiento para usuarios iniciales",
         "buttons": [
           {
             "title": "Empezar",
             "icon": "Zap",
-            "url": "/translate/upload",
+            "url": "/upload",
             "target": "_self",
             "variant": "dark"
           },
@@ -316,7 +316,7 @@
         "buttons": [
           {
             "title": "Empezar a traducir",
-            "url": "/translate/upload",
+            "url": "/upload",
             "target": "_self",
             "icon": "Zap"
           },

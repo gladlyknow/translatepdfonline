@@ -23,7 +23,7 @@ export function TranslateShellHeader({
   const historyHref =
     variant === 'ocr'
       ? '/ocrtranslator#translate-history'
-      : '/translate/upload#translate-history';
+      : '/upload#translate-history';
   const { appearance } = useTranslateHeaderAppearance();
   const onDark = appearance === 'onDark';
 

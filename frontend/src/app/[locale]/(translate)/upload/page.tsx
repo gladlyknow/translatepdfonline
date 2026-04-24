@@ -1,14 +1,14 @@
 import { setRequestLocale } from 'next-intl/server';
 
-import { TranslateUploadPageClient } from './TranslateUploadPageClient';
+import { UploadPageClient } from './UploadPageClient';
 
-export default async function TranslateUploadPage({
+export default async function UploadPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-
-  return <TranslateUploadPageClient />;
+  return <UploadPageClient />;
 }
+

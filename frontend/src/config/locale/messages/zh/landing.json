@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDF 翻译",
-          "url": "/translate/upload",
+          "url": "/upload",
           "icon": "FileText"
         },
         {

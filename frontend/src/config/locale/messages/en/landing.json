@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDF Translate",
-          "url": "/translate/upload",
+          "url": "/upload",
           "icon": "FileText"
         },
         {
