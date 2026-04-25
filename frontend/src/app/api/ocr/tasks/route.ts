@@ -32,18 +32,22 @@ export async function POST(req: Request) {
     const sourceLang = String(body.source_lang || 'en')
       .trim()
       .toLowerCase();
-    const targetLang = String(body.target_lang || 'zh')
+    const rawTargetLang = String(body.target_lang || '')
       .trim()
       .toLowerCase();
+    const targetLang = rawTargetLang || sourceLang;
     if (!documentId) {
       return Response.json({ detail: 'document_id required' }, { status: 400 });
     }
-    if (
-      !ALLOWED_TRANSLATE_LANGS.has(sourceLang) ||
-      !ALLOWED_TRANSLATE_LANGS.has(targetLang)
-    ) {
+    if (!ALLOWED_TRANSLATE_LANGS.has(sourceLang)) {
       return Response.json(
-        { detail: 'Unsupported source_lang or target_lang' },
+        { detail: 'Unsupported source_lang' },
+        { status: 400 }
+      );
+    }
+    if (rawTargetLang && !ALLOWED_TRANSLATE_LANGS.has(rawTargetLang)) {
+      return Response.json(
+        { detail: 'Unsupported target_lang' },
         { status: 400 }
       );
     }

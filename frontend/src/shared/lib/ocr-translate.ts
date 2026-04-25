@@ -1,7 +1,7 @@
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { getAllConfigs } from '@/shared/models/config';
-import { createPresignedGet, putObject } from '@/shared/lib/translate-r2';
+import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { loadOcrPdfCjkFontBytesAsync } from '@/shared/lib/ocr-export-pdf-font-bytes';
 
 const BAIDU_TOKEN_URL = 'https://aip.baidubce.com/oauth/2.0/token';
@@ -10,6 +10,10 @@ const BAIDU_TASK_URL =
 const BAIDU_QUERY_URL =
   'https://aip.baidubce.com/rest/2.0/brain/online/v2/paddle-vl-parser/task/query';
 const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+const OCR_PDF_RENDER_MAX_CHARS = Math.max(
+  20000,
+  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '80000') || 80000
+);
 
 type BaiduAuth = {
   accessToken?: string;
@@ -408,6 +412,90 @@ export async function markdownToSimplePdfBytes(markdown: string): Promise<Uint8A
   return bytes;
 }
 
+export async function runOcrAndPersistParse(params: {
+  sourcePdfObjectKey: string;
+  sourceFilename: string;
+  outputParseResultObjectKey: string;
+  outputMarkdownObjectKey: string;
+}): Promise<{ markdown: string }> {
+  const auth = await resolveBaiduAuth();
+  const sourcePdfUrl = await createPresignedGet(params.sourcePdfObjectKey, 3600);
+  console.log(
+    '[ocr/stage] start',
+    JSON.stringify({ stage: 'ocr_submit_poll', source_key: params.sourcePdfObjectKey })
+  );
+  const baiduTaskId = await submitBaiduOcrTask({
+    auth,
+    fileUrl: sourcePdfUrl,
+    fileName: params.sourceFilename || 'document.pdf',
+  });
+
+  let latestResult: unknown = null;
+  let done = false;
+  for (let i = 0; i < 180; i += 1) {
+    const q = await queryBaiduOcrTask({ auth, taskId: baiduTaskId });
+    if (q.status === 'failed') {
+      throw new Error(q.errorMessage || 'Baidu OCR failed');
+    }
+    if (q.status === 'success') {
+      latestResult = q.result;
+      done = true;
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+  }
+  if (!done) throw new Error('Baidu OCR timeout');
+
+  const { markdown, parseJson } = await resolveOcrMarkdownAndStoragePayload(latestResult);
+  if (!markdown.trim()) throw new Error('OCR produced empty text');
+
+  await putObject(
+    params.outputParseResultObjectKey,
+    new TextEncoder().encode(JSON.stringify(parseJson, null, 2)),
+    'application/json; charset=utf-8'
+  );
+  await putObject(
+    params.outputMarkdownObjectKey,
+    new TextEncoder().encode(markdown),
+    'text/markdown; charset=utf-8'
+  );
+  console.log(
+    '[ocr/stage] done',
+    JSON.stringify({
+      stage: 'ocr_submit_poll',
+      parse_key: params.outputParseResultObjectKey,
+      markdown_key: params.outputMarkdownObjectKey,
+      markdown_chars: markdown.length,
+    })
+  );
+  return { markdown };
+}
+
+export async function loadMarkdownFromR2(markdownObjectKey: string): Promise<string> {
+  const bytes = await getObjectBody(markdownObjectKey);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+export async function exportMarkdownToPdfAndMd(params: {
+  markdown: string;
+  outputPdfObjectKey: string;
+  outputMdObjectKey: string;
+}): Promise<{ pdfTruncated: boolean; markdownChars: number; pdfRenderChars: number }> {
+  const mdBytes = new TextEncoder().encode(params.markdown);
+  const pdfMarkdown =
+    params.markdown.length > OCR_PDF_RENDER_MAX_CHARS
+      ? `${params.markdown.slice(0, OCR_PDF_RENDER_MAX_CHARS)}\n\n---\n\n[OCR PDF export truncated for rendering limit; full text is in markdown output.]`
+      : params.markdown;
+  const pdfBytes = await markdownToSimplePdfBytes(pdfMarkdown);
+  await putObject(params.outputPdfObjectKey, pdfBytes, 'application/pdf');
+  await putObject(params.outputMdObjectKey, mdBytes, 'text/markdown; charset=utf-8');
+  return {
+    pdfTruncated: params.markdown.length > OCR_PDF_RENDER_MAX_CHARS,
+    markdownChars: params.markdown.length,
+    pdfRenderChars: pdfMarkdown.length,
+  };
+}
+
 export async function runOcrTranslatePipeline(params: {
   sourcePdfObjectKey: string;
   sourceFilename: string;
@@ -422,58 +510,13 @@ export async function runOcrTranslatePipeline(params: {
   translatedMarkdown: string;
 }> {
   const startedAt = Date.now();
-  const auth = await resolveBaiduAuth();
-  const sourcePdfUrl = await createPresignedGet(params.sourcePdfObjectKey, 3600);
-  console.log(
-    '[ocr/pipeline] baidu_submit_started',
-    JSON.stringify({ source_key: params.sourcePdfObjectKey, file_name: params.sourceFilename })
-  );
-  const baiduTaskId = await submitBaiduOcrTask({
-    auth,
-    fileUrl: sourcePdfUrl,
-    fileName: params.sourceFilename || 'document.pdf',
+  const markdownObjectKey = `${params.outputParseResultObjectKey}.md`;
+  const { markdown } = await runOcrAndPersistParse({
+    sourcePdfObjectKey: params.sourcePdfObjectKey,
+    sourceFilename: params.sourceFilename,
+    outputParseResultObjectKey: params.outputParseResultObjectKey,
+    outputMarkdownObjectKey: markdownObjectKey,
   });
-
-  let latestResult: unknown = null;
-  let done = false;
-  const pollStartedAt = Date.now();
-  for (let i = 0; i < 180; i += 1) {
-    const q = await queryBaiduOcrTask({ auth, taskId: baiduTaskId });
-    if (q.status === 'failed') {
-      throw new Error(q.errorMessage || 'Baidu OCR failed');
-    }
-    if (q.status === 'success') {
-      latestResult = q.result;
-      done = true;
-      break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-  }
-  if (!done) {
-    throw new Error('Baidu OCR timeout');
-  }
-  console.log(
-    '[ocr/pipeline] baidu_poll_completed',
-    JSON.stringify({ baidu_task_id: baiduTaskId, elapsed_ms: Date.now() - pollStartedAt })
-  );
-
-  const { markdown, parseJson } =
-    await resolveOcrMarkdownAndStoragePayload(latestResult);
-  if (!markdown.trim()) {
-    throw new Error('OCR produced empty text');
-  }
-  const parseBytes = new TextEncoder().encode(
-    JSON.stringify(parseJson, null, 2)
-  );
-  await putObject(
-    params.outputParseResultObjectKey,
-    parseBytes,
-    'application/json; charset=utf-8'
-  );
-  console.log(
-    '[ocr/pipeline] parse_result_json_uploaded',
-    JSON.stringify({ key: params.outputParseResultObjectKey })
-  );
   const translatedMarkdown = await translateMarkdownWithDeepSeek({
     markdown,
     sourceLang: params.sourceLang,
@@ -483,16 +526,20 @@ export async function runOcrTranslatePipeline(params: {
     '[ocr/pipeline] deepseek_translate_completed',
     JSON.stringify({ chars: translatedMarkdown.length })
   );
-  const pdfBytes = await markdownToSimplePdfBytes(translatedMarkdown);
-  const mdBytes = new TextEncoder().encode(translatedMarkdown);
-  await putObject(params.outputPdfObjectKey, pdfBytes, 'application/pdf');
-  await putObject(params.outputMdObjectKey, mdBytes, 'text/markdown; charset=utf-8');
+  const exportRes = await exportMarkdownToPdfAndMd({
+    markdown: translatedMarkdown,
+    outputPdfObjectKey: params.outputPdfObjectKey,
+    outputMdObjectKey: params.outputMdObjectKey,
+  });
   console.log(
     '[ocr/pipeline] export_completed',
     JSON.stringify({
       output_pdf: params.outputPdfObjectKey,
       output_md: params.outputMdObjectKey,
       elapsed_ms: Date.now() - startedAt,
+      pdf_render_chars: exportRes.pdfRenderChars,
+      markdown_chars: exportRes.markdownChars,
+      pdf_truncated: exportRes.pdfTruncated,
     })
   );
   return {

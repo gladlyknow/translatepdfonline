@@ -252,7 +252,7 @@ export const translateApi = {
   createOcrTask: (
     documentId: string,
     sourceLang: UILang,
-    targetLang: UILang
+    targetLang: UILang | ''
   ) =>
     fetchTranslateApi<{ task_id: string }>('/api/ocr/tasks', {
       method: 'POST',
@@ -290,4 +290,10 @@ export const translateApi = {
 
   deleteTask: (taskId: string) =>
     fetchTranslateApi<void>(`/api/tasks/${taskId}`, { method: 'DELETE' }),
+
+  retryOcrTask: (taskId: string) =>
+    fetchTranslateApi<{ ok: boolean; task_id: string }>(
+      `/api/ocr/tasks/${taskId}/retry`,
+      { method: 'POST' }
+    ),
 };

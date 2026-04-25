@@ -496,11 +496,7 @@ export function OcrTranslatePageClient() {
   };
 
   const startOcrTask = async () => {
-    if (!documentId || !sourceLang || !targetLang || starting) return;
-    if (sourceLang === targetLang) {
-      setSubmitError(tTranslate('sameLangError'));
-      return;
-    }
+    if (!documentId || !sourceLang || starting) return;
     setStarting(true);
     setSubmitError(null);
     try {
@@ -684,7 +680,7 @@ export function OcrTranslatePageClient() {
           <button
             type="button"
             onClick={startOcrTask}
-            disabled={starting || taskAwaitingResult || !sourceLang || !targetLang}
+            disabled={starting || taskAwaitingResult || !sourceLang}
             className={cn(
               'flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold',
               TRANSLATE_PRIMARY_CTA_CLASSNAME
@@ -764,6 +760,32 @@ export function OcrTranslatePageClient() {
                   {taskDetail?.error_message || taskDetail?.error_code}
                 </p>
               )}
+            {taskStatus === 'failed' && taskId ? (
+              <button
+                type="button"
+                className="mt-2 w-full rounded-lg border border-zinc-300 bg-white py-2 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                onClick={async () => {
+                  if (!taskId) return;
+                  setRefreshing(true);
+                  try {
+                    await translateApi.retryOcrTask(taskId);
+                    setTaskStatus('queued');
+                    setSubmitError(null);
+                    await handleRefreshResult();
+                  } catch (e) {
+                    setSubmitError(
+                      e instanceof Error ? e.message : tTranslate('createTaskFailed')
+                    );
+                  } finally {
+                    setRefreshing(false);
+                  }
+                }}
+                disabled={refreshing}
+              >
+                继续重试
+                {taskDetail?.progress_stage ? ` (${taskDetail.progress_stage})` : ''}
+              </button>
+            ) : null}
           </div>
         )}
 

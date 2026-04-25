@@ -1,10 +1,187 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { and, asc, eq, isNull, lte, or } from 'drizzle-orm';
+
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
-import { runOcrTranslatePipeline } from '@/shared/lib/ocr-translate';
+import {
+  exportMarkdownToPdfAndMd,
+  loadMarkdownFromR2,
+  runOcrAndPersistParse,
+  translateMarkdownWithDeepSeek,
+} from '@/shared/lib/ocr-translate';
+import { putObject } from '@/shared/lib/translate-r2';
+import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
 export type OcrPipelineQueueBody = { taskId: string };
+type OcrStage =
+  | 'ocr_submit_poll'
+  | 'ocr_parse_persisted'
+  | 'translate_markdown'
+  | 'export_outputs'
+  | 'completed';
+
+const DEFAULT_OCR_BATCH_SIZE = 4;
+const DEFAULT_MAX_ATTEMPTS = Math.max(
+  1,
+  Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS || '3') || 3
+);
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function stagePercent(stage: OcrStage): number {
+  if (stage === 'ocr_submit_poll') return 20;
+  if (stage === 'ocr_parse_persisted') return 45;
+  if (stage === 'translate_markdown') return 70;
+  if (stage === 'export_outputs') return 90;
+  return 100;
+}
+
+function normalizeStage(raw: string | null | undefined): OcrStage {
+  const s = String(raw || '').trim().toLowerCase();
+  if (s === 'ocr_submit_poll') return 'ocr_submit_poll';
+  if (s === 'ocr_parse_persisted') return 'ocr_parse_persisted';
+  if (s === 'translate_markdown') return 'translate_markdown';
+  if (s === 'export_outputs') return 'export_outputs';
+  if (s === 'completed') return 'completed';
+  return 'ocr_submit_poll';
+}
+
+function normalizeErrorCodeForStage(stage: OcrStage): string {
+  return `ocr_stage_${stage}_failed`;
+}
+
+function isTransientOcrError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('network') ||
+    msg.includes('fetch failed') ||
+    msg.includes('temporarily') ||
+    msg.includes('429') ||
+    msg.includes('503')
+  );
+}
+
+function outputKeys(taskId: string) {
+  return {
+    outputPdfObjectKey: `translations/${taskId}/ocr-output.pdf`,
+    outputMdObjectKey: `translations/${taskId}/ocr-output.md`,
+    outputParseResultObjectKey: `translations/${taskId}/ocr-parse-result.json`,
+    sourceMarkdownObjectKey: `translations/${taskId}/ocr-source.md`,
+    translatedMarkdownObjectKey: `translations/${taskId}/ocr-translated.md`,
+  };
+}
+
+async function enqueueNextStage(taskId: string): Promise<void> {
+  const ok = await sendOcrPipelineQueueMessage(taskId);
+  if (!ok) {
+    console.warn('[ocr/stage] enqueue_failed', JSON.stringify({ task_id: taskId }));
+  }
+}
+
+function needTranslateForTask(sourceLang: string, targetLang: string): boolean {
+  const src = String(sourceLang || '').trim().toLowerCase();
+  const tgt = String(targetLang || '').trim().toLowerCase();
+  if (!src || !tgt) return false;
+  return src !== tgt;
+}
+
+async function markStageQueued(taskId: string, stage: OcrStage, percent: number): Promise<void> {
+  await db()
+    .update(translationTasks)
+    .set({
+      status: 'queued',
+      progressStage: stage,
+      progressPercent: percent,
+      fcNextAttemptAt: new Date(),
+      fcInvokeLeaseUntil: null,
+      fcDispatchAttemptCount: 0,
+      errorCode: null,
+      errorMessage: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(translationTasks.id, taskId));
+}
+
+async function runOneStage(params: {
+  taskId: string;
+  stage: OcrStage;
+  sourcePdfObjectKey: string;
+  sourceFilename: string;
+  sourceLang: string;
+  targetLang: string;
+}): Promise<OcrStage> {
+  const keys = outputKeys(params.taskId);
+  if (params.stage === 'ocr_submit_poll') {
+    await runOcrAndPersistParse({
+      sourcePdfObjectKey: params.sourcePdfObjectKey,
+      sourceFilename: params.sourceFilename,
+      outputParseResultObjectKey: keys.outputParseResultObjectKey,
+      outputMarkdownObjectKey: keys.sourceMarkdownObjectKey,
+    });
+    return 'ocr_parse_persisted';
+  }
+
+  if (params.stage === 'ocr_parse_persisted') {
+    return needTranslateForTask(params.sourceLang, params.targetLang)
+      ? 'translate_markdown'
+      : 'export_outputs';
+  }
+
+  if (params.stage === 'translate_markdown') {
+    const markdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
+    const translated = await translateMarkdownWithDeepSeek({
+      markdown,
+      sourceLang: params.sourceLang,
+      targetLang: params.targetLang,
+    });
+    await putObject(
+      keys.translatedMarkdownObjectKey,
+      new TextEncoder().encode(translated),
+      'text/markdown; charset=utf-8'
+    );
+    return 'export_outputs';
+  }
+
+  if (params.stage === 'export_outputs') {
+    let finalMarkdown = '';
+    if (needTranslateForTask(params.sourceLang, params.targetLang)) {
+      finalMarkdown = await loadMarkdownFromR2(keys.translatedMarkdownObjectKey);
+    } else {
+      finalMarkdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
+    }
+    await exportMarkdownToPdfAndMd({
+      markdown: finalMarkdown,
+      outputPdfObjectKey: keys.outputPdfObjectKey,
+      outputMdObjectKey: keys.outputMdObjectKey,
+    });
+    return 'completed';
+  }
+
+  return 'completed';
+}
+
+function getQueueBindingFromContext():
+  | { send: (b: OcrPipelineQueueBody) => Promise<void> }
+  | undefined {
+  const fromAls = tryGetAlsCfEnv();
+  const qAls = fromAls?.OCR_PIPELINE_QUEUE as
+    | { send?: (b: OcrPipelineQueueBody) => Promise<void> }
+    | undefined;
+  if (qAls?.send) return { send: qAls.send };
+
+  try {
+    const wrapped = getCloudflareContext() as unknown as {
+      env?: { OCR_PIPELINE_QUEUE?: { send: (b: OcrPipelineQueueBody) => Promise<void> } };
+    };
+    return wrapped?.env?.OCR_PIPELINE_QUEUE;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * 向 Cloudflare Queues 投递 OCR 任务（需在 Dashboard 创建 `ocr-pipeline-queue` 并部署带 producer 绑定的 Worker）。
@@ -12,13 +189,10 @@ export type OcrPipelineQueueBody = { taskId: string };
  */
 export async function sendOcrPipelineQueueMessage(taskId: string): Promise<boolean> {
   try {
-    const wrapped = getCloudflareContext() as unknown as {
-      env?: { OCR_PIPELINE_QUEUE?: { send: (b: OcrPipelineQueueBody) => Promise<void> } };
-    };
-    const q = wrapped?.env?.OCR_PIPELINE_QUEUE;
+    const q = getQueueBindingFromContext();
     if (!q || typeof q.send !== 'function') return false;
     await q.send({ taskId });
-    console.log('[ocr/queue] enqueued', JSON.stringify({ task_id: taskId }));
+    console.log('[ocr/queue] enqueued', JSON.stringify({ task_id: taskId, at: nowIso() }));
     return true;
   } catch {
     return false;
@@ -39,34 +213,12 @@ export async function handleOcrPipelineQueueBatch(batch: {
   }
 }
 
-const DEFAULT_OCR_BATCH_SIZE = 4;
-
-function ocrBackoffMs(attempt: number): number {
-  const base = 15_000;
-  const max = 8 * 60_000;
-  const exp = Math.min(6, Math.max(0, attempt - 1));
-  return Math.min(max, base * 2 ** exp);
-}
-
-function isTransientOcrError(err: unknown): boolean {
-  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-  return (
-    msg.includes('timeout') ||
-    msg.includes('timed out') ||
-    msg.includes('network') ||
-    msg.includes('fetch failed') ||
-    msg.includes('temporarily') ||
-    msg.includes('429') ||
-    msg.includes('503')
-  );
-}
-
 export async function enqueueOcrTask(taskId: string): Promise<void> {
   await db()
     .update(translationTasks)
     .set({
       status: 'queued',
-      progressStage: 'ocr_enqueued',
+      progressStage: 'ocr_submit_poll',
       progressPercent: 8,
       fcNextAttemptAt: new Date(),
       fcInvokeLeaseUntil: null,
@@ -86,10 +238,7 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
         eq(translationTasks.id, taskId),
         eq(translationTasks.preprocessWithOcr, true),
         eq(translationTasks.status, 'queued'),
-        or(
-          isNull(translationTasks.fcNextAttemptAt),
-          lte(translationTasks.fcNextAttemptAt, now)
-        ),
+        or(isNull(translationTasks.fcNextAttemptAt), lte(translationTasks.fcNextAttemptAt, now)),
         or(
           isNull(translationTasks.fcInvokeLeaseUntil),
           lte(translationTasks.fcInvokeLeaseUntil, now)
@@ -97,7 +246,6 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
       )
     )
     .returning();
-
   if (!claimed.length) return;
 
   const row = claimed[0];
@@ -106,12 +254,12 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     .from(documents)
     .where(eq(documents.id, row.documentId))
     .limit(1);
-
   if (!doc) {
     await db()
       .update(translationTasks)
       .set({
         status: 'failed',
+        progressStage: 'ocr_submit_poll',
         errorCode: 'document_missing',
         errorMessage: 'Document not found for OCR task',
         fcInvokeLeaseUntil: null,
@@ -121,87 +269,103 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     return;
   }
 
+  const stage = normalizeStage(row.progressStage);
+  const startedAt = Date.now();
+  const prevAttempts = row.fcDispatchAttemptCount ?? 0;
+  const thisAttempt = prevAttempts + 1;
+  console.log(
+    '[ocr/stage] start',
+    JSON.stringify({ task_id: taskId, stage, attempt: thisAttempt, at: nowIso() })
+  );
+
   await db()
     .update(translationTasks)
     .set({
       status: 'processing',
-      progressPercent: 16,
-      progressStage: 'ocr_consumer_started',
+      progressStage: stage,
+      progressPercent: stagePercent(stage),
       fcInvokeLeaseUntil: null,
       updatedAt: new Date(),
     })
     .where(eq(translationTasks.id, taskId));
 
-  const outputPdfObjectKey = `translations/${taskId}/ocr-output.pdf`;
-  const outputMdObjectKey = `translations/${taskId}/ocr-output.md`;
-  const outputParseResultObjectKey = `translations/${taskId}/ocr-parse-result.json`;
-  const prevAttempts = row.fcDispatchAttemptCount ?? 0;
-  const thisAttempt = prevAttempts + 1;
-
-  const pipelineStartedAt = Date.now();
   try {
-    await runOcrTranslatePipeline({
+    const nextStage = await runOneStage({
+      taskId,
+      stage,
       sourcePdfObjectKey: row.sourceSliceObjectKey || doc.objectKey,
       sourceFilename: doc.filename,
       sourceLang: row.sourceLang,
       targetLang: row.targetLang,
-      outputPdfObjectKey,
-      outputMdObjectKey,
-      outputParseResultObjectKey,
     });
 
-    await db()
-      .update(translationTasks)
-      .set({
-        status: 'completed',
-        outputObjectKey: outputPdfObjectKey,
-        outputPrimaryPath: outputMdObjectKey,
-        progressPercent: 100,
-        progressStage: 'ocr_completed',
-        errorCode: null,
-        errorMessage: null,
-        fcNextAttemptAt: null,
-        fcDispatchAttemptCount: 0,
-        fcInvokeLeaseUntil: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(translationTasks.id, taskId));
-    console.log(
-      '[ocr/consumer] completed',
-      JSON.stringify({
-        task_id: taskId,
-        elapsed_ms: Date.now() - pipelineStartedAt,
-        output_pdf: outputPdfObjectKey,
-        output_md: outputMdObjectKey,
-      })
-    );
-  } catch (e) {
-    const allowRetry =
-      isTransientOcrError(e) &&
-      thisAttempt < Math.max(1, Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS) || 3);
-    if (allowRetry) {
-      const nextAt = new Date(Date.now() + ocrBackoffMs(thisAttempt));
+    if (nextStage === 'completed') {
+      const keys = outputKeys(taskId);
       await db()
         .update(translationTasks)
         .set({
-          status: 'queued',
-          progressStage: 'ocr_retry_scheduled',
-          progressPercent: 10,
-          errorMessage: `OCR pipeline transient error: ${
-            e instanceof Error ? e.message : String(e)
-          }`.slice(0, 500),
-          fcDispatchAttemptCount: thisAttempt,
-          fcNextAttemptAt: nextAt,
+          status: 'completed',
+          progressStage: 'completed',
+          progressPercent: 100,
+          outputObjectKey: keys.outputPdfObjectKey,
+          outputPrimaryPath: keys.outputMdObjectKey,
+          errorCode: null,
+          errorMessage: null,
+          fcNextAttemptAt: null,
+          fcDispatchAttemptCount: 0,
           fcInvokeLeaseUntil: null,
           updatedAt: new Date(),
         })
         .where(eq(translationTasks.id, taskId));
-      console.warn(
-        '[ocr/consumer] retry_scheduled',
+      console.log(
+        '[ocr/stage] done',
         JSON.stringify({
           task_id: taskId,
+          stage,
+          next_stage: 'completed',
+          elapsed_ms: Date.now() - startedAt,
+        })
+      );
+      return;
+    }
+
+    await markStageQueued(taskId, nextStage, stagePercent(nextStage));
+    await enqueueNextStage(taskId);
+    console.log(
+      '[ocr/stage] done',
+      JSON.stringify({
+        task_id: taskId,
+        stage,
+        next_stage: nextStage,
+        elapsed_ms: Date.now() - startedAt,
+      })
+    );
+  } catch (e) {
+    const transient = isTransientOcrError(e);
+    if (transient && thisAttempt < DEFAULT_MAX_ATTEMPTS) {
+      await db()
+        .update(translationTasks)
+        .set({
+          status: 'queued',
+          progressStage: stage,
+          progressPercent: stagePercent(stage),
+          errorCode: normalizeErrorCodeForStage(stage),
+          errorMessage: `Stage retry (${stage}): ${
+            e instanceof Error ? e.message : String(e)
+          }`.slice(0, 500),
+          fcDispatchAttemptCount: thisAttempt,
+          fcNextAttemptAt: new Date(),
+          fcInvokeLeaseUntil: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(translationTasks.id, taskId));
+      await enqueueNextStage(taskId);
+      console.warn(
+        '[ocr/stage] retry',
+        JSON.stringify({
+          task_id: taskId,
+          stage,
           attempt: thisAttempt,
-          next_at: nextAt.toISOString(),
           error: e instanceof Error ? e.message : String(e),
         })
       );
@@ -212,10 +376,10 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
       .update(translationTasks)
       .set({
         status: 'failed',
-        errorCode: 'ocr_pipeline_failed',
+        progressStage: stage,
+        progressPercent: stagePercent(stage),
+        errorCode: normalizeErrorCodeForStage(stage),
         errorMessage: (e instanceof Error ? e.message : String(e)).slice(0, 500),
-        progressPercent: 0,
-        progressStage: 'ocr_failed',
         fcNextAttemptAt: null,
         fcDispatchAttemptCount: thisAttempt,
         fcInvokeLeaseUntil: null,
@@ -223,14 +387,46 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
       })
       .where(eq(translationTasks.id, taskId));
     console.error(
-      '[ocr/consumer] failed',
+      '[ocr/stage] failed',
       JSON.stringify({
         task_id: taskId,
+        stage,
         attempt: thisAttempt,
         error: e instanceof Error ? e.message : String(e),
       })
     );
   }
+}
+
+export async function retryOcrTaskFromFailedStage(taskId: string): Promise<boolean> {
+  const [row] = await db()
+    .select({
+      id: translationTasks.id,
+      status: translationTasks.status,
+      preprocessWithOcr: translationTasks.preprocessWithOcr,
+      progressStage: translationTasks.progressStage,
+    })
+    .from(translationTasks)
+    .where(eq(translationTasks.id, taskId))
+    .limit(1);
+  if (!row || !row.preprocessWithOcr || row.status !== 'failed') return false;
+  const stage = normalizeStage(row.progressStage);
+  await db()
+    .update(translationTasks)
+    .set({
+      status: 'queued',
+      progressStage: stage,
+      progressPercent: stagePercent(stage),
+      errorCode: null,
+      errorMessage: null,
+      fcDispatchAttemptCount: 0,
+      fcNextAttemptAt: new Date(),
+      fcInvokeLeaseUntil: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(translationTasks.id, taskId));
+  await enqueueNextStage(taskId);
+  return true;
 }
 
 export async function dispatchPendingOcrJobs(limit = DEFAULT_OCR_BATCH_SIZE): Promise<{
@@ -247,10 +443,7 @@ export async function dispatchPendingOcrJobs(limit = DEFAULT_OCR_BATCH_SIZE): Pr
         and(
           eq(translationTasks.preprocessWithOcr, true),
           eq(translationTasks.status, 'queued'),
-          or(
-            isNull(translationTasks.fcNextAttemptAt),
-            lte(translationTasks.fcNextAttemptAt, now)
-          ),
+          or(isNull(translationTasks.fcNextAttemptAt), lte(translationTasks.fcNextAttemptAt, now)),
           or(
             isNull(translationTasks.fcInvokeLeaseUntil),
             lte(translationTasks.fcInvokeLeaseUntil, now)
@@ -266,3 +459,4 @@ export async function dispatchPendingOcrJobs(limit = DEFAULT_OCR_BATCH_SIZE): Pr
   }
   return { processed: taskIds.length, task_ids: taskIds };
 }
+
