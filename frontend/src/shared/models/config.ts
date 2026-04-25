@@ -4,6 +4,7 @@ import { db } from '@/core/db';
 import { hasPostgresRuntimeConfig } from '@/core/db/postgres';
 import { envConfigs } from '@/config';
 import { config } from '@/config/db/schema';
+import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import {
   getAllSettingNames,
   publicSettingNames,
@@ -79,32 +80,35 @@ export async function addConfig(newConfig: NewConfig) {
   return result;
 }
 
-export const getConfigs = unstable_cache(
-  async (): Promise<Configs> => {
-    const configs: Record<string, string> = {};
+/** 直读 `config` 表；无 Next incremental cache，供 Queues consumer 等与 `unstable_cache` 不兼容的运行时使用。 */
+export async function loadConfigsFromDatabase(): Promise<Configs> {
+  const configs: Record<string, string> = {};
 
-    // 与 postgres.ts 一致：Worker 上优先 HYPERDRIVE，否则 DATABASE_URL；不只依赖 envConfigs.database_url。
-    if (!hasPostgresRuntimeConfig()) {
-      return configs;
-    }
-
-    const result = await db().select().from(config);
-    if (!result) {
-      return configs;
-    }
-
-    for (const config of result) {
-      configs[config.name] = config.value ?? '';
-    }
-
+  if (!hasPostgresRuntimeConfig()) {
     return configs;
-  },
-  ['configs'],
-  {
-    revalidate: 3600,
-    tags: [CACHE_TAG_CONFIGS],
   }
-);
+
+  const result = await db().select().from(config);
+  if (!result) {
+    return configs;
+  }
+
+  for (const row of result) {
+    configs[row.name] = row.value ?? '';
+  }
+
+  return configs;
+}
+
+export const getConfigs = unstable_cache(loadConfigsFromDatabase, ['configs'], {
+  revalidate: 3600,
+  tags: [CACHE_TAG_CONFIGS],
+});
+
+function isIncrementalCacheMissingError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return msg.includes('incrementalCache');
+}
 
 export async function getAllConfigs(): Promise<Configs> {
   let dbConfigs: Configs = {};
@@ -112,7 +116,19 @@ export async function getAllConfigs(): Promise<Configs> {
   // only get configs from db in server side
   if (typeof window === 'undefined' && hasPostgresRuntimeConfig()) {
     try {
-      dbConfigs = await getConfigs();
+      if (tryGetAlsCfEnv()) {
+        dbConfigs = await loadConfigsFromDatabase();
+      } else {
+        try {
+          dbConfigs = await getConfigs();
+        } catch (e) {
+          if (isIncrementalCacheMissingError(e)) {
+            dbConfigs = await loadConfigsFromDatabase();
+          } else {
+            throw e;
+          }
+        }
+      }
     } catch (e) {
       console.error(
         '[db] get configs from db failed:',

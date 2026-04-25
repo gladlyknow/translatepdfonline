@@ -1,6 +1,8 @@
 {
   "tabPreview": "PDF preview",
   "tabWorkbench": "OCR workbench",
+  "parseJsonPanelTitle": "Parse JSON (current page)",
+  "parseJsonEmpty": "Select a block on the workbench or change page to load JSON.",
   "noParseUrl": "Parse result is not available for this task yet.",
   "loadingParse": "Loading parse result…",
   "parseFailedTitle": "Could not load parse layout",

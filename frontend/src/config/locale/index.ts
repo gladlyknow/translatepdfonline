@@ -65,6 +65,7 @@ export const localeMessagesPaths = [
   'translate/errors',
   'translate/home',
   'translate/shell',
+  'translate/historyDrawer',
   'translate/languages',
   'translate/ocrWorkbench',
 ];

@@ -54,11 +54,22 @@ export function OcrParseWorkbench({
   taskId,
   parseResultUrl,
   sourcePdfUrl,
+  hideSourcePanel = false,
+  pageIndex: controlledPageIndex,
+  onPageIndexChange,
+  onWorkbenchPageJson,
 }: {
   taskId: string;
   parseResultUrl: string | null;
   /** 同源预签名 URL；无原稿时传 null */
   sourcePdfUrl: string | null;
+  /** 与外侧 PDF 并排时隐藏内嵌原稿条，仅保留画布与工具栏 */
+  hideSourcePanel?: boolean;
+  /** 受控页码（0-based）；与 `onPageIndexChange` 同时传入时生效 */
+  pageIndex?: number;
+  onPageIndexChange?: (index: number) => void;
+  /** 当前解析页序列化 JSON（供外侧只读预览） */
+  onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -79,7 +90,29 @@ export function OcrParseWorkbench({
     'idle'
   );
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [internalPageIndex, setInternalPageIndex] = useState(0);
+  const pageIndexControlled =
+    controlledPageIndex !== undefined && onPageIndexChange !== undefined;
+  const totalPagesForClamp = Math.max(1, doc?.pages.length ?? 1);
+  const activePageIndex = pageIndexControlled
+    ? Math.max(
+        0,
+        Math.min(totalPagesForClamp - 1, Math.floor(controlledPageIndex ?? 0))
+      )
+    : internalPageIndex;
+
+  const setActivePageIndex = useCallback(
+    (next: number) => {
+      const maxI = Math.max(0, (doc?.pages.length ?? 1) - 1);
+      const clamped = Math.max(0, Math.min(maxI, next));
+      if (pageIndexControlled) {
+        onPageIndexChange!(clamped);
+      } else {
+        setInternalPageIndex(clamped);
+      }
+    },
+    [doc?.pages.length, onPageIndexChange, pageIndexControlled]
+  );
   const [pdfPageNum, setPdfPageNum] = useState(1);
   const [pdfPageTotal, setPdfPageTotal] = useState(1);
   const [collapsed, setCollapsed] = useState(false);
@@ -94,7 +127,7 @@ export function OcrParseWorkbench({
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const page = doc?.pages[pageIndex] ?? null;
+  const page = doc?.pages[activePageIndex] ?? null;
 
   const pickDefaultLayoutId = useCallback((nextDoc: { pages?: Array<{ layouts?: Array<{ layout_id: string; type?: string }> }> } | null | undefined): string | null => {
     const layouts = nextDoc?.pages?.[0]?.layouts ?? [];
@@ -126,7 +159,8 @@ export function OcrParseWorkbench({
           return;
         }
         reset(parsed.data);
-        setPageIndex(0);
+        setInternalPageIndex(0);
+        onPageIndexChange?.(0);
         setSelectedLayoutId(pickDefaultLayoutId(parsed.data));
         setLoadState('ok');
       } catch (e) {
@@ -138,7 +172,7 @@ export function OcrParseWorkbench({
     return () => {
       cancelled = true;
     };
-  }, [parseResultUrl, reset, pickDefaultLayoutId]);
+  }, [parseResultUrl, reset, pickDefaultLayoutId, onPageIndexChange]);
 
   useEffect(() => {
     if (!doc || !page) return;
@@ -149,7 +183,7 @@ export function OcrParseWorkbench({
       const first = page.layouts[0]?.layout_id ?? null;
       if (first) setSelectedLayoutId(first);
     }
-  }, [doc, page, selectedLayoutId, pageIndex]);
+  }, [doc, page, selectedLayoutId, activePageIndex]);
 
   useEffect(() => {
     if (!page) return;
@@ -168,10 +202,10 @@ export function OcrParseWorkbench({
     if (patches.length === 0) return;
     commitMergeText((draft) => {
       for (const p of patches) {
-        setLayoutEditor(draft, pageIndex, p.layoutId, { fontSize: p.fontSize });
+        setLayoutEditor(draft, activePageIndex, p.layoutId, { fontSize: p.fontSize });
       }
     });
-  }, [page, pageIndex, commitMergeText]);
+  }, [page, activePageIndex, commitMergeText]);
 
   const selectedLayout = useMemo(() => {
     if (!page || !selectedLayoutId) return null;
@@ -186,33 +220,33 @@ export function OcrParseWorkbench({
   const onPositionChange = useCallback(
     (layoutId: string, position: [number, number, number, number]) => {
       commit((draft) => {
-        updateLayoutPosition(draft, pageIndex, layoutId, position);
+        updateLayoutPosition(draft, activePageIndex, layoutId, position);
       });
     },
-    [pageIndex, commit]
+    [activePageIndex, commit]
   );
 
   const onTextCommit = useCallback(
     (layoutId: string, html: string) => {
       commitMergeText((draft) => {
-        updateLayoutText(draft, pageIndex, layoutId, html);
+        updateLayoutText(draft, activePageIndex, layoutId, html);
       });
     },
-    [pageIndex, commitMergeText]
+    [activePageIndex, commitMergeText]
   );
 
   const onAutoFitFontSize = useCallback(
     (layoutId: string, fontSize: string) => {
-      const curLayout = docRef.current?.pages[pageIndex]?.layouts.find(
+      const curLayout = docRef.current?.pages[activePageIndex]?.layouts.find(
         (l) => l.layout_id === layoutId
       );
       const curSize = curLayout ? getLayoutEditor(curLayout).fontSize : undefined;
       if (curSize === fontSize) return;
       commitMergeText((draft) => {
-        setLayoutEditor(draft, pageIndex, layoutId, { fontSize });
+        setLayoutEditor(draft, activePageIndex, layoutId, { fontSize });
       });
     },
-    [pageIndex, commitMergeText]
+    [activePageIndex, commitMergeText]
   );
 
   const flushEditableText = useCallback(() => {
@@ -222,14 +256,14 @@ export function OcrParseWorkbench({
     if (!el || !selectedLayoutId || !docRef.current) return;
     const html = el.innerHTML || '';
     const cur =
-      docRef.current.pages[pageIndex]?.layouts?.find(
+      docRef.current.pages[activePageIndex]?.layouts?.find(
         (l) => l.layout_id === selectedLayoutId
       )?.text ?? '';
     if (html === cur) return;
     commitMergeText((draft) => {
-      updateLayoutText(draft, pageIndex, selectedLayoutId, html);
+      updateLayoutText(draft, activePageIndex, selectedLayoutId, html);
     });
-  }, [selectedLayoutId, pageIndex, commitMergeText]);
+  }, [selectedLayoutId, activePageIndex, commitMergeText]);
 
   const onEditorStylePatch = useCallback(
     (patch: {
@@ -241,10 +275,10 @@ export function OcrParseWorkbench({
     }) => {
       if (!selectedLayoutId) return;
       commitMergeText((draft) => {
-        setLayoutEditor(draft, pageIndex, selectedLayoutId, patch);
+        setLayoutEditor(draft, activePageIndex, selectedLayoutId, patch);
       });
     },
-    [selectedLayoutId, pageIndex, commitMergeText]
+    [selectedLayoutId, activePageIndex, commitMergeText]
   );
 
   const onLayoutPositionFieldChange = useCallback(
@@ -261,10 +295,10 @@ export function OcrParseWorkbench({
       ];
       p[axis] = axis >= 2 ? Math.max(8, v) : v;
       commit((draft) => {
-        updateLayoutPosition(draft, pageIndex, selectedLayoutId, p);
+        updateLayoutPosition(draft, activePageIndex, selectedLayoutId, p);
       });
     },
-    [selectedLayoutId, selectedLayout, pageIndex, commit]
+    [selectedLayoutId, selectedLayout, activePageIndex, commit]
   );
 
   const onLayoutFontSizeChange = useCallback(
@@ -274,20 +308,20 @@ export function OcrParseWorkbench({
       if (!Number.isFinite(n)) return;
       const px = `${Math.max(6, Math.min(64, Math.round(n)))}px`;
       commitMergeText((draft) => {
-        setLayoutEditor(draft, pageIndex, selectedLayoutId, { fontSize: px });
+        setLayoutEditor(draft, activePageIndex, selectedLayoutId, { fontSize: px });
       });
     },
-    [selectedLayoutId, pageIndex, commitMergeText]
+    [selectedLayoutId, activePageIndex, commitMergeText]
   );
 
   const onLayoutFontFamilyChange = useCallback(
     (fontFamily: string) => {
       if (!selectedLayoutId) return;
       commitMergeText((draft) => {
-        setLayoutEditor(draft, pageIndex, selectedLayoutId, { fontFamily });
+        setLayoutEditor(draft, activePageIndex, selectedLayoutId, { fontFamily });
       });
     },
-    [selectedLayoutId, pageIndex, commitMergeText]
+    [selectedLayoutId, activePageIndex, commitMergeText]
   );
 
   const inspectorControls = useMemo(() => {
@@ -404,6 +438,18 @@ export function OcrParseWorkbench({
 
   const totalPages = doc?.pages.length ?? 0;
 
+  useEffect(() => {
+    if (!onWorkbenchPageJson || !doc?.pages?.[activePageIndex]) return;
+    try {
+      onWorkbenchPageJson({
+        pageIndex: activePageIndex,
+        json: JSON.stringify(doc.pages[activePageIndex], null, 2),
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [doc, activePageIndex, onWorkbenchPageJson]);
+
   const saveToServer = useCallback(async () => {
     if (!docRef.current) return;
     flushSync(() => {
@@ -490,8 +536,8 @@ export function OcrParseWorkbench({
           type="button"
           variant="outline"
           size="sm"
-          disabled={!doc || pageIndex <= 0}
-          onClick={() => setPageIndex((i) => Math.max(0, i - 1))}
+          disabled={!doc || activePageIndex <= 0}
+          onClick={() => setActivePageIndex(activePageIndex - 1)}
         >
           {t('parseDemoPrevPage')}
         </Button>
@@ -499,13 +545,16 @@ export function OcrParseWorkbench({
           type="button"
           variant="outline"
           size="sm"
-          disabled={!doc || pageIndex >= totalPages - 1}
-          onClick={() => setPageIndex((i) => Math.min(totalPages - 1, i + 1))}
+          disabled={!doc || totalPages === 0 || activePageIndex >= totalPages - 1}
+          onClick={() => setActivePageIndex(activePageIndex + 1)}
         >
           {t('parseDemoNextPage')}
         </Button>
         <span className="text-xs text-zinc-600 dark:text-zinc-400">
-          {t('parseDemoPage', { n: pageIndex + 1, total: Math.max(1, totalPages) })}
+          {t('parseDemoPage', {
+            n: activePageIndex + 1,
+            total: Math.max(1, totalPages),
+          })}
         </span>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <Button
@@ -556,29 +605,40 @@ export function OcrParseWorkbench({
       <div
         className={cn(
           'grid min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900',
-          collapsed ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-[minmax(12rem,1fr)_minmax(0,1.2fr)]'
+          hideSourcePanel
+            ? 'grid-cols-1'
+            : collapsed
+              ? 'grid-cols-1'
+              : 'grid-cols-1 md:grid-cols-[minmax(12rem,1fr)_minmax(0,1.2fr)]'
         )}
       >
-        <ParseResultOriginalPanel
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed((c) => !c)}
-          file={null}
-          sourcePdfUrl={sourcePdfUrl}
-          pageNum={pdfPageNum}
-          onPdfPageCountChange={(count) => {
-            const safe = Math.max(1, count || 1);
-            setPdfPageTotal(safe);
-            setPdfPageNum((n) => Math.max(1, Math.min(safe, n)));
-          }}
-          hideHeader
-          hideFooter
-          labels={originalLabels}
-        />
-        <div className="relative flex min-h-0 min-w-0 flex-col border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l">
+        {!hideSourcePanel ? (
+          <ParseResultOriginalPanel
+            collapsed={collapsed}
+            onToggleCollapse={() => setCollapsed((c) => !c)}
+            file={null}
+            sourcePdfUrl={sourcePdfUrl}
+            pageNum={pdfPageNum}
+            onPdfPageCountChange={(count) => {
+              const safe = Math.max(1, count || 1);
+              setPdfPageTotal(safe);
+              setPdfPageNum((n) => Math.max(1, Math.min(safe, n)));
+            }}
+            hideHeader
+            hideFooter
+            labels={originalLabels}
+          />
+        ) : null}
+        <div
+          className={cn(
+            'relative flex min-h-0 min-w-0 flex-col',
+            !hideSourcePanel && 'border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l'
+          )}
+        >
           {doc ? (
             <ParseResultCanvas
               doc={doc}
-              pageIndex={pageIndex}
+              pageIndex={activePageIndex}
               canvasScalePercent={jsonCanvasScale}
               orientation="portrait"
               onActivate={() => {}}
@@ -592,7 +652,14 @@ export function OcrParseWorkbench({
         </div>
       </div>
 
-      <aside className="flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:self-start">
+      <aside
+        className={cn(
+          'flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none',
+          hideSourcePanel
+            ? 'md:w-full md:self-stretch'
+            : 'md:w-72 md:self-start'
+        )}
+      >
         <ParseResultEditorToolbar
           disabled={!selectedLayoutId}
           onFlushBeforeFormat={flushEditableText}

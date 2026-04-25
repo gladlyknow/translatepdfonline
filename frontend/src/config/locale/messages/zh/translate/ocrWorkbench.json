@@ -1,6 +1,8 @@
 {
   "tabPreview": "PDF 预览",
   "tabWorkbench": "OCR 工作台",
+  "parseJsonPanelTitle": "解析 JSON（当前页）",
+  "parseJsonEmpty": "在工作台选中块或切换页面后即可显示对应 JSON。",
   "noParseUrl": "当前任务暂无可用的解析 JSON。",
   "loadingParse": "正在加载解析结果…",
   "parseFailedTitle": "无法加载版式数据",

@@ -44,7 +44,8 @@
     "cf:deploy:no-keep": "node -e \"console.error('Blocked: deploy without --keep-vars is disabled. Use cf:deploy or explicit wrangler deploy --keep-vars.'); process.exit(1)\"",
     "cf:upload": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
-    "brand:icons": "python scripts/export-brand-icons.py"
+    "brand:icons": "python scripts/export-brand-icons.py",
+    "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",

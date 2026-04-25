@@ -1,0 +1,20 @@
+{
+  "title": "History",
+  "introTitle": "Continue with a document",
+  "introBody": "Translate keeps layout for text-based PDFs. OCR Translator fits scanned or image-heavy PDFs with a visual workbench.",
+  "goTranslate": "Open Translate",
+  "goOcr": "Open OCR Translator",
+  "currentDocument": "Selected document",
+  "noDocumentSelected": "Pick a file from “Uploaded files” below.",
+  "sectionRecentTasks": "Recent tasks",
+  "sectionUploads": "Uploaded files",
+  "badgeTranslate": "Translate",
+  "badgeOcr": "OCR",
+  "emptyTasks": "No tasks yet.",
+  "emptyUploads": "No uploads yet.",
+  "loading": "Loading…",
+  "fileSizeMb": "{size} MB",
+  "pagePrev": "Previous",
+  "pageNext": "Next",
+  "pageStatus": "Page {current} of {total}"
+}

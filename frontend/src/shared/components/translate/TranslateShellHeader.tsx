@@ -1,12 +1,15 @@
 'use client';
 
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { FileText } from 'lucide-react';
-import { Link } from '@/core/i18n/navigation';
+import { History } from 'lucide-react';
+import { Link, useRouter } from '@/core/i18n/navigation';
 import { SignUser } from '@/shared/blocks/sign/sign-user';
 import type { UserNav } from '@/shared/types/blocks/common';
 
+import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
+import { useTranslateHistoryDrawerOptional } from '@/shared/contexts/translate-history-drawer';
 
 /**
  * 翻译页专用顶栏：品牌区（T + PDF）链首页、Pricing / Docs / History、登录与用户菜单
@@ -20,12 +23,11 @@ export function TranslateShellHeader({
 }) {
   const t = useTranslations('translate.shell');
   const brand = variant === 'ocr' ? t('brandShortOcr') : t('brandShort');
-  const historyHref =
-    variant === 'ocr'
-      ? '/ocrtranslator#translate-history'
-      : '/upload#translate-history';
+  const router = useRouter();
+  const historyDrawer = useTranslateHistoryDrawerOptional();
   const { appearance } = useTranslateHeaderAppearance();
   const onDark = appearance === 'onDark';
+  const logoSrc = cacheBustedPublicPath(envConfigs.app_logo);
 
   return (
     <header
@@ -47,26 +49,17 @@ export function TranslateShellHeader({
         <span
           className={
             onDark
-              ? 'flex h-9 w-9 items-center justify-center rounded-lg bg-[#0f172a] text-lg font-bold tracking-tight text-white ring-1 ring-white/10'
-              : 'flex h-9 w-9 items-center justify-center rounded-lg bg-white text-lg font-bold tracking-tight text-sky-700 shadow-sm ring-1 ring-zinc-200 dark:bg-[#1e3a5f] dark:text-white dark:shadow-none dark:ring-white/15'
+              ? 'relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15'
+              : 'relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-zinc-200 dark:ring-white/15'
           }
         >
-          T
-        </span>
-        <span
-          className={
-            onDark
-              ? 'flex items-center gap-1 rounded-md border border-white/15 bg-white/10 px-1.5 py-1'
-              : 'flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-1 dark:border-zinc-700 dark:bg-zinc-900'
-          }
-        >
-          <FileText
-            className={
-              onDark
-                ? 'h-5 w-5 text-sky-200'
-                : 'h-5 w-5 text-[#0f172a] dark:text-blue-300'
-            }
-            aria-hidden
+          <Image
+            src={logoSrc}
+            alt=""
+            width={36}
+            height={36}
+            className="object-contain"
+            priority
           />
         </span>
         <span className="hidden flex-col items-start sm:flex">
@@ -107,17 +100,34 @@ export function TranslateShellHeader({
         >
           {t('docs')}
         </Link>
-        <Link
-          href={historyHref}
+        <button
+          type="button"
           title={t('historyNav')}
+          onClick={() => {
+            if (historyDrawer) {
+              historyDrawer.openHistory();
+            } else {
+              router.push('/upload#translate-history');
+            }
+          }}
           className={
             onDark
-              ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
-              : 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+              ? 'inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
+              : 'inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
           }
         >
+          <span
+            className={
+              onDark
+                ? 'flex h-7 w-7 items-center justify-center rounded-md bg-white/10 text-sky-200'
+                : 'flex h-7 w-7 items-center justify-center rounded-md bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300'
+            }
+            aria-hidden
+          >
+            <History className="size-4" />
+          </span>
           {t('historyNav')}
-        </Link>
+        </button>
         <div className="ml-1 shrink-0">
           <SignUser
             signButtonSize="sm"

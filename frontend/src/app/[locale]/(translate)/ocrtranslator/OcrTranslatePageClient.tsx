@@ -9,9 +9,10 @@ import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
-import { HistoryPanel } from '@/shared/components/translate/HistoryPanel';
 import { LanguageSelector } from '@/shared/components/translate/LanguageSelector';
 import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
+import { cn } from '@/shared/lib/utils';
 import {
   translateApi,
   type TaskDetail,
@@ -151,7 +152,7 @@ export function OcrTranslatePageClient() {
   const [refreshing, setRefreshing] = useState(false);
   const [starting, setStarting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<'preview' | 'workbench'>('preview');
+  const [parsePageJson, setParsePageJson] = useState('');
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -214,17 +215,6 @@ export function OcrTranslatePageClient() {
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
     [searchParams, pathname, router]
-  );
-
-  const selectTaskFromHistory = useCallback(
-    (tid: string) => {
-      setTaskId(tid);
-      setTaskStatus(null);
-      setTaskDetail(null);
-      setTaskView(null);
-      updateTaskInUrl(tid);
-    },
-    [updateTaskInUrl]
   );
 
   useEffect(() => {
@@ -596,14 +586,8 @@ export function OcrTranslatePageClient() {
   const ocrParseResultUrl = taskView?.ocr_parse_result_url ?? null;
 
   useEffect(() => {
-    if (!ocrParseResultUrl) {
-      setMainTab('preview');
-      return;
-    }
-    if (taskStatus === 'completed') {
-      setMainTab('workbench');
-    }
-  }, [ocrParseResultUrl, taskStatus]);
+    setParsePageJson('');
+  }, [ocrParseResultUrl, taskId]);
 
   if (!documentId) {
     return (
@@ -624,17 +608,14 @@ export function OcrTranslatePageClient() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
       <aside
-        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
+        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-64 md:border-b-0 md:border-r md:p-4"
       >
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <div className="border-b border-zinc-100 pb-2 dark:border-zinc-800">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
             {tHome('workbenchModelOcr')}
           </p>
-          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-zinc-100">
+          <p className="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
             {tHome('workbenchPipelineTitle')}
-          </p>
-          <p className="mt-0.5 text-[11px] text-zinc-500">
-            {tHome('workbenchPipelineHint')}
           </p>
         </div>
 
@@ -687,15 +668,6 @@ export function OcrTranslatePageClient() {
           )}
         </div>
 
-        <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-3 dark:border-blue-900/50 dark:bg-blue-950/40">
-          <p className="text-xs font-medium text-blue-900/90 dark:text-blue-200/90">
-            {tHome('workbenchOcrInfoTitle')}
-          </p>
-          <p className="mt-1 text-[11px] leading-relaxed text-blue-900/80 dark:text-blue-100/80">
-            {tHome('workbenchOcrInfoBody')}
-          </p>
-        </div>
-
         <div className="flex flex-col gap-3">
           <LanguageSelector
             value={sourceLang}
@@ -713,7 +685,10 @@ export function OcrTranslatePageClient() {
             type="button"
             onClick={startOcrTask}
             disabled={starting || taskAwaitingResult || !sourceLang || !targetLang}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white shadow hover:bg-slate-800 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
+            className={cn(
+              'flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold',
+              TRANSLATE_PRIMARY_CTA_CLASSNAME
+            )}
           >
             {starting || taskAwaitingResult ? (
               <Loader2 size={16} className="animate-spin" />
@@ -753,13 +728,6 @@ export function OcrTranslatePageClient() {
             )}
           </div>
         )}
-
-        <div id="translate-history" className="border-t border-zinc-200 pt-3 dark:border-zinc-800">
-          <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {tHome('workbenchHistory')}
-          </p>
-          <HistoryPanel onSelectTask={selectTaskFromHistory} taskFilter="ocr" />
-        </div>
 
         {taskId && (
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/80">
@@ -826,42 +794,60 @@ export function OcrTranslatePageClient() {
         )}
 
         {taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
-          <div className="flex shrink-0 gap-1 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/80">
-            <button
-              type="button"
-              onClick={() => setMainTab('preview')}
-              className={
-                mainTab === 'preview'
-                  ? 'rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-                  : 'rounded-md px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-800'
-              }
-            >
-              {tOcrWb('tabPreview')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMainTab('workbench')}
-              className={
-                mainTab === 'workbench'
-                  ? 'rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-                  : 'rounded-md px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-800'
-              }
-            >
-              {tOcrWb('tabWorkbench')}
-            </button>
-          </div>
-        ) : null}
-
-        {mainTab === 'workbench' && taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
-          <div className="min-h-0 min-w-0 flex-1 overflow-hidden p-3 md:p-4">
-            <div className="mx-auto flex h-full min-h-[420px] max-w-6xl flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[560px]">
-              <OcrParseWorkbench
-                taskId={taskId}
-                parseResultUrl={ocrParseResultUrl}
-                sourcePdfUrl={
-                  taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
-                }
-              />
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-3 md:p-4">
+            <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden md:grid-cols-2 md:gap-4 md:min-h-[220px] md:max-h-[42vh]">
+              <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+                <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                  {tHome('sourceLabel')}
+                </p>
+                <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
+                  <PdfViewerPane
+                    key={`source-ocr-wb-${documentId}-${currentPage}`}
+                    fileUrl={sourcePdfUrl ?? ''}
+                    mode="source"
+                    page={currentPage}
+                    onPageChange={handleSourcePageChange}
+                    totalPages={
+                      effectiveDocumentPageCount > 0
+                        ? effectiveDocumentPageCount
+                        : undefined
+                    }
+                    onPdfNumPages={setSourceNumPagesFromViewer}
+                    scale={pdfZoom}
+                    onScaleChange={setPdfZoom}
+                    showZoomControls
+                  />
+                </div>
+              </div>
+              <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+                <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                  {tOcrWb('parseJsonPanelTitle')}
+                </p>
+                <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words bg-zinc-950 p-3 font-mono text-[11px] leading-snug text-zinc-100 dark:bg-black">
+                  {parsePageJson.trim() ? parsePageJson : tOcrWb('parseJsonEmpty')}
+                </pre>
+              </div>
+            </div>
+            <div className="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[280px] md:flex-1">
+              <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                {tOcrWb('tabWorkbench')}
+              </p>
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <OcrParseWorkbench
+                  taskId={taskId}
+                  parseResultUrl={ocrParseResultUrl}
+                  sourcePdfUrl={
+                    taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
+                  }
+                  hideSourcePanel
+                  pageIndex={Math.max(0, currentPage - 1)}
+                  onPageIndexChange={(idx) => {
+                    const maxP = Math.max(1, effectiveDocumentPageCount || 1);
+                    setCurrentPage(Math.min(maxP, Math.max(1, idx + 1)));
+                  }}
+                  onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
+                />
+              </div>
             </div>
           </div>
         ) : (

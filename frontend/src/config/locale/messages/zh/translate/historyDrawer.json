@@ -1,0 +1,20 @@
+{
+  "title": "历史记录",
+  "introTitle": "用已上传文档继续",
+  "introBody": "Translate：面向可选中文字的 PDF，尽量保留版式。OCR Translator：适合扫描件/图片型 PDF，支持可视化块编辑。",
+  "goTranslate": "打开 Translate",
+  "goOcr": "打开 OCR Translator",
+  "currentDocument": "当前选中",
+  "noDocumentSelected": "请从下方「已上传文件」中选择一份文档。",
+  "sectionRecentTasks": "最近任务",
+  "sectionUploads": "已上传文件",
+  "badgeTranslate": "Translate",
+  "badgeOcr": "OCR",
+  "emptyTasks": "暂无任务。",
+  "emptyUploads": "暂无上传。",
+  "loading": "加载中…",
+  "fileSizeMb": "{size} MB",
+  "pagePrev": "上一页",
+  "pageNext": "下一页",
+  "pageStatus": "第 {current} / {total} 页"
+}

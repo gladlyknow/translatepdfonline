@@ -1,7 +1,9 @@
 /**
  * R2 presigned URLs for translate (Route A).
  *
- * Resolution order (each field filled from first non-empty source):
+ * Resolution order (each field filled from first non-empty source), except in
+ * **Queues consumer** (`tryGetAlsCfEnv()`): only DB `r2_*` rows via `loadConfigsFromDatabase()`.
+ * General Worker / Node:
  * 1) Env: R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT / R2_ENDPOINT_URL
  * 2) DB admin settings: r2_bucket_name, r2_access_key, r2_secret_key, r2_endpoint
  *
@@ -10,8 +12,9 @@
  */
 
 import { AwsClient } from 'aws4fetch';
-import { getAllConfigs } from '@/shared/models/config';
+import { getAllConfigs, loadConfigsFromDatabase } from '@/shared/models/config';
 import { isCloudflareWorker } from './env';
+import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
 export type TranslateR2S3Credentials = {
   bucket: string;
@@ -78,6 +81,35 @@ export async function resolveTranslateR2S3Env(): Promise<TranslateR2S3Credential
     ...fromEnv,
     endpoint: normalizeHttpsEndpoint(fromEnv.endpoint),
   };
+
+  /** 独立 Queues consumer：仅用 DB `r2_*`，不合并 Worker env，避免 env 掩盖未配置的数据库项。 */
+  if (tryGetAlsCfEnv()) {
+    try {
+      const c = await loadConfigsFromDatabase();
+      const raw = getR2EnvFromDb(c as Record<string, unknown>);
+      const dbOnly = {
+        ...raw,
+        endpoint: normalizeHttpsEndpoint(raw.endpoint),
+      };
+      const bucket = String(dbOnly.bucket || '').trim();
+      const accessKeyId = String(dbOnly.accessKeyId || '').trim();
+      const secretAccessKey = String(dbOnly.secretAccessKey || '').trim();
+      const endpoint = normalizeHttpsEndpoint(String(dbOnly.endpoint || ''));
+      if (!(bucket && accessKeyId && secretAccessKey && endpoint)) {
+        return null;
+      }
+      return {
+        bucket,
+        accessKeyId,
+        secretAccessKey,
+        endpoint,
+        source: 'db',
+      };
+    } catch {
+      return null;
+    }
+  }
+
   let dbNormalized: TranslateR2S3Credentials | null = null;
   try {
     const c = await getAllConfigs();
