@@ -33,3 +33,14 @@ id = "1f0a3251f43343c3872e5f882ff3d879"
 [[queues.producers]]
 binding = "OCR_PIPELINE_QUEUE"
 queue = "translatepdfonline"
+
+# develop 分支：独立 Worker 名 + 独立队列，避免 `wrangler deploy` 打到生产同名 Worker。
+# Cloudflare 控制台「非生产分支部署命令」须使用：npx wrangler deploy --env develop --keep-vars
+# 并先在 Dashboard 创建队列 translatepdfonline-dev（与生产队列名不同）。
+[env.develop]
+name = "translatepdfonline-dev"
+keep_vars = true
+
+[[env.develop.queues.producers]]
+binding = "OCR_PIPELINE_QUEUE"
+queue = "translatepdfonline-dev"

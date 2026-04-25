@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "translatepdfonline-quenues-dev",
+  "keep_vars": true,
+  "main": "workers/ocr-pipeline-consumer/src/index.ts",
+  "compatibility_date": "2025-03-01",
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
+  "observability": {
+    "enabled": true
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "1f0a3251f43343c3872e5f882ff3d879"
+    }
+  ],
+  "queues": {
+    "consumers": [
+      {
+        "queue": "translatepdfonline-dev",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 5
+      }
+    ]
+  }
+}

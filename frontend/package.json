@@ -39,6 +39,8 @@
     "build:opennext:ci": "node scripts/generate-wrangler.js && pnpm run build && node scripts/ensure-pages-manifest.js && opennextjs-cloudflare build --skipNextBuild && node scripts/patch-opennext-deploy-keep-vars.js",
     "cf:preview": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare deploy -- --keep-vars",
+    "cf:deploy:workers:prod": "wrangler deploy --keep-vars && wrangler deploy -c wrangler.consumer.jsonc --keep-vars",
+    "cf:deploy:workers:dev": "wrangler deploy --env develop --keep-vars && wrangler deploy -c wrangler.consumer.develop.jsonc --keep-vars",
     "cf:deploy:no-keep": "node -e \"console.error('Blocked: deploy without --keep-vars is disabled. Use cf:deploy or explicit wrangler deploy --keep-vars.'); process.exit(1)\"",
     "cf:upload": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
