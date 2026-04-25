@@ -39,6 +39,14 @@ queue = "translatepdfonline"
 name = "translatepdfonline-dev"
 keep_vars = true
 
+[env.develop.vars]
+# develop 变量建议在 Dashboard 的 translatepdfonline-dev 下单独维护；
+# 如需与生产同值，可在 CI 构建阶段注入后由 scripts/generate-wrangler.js 写入 [vars]。
+
+[[env.develop.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "1f0a3251f43343c3872e5f882ff3d879"
+
 [[env.develop.queues.producers]]
 binding = "OCR_PIPELINE_QUEUE"
 queue = "translatepdfonline-dev"
