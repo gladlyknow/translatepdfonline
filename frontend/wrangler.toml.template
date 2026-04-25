@@ -9,6 +9,9 @@ main = ".open-next/worker.js"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 keep_names = false
+# 控制台里维护的「变量」默认会在 deploy 时被 wrangler 用本地配置覆盖；设为 true 与 CLI --keep-vars 一致，避免每次部署清空 Dashboard 变量。
+# 注意：wrangler versions upload 仍可能清空变量，预览流水线请勿用 versions upload 替代 deploy。
+keep_vars = true
 
 [assets]
 binding = "ASSETS"
