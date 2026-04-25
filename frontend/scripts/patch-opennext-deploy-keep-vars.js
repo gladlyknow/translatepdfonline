@@ -52,6 +52,7 @@ function main() {
     return;
   }
 
+  
   let redirect;
   try {
     redirect = JSON.parse(fs.readFileSync(redirectPath, 'utf8'));
