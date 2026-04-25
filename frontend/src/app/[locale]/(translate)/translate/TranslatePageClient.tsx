@@ -306,6 +306,7 @@ export function TranslatePageClient() {
     if (searchParams.get(TASK_PARAM)) return;
     const docParam = searchParams.get(DOCUMENT_PARAM)?.trim();
     if (!docParam) return;
+    if (documentId === docParam) return;
 
     let cancelled = false;
     (async () => {
@@ -323,23 +324,15 @@ export function TranslatePageClient() {
         setTaskView(null);
         setTaskDetail(null);
         setTaskStatus(null);
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete(DOCUMENT_PARAM);
-        const next = params.toString() ? `${pathname}?${params}` : pathname;
-        router.replace(next);
       } catch {
         if (cancelled) return;
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete(DOCUMENT_PARAM);
-        router.replace(
-          params.toString() ? `${pathname}?${params}` : pathname
-        );
+        router.replace('/upload');
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [searchParams, pathname, router]);
+  }, [searchParams, router, documentId]);
 
   useEffect(() => {
     if (documentId) return;

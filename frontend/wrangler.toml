@@ -33,8 +33,3 @@ queue = "translatepdfonline"
 
 # Consumer：OpenNext 默认 `.open-next/worker.js` 若不导出 `queue`，需在自定义 Worker 入口合并
 # `handleOcrPipelineQueueBatch`（见 src/shared/lib/ocr-queue.ts 与 docs/ocr-queue-and-pipeline.md）。
-[[queues.consumers]]
-queue = "translatepdfonline"
-max_batch_size = 1
-max_batch_timeout = 30
-max_retries = 5

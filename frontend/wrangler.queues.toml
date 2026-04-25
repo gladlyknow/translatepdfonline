@@ -1,6 +1,6 @@
 # OCR queue consumer worker for translatepdfonline
 name = "translatepdfonline-quenues"
-main = ".open-next/worker.js"
+main = "worker-queue.ts"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 keep_names = false
@@ -9,12 +9,13 @@ keep_names = false
 enabled = true
 
 [vars]
-# Optional: you can inject these via CI build env + generate-wrangler flow,
-# or configure directly in Worker Settings -> Variables and secrets.
+# 独立队列 worker 仅负责触发主应用 OCR dispatch 接口。
+# 建议设置：
+# OCR_DISPATCH_URL=https://<main-worker-domain>/api/ocr/dispatch-pending
+# OCR_DISPATCH_SECRET=<same as main worker CRON_SECRET>
 
-[[hyperdrive]]
-binding = "HYPERDRIVE"
-id = "1f0a3251f43343c3872e5f882ff3d879"
+[triggers]
+crons = ["*/2 * * * *"]
 
 
 [[queues.consumers]]
