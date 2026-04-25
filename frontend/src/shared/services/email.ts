@@ -6,12 +6,19 @@ import { Configs, getAllConfigs } from '@/shared/models/config';
  */
 export function getEmailServiceWithConfigs(configs: Configs) {
   const emailManager = new EmailManager();
+  const defaultFrom = (
+    configs.resend_sender_email ||
+    (configs as Record<string, string>).resend_from ||
+    process.env.RESEND_SENDER_EMAIL ||
+    process.env.RESEND_FROM ||
+    ''
+  ).trim();
 
   if (configs.resend_api_key) {
     emailManager.addProvider(
       new ResendProvider({
         apiKey: configs.resend_api_key,
-        defaultFrom: configs.resend_sender_email,
+        defaultFrom,
       })
     );
   }

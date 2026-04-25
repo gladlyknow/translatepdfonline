@@ -122,7 +122,7 @@ export default async function RootLayout({
         <link rel="shortcut icon" href={cacheBustedPublicPath('/favicon.ico')} />
         <link
           rel="apple-touch-icon"
-          href={cacheBustedPublicPath('/brand/logo-180.png')}
+          href={cacheBustedPublicPath('/brand/logo-t-pdf.jpeg')}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         {/* Bing Webmaster Tools — keep after verification succeeds */}

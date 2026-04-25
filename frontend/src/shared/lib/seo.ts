@@ -113,7 +113,7 @@ export function getMetadata(
       },
       icons: {
         icon: iconUrl,
-        apple: `${appUrl}${cacheBustedPublicPath('/brand/logo-180.png')}`,
+        apple: `${appUrl}${cacheBustedPublicPath('/brand/logo-t-pdf.jpeg')}`,
       },
 
       openGraph: {

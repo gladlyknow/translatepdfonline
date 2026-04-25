@@ -36,31 +36,21 @@ export function Hero({
       id={section.id}
       className={cn(
         isTranslateDark
-          ? 'relative overflow-hidden bg-gradient-to-b from-slate-50 via-sky-50/30 to-zinc-100 pt-20 pb-10 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 md:pt-28 md:pb-14'
+          ? 'relative overflow-hidden bg-slate-50 pt-20 pb-10 dark:bg-slate-950 md:pt-28 md:pb-14'
           : `pt-24 pb-8 md:pt-36 md:pb-8`,
         !isTranslateDark && section.className,
         className
       )}
     >
       {isTranslateDark && (
-        <>
-          <div
-            className="pointer-events-none absolute inset-0 opacity-30 dark:hidden"
-            style={{
-              backgroundImage:
-                'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14,165,233,0.22), transparent)',
-            }}
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-0 hidden opacity-40 dark:block"
-            style={{
-              backgroundImage:
-                'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56,189,248,0.22), transparent)',
-            }}
-            aria-hidden
-          />
-        </>
+        <div
+          className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-25"
+          style={{
+            backgroundImage:
+              'radial-gradient(ellipse 70% 40% at 50% -10%, rgba(14,165,233,0.14), transparent)',
+          }}
+          aria-hidden
+        />
       )}
 
       {section.announcement && (

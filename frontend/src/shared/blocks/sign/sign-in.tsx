@@ -97,7 +97,10 @@ export function SignIn({
           },
           onError: (e: any) => {
             const status = e?.error?.status;
-            if (status === 403) {
+            if (
+              status === 403 &&
+              configs.email_verification_enabled === 'true'
+            ) {
               const normalizedCallbackUrl = stripLocalePrefix(callbackUrl);
               const verifyPath = `/verify-email?sent=1&email=${encodeURIComponent(
                 email

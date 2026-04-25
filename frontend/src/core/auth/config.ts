@@ -30,9 +30,10 @@ const VERIFICATION_EMAIL_MIN_INTERVAL_MS = 60_000;
 const RESET_PASSWORD_EMAIL_MIN_INTERVAL_MS = 60_000;
 
 // Build trustedOrigins: app_url + optional AUTH_TRUSTED_ORIGINS (comma-separated)
-function getTrustedOrigins(): string[] {
+function getTrustedOrigins(requestOrigin?: string): string[] {
   const list: string[] = [];
   if (envConfigs.app_url) list.push(envConfigs.app_url);
+  if (requestOrigin && !list.includes(requestOrigin)) list.push(requestOrigin);
   const extra = envConfigs.auth_trusted_origins
     ?.split(',')
     .map((o) => o.trim())
@@ -91,9 +92,14 @@ const authOptions = {
 };
 
 // get auth options with configs
-export async function getAuthOptions(configs: Record<string, string>) {
+export async function getAuthOptions(
+  configs: Record<string, string>,
+  options?: { requestOrigin?: string }
+) {
   const emailVerificationEnabled =
     configs.email_verification_enabled === 'true' && !!configs.resend_api_key;
+  const runtimeOrigin = options?.requestOrigin?.trim();
+  const authBaseUrl = runtimeOrigin || envConfigs.auth_url;
 
   const useDb = hasPostgresRuntimeConfig();
   if (process.env.AUTH_DB_DIAG === '1' || process.env.AUTH_DB_DIAG === 'true') {
@@ -111,6 +117,8 @@ export async function getAuthOptions(configs: Record<string, string>) {
 
   return {
     ...authOptions,
+    baseURL: authBaseUrl,
+    trustedOrigins: getTrustedOrigins(runtimeOrigin),
     // Add database connection only when actually needed (runtime).
     // Workers: 有 HYPERDRIVE 绑定时使用 Hyperdrive 连接串；见 getPostgresDb。
     // Detection: src/core/db/postgres.ts → hasPostgresRuntimeConfig() / getHyperdriveConnectionString()

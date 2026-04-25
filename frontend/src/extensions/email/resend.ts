@@ -34,9 +34,19 @@ export class ResendProvider implements EmailProvider {
 
   async sendEmail(email: EmailMessage): Promise<EmailSendResult> {
     try {
+      const resolvedFrom = (email.from || this.configs.defaultFrom || '').trim();
+      if (!resolvedFrom) {
+        return {
+          success: false,
+          error:
+            'Resend sender address missing (need resend_sender_email or RESEND_FROM)',
+          provider: this.name,
+        };
+      }
+
       // Convert our format to Resend format
       const resendEmail: Partial<CreateEmailOptions> = {
-        from: email.from || this.configs.defaultFrom || '',
+        from: resolvedFrom,
         to: Array.isArray(email.to) ? email.to : [email.to],
         subject: email.subject,
       };

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const auth = await getAuth();
+    const auth = await getAuth(request);
     const handler = toNextJsHandler(auth.handler);
     return await handler.POST(request);
   } catch (e) {
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const auth = await getAuth();
+    const auth = await getAuth(request);
     const handler = toNextJsHandler(auth.handler);
     return await handler.GET(request);
   } catch (e) {

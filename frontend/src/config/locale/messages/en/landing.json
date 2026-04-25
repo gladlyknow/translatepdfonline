@@ -4,7 +4,7 @@
     "brand": {
       "title": "Translate PDF Online",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/logo-t-pdf.jpeg",
         "alt": "TranslatePDFOnline",
         "width": 32,
         "height": 32
@@ -19,7 +19,7 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
+          "title": "PDF OCR",
           "url": "/ocrtranslator",
           "icon_url": "/imgs/branding/generalocr.svg"
         },
@@ -70,7 +70,7 @@
       "title": "Translate PDF Online",
       "description": "Layout-preserving PDF translation in the browser. Many language pairs; files are encrypted in transit and removed on a fixed retention schedule.",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/logo-t-pdf.jpeg",
         "alt": "Translate PDF Online",
         "width": 32,
         "height": 32

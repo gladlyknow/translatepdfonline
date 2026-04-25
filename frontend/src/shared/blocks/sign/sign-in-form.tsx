@@ -89,16 +89,23 @@ export function SignInForm({
           },
           onError: (e: any) => {
             const status = e?.error?.status;
-            if (status === 403) {
+            if (
+              status === 403 &&
+              configs.email_verification_enabled === 'true'
+            ) {
               const normalizedCallbackUrl = stripLocalePrefix(callbackUrl);
               const verifyPath = `/verify-email?sent=1&email=${encodeURIComponent(
                 email
               )}&callbackUrl=${encodeURIComponent(normalizedCallbackUrl)}`;
 
-              // Send verification email with callback to verify page.
+              // IMPORTANT:
+              // better-auth does not URL-encode callbackURL when generating the verification URL.
+              // So callbackURL must not contain its own '&' query params (or they'll get split).
+              // We send users to home/callbackUrl after verification, and keep the verify page only
+              // as the waiting UI.
               void authClient.sendVerificationEmail({
                 email,
-                callbackURL: `${base}${verifyPath}`,
+                callbackURL: `${base}${normalizedCallbackUrl || '/'}`,
               });
 
               // i18n router will prefix locale automatically; do NOT include locale here.

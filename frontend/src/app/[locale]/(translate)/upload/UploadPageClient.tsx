@@ -115,6 +115,15 @@ export function UploadPageClient() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+      <div className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/90 px-4 py-3 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+        <div className="mx-auto flex w-full max-w-6xl justify-end">
+          <Button type="button" variant="outline" onClick={() => setHistoryOpen(true)}>
+            <History className="mr-2 size-4" />
+            {tHome('history')}
+          </Button>
+        </div>
+      </div>
+
       <TranslateLandingSections
         onUploaded={handleUploaded}
         initialFile={lastUploadedFile}
@@ -124,20 +133,6 @@ export function UploadPageClient() {
         onTargetLangChange={setTargetLang}
         onRequireSignIn={handleRequireSignInForUpload}
       />
-
-      <section className="border-t border-zinc-200 bg-white px-4 py-8 dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-6xl space-y-6">
-          <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              上传完成后可从 History 打开任务或选择处理模式
-            </p>
-            <Button type="button" variant="outline" onClick={() => setHistoryOpen(true)}>
-              <History className="mr-2 size-4" />
-              {tHome('history')}
-            </Button>
-          </div>
-        </div>
-      </section>
 
       <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">

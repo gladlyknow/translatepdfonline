@@ -68,15 +68,15 @@ export const envConfigs: ConfigMap = {
   app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Translate PDF Online',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
-  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.png',
+  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/brand/logo-t-pdf.jpeg',
   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.svg',
   app_preview_image:
-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.png',
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/brand/t-pdf-preview.jpeg',
   /** 与 `public/preview.png` 像素尺寸一致，供 OG/Twitter meta；若更换预览图请同步改此值或设对应 env */
   app_preview_image_width:
-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_WIDTH ?? '2540',
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_WIDTH ?? '1181',
   app_preview_image_height:
-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_HEIGHT ?? '1270',
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE_HEIGHT ?? '945',
   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
   appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
