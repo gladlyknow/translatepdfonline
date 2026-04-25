@@ -31,5 +31,4 @@ id = "1f0a3251f43343c3872e5f882ff3d879"
 binding = "OCR_PIPELINE_QUEUE"
 queue = "translatepdfonline"
 
-# Consumer：OpenNext 默认 `.open-next/worker.js` 若不导出 `queue`，需在自定义 Worker 入口合并
-# `handleOcrPipelineQueueBatch`（见 src/shared/lib/ocr-queue.ts 与 docs/ocr-queue-and-pipeline.md）。
+# Consumer：独立 Worker，配置见 wrangler.consumer.jsonc（与主 Worker 同源 Hyperdrive，在 queue 内直接跑 OCR 管线）。

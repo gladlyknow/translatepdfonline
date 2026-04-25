@@ -4,6 +4,7 @@ import postgres from 'postgres';
 
 import { envConfigs } from '@/config';
 import { isCloudflareWorker } from '@/shared/lib/env';
+import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
 // Global database connection instance (singleton pattern) — non-Worker only
 let dbInstance: ReturnType<typeof drizzle> | null = null;
@@ -11,6 +12,8 @@ let client: ReturnType<typeof postgres> | null = null;
 
 /** OpenNext 生产 Worker 常无 `globalThis.Cloudflare`，但 fetch 内仍有 `getCloudflareContext()`。 */
 function tryGetCfEnv(): Record<string, unknown> | undefined {
+  const fromAls = tryGetAlsCfEnv();
+  if (fromAls) return fromAls;
   try {
     const ctx = getCloudflareContext() as unknown as {
       env?: Record<string, unknown>;
