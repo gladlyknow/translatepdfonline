@@ -58,6 +58,7 @@ export function OcrParseWorkbench({
   pageIndex: controlledPageIndex,
   onPageIndexChange,
   onWorkbenchPageJson,
+  toolbarPosition = 'bottom',
 }: {
   taskId: string;
   parseResultUrl: string | null;
@@ -70,6 +71,7 @@ export function OcrParseWorkbench({
   onPageIndexChange?: (index: number) => void;
   /** 当前解析页序列化 JSON（供外侧只读预览） */
   onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
+  toolbarPosition?: 'bottom' | 'left';
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -604,71 +606,89 @@ export function OcrParseWorkbench({
 
       <div
         className={cn(
-          'grid min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900',
-          hideSourcePanel
-            ? 'grid-cols-1'
-            : collapsed
-              ? 'grid-cols-1'
-              : 'grid-cols-1 md:grid-cols-[minmax(12rem,1fr)_minmax(0,1.2fr)]'
+          'min-h-0 min-w-0 flex-1',
+          toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
       >
-        {!hideSourcePanel ? (
-          <ParseResultOriginalPanel
-            collapsed={collapsed}
-            onToggleCollapse={() => setCollapsed((c) => !c)}
-            file={null}
-            sourcePdfUrl={sourcePdfUrl}
-            pageNum={pdfPageNum}
-            onPdfPageCountChange={(count) => {
-              const safe = Math.max(1, count || 1);
-              setPdfPageTotal(safe);
-              setPdfPageNum((n) => Math.max(1, Math.min(safe, n)));
-            }}
-            hideHeader
-            hideFooter
-            labels={originalLabels}
-          />
+        {toolbarPosition === 'left' && hideSourcePanel ? (
+          <aside className="flex max-h-[36vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72">
+            <ParseResultEditorToolbar
+              disabled={!selectedLayoutId}
+              onFlushBeforeFormat={flushEditableText}
+              onEditorStylePatch={onEditorStylePatch}
+              currentEditorStyle={selectedEditorStyle}
+              inspectorControls={inspectorControls}
+              extraFontControls={scaleControl}
+            />
+          </aside>
         ) : null}
         <div
           className={cn(
-            'relative flex min-h-0 min-w-0 flex-col',
-            !hideSourcePanel && 'border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l'
+            'grid min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900',
+            hideSourcePanel
+              ? 'grid-cols-1'
+              : collapsed
+                ? 'grid-cols-1'
+                : 'grid-cols-1 md:grid-cols-[minmax(12rem,1fr)_minmax(0,1.2fr)]'
           )}
         >
-          {doc ? (
-            <ParseResultCanvas
-              doc={doc}
-              pageIndex={activePageIndex}
-              canvasScalePercent={jsonCanvasScale}
-              orientation="portrait"
-              onActivate={() => {}}
-              selectedLayoutId={selectedLayoutId}
-              onSelectLayout={setSelectedLayoutId}
-              onPositionChange={onPositionChange}
-              onTextCommit={onTextCommit}
-              onAutoFitFontSize={onAutoFitFontSize}
+          {!hideSourcePanel ? (
+            <ParseResultOriginalPanel
+              collapsed={collapsed}
+              onToggleCollapse={() => setCollapsed((c) => !c)}
+              file={null}
+              sourcePdfUrl={sourcePdfUrl}
+              pageNum={pdfPageNum}
+              onPdfPageCountChange={(count) => {
+                const safe = Math.max(1, count || 1);
+                setPdfPageTotal(safe);
+                setPdfPageNum((n) => Math.max(1, Math.min(safe, n)));
+              }}
+              hideHeader
+              hideFooter
+              labels={originalLabels}
             />
           ) : null}
+          <div
+            className={cn(
+              'relative flex min-h-0 min-w-0 flex-col',
+              !hideSourcePanel && 'border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l'
+            )}
+          >
+            {doc ? (
+              <ParseResultCanvas
+                doc={doc}
+                pageIndex={activePageIndex}
+                canvasScalePercent={jsonCanvasScale}
+                orientation="portrait"
+                onActivate={() => {}}
+                selectedLayoutId={selectedLayoutId}
+                onSelectLayout={setSelectedLayoutId}
+                onPositionChange={onPositionChange}
+                onTextCommit={onTextCommit}
+                onAutoFitFontSize={onAutoFitFontSize}
+              />
+            ) : null}
+          </div>
         </div>
+        {!(toolbarPosition === 'left' && hideSourcePanel) ? (
+          <aside
+            className={cn(
+              'flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none',
+              hideSourcePanel ? 'md:w-full md:self-stretch' : 'md:w-72 md:self-start'
+            )}
+          >
+            <ParseResultEditorToolbar
+              disabled={!selectedLayoutId}
+              onFlushBeforeFormat={flushEditableText}
+              onEditorStylePatch={onEditorStylePatch}
+              currentEditorStyle={selectedEditorStyle}
+              inspectorControls={inspectorControls}
+              extraFontControls={scaleControl}
+            />
+          </aside>
+        ) : null}
       </div>
-
-      <aside
-        className={cn(
-          'flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none',
-          hideSourcePanel
-            ? 'md:w-full md:self-stretch'
-            : 'md:w-72 md:self-start'
-        )}
-      >
-        <ParseResultEditorToolbar
-          disabled={!selectedLayoutId}
-          onFlushBeforeFormat={flushEditableText}
-          onEditorStylePatch={onEditorStylePatch}
-          currentEditorStyle={selectedEditorStyle}
-          inspectorControls={inspectorControls}
-          extraFontControls={scaleControl}
-        />
-      </aside>
     </div>
   );
 }

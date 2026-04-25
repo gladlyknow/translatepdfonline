@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
+import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
 import { LanguageSelector } from '@/shared/components/translate/LanguageSelector';
 import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
@@ -110,6 +112,7 @@ export function OcrTranslatePageClient() {
   const pathname = usePathname();
   const { setAppearance } = useTranslateHeaderAppearance();
   const footerWorkbench = useTranslateFooterWorkbenchOptional();
+  const shellChrome = useTranslateShellChromeOptional();
   const { resolvedTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
 
@@ -153,6 +156,7 @@ export function OcrTranslatePageClient() {
   const [starting, setStarting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [parsePageJson, setParsePageJson] = useState('');
+  const [lastResumeStage, setLastResumeStage] = useState<string | null>(null);
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -179,6 +183,12 @@ export function OcrTranslatePageClient() {
     if (!footerWorkbench) return;
     footerWorkbench.setWorkbenchOpen(Boolean(documentId));
   }, [documentId, footerWorkbench]);
+
+  useEffect(() => {
+    if (!shellChrome) return;
+    shellChrome.setHeaderCollapsed(true);
+    return () => shellChrome.setHeaderCollapsed(false);
+  }, [shellChrome]);
 
   const effectiveDocumentPageCount = useMemo(
     () =>
@@ -615,6 +625,41 @@ export function OcrTranslatePageClient() {
           </p>
         </div>
 
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <button
+            type="button"
+            onClick={() => router.push('/upload')}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
+            Home
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/upload')}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
+            Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/upload#translate-history')}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/history.png" alt="" width={14} height={14} />
+            Hist & Log
+          </button>
+          <button
+            type="button"
+            onClick={() => shellChrome?.setHeaderCollapsed((shellChrome?.headerCollapsed ?? false) ? false : true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/fold.svg" alt="" width={14} height={14} />
+            File
+          </button>
+        </div>
+
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
           <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
             {tHome('workbenchDocument')}
@@ -725,6 +770,17 @@ export function OcrTranslatePageClient() {
           </div>
         )}
 
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/80">
+          <p className="mb-1 font-semibold text-zinc-700 dark:text-zinc-200">Text edit</p>
+          <p className="text-zinc-500 dark:text-zinc-400">
+            在右侧 JSON 选择块后，可在下方工作台进行文本编辑与样式修正。
+          </p>
+          <p className="mt-2 mb-1 font-semibold text-zinc-700 dark:text-zinc-200">Font settings</p>
+          <p className="text-zinc-500 dark:text-zinc-400">
+            字体、字号、对齐、布局尺寸在工作台侧栏统一调整。
+          </p>
+        </div>
+
         {taskId && (
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/80">
             <div className="flex items-center justify-between gap-2 text-xs">
@@ -768,8 +824,9 @@ export function OcrTranslatePageClient() {
                   if (!taskId) return;
                   setRefreshing(true);
                   try {
-                    await translateApi.retryOcrTask(taskId);
+                    const res = await translateApi.retryOcrTask(taskId);
                     setTaskStatus('queued');
+                    setLastResumeStage(res.resume_stage ?? null);
                     setSubmitError(null);
                     await handleRefreshResult();
                   } catch (e) {
@@ -785,6 +842,11 @@ export function OcrTranslatePageClient() {
                 继续重试
                 {taskDetail?.progress_stage ? ` (${taskDetail.progress_stage})` : ''}
               </button>
+            ) : null}
+            {lastResumeStage ? (
+              <p className="mt-1 text-[11px] text-emerald-700 dark:text-emerald-300">
+                已从阶段 {lastResumeStage} 继续执行
+              </p>
             ) : null}
           </div>
         )}
@@ -868,6 +930,7 @@ export function OcrTranslatePageClient() {
                     setCurrentPage(Math.min(maxP, Math.max(1, idx + 1)));
                   }}
                   onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
+                  toolbarPosition="left"
                 />
               </div>
             </div>

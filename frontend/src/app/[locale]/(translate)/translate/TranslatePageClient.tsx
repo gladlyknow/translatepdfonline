@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
@@ -660,6 +661,25 @@ export function TranslatePageClient() {
         id="translate-workbench-aside"
         className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
       >
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <button
+            type="button"
+            onClick={() => router.push('/upload')}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
+            Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/ocrtranslator')}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Image src="/brand/local/generalocr.svg" alt="" width={14} height={14} />
+            PDF OCR
+          </button>
+        </div>
+
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
             {tHome('workbenchModel')}

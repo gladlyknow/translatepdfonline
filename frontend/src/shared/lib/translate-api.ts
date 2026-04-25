@@ -292,7 +292,7 @@ export const translateApi = {
     fetchTranslateApi<void>(`/api/tasks/${taskId}`, { method: 'DELETE' }),
 
   retryOcrTask: (taskId: string) =>
-    fetchTranslateApi<{ ok: boolean; task_id: string }>(
+    fetchTranslateApi<{ ok: boolean; task_id: string; resume_stage?: string | null }>(
       `/api/ocr/tasks/${taskId}/retry`,
       { method: 'POST' }
     ),

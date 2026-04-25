@@ -75,11 +75,27 @@ function outputKeys(taskId: string) {
   };
 }
 
-async function enqueueNextStage(taskId: string): Promise<void> {
+type EnqueueResult = 'enqueue_ok' | 'fallback_dispatcher';
+
+async function enqueueNextStage(taskId: string, nextStage: OcrStage): Promise<EnqueueResult> {
   const ok = await sendOcrPipelineQueueMessage(taskId);
-  if (!ok) {
-    console.warn('[ocr/stage] enqueue_failed', JSON.stringify({ task_id: taskId }));
-  }
+  if (ok) return 'enqueue_ok';
+  await db()
+    .update(translationTasks)
+    .set({
+      status: 'queued',
+      progressStage: nextStage,
+      progressPercent: stagePercent(nextStage),
+      fcNextAttemptAt: new Date(),
+      fcInvokeLeaseUntil: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(translationTasks.id, taskId));
+  console.warn(
+    '[ocr/stage] enqueue_failed',
+    JSON.stringify({ task_id: taskId, next_stage: nextStage, fallback: 'dispatcher' })
+  );
+  return 'fallback_dispatcher';
 }
 
 function needTranslateForTask(sourceLang: string, targetLang: string): boolean {
@@ -330,13 +346,14 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     }
 
     await markStageQueued(taskId, nextStage, stagePercent(nextStage));
-    await enqueueNextStage(taskId);
+    const enqueueResult = await enqueueNextStage(taskId, nextStage);
     console.log(
       '[ocr/stage] done',
       JSON.stringify({
         task_id: taskId,
         stage,
         next_stage: nextStage,
+        enqueue_result: enqueueResult,
         elapsed_ms: Date.now() - startedAt,
       })
     );
@@ -359,13 +376,14 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
           updatedAt: new Date(),
         })
         .where(eq(translationTasks.id, taskId));
-      await enqueueNextStage(taskId);
+      const enqueueResult = await enqueueNextStage(taskId, stage);
       console.warn(
         '[ocr/stage] retry',
         JSON.stringify({
           task_id: taskId,
           stage,
           attempt: thisAttempt,
+          enqueue_result: enqueueResult,
           error: e instanceof Error ? e.message : String(e),
         })
       );
@@ -398,7 +416,10 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
   }
 }
 
-export async function retryOcrTaskFromFailedStage(taskId: string): Promise<boolean> {
+export async function retryOcrTaskFromFailedStage(taskId: string): Promise<{
+  ok: boolean;
+  resumeStage?: OcrStage;
+}> {
   const [row] = await db()
     .select({
       id: translationTasks.id,
@@ -409,7 +430,9 @@ export async function retryOcrTaskFromFailedStage(taskId: string): Promise<boole
     .from(translationTasks)
     .where(eq(translationTasks.id, taskId))
     .limit(1);
-  if (!row || !row.preprocessWithOcr || row.status !== 'failed') return false;
+  if (!row || !row.preprocessWithOcr || row.status !== 'failed') {
+    return { ok: false };
+  }
   const stage = normalizeStage(row.progressStage);
   await db()
     .update(translationTasks)
@@ -425,8 +448,8 @@ export async function retryOcrTaskFromFailedStage(taskId: string): Promise<boole
       updatedAt: new Date(),
     })
     .where(eq(translationTasks.id, taskId));
-  await enqueueNextStage(taskId);
-  return true;
+  await enqueueNextStage(taskId, stage);
+  return { ok: true, resumeStage: stage };
 }
 
 export async function dispatchPendingOcrJobs(limit = DEFAULT_OCR_BATCH_SIZE): Promise<{

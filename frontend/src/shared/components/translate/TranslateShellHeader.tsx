@@ -10,6 +10,7 @@ import type { UserNav } from '@/shared/types/blocks/common';
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
 import { useTranslateHistoryDrawerOptional } from '@/shared/contexts/translate-history-drawer';
+import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
 
 /**
  * 翻译页专用顶栏：品牌区（T + PDF）链首页、Pricing / Docs / History、登录与用户菜单
@@ -25,9 +26,30 @@ export function TranslateShellHeader({
   const brand = variant === 'ocr' ? t('brandShortOcr') : t('brandShort');
   const router = useRouter();
   const historyDrawer = useTranslateHistoryDrawerOptional();
+  const shellChrome = useTranslateShellChromeOptional();
   const { appearance } = useTranslateHeaderAppearance();
   const onDark = appearance === 'onDark';
   const logoSrc = cacheBustedPublicPath(envConfigs.app_logo);
+
+  if (shellChrome?.headerCollapsed) {
+    return (
+      <header
+        className={
+          onDark
+            ? 'flex h-8 shrink-0 items-center justify-center border-b border-white/10 bg-slate-950/90'
+            : 'flex h-8 shrink-0 items-center justify-center border-b border-zinc-200/90 bg-white/95 dark:border-zinc-800 dark:bg-zinc-950/95'
+        }
+      >
+        <button
+          type="button"
+          onClick={() => shellChrome.setHeaderCollapsed(false)}
+          className="text-[11px] font-medium text-zinc-500 underline hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
+        >
+          展开页首
+        </button>
+      </header>
+    );
+  }
 
   return (
     <header

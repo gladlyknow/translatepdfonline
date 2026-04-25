@@ -9,6 +9,7 @@ import type { UserNav } from '@/shared/types/blocks/common';
 import { TranslateFooterWorkbenchProvider } from '@/shared/contexts/translate-footer-workbench';
 import { TranslateHistoryDrawerProvider } from '@/shared/contexts/translate-history-drawer';
 import { TranslateHeaderAppearanceProvider } from '@/shared/contexts/translate-header-appearance';
+import { TranslateShellChromeProvider } from '@/shared/contexts/translate-shell-chrome';
 
 export function TranslateAppShell({
   children,
@@ -26,15 +27,17 @@ export function TranslateAppShell({
   return (
     <TranslateHeaderAppearanceProvider defaultAppearance="onDark">
       <TranslateFooterWorkbenchProvider>
-        <TranslateHistoryDrawerProvider>
-          <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-            <TranslateShellHeader userNav={userNav} variant={shellVariant} />
-            <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
-              {children}
-            </main>
-            {footer}
-          </div>
-        </TranslateHistoryDrawerProvider>
+        <TranslateShellChromeProvider>
+          <TranslateHistoryDrawerProvider>
+            <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+              <TranslateShellHeader userNav={userNav} variant={shellVariant} />
+              <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
+                {children}
+              </main>
+              {footer}
+            </div>
+          </TranslateHistoryDrawerProvider>
+        </TranslateShellChromeProvider>
       </TranslateFooterWorkbenchProvider>
     </TranslateHeaderAppearanceProvider>
   );
