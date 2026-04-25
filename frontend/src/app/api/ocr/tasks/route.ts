@@ -87,8 +87,8 @@ export async function POST(req: Request) {
     if (!queuedOnCf) {
       const running = dispatchPendingOcrJobs(
         Math.min(
-          2,
-          Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '2', 10) || 2)
+          1,
+          Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '1', 10) || 1)
         )
       );
       if (isCloudflareWorker) {

@@ -3,6 +3,9 @@
   "brandShortOcr": "OCR Translator",
   "brandSubtitleOcr": "Scans & image PDFs",
   "navAria": "Main",
+  "navPdfTranslate": "PDF Translate",
+  "navPdfOcr": "PDF OCR",
+  "navUpload": "Upload",
   "pricing": "Pricing",
   "docs": "Docs",
   "historyNav": "History"

@@ -73,17 +73,18 @@ export function UploadPageClient() {
               )}
               onClick={() => router.push('/translate')}
             >
-              PDF Translate
+              {tHome('uploadPdfTranslateCta')}
             </button>
             <button
               type="button"
               className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => router.push('/ocrtranslator')}
             >
-              PDF OCR
+              {tHome('uploadPdfOcrCta')}
             </button>
           </div>
         }
+        uploadAreaHint={<span>{tHome('uploadOcrHint')}</span>}
         postUploadActions={
           uploadedDocumentId ? (
             <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white/90 px-3 py-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/80">

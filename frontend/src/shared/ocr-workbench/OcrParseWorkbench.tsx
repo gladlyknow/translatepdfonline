@@ -60,6 +60,7 @@ export function OcrParseWorkbench({
   onWorkbenchPageJson,
   toolbarPosition = 'bottom',
   toolbarId,
+  toolbarSectionIds,
 }: {
   taskId: string;
   parseResultUrl: string | null;
@@ -74,6 +75,12 @@ export function OcrParseWorkbench({
   onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
   toolbarPosition?: 'bottom' | 'left';
   toolbarId?: string;
+  toolbarSectionIds?: {
+    textEdit?: string;
+    fontSettings?: string;
+    blockProps?: string;
+    file?: string;
+  };
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -509,6 +516,53 @@ export function OcrParseWorkbench({
     [jsonCanvasScale, t]
   );
 
+  const fileControls = useMemo(
+    () => (
+      <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!doc || !canUndo}
+            onClick={undo}
+          >
+            <Undo2 className="mr-1 size-3.5" />
+            {t('parseDemoUndo')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!doc || !canRedo}
+            onClick={redo}
+          >
+            <Redo2 className="mr-1 size-3.5" />
+            {t('parseDemoRedo')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!doc || saving}
+            onClick={() => void saveToServer()}
+          >
+            {saving ? (
+              <Loader2 className="mr-1 size-3.5 animate-spin" />
+            ) : (
+              <Save className="mr-1 size-3.5" />
+            )}
+            {t('parseDemoSaveNow')}
+          </Button>
+        </div>
+        <Button type="button" variant="secondary" size="sm" disabled={!doc} onClick={exportMd}>
+          {t('parseDemoExportMd')}
+        </Button>
+      </div>
+    ),
+    [canRedo, canUndo, doc, exportMd, redo, saveToServer, saving, t, undo]
+  );
+
   if (!parseResultUrl) {
     return (
       <p className="text-sm text-zinc-500 dark:text-zinc-400">{t('noParseUrl')}</p>
@@ -602,7 +656,7 @@ export function OcrParseWorkbench({
       </div>
       {!selectedLayoutId ? (
         <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
-          Select a text block on the canvas, then drag/resize or edit style in the toolbar.
+          {t('selectBlockHint')}
         </p>
       ) : null}
 
@@ -624,6 +678,8 @@ export function OcrParseWorkbench({
               currentEditorStyle={selectedEditorStyle}
               inspectorControls={inspectorControls}
               extraFontControls={scaleControl}
+              fileControls={fileControls}
+              sectionIds={toolbarSectionIds}
             />
           </aside>
         ) : null}
@@ -691,6 +747,8 @@ export function OcrParseWorkbench({
               currentEditorStyle={selectedEditorStyle}
               inspectorControls={inspectorControls}
               extraFontControls={scaleControl}
+              fileControls={fileControls}
+              sectionIds={toolbarSectionIds}
             />
           </aside>
         ) : null}

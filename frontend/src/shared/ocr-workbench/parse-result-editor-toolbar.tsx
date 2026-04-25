@@ -44,6 +44,13 @@ type Props = {
   };
   inspectorControls?: ReactNode;
   extraFontControls?: ReactNode;
+  fileControls?: ReactNode;
+  sectionIds?: {
+    textEdit?: string;
+    fontSettings?: string;
+    blockProps?: string;
+    file?: string;
+  };
 };
 
 /** 避免按钮抢走 contentEditable 焦点，否则 execCommand 无效 */
@@ -373,6 +380,8 @@ export function ParseResultEditorToolbar({
   currentEditorStyle,
   inspectorControls,
   extraFontControls,
+  fileControls,
+  sectionIds,
 }: Props) {
   const t = useTranslations('translate.ocrWorkbench');
   const [fontFamily, setFontFamily] = useState('system-ui,sans-serif');
@@ -423,7 +432,7 @@ export function ParseResultEditorToolbar({
       onBlurCapture={() => endToolbarSelectionGuard()}
       className="flex w-full min-w-0 shrink-0 flex-col gap-2"
     >
-      <section className={toolbarPanelClass}>
+      <section id={sectionIds?.textEdit} className={toolbarPanelClass}>
         <p className={toolbarPanelTitleClass}>{t('toolbarTextEdit')}</p>
         <div className="grid grid-cols-3 gap-1.5">
           <Button
@@ -453,7 +462,6 @@ export function ParseResultEditorToolbar({
               }
               queueMicrotask(refreshFormatState);
             }}
-            title="Bold"
           >
             <Bold />
           </Button>
@@ -478,7 +486,6 @@ export function ParseResultEditorToolbar({
               }
               queueMicrotask(refreshFormatState);
             }}
-            title="Italic"
           >
             <Italic />
           </Button>
@@ -543,7 +550,6 @@ export function ParseResultEditorToolbar({
             onClick={() => {
               insertListCommand('ul', exec, onFlushBeforeFormat, refreshFormatState);
             }}
-            title="Bullet list"
           >
             <List />
           </Button>
@@ -557,7 +563,6 @@ export function ParseResultEditorToolbar({
             onClick={() => {
               insertListCommand('ol', exec, onFlushBeforeFormat, refreshFormatState);
             }}
-            title="Numbered list"
           >
             <ListOrdered />
           </Button>
@@ -580,7 +585,6 @@ export function ParseResultEditorToolbar({
               }
               queueMicrotask(refreshFormatState);
             }}
-            title="Paragraph"
           >
             P
           </Button>
@@ -695,7 +699,7 @@ export function ParseResultEditorToolbar({
         </div>
       </section>
 
-      <section className={toolbarPanelClass}>
+      <section id={sectionIds?.fontSettings} className={toolbarPanelClass}>
         <p className={toolbarPanelTitleClass}>{t('toolbarFontSettings')}</p>
         <div className="grid min-w-0 grid-cols-3 gap-1.5">
           <select
@@ -810,9 +814,15 @@ export function ParseResultEditorToolbar({
       </section>
 
       {inspectorControls ? (
-        <section className={toolbarPanelClass}>
+        <section id={sectionIds?.blockProps} className={toolbarPanelClass}>
           <p className={toolbarPanelTitleClass}>{t('toolbarBlockProps')}</p>
           <div className="min-w-0">{inspectorControls}</div>
+        </section>
+      ) : null}
+      {fileControls ? (
+        <section id={sectionIds?.file} className={toolbarPanelClass}>
+          <p className={toolbarPanelTitleClass}>{t('toolbarFileOps')}</p>
+          <div className="min-w-0">{fileControls}</div>
         </section>
       ) : null}
     </div>

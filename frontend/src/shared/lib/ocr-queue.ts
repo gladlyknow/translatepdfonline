@@ -21,8 +21,8 @@ type OcrStage =
   | 'completed';
 
 const DEFAULT_OCR_BATCH_SIZE = Math.min(
-  2,
-  Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
+  1,
+  Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '1') || 1)
 );
 const OCR_TASK_TIMEOUT_MS = 20 * 60 * 1000;
 const DEFAULT_MAX_ATTEMPTS = Math.max(
@@ -79,7 +79,7 @@ function outputKeys(taskId: string) {
   };
 }
 
-type EnqueueResult = 'enqueue_ok' | 'fallback_inline' | 'fallback_dispatcher';
+type EnqueueResult = 'enqueue_ok' | 'fallback_dispatcher';
 
 async function enqueueNextStage(taskId: string, nextStage: OcrStage): Promise<EnqueueResult> {
   const ok = await sendOcrPipelineQueueMessage(taskId);
@@ -173,11 +173,22 @@ async function runOneStage(params: {
     } else {
       finalMarkdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
     }
-    await exportMarkdownToPdfAndMd({
+    const exportMeta = await exportMarkdownToPdfAndMd({
       markdown: finalMarkdown,
       outputPdfObjectKey: keys.outputPdfObjectKey,
       outputMdObjectKey: keys.outputMdObjectKey,
     });
+    console.log(
+      '[ocr/export] done',
+      JSON.stringify({
+        task_id: params.taskId,
+        markdown_chars: exportMeta.markdownChars,
+        markdown_bytes: exportMeta.markdownBytes,
+        pdf_render_chars: exportMeta.pdfRenderChars,
+        pdf_bytes: exportMeta.pdfBytes,
+        pdf_truncated: exportMeta.pdfTruncated,
+      })
+    );
     return 'completed';
   }
 
@@ -370,11 +381,7 @@ export async function invokeOcrPipelineForTask(
     }
 
     await markStageQueued(taskId, nextStage, stagePercent(nextStage));
-    let enqueueResult = await enqueueNextStage(taskId, nextStage);
-    if (enqueueResult === 'fallback_dispatcher' && inlineDepth < 1) {
-      await invokeOcrPipelineForTask(taskId, inlineDepth + 1);
-      enqueueResult = 'fallback_inline';
-    }
+    const enqueueResult = await enqueueNextStage(taskId, nextStage);
     console.log(
       '[ocr/stage] done',
       JSON.stringify({
@@ -382,6 +389,7 @@ export async function invokeOcrPipelineForTask(
         stage,
         next_stage: nextStage,
         enqueue_result: enqueueResult,
+          inline_depth: inlineDepth,
         elapsed_ms: Date.now() - startedAt,
       })
     );
@@ -405,10 +413,6 @@ export async function invokeOcrPipelineForTask(
         })
         .where(eq(translationTasks.id, taskId));
       let enqueueResult = await enqueueNextStage(taskId, stage);
-      if (enqueueResult === 'fallback_dispatcher' && inlineDepth < 1) {
-        await invokeOcrPipelineForTask(taskId, inlineDepth + 1);
-        enqueueResult = 'fallback_inline';
-      }
       console.warn(
         '[ocr/stage] retry',
         JSON.stringify({
@@ -416,6 +420,7 @@ export async function invokeOcrPipelineForTask(
           stage,
           attempt: thisAttempt,
           enqueue_result: enqueueResult,
+          inline_depth: inlineDepth,
           error: e instanceof Error ? e.message : String(e),
         })
       );

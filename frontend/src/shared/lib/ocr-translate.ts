@@ -478,7 +478,13 @@ export async function exportMarkdownToPdfAndMd(params: {
   markdown: string;
   outputPdfObjectKey: string;
   outputMdObjectKey: string;
-}): Promise<{ pdfTruncated: boolean; markdownChars: number; pdfRenderChars: number }> {
+}): Promise<{
+  pdfTruncated: boolean;
+  markdownChars: number;
+  pdfRenderChars: number;
+  markdownBytes: number;
+  pdfBytes: number;
+}> {
   const mdBytes = new TextEncoder().encode(params.markdown);
   const pdfMarkdown =
     params.markdown.length > OCR_PDF_RENDER_MAX_CHARS
@@ -491,6 +497,8 @@ export async function exportMarkdownToPdfAndMd(params: {
     pdfTruncated: params.markdown.length > OCR_PDF_RENDER_MAX_CHARS,
     markdownChars: params.markdown.length,
     pdfRenderChars: pdfMarkdown.length,
+    markdownBytes: mdBytes.byteLength,
+    pdfBytes: pdfBytes.byteLength,
   };
 }
 

@@ -668,7 +668,7 @@ export function TranslatePageClient() {
             className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
-            Upload
+            {tHome('step1Title')}
           </button>
           <button
             type="button"
@@ -676,7 +676,7 @@ export function TranslatePageClient() {
             className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             <Image src="/brand/local/generalocr.svg" alt="" width={14} height={14} />
-            PDF OCR
+            {tHome('uploadPdfOcrCta')}
           </button>
         </div>
 

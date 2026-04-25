@@ -38,6 +38,8 @@ type Props = {
   heroActions?: ReactNode;
   /** 上传完成后的后续动作 */
   postUploadActions?: ReactNode;
+  /** 上传区内补充说明（如 OCR 使用场景） */
+  uploadAreaHint?: ReactNode;
 };
 
 export function TranslateLandingSections({
@@ -51,6 +53,7 @@ export function TranslateLandingSections({
   funnelToolbar,
   heroActions,
   postUploadActions,
+  uploadAreaHint,
 }: Props) {
   const t = useTranslations('translate.home');
   const { resolvedTheme } = useTheme();
@@ -128,18 +131,46 @@ export function TranslateLandingSections({
           <p className="mt-4 max-w-2xl text-center text-base text-zinc-600 dark:text-zinc-300 sm:text-lg">
             {t('heroSubtitle')}
           </p>
-          {heroActions ? (
-            <div className="mt-4 flex w-full justify-center">{heroActions}</div>
-          ) : null}
-
           <div className="mt-10 w-full">
-            <UploadDropzone
-              onUploaded={onUploaded}
-              initialFile={initialFile}
-              variant="hero"
-              heroTone={isDarkFunnel ? 'dark' : 'light'}
-              onRequireSignIn={onRequireSignIn}
-            />
+            <div className="rounded-2xl border border-zinc-200 bg-white/80 p-3 backdrop-blur-sm dark:border-white/15 dark:bg-white/5">
+              <UploadDropzone
+                onUploaded={onUploaded}
+                initialFile={initialFile}
+                variant="hero"
+                heroTone={isDarkFunnel ? 'dark' : 'light'}
+                onRequireSignIn={onRequireSignIn}
+              />
+              <div className="mt-3 rounded-xl border border-zinc-200 bg-white/90 p-3 dark:border-zinc-700 dark:bg-zinc-950/70">
+                <div className="flex flex-wrap items-end gap-2 md:gap-3">
+                  {heroActions ? (
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                      {heroActions}
+                    </div>
+                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    <TranslateLanguagePickers
+                      sourceLang={sourceLang}
+                      targetLang={targetLang}
+                      onSourceLangChange={onSourceLangChange}
+                      onTargetLangChange={onTargetLangChange}
+                      appearance={isDarkFunnel ? 'funnelDark' : 'default'}
+                      layout="inline"
+                      showHint={false}
+                    />
+                  </div>
+                </div>
+                {uploadAreaHint ? (
+                  <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-300">
+                    {uploadAreaHint}
+                  </div>
+                ) : null}
+                {postUploadActions ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {postUploadActions}
+                  </div>
+                ) : null}
+              </div>
+            </div>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               {formatPills.map((label) => (
                 <span
@@ -154,19 +185,6 @@ export function TranslateLandingSections({
               {t('uploadFileNotice')}
             </p>
           </div>
-
-          <div className="mt-6 w-full">
-            <TranslateLanguagePickers
-              sourceLang={sourceLang}
-              targetLang={targetLang}
-              onSourceLangChange={onSourceLangChange}
-              onTargetLangChange={onTargetLangChange}
-              appearance={isDarkFunnel ? 'funnelDark' : 'default'}
-            />
-          </div>
-          {postUploadActions ? (
-            <div className="mt-4 flex w-full justify-center">{postUploadActions}</div>
-          ) : null}
 
           <div className="mt-12 w-full">
             <BeforeAfterPdfCompare imageFit="contain" />

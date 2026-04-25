@@ -102,6 +102,39 @@ export function TranslateShellHeader({
 
       <nav className="flex items-center gap-1 sm:gap-4" aria-label={t('navAria')}>
         <Link
+          href="/translate"
+          title={t('navPdfTranslate')}
+          className={
+            onDark
+              ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
+              : 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+          }
+        >
+          {t('navPdfTranslate')}
+        </Link>
+        <Link
+          href="/ocrtranslator"
+          title={t('navPdfOcr')}
+          className={
+            onDark
+              ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
+              : 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+          }
+        >
+          {t('navPdfOcr')}
+        </Link>
+        <Link
+          href="/upload"
+          title={t('navUpload')}
+          className={
+            onDark
+              ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
+              : 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+          }
+        >
+          {t('navUpload')}
+        </Link>
+        <Link
           href="/pricing"
           title={t('pricing')}
           className={

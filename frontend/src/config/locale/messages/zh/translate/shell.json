@@ -3,6 +3,9 @@
   "brandShortOcr": "OCR 翻译",
   "brandSubtitleOcr": "扫描件与图片型 PDF",
   "navAria": "主导航",
+  "navPdfTranslate": "PDF Translate",
+  "navPdfOcr": "PDF OCR",
+  "navUpload": "上传",
   "pricing": "定价",
   "docs": "文档",
   "historyNav": "历史"

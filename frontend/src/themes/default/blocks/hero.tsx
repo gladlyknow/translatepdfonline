@@ -196,6 +196,18 @@ export function Hero({
               <Button
                 asChild
                 size="sm"
+                variant="outline"
+                className="border-zinc-300 bg-transparent px-4 text-xs text-zinc-900 shadow-none hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/30 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                <Link href="/upload" title={tHome('homeUploadCta')}>
+                  <span>{tHome('homeUploadCta')}</span>
+                </Link>
+              </Button>
+            ) : null}
+            {isTranslateDark ? (
+              <Button
+                asChild
+                size="sm"
                 className={cn('px-4 text-xs', TRANSLATE_PRIMARY_CTA_CLASSNAME)}
               >
                 <Link href="/ocrtranslator" title={tHome('homeOcrBridgeCta')}>

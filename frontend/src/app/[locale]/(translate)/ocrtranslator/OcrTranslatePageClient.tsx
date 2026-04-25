@@ -12,7 +12,6 @@ import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
 import { LanguageSelector } from '@/shared/components/translate/LanguageSelector';
-import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
 import {
   Sheet,
   SheetContent,
@@ -58,6 +57,11 @@ const SOURCE_LANG_PARAM = 'source_lang';
 const TARGET_LANG_PARAM = 'target_lang';
 const POLL_INTERVAL_MS_ACTIVE = 10_000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
+const OCR_TOOLBAR_ID = 'ocr-workbench-toolbar';
+const OCR_TOOLBAR_TEXT_EDIT_ID = 'ocr-workbench-toolbar-text-edit';
+const OCR_TOOLBAR_FONT_SETTINGS_ID = 'ocr-workbench-toolbar-font-settings';
+const OCR_TOOLBAR_BLOCK_PROPS_ID = 'ocr-workbench-toolbar-block-props';
+const OCR_TOOLBAR_FILE_ID = 'ocr-workbench-toolbar-file';
 
 type OcrUiLog = {
   at: string;
@@ -190,6 +194,14 @@ export function OcrTranslatePageClient() {
       created_at: string;
     }>
   >([]);
+  const [recentDocuments, setRecentDocuments] = useState<
+    Array<{
+      id: string;
+      filename: string;
+      size_bytes: number;
+      created_at: string;
+    }>
+  >([]);
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -199,11 +211,19 @@ export function OcrTranslatePageClient() {
   } | null>(null);
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
 
-  const openToolbarPanel = useCallback(() => {
-    const el = document.getElementById('ocr-workbench-toolbar');
+  const openToolbarSection = useCallback((id: string) => {
+    const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+
+  const openTextEditPanel = useCallback(() => {
+    openToolbarSection(OCR_TOOLBAR_TEXT_EDIT_ID);
+  }, [openToolbarSection]);
+
+  const openFontSettingsPanel = useCallback(() => {
+    openToolbarSection(OCR_TOOLBAR_FONT_SETTINGS_ID);
+  }, [openToolbarSection]);
 
   useEffect(() => {
     setThemeMounted(true);
@@ -491,7 +511,10 @@ export function OcrTranslatePageClient() {
     let cancelled = false;
     const loadRecent = async () => {
       try {
-        const tasks = await translateApi.listTasks();
+        const [tasks, docs] = await Promise.all([
+          translateApi.listTasks(),
+          translateApi.listDocuments(),
+        ]);
         if (cancelled) return;
         const normalized = tasks
           .filter((one) => one.preprocess_with_ocr)
@@ -504,8 +527,19 @@ export function OcrTranslatePageClient() {
             created_at: one.created_at,
           }));
         setRecentOcrTasks(normalized);
+        setRecentDocuments(
+          docs.slice(0, 20).map((one) => ({
+            id: one.id,
+            filename: one.filename,
+            size_bytes: one.size_bytes,
+            created_at: one.created_at,
+          }))
+        );
       } catch {
-        if (!cancelled) setRecentOcrTasks([]);
+        if (!cancelled) {
+          setRecentOcrTasks([]);
+          setRecentDocuments([]);
+        }
       }
     };
     void loadRecent();
@@ -616,6 +650,40 @@ export function OcrTranslatePageClient() {
     return t(keyMap[s] ?? 'status');
   };
 
+  const stageLabel = useCallback(
+    (stage: string) => {
+      const keyMap: Record<string, string> = {
+        ocr_submit_poll: 'stageOcrSubmitPoll',
+        ocr_parse_persisted: 'stageOcrParsePersisted',
+        translate_markdown: 'stageTranslateMarkdown',
+        export_outputs: 'stageExportOutputs',
+        completed: 'stageCompleted',
+        task_created: 'stageTaskCreated',
+      };
+      const key = keyMap[stage];
+      if (key) return tOcrWb(key);
+      return stage.replace(/_/g, ' ');
+    },
+    [tOcrWb]
+  );
+
+  const logStatusLabel = useCallback(
+    (status: string) => {
+      const keyMap: Record<string, string> = {
+        info: 'statusInfo',
+        retry: 'statusRetry',
+        queued: 'statusQueued',
+        processing: 'statusProcessing',
+        completed: 'statusCompleted',
+        failed: 'statusFailed',
+      };
+      const key = keyMap[status];
+      if (key) return tOcrWb(key);
+      return status;
+    },
+    [tOcrWb]
+  );
+
   const taskProgress = (() => {
     if (!taskId) return 0;
     if (taskStatus === 'failed') return 0;
@@ -642,7 +710,7 @@ export function OcrTranslatePageClient() {
         at: taskDetail.created_at,
         stage: 'task_created',
         status: 'info',
-        message: '任务已创建',
+        message: tOcrWb('logTaskCreated'),
       });
     }
     if (taskDetail?.progress_stage) {
@@ -650,7 +718,9 @@ export function OcrTranslatePageClient() {
         at: taskDetail.updated_at || new Date().toISOString(),
         stage: taskDetail.progress_stage,
         status: taskDetail.status || 'processing',
-        message: `当前阶段：${taskDetail.progress_stage}`,
+        message: tOcrWb('logCurrentStage', {
+          stage: stageLabel(taskDetail.progress_stage),
+        }),
       });
     }
     if (taskDetail?.error_code || taskDetail?.error_message) {
@@ -658,7 +728,9 @@ export function OcrTranslatePageClient() {
         at: taskDetail.updated_at || new Date().toISOString(),
         stage: taskDetail.progress_stage || 'failed',
         status: 'failed',
-        message: sanitizeUiLogMessage(taskDetail.error_message || taskDetail.error_code || '任务失败'),
+        message: sanitizeUiLogMessage(
+          taskDetail.error_message || taskDetail.error_code || tOcrWb('logTaskFailed')
+        ),
       });
     }
     if (lastResumeStage) {
@@ -666,11 +738,13 @@ export function OcrTranslatePageClient() {
         at: new Date().toISOString(),
         stage: lastResumeStage,
         status: 'retry',
-        message: `已从失败阶段继续：${lastResumeStage}`,
+        message: tOcrWb('logResumeFromFailed', {
+          stage: stageLabel(lastResumeStage),
+        }),
       });
     }
     return logs.slice(-8);
-  }, [taskId, taskDetail, lastResumeStage]);
+  }, [taskId, taskDetail, lastResumeStage, tOcrWb, stageLabel]);
 
   const sourcePdfUrl = documentId ? sourceSliceUrl : '';
   const targetPdfUrl =
@@ -699,22 +773,6 @@ export function OcrTranslatePageClient() {
   useEffect(() => {
     setParsePageJson('');
   }, [ocrParseResultUrl, taskId]);
-
-  if (!documentId) {
-    return (
-      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-        <TranslateLandingSections
-          onUploaded={handleUploaded}
-          initialFile={lastUploadedFile}
-          sourceLang={sourceLang}
-          targetLang={targetLang}
-          onSourceLangChange={setSourceLang}
-          onTargetLangChange={setTargetLang}
-          onRequireSignIn={handleRequireSignInForUpload}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
@@ -874,14 +932,14 @@ export function OcrTranslatePageClient() {
           <div className="flex flex-col gap-2">
             <button
               type="button"
-              onClick={openToolbarPanel}
+              onClick={openTextEditPanel}
               className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('openTextEdit')}
             </button>
             <button
               type="button"
-              onClick={openToolbarPanel}
+              onClick={openFontSettingsPanel}
               className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('openFontSettings')}
@@ -950,13 +1008,13 @@ export function OcrTranslatePageClient() {
                 }}
                 disabled={refreshing}
               >
-                继续重试
+                {tOcrWb('retryTask')}
                 {taskDetail?.progress_stage ? ` (${taskDetail.progress_stage})` : ''}
               </button>
             ) : null}
             {lastResumeStage ? (
               <p className="mt-1 text-[11px] text-emerald-700 dark:text-emerald-300">
-                已从阶段 {lastResumeStage} 继续执行
+                {tOcrWb('resumedFromStage', { stage: lastResumeStage })}
               </p>
             ) : null}
           </div>
@@ -1042,7 +1100,13 @@ export function OcrTranslatePageClient() {
                   }}
                   onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
                   toolbarPosition="left"
-                  toolbarId="ocr-workbench-toolbar"
+                  toolbarId={OCR_TOOLBAR_ID}
+                  toolbarSectionIds={{
+                    textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
+                    fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
+                    blockProps: OCR_TOOLBAR_BLOCK_PROPS_ID,
+                    file: OCR_TOOLBAR_FILE_ID,
+                  }}
                 />
               </div>
             </div>
@@ -1118,6 +1182,42 @@ export function OcrTranslatePageClient() {
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                {tOcrWb('uploadedFileTitle')}
+              </p>
+              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+                {recentDocuments.length === 0 ? (
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {tOcrWb('uploadedFileEmpty')}
+                  </p>
+                ) : (
+                  recentDocuments.map((one) => (
+                    <button
+                      key={one.id}
+                      type="button"
+                      onClick={() => {
+                        setDocumentId(one.id);
+                        setFilename(one.filename);
+                        setLastUploadedFile({
+                          name: one.filename,
+                          size: one.size_bytes,
+                        });
+                        setHistoryLogOpen(false);
+                      }}
+                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    >
+                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
+                        {one.filename}
+                      </p>
+                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
+                        {(one.size_bytes / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('recentTaskTitle')}
               </p>
               <div className="max-h-40 space-y-1 overflow-auto pr-1">
@@ -1141,7 +1241,7 @@ export function OcrTranslatePageClient() {
                         {one.id}
                       </p>
                       <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
-                        {one.status}
+                        {statusLabel(one.status)}
                       </p>
                     </button>
                   ))
@@ -1159,7 +1259,7 @@ export function OcrTranslatePageClient() {
                   uiLogs.map((log, idx) => (
                     <div key={`${log.at}-${idx}`} className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
                       <p className="font-medium text-zinc-700 dark:text-zinc-200">
-                        {log.stage} · {log.status}
+                        {stageLabel(log.stage)} · {logStatusLabel(log.status)}
                       </p>
                       <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">{log.message}</p>
                     </div>

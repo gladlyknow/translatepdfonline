@@ -653,6 +653,8 @@ export function TranslateLanguagePickers({
   onSourceLangChange,
   onTargetLangChange,
   appearance = 'default',
+  layout = 'stack',
+  showHint = true,
 }: {
   sourceLang: UILang | '';
   targetLang: UILang | '';
@@ -660,6 +662,8 @@ export function TranslateLanguagePickers({
   onTargetLangChange: (v: UILang | '') => void;
   /** 深色 Hero 上的浅色文案与控件 */
   appearance?: 'default' | 'funnelDark';
+  layout?: 'stack' | 'inline';
+  showHint?: boolean;
 }) {
   const t = useTranslations('translate.translate');
   const tLang = useTranslations('translate.languages');
@@ -667,8 +671,20 @@ export function TranslateLanguagePickers({
   const tone = darkHero ? 'darkHero' : 'default';
 
   return (
-    <div className="mx-auto w-full max-w-xl">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div
+      className={
+        layout === 'inline'
+          ? 'w-full'
+          : 'mx-auto w-full max-w-xl'
+      }
+    >
+      <div
+        className={
+          layout === 'inline'
+            ? 'grid grid-cols-1 gap-2 md:grid-cols-2'
+            : 'grid grid-cols-1 gap-4 sm:grid-cols-2'
+        }
+      >
         <LanguageSelector
           value={sourceLang}
           onChange={onSourceLangChange}
@@ -684,18 +700,20 @@ export function TranslateLanguagePickers({
           tone={tone}
         />
       </div>
-      <p
-        className={`mt-3 text-center text-sm ${
-          darkHero ? 'text-zinc-300' : 'text-zinc-500 dark:text-zinc-400'
-        }`}
-      >
-        {sourceLang && targetLang
-          ? t('confirmDirection', {
-              source: tLang(sourceLang),
-              target: tLang(targetLang),
-            })
-          : t('selectBothLanguages')}
-      </p>
+      {showHint ? (
+        <p
+          className={`mt-3 text-center text-sm ${
+            darkHero ? 'text-zinc-300' : 'text-zinc-500 dark:text-zinc-400'
+          }`}
+        >
+          {sourceLang && targetLang
+            ? t('confirmDirection', {
+                source: tLang(sourceLang),
+                target: tLang(targetLang),
+              })
+            : t('selectBothLanguages')}
+        </p>
+      ) : null}
     </div>
   );
 }
