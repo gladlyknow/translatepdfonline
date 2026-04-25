@@ -10,6 +10,8 @@
  * 这样 **无需** 在控制台维护两套完全相同的变量。
  *
  * 另：`wrangler deploy --keep-vars` 保留的是 **运行时** 控制台已有变量，与「构建变量不进运行时」是两件事。
+ * OpenNext：`opennextjs-cloudflare build` 后会生成 `.wrangler/deploy/config.json` 指向另一份部署配置，
+ *   那份文件默认 **不含** `keep_vars`，会覆盖你在控制台配的变量；见 `scripts/patch-opennext-deploy-keep-vars.js`（在 build 后自动补上）。
  *
  * Postgres：若配置 **[[hyperdrive]]**，运行时 `getPostgresDb()` 使用 Hyperdrive 连接串；否则使用 `[vars]` / 密钥中的 `DATABASE_URL`（见 `src/core/db/postgres.ts`）。
  * 敏感串推荐只配 Worker Variables and secrets；`HYPERDRIVE_CONFIG_ID` 构建注入可写入下方 Hyperdrive `id`。
