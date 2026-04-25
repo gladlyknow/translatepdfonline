@@ -96,6 +96,8 @@
   "creditsRemaining": "Credits",
   "creditsLoadHint": "Sign in to see your credit balance.",
   "buyCredits": "Buy credits",
+  "goToTranslate": "Go to Translate",
+  "goToPdfOcr": "Go to PDF OCR",
   "uploadFirstHint": "Upload a PDF on the left, then choose languages and start translation.",
   "historyWorkflowHint": "Roughly ~30 seconds per page on average.\nAfter you submit, you may leave this page and check History later.\nFailed jobs are not charged—you can submit again.\nSupport: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "You entered {userRange}. This document has {docPages} pages; translation used pages {effectiveRange}.",

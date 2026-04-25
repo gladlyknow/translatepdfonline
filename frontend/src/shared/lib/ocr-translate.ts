@@ -422,7 +422,7 @@ export async function runOcrAndPersistParse(params: {
   const sourcePdfUrl = await createPresignedGet(params.sourcePdfObjectKey, 3600);
   console.log(
     '[ocr/stage] start',
-    JSON.stringify({ stage: 'ocr_submit_poll', source_key: params.sourcePdfObjectKey })
+    JSON.stringify({ stage: 'ocr_submit_poll' })
   );
   const baiduTaskId = await submitBaiduOcrTask({
     auth,
@@ -451,7 +451,7 @@ export async function runOcrAndPersistParse(params: {
 
   await putObject(
     params.outputParseResultObjectKey,
-    new TextEncoder().encode(JSON.stringify(parseJson, null, 2)),
+    new TextEncoder().encode(JSON.stringify(parseJson)),
     'application/json; charset=utf-8'
   );
   await putObject(
@@ -463,8 +463,6 @@ export async function runOcrAndPersistParse(params: {
     '[ocr/stage] done',
     JSON.stringify({
       stage: 'ocr_submit_poll',
-      parse_key: params.outputParseResultObjectKey,
-      markdown_key: params.outputMarkdownObjectKey,
       markdown_chars: markdown.length,
     })
   );
@@ -534,8 +532,6 @@ export async function runOcrTranslatePipeline(params: {
   console.log(
     '[ocr/pipeline] export_completed',
     JSON.stringify({
-      output_pdf: params.outputPdfObjectKey,
-      output_md: params.outputMdObjectKey,
       elapsed_ms: Date.now() - startedAt,
       pdf_render_chars: exportRes.pdfRenderChars,
       markdown_chars: exportRes.markdownChars,

@@ -39,5 +39,17 @@
   "toolbarFontYaheiShort": "雅黑",
   "toolbarFontSimsunShort": "宋体",
   "toolbarFontKaitiShort": "楷体",
-  "toolbarFontNotoShort": "Noto"
+  "toolbarFontNotoShort": "Noto",
+  "navHome": "Home",
+  "navUpload": "Upload",
+  "navHistLog": "Hist & Log",
+  "toolbarEntryTitle": "编辑与字体入口",
+  "openTextEdit": "打开 Text edit",
+  "openFontSettings": "打开 Font settings",
+  "toolbarEntryHint": "请先在画布中选中块，再通过左侧工具栏进行编辑与样式调整。",
+  "recentTaskTitle": "近期 OCR 任务",
+  "recentTaskEmpty": "暂无可用 OCR 任务",
+  "taskLogTitle": "运行日志（脱敏）",
+  "taskLogEmpty": "暂无日志记录",
+  "logSanitizedHint": "仅展示阶段、状态、耗时与脱敏摘要；不展示后端路径、对象键与内部 URL。"
 }

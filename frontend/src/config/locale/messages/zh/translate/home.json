@@ -96,6 +96,8 @@
   "creditsRemaining": "剩余积分",
   "creditsLoadHint": "登录后可查看积分余额。",
   "buyCredits": "购买积分",
+  "goToTranslate": "Go to Translate",
+  "goToPdfOcr": "Go to PDF OCR",
   "uploadFirstHint": "请先在左侧上传 PDF，再选择语言并开始翻译。",
   "historyWorkflowHint": "平均每页约 30 秒量级。\n提交后可以离开页面，稍后在 History 中查看进度。\n失败任务不扣积分，可重新提交。\n支持邮箱：hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "您填写了 {userRange}。该文档共 {docPages} 页，已按 {effectiveRange} 进行翻译。",

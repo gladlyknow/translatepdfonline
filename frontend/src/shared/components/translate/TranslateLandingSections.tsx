@@ -34,6 +34,10 @@ type Props = {
   onRequireSignIn?: () => void;
   /** 漏斗顶栏（例如上传页的 History） */
   funnelToolbar?: ReactNode;
+  /** Hero 标题下方的快捷入口行 */
+  heroActions?: ReactNode;
+  /** 上传完成后的后续动作 */
+  postUploadActions?: ReactNode;
 };
 
 export function TranslateLandingSections({
@@ -45,6 +49,8 @@ export function TranslateLandingSections({
   onTargetLangChange,
   onRequireSignIn,
   funnelToolbar,
+  heroActions,
+  postUploadActions,
 }: Props) {
   const t = useTranslations('translate.home');
   const { resolvedTheme } = useTheme();
@@ -122,6 +128,9 @@ export function TranslateLandingSections({
           <p className="mt-4 max-w-2xl text-center text-base text-zinc-600 dark:text-zinc-300 sm:text-lg">
             {t('heroSubtitle')}
           </p>
+          {heroActions ? (
+            <div className="mt-4 flex w-full justify-center">{heroActions}</div>
+          ) : null}
 
           <div className="mt-10 w-full">
             <UploadDropzone
@@ -146,7 +155,7 @@ export function TranslateLandingSections({
             </p>
           </div>
 
-          <div className="mt-10 w-full">
+          <div className="mt-6 w-full">
             <TranslateLanguagePickers
               sourceLang={sourceLang}
               targetLang={targetLang}
@@ -155,6 +164,9 @@ export function TranslateLandingSections({
               appearance={isDarkFunnel ? 'funnelDark' : 'default'}
             />
           </div>
+          {postUploadActions ? (
+            <div className="mt-4 flex w-full justify-center">{postUploadActions}</div>
+          ) : null}
 
           <div className="mt-12 w-full">
             <BeforeAfterPdfCompare imageFit="contain" />

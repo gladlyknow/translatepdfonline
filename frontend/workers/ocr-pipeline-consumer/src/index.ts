@@ -41,8 +41,8 @@ export default {
   async scheduled(_controller: unknown, env: Record<string, unknown>): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
       const limit = Math.min(
-        10,
-        Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '4') || 4)
+        2,
+        Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
       );
       const result = await dispatchPendingOcrJobs(limit);
       console.log('[ocr-pipeline-consumer] cron_dispatch', JSON.stringify(result));

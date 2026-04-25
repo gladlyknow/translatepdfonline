@@ -39,5 +39,17 @@
   "toolbarFontYaheiShort": "YaHei",
   "toolbarFontSimsunShort": "Song",
   "toolbarFontKaitiShort": "Kai",
-  "toolbarFontNotoShort": "Noto"
+  "toolbarFontNotoShort": "Noto",
+  "navHome": "Home",
+  "navUpload": "Upload",
+  "navHistLog": "Hist & Log",
+  "toolbarEntryTitle": "Editing and font controls",
+  "openTextEdit": "Open Text edit",
+  "openFontSettings": "Open Font settings",
+  "toolbarEntryHint": "Select a block on the canvas first, then edit text and styles in the left toolbar.",
+  "recentTaskTitle": "Recent OCR tasks",
+  "recentTaskEmpty": "No OCR tasks available",
+  "taskLogTitle": "Runtime logs (sanitized)",
+  "taskLogEmpty": "No logs yet",
+  "logSanitizedHint": "Only stage, status, elapsed and sanitized summary are shown. Backend paths, object keys and internal URLs are hidden."
 }

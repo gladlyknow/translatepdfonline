@@ -155,7 +155,7 @@ export function Hero({
         />
 
         {section.buttons && (
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {section.buttons.map((button, idx) => {
               const v = button.variant || 'default';
               const darkPrimary =
@@ -187,30 +187,39 @@ export function Hero({
                 </Button>
               );
             })}
+            {isTranslateDark ? (
+              <span className="rounded-full border border-sky-300/60 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-200">
+                {tHome('homeOcrBridgeTitle')}
+              </span>
+            ) : null}
+            {isTranslateDark ? (
+              <Button
+                asChild
+                size="sm"
+                className={cn('px-4 text-xs', TRANSLATE_PRIMARY_CTA_CLASSNAME)}
+              >
+                <Link href="/ocrtranslator" title={tHome('homeOcrBridgeCta')}>
+                  <span>{tHome('homeOcrBridgeCta')}</span>
+                </Link>
+              </Button>
+            ) : null}
+            {isTranslateDark && section.tip ? (
+              <span className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                {section.tip}
+              </span>
+            ) : null}
           </div>
         )}
 
         {isTranslateDark && (
-          <div className="mx-auto mt-6 w-full max-w-2xl rounded-2xl border border-sky-200/80 bg-white/90 p-5 text-center shadow-sm dark:border-sky-900/40 dark:bg-slate-900/50 dark:shadow-[0_0_24px_-8px_rgba(56,189,248,0.2)]">
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              {tHome('homeOcrBridgeTitle')}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+          <div className="mx-auto mt-5 w-full max-w-4xl rounded-2xl border border-sky-200/80 bg-white/90 p-4 text-center shadow-sm dark:border-sky-900/40 dark:bg-slate-900/50 dark:shadow-[0_0_24px_-8px_rgba(56,189,248,0.2)]">
+            <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
               {tHome('homeOcrBridgeBody')}
             </p>
-            <Button
-              asChild
-              size="default"
-              className={cn('mt-4 px-5 text-sm', TRANSLATE_PRIMARY_CTA_CLASSNAME)}
-            >
-              <Link href="/ocrtranslator" title={tHome('homeOcrBridgeCta')}>
-                <span>{tHome('homeOcrBridgeCta')}</span>
-              </Link>
-            </Button>
           </div>
         )}
 
-        {section.tip && (
+        {section.tip && !isTranslateDark && (
           <p
             className={cn(
               'mt-6 block text-center text-sm',

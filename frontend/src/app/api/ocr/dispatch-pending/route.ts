@@ -20,8 +20,8 @@ export async function POST(req: Request) {
   try {
     const result = await dispatchPendingOcrJobs(
       Math.min(
-        20,
-        Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '6', 10) || 6)
+        2,
+        Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '2', 10) || 2)
       )
     );
     return Response.json({ ok: true, ...result });

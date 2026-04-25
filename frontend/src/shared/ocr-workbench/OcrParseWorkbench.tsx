@@ -59,6 +59,7 @@ export function OcrParseWorkbench({
   onPageIndexChange,
   onWorkbenchPageJson,
   toolbarPosition = 'bottom',
+  toolbarId,
 }: {
   taskId: string;
   parseResultUrl: string | null;
@@ -72,6 +73,7 @@ export function OcrParseWorkbench({
   /** 当前解析页序列化 JSON（供外侧只读预览） */
   onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
   toolbarPosition?: 'bottom' | 'left';
+  toolbarId?: string;
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -611,7 +613,10 @@ export function OcrParseWorkbench({
         )}
       >
         {toolbarPosition === 'left' && hideSourcePanel ? (
-          <aside className="flex max-h-[36vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72">
+          <aside
+            id={toolbarId}
+            className="flex max-h-[36vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72"
+          >
             <ParseResultEditorToolbar
               disabled={!selectedLayoutId}
               onFlushBeforeFormat={flushEditableText}
@@ -673,6 +678,7 @@ export function OcrParseWorkbench({
         </div>
         {!(toolbarPosition === 'left' && hideSourcePanel) ? (
           <aside
+            id={toolbarId}
             className={cn(
               'flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none',
               hideSourcePanel ? 'md:w-full md:self-stretch' : 'md:w-72 md:self-start'

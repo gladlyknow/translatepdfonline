@@ -13,6 +13,12 @@ import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-she
 import { UploadDropzone } from '@/shared/components/translate/UploadDropzone';
 import { LanguageSelector } from '@/shared/components/translate/LanguageSelector';
 import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/components/ui/sheet';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -50,8 +56,25 @@ const TASK_PARAM = 'task';
 const DOC_PARAM = 'document';
 const SOURCE_LANG_PARAM = 'source_lang';
 const TARGET_LANG_PARAM = 'target_lang';
-const POLL_INTERVAL_MS_ACTIVE = 2000;
+const POLL_INTERVAL_MS_ACTIVE = 10_000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
+
+type OcrUiLog = {
+  at: string;
+  stage: string;
+  status: string;
+  message: string;
+};
+
+function sanitizeUiLogMessage(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return raw
+    .replace(/https?:\/\/\S+/gi, '[url]')
+    .replace(/[A-Za-z]:[\\/][^\s"'`]+/g, '[path]')
+    .replace(/(?:^|[\s"'`])(\/[^\s"'`]+)+/g, ' [path]')
+    .replace(/translations\/[^\s"'`]+/gi, '[object_key]')
+    .slice(0, 220);
+}
 
 function parsePageRange(range: string | null): [number, number] | null {
   if (range == null || range.trim() === '') return null;
@@ -157,6 +180,16 @@ export function OcrTranslatePageClient() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [parsePageJson, setParsePageJson] = useState('');
   const [lastResumeStage, setLastResumeStage] = useState<string | null>(null);
+  const [historyLogOpen, setHistoryLogOpen] = useState(false);
+  const [recentOcrTasks, setRecentOcrTasks] = useState<
+    Array<{
+      id: string;
+      status: string;
+      progress_stage?: string | null;
+      updated_at?: string | null;
+      created_at: string;
+    }>
+  >([]);
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -165,6 +198,12 @@ export function OcrTranslatePageClient() {
     at: number;
   } | null>(null);
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
+
+  const openToolbarPanel = useCallback(() => {
+    const el = document.getElementById('ocr-workbench-toolbar');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
 
   useEffect(() => {
     setThemeMounted(true);
@@ -447,6 +486,34 @@ export function OcrTranslatePageClient() {
     };
   }, [taskId, taskStatus]);
 
+  useEffect(() => {
+    if (!historyLogOpen) return;
+    let cancelled = false;
+    const loadRecent = async () => {
+      try {
+        const tasks = await translateApi.listTasks();
+        if (cancelled) return;
+        const normalized = tasks
+          .filter((one) => one.preprocess_with_ocr)
+          .slice(0, 20)
+          .map((one) => ({
+            id: one.id,
+            status: one.status,
+            progress_stage: null,
+            updated_at: one.updated_at ?? null,
+            created_at: one.created_at,
+          }));
+        setRecentOcrTasks(normalized);
+      } catch {
+        if (!cancelled) setRecentOcrTasks([]);
+      }
+    };
+    void loadRecent();
+    return () => {
+      cancelled = true;
+    };
+  }, [historyLogOpen, taskId, taskStatus]);
+
   const handleRefreshResult = async () => {
     if (!taskId || refreshing) return;
     outputPreviewFailedRef.current = null;
@@ -567,6 +634,44 @@ export function OcrTranslatePageClient() {
     return 0;
   })();
 
+  const uiLogs: OcrUiLog[] = useMemo(() => {
+    if (!taskId) return [];
+    const logs: OcrUiLog[] = [];
+    if (taskDetail?.created_at) {
+      logs.push({
+        at: taskDetail.created_at,
+        stage: 'task_created',
+        status: 'info',
+        message: '任务已创建',
+      });
+    }
+    if (taskDetail?.progress_stage) {
+      logs.push({
+        at: taskDetail.updated_at || new Date().toISOString(),
+        stage: taskDetail.progress_stage,
+        status: taskDetail.status || 'processing',
+        message: `当前阶段：${taskDetail.progress_stage}`,
+      });
+    }
+    if (taskDetail?.error_code || taskDetail?.error_message) {
+      logs.push({
+        at: taskDetail.updated_at || new Date().toISOString(),
+        stage: taskDetail.progress_stage || 'failed',
+        status: 'failed',
+        message: sanitizeUiLogMessage(taskDetail.error_message || taskDetail.error_code || '任务失败'),
+      });
+    }
+    if (lastResumeStage) {
+      logs.push({
+        at: new Date().toISOString(),
+        stage: lastResumeStage,
+        status: 'retry',
+        message: `已从失败阶段继续：${lastResumeStage}`,
+      });
+    }
+    return logs.slice(-8);
+  }, [taskId, taskDetail, lastResumeStage]);
+
   const sourcePdfUrl = documentId ? sourceSliceUrl : '';
   const targetPdfUrl =
     taskStatus === 'completed' && targetSliceUrl ? targetSliceUrl : '';
@@ -628,11 +733,11 @@ export function OcrTranslatePageClient() {
         <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900/70">
           <button
             type="button"
-            onClick={() => router.push('/upload')}
+            onClick={() => router.push('/')}
             className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
-            Home
+            {tOcrWb('navHome')}
           </button>
           <button
             type="button"
@@ -640,23 +745,15 @@ export function OcrTranslatePageClient() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
-            Upload
+            {tOcrWb('navUpload')}
           </button>
           <button
             type="button"
-            onClick={() => router.push('/upload#translate-history')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            onClick={() => setHistoryLogOpen(true)}
+            className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             <Image src="/brand/local/history.png" alt="" width={14} height={14} />
-            Hist & Log
-          </button>
-          <button
-            type="button"
-            onClick={() => shellChrome?.setHeaderCollapsed((shellChrome?.headerCollapsed ?? false) ? false : true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/fold.svg" alt="" width={14} height={14} />
-            File
+            {tOcrWb('navHistLog')}
           </button>
         </div>
 
@@ -771,13 +868,27 @@ export function OcrTranslatePageClient() {
         )}
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/80">
-          <p className="mb-1 font-semibold text-zinc-700 dark:text-zinc-200">Text edit</p>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            在右侧 JSON 选择块后，可在下方工作台进行文本编辑与样式修正。
+          <p className="mb-2 font-semibold text-zinc-700 dark:text-zinc-200">
+            {tOcrWb('toolbarEntryTitle')}
           </p>
-          <p className="mt-2 mb-1 font-semibold text-zinc-700 dark:text-zinc-200">Font settings</p>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            字体、字号、对齐、布局尺寸在工作台侧栏统一调整。
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={openToolbarPanel}
+              className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('openTextEdit')}
+            </button>
+            <button
+              type="button"
+              onClick={openToolbarPanel}
+              className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('openFontSettings')}
+            </button>
+          </div>
+          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
+            {tOcrWb('toolbarEntryHint')}
           </p>
         </div>
 
@@ -931,6 +1042,7 @@ export function OcrTranslatePageClient() {
                   }}
                   onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
                   toolbarPosition="left"
+                  toolbarId="ocr-workbench-toolbar"
                 />
               </div>
             </div>
@@ -995,6 +1107,69 @@ export function OcrTranslatePageClient() {
           </div>
         )}
       </div>
+      <Sheet open={historyLogOpen} onOpenChange={setHistoryLogOpen}>
+        <SheetContent side="left" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>{tOcrWb('navHistLog')}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+              {tOcrWb('logSanitizedHint')}
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                {tOcrWb('recentTaskTitle')}
+              </p>
+              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+                {recentOcrTasks.length === 0 ? (
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {tOcrWb('recentTaskEmpty')}
+                  </p>
+                ) : (
+                  recentOcrTasks.map((one) => (
+                    <button
+                      key={one.id}
+                      type="button"
+                      onClick={() => {
+                        setTaskId(one.id);
+                        updateTaskInUrl(one.id);
+                        setHistoryLogOpen(false);
+                      }}
+                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    >
+                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
+                        {one.id}
+                      </p>
+                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
+                        {one.status}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                {tOcrWb('taskLogTitle')}
+              </p>
+              <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 pr-1 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
+                {uiLogs.length === 0 ? (
+                  <p className="text-zinc-500 dark:text-zinc-400">{tOcrWb('taskLogEmpty')}</p>
+                ) : (
+                  uiLogs.map((log, idx) => (
+                    <div key={`${log.at}-${idx}`} className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
+                      <p className="font-medium text-zinc-700 dark:text-zinc-200">
+                        {log.stage} · {log.status}
+                      </p>
+                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">{log.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

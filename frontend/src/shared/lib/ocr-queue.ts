@@ -20,7 +20,11 @@ type OcrStage =
   | 'export_outputs'
   | 'completed';
 
-const DEFAULT_OCR_BATCH_SIZE = 4;
+const DEFAULT_OCR_BATCH_SIZE = Math.min(
+  2,
+  Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
+);
+const OCR_TASK_TIMEOUT_MS = 20 * 60 * 1000;
 const DEFAULT_MAX_ATTEMPTS = Math.max(
   1,
   Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS || '3') || 3
@@ -75,7 +79,7 @@ function outputKeys(taskId: string) {
   };
 }
 
-type EnqueueResult = 'enqueue_ok' | 'fallback_dispatcher';
+type EnqueueResult = 'enqueue_ok' | 'fallback_inline' | 'fallback_dispatcher';
 
 async function enqueueNextStage(taskId: string, nextStage: OcrStage): Promise<EnqueueResult> {
   const ok = await sendOcrPipelineQueueMessage(taskId);
@@ -243,7 +247,10 @@ export async function enqueueOcrTask(taskId: string): Promise<void> {
     .where(and(eq(translationTasks.id, taskId), eq(translationTasks.preprocessWithOcr, true)));
 }
 
-export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
+export async function invokeOcrPipelineForTask(
+  taskId: string,
+  inlineDepth = 0
+): Promise<void> {
   const now = new Date();
   const leaseUntil = new Date(Date.now() + 180_000);
   const claimed = await db()
@@ -265,6 +272,23 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
   if (!claimed.length) return;
 
   const row = claimed[0];
+  const createdAtMs = row.createdAt ? new Date(row.createdAt).getTime() : NaN;
+  if (Number.isFinite(createdAtMs) && Date.now() - createdAtMs > OCR_TASK_TIMEOUT_MS) {
+    await db()
+      .update(translationTasks)
+      .set({
+        status: 'failed',
+        progressStage: normalizeStage(row.progressStage),
+        errorCode: 'ocr_task_timeout_20m',
+        errorMessage: 'OCR task exceeded 20 minutes timeout window',
+        fcNextAttemptAt: null,
+        fcInvokeLeaseUntil: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(translationTasks.id, taskId));
+    console.warn('[ocr/stage] timeout', JSON.stringify({ task_id: taskId }));
+    return;
+  }
   const [doc] = await db()
     .select()
     .from(documents)
@@ -346,7 +370,11 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     }
 
     await markStageQueued(taskId, nextStage, stagePercent(nextStage));
-    const enqueueResult = await enqueueNextStage(taskId, nextStage);
+    let enqueueResult = await enqueueNextStage(taskId, nextStage);
+    if (enqueueResult === 'fallback_dispatcher' && inlineDepth < 1) {
+      await invokeOcrPipelineForTask(taskId, inlineDepth + 1);
+      enqueueResult = 'fallback_inline';
+    }
     console.log(
       '[ocr/stage] done',
       JSON.stringify({
@@ -376,7 +404,11 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
           updatedAt: new Date(),
         })
         .where(eq(translationTasks.id, taskId));
-      const enqueueResult = await enqueueNextStage(taskId, stage);
+      let enqueueResult = await enqueueNextStage(taskId, stage);
+      if (enqueueResult === 'fallback_dispatcher' && inlineDepth < 1) {
+        await invokeOcrPipelineForTask(taskId, inlineDepth + 1);
+        enqueueResult = 'fallback_inline';
+      }
       console.warn(
         '[ocr/stage] retry',
         JSON.stringify({
