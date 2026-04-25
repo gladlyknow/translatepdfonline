@@ -11,8 +11,8 @@ const BAIDU_QUERY_URL =
   'https://aip.baidubce.com/rest/2.0/brain/online/v2/paddle-vl-parser/task/query';
 const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 const OCR_PDF_RENDER_MAX_CHARS = Math.max(
-  20000,
-  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '80000') || 80000
+  8000,
+  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '20000') || 20000
 );
 
 type BaiduAuth = {

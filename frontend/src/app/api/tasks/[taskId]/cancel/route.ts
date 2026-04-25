@@ -20,12 +20,17 @@ export async function POST(
     if (!task) {
       return Response.json({ detail: 'Task not found' }, { status: 404 });
     }
-    if (task.status === 'completed' || task.status === 'failed') {
+    if (task.status === 'completed' || task.status === 'failed' || task.status === 'cancelled') {
       return Response.json({ ok: true, status: task.status });
     }
     await db()
       .update(translationTasks)
-      .set({ status: 'cancelled', updatedAt: new Date() })
+      .set({
+        status: 'cancelled',
+        fcNextAttemptAt: null,
+        fcInvokeLeaseUntil: null,
+        updatedAt: new Date(),
+      })
       .where(eq(translationTasks.id, taskId));
     return Response.json({ ok: true, status: 'cancelled' });
   } catch (e) {

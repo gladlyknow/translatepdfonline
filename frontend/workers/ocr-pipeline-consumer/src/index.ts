@@ -1,5 +1,6 @@
 import {
   dispatchPendingOcrJobs,
+  failTimedOutOcrTasks,
   invokeOcrPipelineForTask,
 } from '../../../src/shared/lib/ocr-queue';
 import { runWithCloudflareEnv } from '../../../src/shared/lib/worker-runtime-env';
@@ -40,12 +41,16 @@ export default {
   },
   async scheduled(_controller: unknown, env: Record<string, unknown>): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
+      const timeoutFailed = await failTimedOutOcrTasks();
       const limit = Math.min(
-        1,
-        Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '1') || 1)
+        2,
+        Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
       );
-      const result = await dispatchPendingOcrJobs(limit);
-      console.log('[ocr-pipeline-consumer] cron_dispatch', JSON.stringify(result));
+      const result = await dispatchPendingOcrJobs(limit, { enqueueOnly: true });
+      console.log(
+        '[ocr-pipeline-consumer] cron_dispatch',
+        JSON.stringify({ ...result, timeout_failed: timeoutFailed })
+      );
     });
   },
 };

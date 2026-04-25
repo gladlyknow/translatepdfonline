@@ -23,6 +23,7 @@ export function TranslateShellHeader({
   variant?: 'translate' | 'ocr';
 }) {
   const t = useTranslations('translate.shell');
+  const tHome = useTranslations('translate.home');
   const brand = variant === 'ocr' ? t('brandShortOcr') : t('brandShort');
   const router = useRouter();
   const historyDrawer = useTranslateHistoryDrawerOptional();
@@ -45,7 +46,7 @@ export function TranslateShellHeader({
           onClick={() => shellChrome.setHeaderCollapsed(false)}
           className="text-[11px] font-medium text-zinc-500 underline hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
         >
-          展开页首
+          {tHome('showHeader')}
         </button>
       </header>
     );

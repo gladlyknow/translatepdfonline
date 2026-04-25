@@ -487,7 +487,11 @@ export function OcrTranslatePageClient() {
         if (cancelled) return;
         setTaskStatus(detail.status);
         setTaskDetail(detail);
-        if (detail.status === 'completed' || detail.status === 'failed') {
+        if (
+          detail.status === 'completed' ||
+          detail.status === 'failed' ||
+          detail.status === 'cancelled'
+        ) {
           const view = await translateApi.getTaskView(taskId).catch(() => null);
           if (!cancelled && view) setTaskView(view);
           return;
@@ -497,7 +501,10 @@ export function OcrTranslatePageClient() {
       }
     };
     poll();
-    const terminal = taskStatus === 'completed' || taskStatus === 'failed';
+    const terminal =
+      taskStatus === 'completed' ||
+      taskStatus === 'failed' ||
+      taskStatus === 'cancelled';
     const shouldPoll = !terminal;
     const id = shouldPoll ? setInterval(poll, POLL_INTERVAL_MS_ACTIVE) : undefined;
     return () => {
@@ -556,7 +563,11 @@ export function OcrTranslatePageClient() {
       const detail = await translateApi.getTask(taskId);
       setTaskStatus(detail.status);
       setTaskDetail(detail);
-      if (detail.status === 'completed' || detail.status === 'failed') {
+      if (
+        detail.status === 'completed' ||
+        detail.status === 'failed' ||
+        detail.status === 'cancelled'
+      ) {
         const view = await translateApi.getTaskView(taskId).catch(() => null);
         if (view) setTaskView(view);
       }
@@ -646,6 +657,7 @@ export function OcrTranslatePageClient() {
       processing: 'processing',
       completed: 'completed',
       failed: 'failed',
+      cancelled: 'cancelled',
     };
     return t(keyMap[s] ?? 'status');
   };
@@ -676,6 +688,7 @@ export function OcrTranslatePageClient() {
         processing: 'statusProcessing',
         completed: 'statusCompleted',
         failed: 'statusFailed',
+        cancelled: 'statusCancelled',
       };
       const key = keyMap[status];
       if (key) return tOcrWb(key);
@@ -687,6 +700,7 @@ export function OcrTranslatePageClient() {
   const taskProgress = (() => {
     if (!taskId) return 0;
     if (taskStatus === 'failed') return 0;
+    if (taskStatus === 'cancelled') return 0;
     if (taskStatus === 'completed') return 100;
     if (taskStatus === 'processing') {
       return taskDetail?.progress_percent ?? 50;
@@ -979,13 +993,38 @@ export function OcrTranslatePageClient() {
                 style={{ width: `${taskProgress}%` }}
               />
             </div>
-            {taskStatus === 'failed' &&
+            {(taskStatus === 'failed' || taskStatus === 'cancelled') &&
               (taskDetail?.error_message || taskDetail?.error_code) && (
                 <p className="mt-2 text-xs text-red-600 dark:text-red-400">
                   {taskDetail?.error_message || taskDetail?.error_code}
                 </p>
               )}
-            {taskStatus === 'failed' && taskId ? (
+            {(taskStatus === 'queued' || taskStatus === 'processing') && taskId ? (
+              <button
+                type="button"
+                className="mt-2 w-full rounded-lg border border-red-200 bg-red-50 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-950/50"
+                onClick={async () => {
+                  if (!taskId) return;
+                  setRefreshing(true);
+                  try {
+                    await translateApi.cancelTask(taskId);
+                    setTaskStatus('cancelled');
+                    setSubmitError(null);
+                    await handleRefreshResult();
+                  } catch (e) {
+                    setSubmitError(
+                      e instanceof Error ? e.message : tTranslate('createTaskFailed')
+                    );
+                  } finally {
+                    setRefreshing(false);
+                  }
+                }}
+                disabled={refreshing}
+              >
+                {tOcrWb('cancelTask')}
+              </button>
+            ) : null}
+            {(taskStatus === 'failed' || taskStatus === 'cancelled') && taskId ? (
               <button
                 type="button"
                 className="mt-2 w-full rounded-lg border border-zinc-300 bg-white py-2 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"

@@ -4,6 +4,7 @@
   "processing": "Processing",
   "completed": "Completed",
   "failed": "Failed",
+  "cancelled": "Cancelled",
   "viewResult": "View Result",
   "viewAfterComplete": "When translation is complete you can view source and translation here.",
   "translationDoneHint": "Translation complete. You can preview or download. Use left/right panes to compare pages.",

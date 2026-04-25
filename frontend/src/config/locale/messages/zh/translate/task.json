@@ -4,6 +4,7 @@
   "processing": "处理中",
   "completed": "已完成",
   "failed": "失败",
+  "cancelled": "已取消",
   "viewResult": "查看结果",
   "viewAfterComplete": "翻译完成后可在此查看原文与译文。",
   "translationDoneHint": "翻译完成，可预览或下载。左右栏对比查看。",
