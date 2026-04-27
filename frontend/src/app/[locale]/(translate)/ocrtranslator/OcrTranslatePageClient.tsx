@@ -64,7 +64,7 @@ const OCR_TOOLBAR_TEXT_EDIT_ID = 'ocr-workbench-toolbar-text-edit';
 const OCR_TOOLBAR_FONT_SETTINGS_ID = 'ocr-workbench-toolbar-font-settings';
 const OCR_TOOLBAR_BLOCK_PROPS_ID = 'ocr-workbench-toolbar-block-props';
 const OCR_TOOLBAR_FILE_ID = 'ocr-workbench-toolbar-file';
-const HISTORY_PAGE_SIZE = 10;
+const HISTORY_PAGE_SIZE = 3;
 
 type OcrUiLog = {
   at: string;
@@ -218,20 +218,6 @@ export function OcrTranslatePageClient() {
     at: number;
   } | null>(null);
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
-
-  const openToolbarSection = useCallback((id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
-  const openTextEditPanel = useCallback(() => {
-    openToolbarSection(OCR_TOOLBAR_TEXT_EDIT_ID);
-  }, [openToolbarSection]);
-
-  const openFontSettingsPanel = useCallback(() => {
-    openToolbarSection(OCR_TOOLBAR_FONT_SETTINGS_ID);
-  }, [openToolbarSection]);
 
   useEffect(() => {
     setThemeMounted(true);
@@ -517,6 +503,12 @@ export function OcrTranslatePageClient() {
         ) {
           const view = await translateApi.getTaskView(taskId).catch(() => null);
           if (!cancelled && view) setTaskView(view);
+          if (
+            detail.status === 'completed' &&
+            (!view?.can_download || (view.outputs?.length ?? 0) === 0)
+          ) {
+            return;
+          }
           return;
         }
       } catch {
@@ -524,8 +516,11 @@ export function OcrTranslatePageClient() {
       }
     };
     poll();
+    const waitingExportReady =
+      taskStatus === 'completed' &&
+      (!(taskView?.can_download ?? false) || (taskView?.outputs?.length ?? 0) === 0);
     const terminal =
-      taskStatus === 'completed' ||
+      (taskStatus === 'completed' && !waitingExportReady) ||
       taskStatus === 'failed' ||
       taskStatus === 'cancelled';
     const shouldPoll = !terminal;
@@ -534,7 +529,7 @@ export function OcrTranslatePageClient() {
       cancelled = true;
       if (id) clearInterval(id);
     };
-  }, [taskId, taskStatus]);
+  }, [taskId, taskStatus, taskView?.can_download, taskView?.outputs?.length]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
@@ -790,7 +785,7 @@ export function OcrTranslatePageClient() {
         }),
       });
     }
-    return logs.slice(-8);
+    return logs.slice(-3);
   }, [taskId, taskDetail, lastResumeStage, tOcrWb, stageLabel]);
 
   const sourcePdfUrl = documentId ? sourceSliceUrl : '';
@@ -956,14 +951,6 @@ export function OcrTranslatePageClient() {
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
-          <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {tHome('workbenchDocument')}
-          </p>
-          {filename && (
-            <p className="mt-1 truncate text-sm text-zinc-800 dark:text-zinc-200" title={filename}>
-              {filename}
-            </p>
-          )}
           <div className="mt-2">
             <UploadDropzone
               onUploaded={handleUploaded}
@@ -1064,33 +1051,13 @@ export function OcrTranslatePageClient() {
                 {tHome('download')} MD
               </a>
             )}
+            {!pdfOutput && !mdOutput ? (
+              <p className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-2 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                {tOcrWb('logCurrentStage', { stage: tOcrWb('stageExportOutputs') })}
+              </p>
+            ) : null}
           </div>
         )}
-
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/80">
-          <p className="mb-2 font-semibold text-zinc-700 dark:text-zinc-200">
-            {tOcrWb('toolbarEntryTitle')}
-          </p>
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={openTextEditPanel}
-              className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('openTextEdit')}
-            </button>
-            <button
-              type="button"
-              onClick={openFontSettingsPanel}
-              className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('openFontSettings')}
-            </button>
-          </div>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {tOcrWb('toolbarEntryHint')}
-          </p>
-        </div>
 
         {taskId && (
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/80">
@@ -1186,8 +1153,6 @@ export function OcrTranslatePageClient() {
             ) : null}
           </div>
         )}
-
-        <div className="min-h-2 shrink-0 md:min-h-0 md:flex-1" aria-hidden />
       </aside>
 
       <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden">
@@ -1351,7 +1316,7 @@ export function OcrTranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('taskLogTitle')}
               </p>
-              <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 pr-1 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
+              <div className="space-y-1 rounded-lg border border-zinc-200 bg-white p-2 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
                 {uiLogs.length === 0 ? (
                   <p className="text-zinc-500 dark:text-zinc-400">{tOcrWb('taskLogEmpty')}</p>
                 ) : (
@@ -1370,7 +1335,7 @@ export function OcrTranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('recentTaskTitle')}
               </p>
-              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+              <div className="space-y-1">
                 {recentOcrTasks.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('recentTaskEmpty')}
@@ -1423,7 +1388,7 @@ export function OcrTranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('uploadedFileTitle')}
               </p>
-              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+              <div className="space-y-1">
                 {recentDocuments.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('uploadedFileEmpty')}

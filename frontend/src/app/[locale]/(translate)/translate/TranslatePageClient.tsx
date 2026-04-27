@@ -42,7 +42,7 @@ const TASK_PARAM = 'task';
 const DOCUMENT_PARAM = 'document';
 const POLL_INTERVAL_MS_ACTIVE = 2000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
-const HISTORY_PAGE_SIZE = 10;
+const HISTORY_PAGE_SIZE = 3;
 
 type TranslateUiLog = {
   at: string;
@@ -807,7 +807,7 @@ export function TranslatePageClient() {
         ),
       });
     }
-    return logs.slice(-8);
+    return logs.slice(-3);
   }, [taskDetail, taskId, tOcrWb, stageLabel]);
 
   const downloadUrl =
@@ -953,14 +953,6 @@ export function TranslatePageClient() {
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
-          <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {tHome('workbenchDocument')}
-          </p>
-          {filename && (
-            <p className="mt-1 truncate text-sm text-zinc-800 dark:text-zinc-200" title={filename}>
-              {filename}
-            </p>
-          )}
           <div className="mt-2">
             <UploadDropzone
               onUploaded={handleUploaded}
@@ -1149,7 +1141,6 @@ export function TranslatePageClient() {
           </div>
         )}
 
-        <div className="min-h-2 shrink-0 md:min-h-0 md:flex-1" aria-hidden />
       </aside>
 
       <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden">
@@ -1254,7 +1245,7 @@ export function TranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('taskLogTitle')}
               </p>
-              <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 pr-1 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
+              <div className="space-y-1 rounded-lg border border-zinc-200 bg-white p-2 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
                 {uiLogs.length === 0 ? (
                   <p className="text-zinc-500 dark:text-zinc-400">{tOcrWb('taskLogEmpty')}</p>
                 ) : (
@@ -1273,7 +1264,7 @@ export function TranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('recentTaskTitle')}
               </p>
-              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+              <div className="space-y-1">
                 {recentTasks.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('recentTaskEmpty')}
@@ -1329,7 +1320,7 @@ export function TranslatePageClient() {
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                 {tOcrWb('uploadedFileTitle')}
               </p>
-              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+              <div className="space-y-1">
                 {recentDocuments.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('uploadedFileEmpty')}

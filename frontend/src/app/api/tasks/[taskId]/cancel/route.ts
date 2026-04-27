@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { translationTasks } from '@/config/db/schema';
 import { getTranslateAuth } from '../../../translate/auth';
+import { cancelOcrTaskExports } from '@/shared/lib/ocr-export-queue';
 
 export async function POST(
   _req: Request,
@@ -32,6 +33,9 @@ export async function POST(
         updatedAt: new Date(),
       })
       .where(eq(translationTasks.id, taskId));
+    if (task.preprocessWithOcr) {
+      await cancelOcrTaskExports(taskId);
+    }
     return Response.json({ ok: true, status: 'cancelled' });
   } catch (e) {
     console.error('cancel task failed:', e);

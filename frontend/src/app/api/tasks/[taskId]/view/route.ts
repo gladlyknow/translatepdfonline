@@ -3,6 +3,7 @@ import { db } from '@/core/db';
 import { translationTasks, documents } from '@/config/db/schema';
 import { getTranslateAuth } from '../../../translate/auth';
 import { createPresignedGet, isR2Configured } from '@/shared/lib/translate-r2';
+import { listExportsForTask, OcrTaskExportStatus } from '@/shared/models/ocr_task_export';
 
 export async function GET(
   _req: Request,
@@ -32,6 +33,15 @@ export async function GET(
     let mdFileUrl: string | null = null;
     let ocrParseResultUrl: string | null = null;
     const outputs: { filename: string; download_url: string }[] = [];
+    const exportRows = task.preprocessWithOcr ? await listExportsForTask(taskId) : [];
+    const readyPdfExport = exportRows.find(
+      (r: (typeof exportRows)[number]) =>
+        r.format === 'pdf' && r.status === OcrTaskExportStatus.ready && r.r2Key
+    );
+    const readyMdExport = exportRows.find(
+      (r: (typeof exportRows)[number]) =>
+        r.format === 'md' && r.status === OcrTaskExportStatus.ready && r.r2Key
+    );
     if (await isR2Configured()) {
       try {
         const sourceKey =
@@ -40,10 +50,11 @@ export async function GET(
           sourcePdfUrl = await createPresignedGet(sourceKey, 3600);
         }
       } catch (_) {}
-      if (task.outputObjectKey && task.status === 'completed') {
+      const pdfKey = readyPdfExport?.r2Key ?? task.outputObjectKey;
+      if (pdfKey && task.status === 'completed') {
         try {
           const outputDisp = 'attachment; filename="translation.pdf"';
-          primaryFileUrl = await createPresignedGet(task.outputObjectKey, 3600, {
+          primaryFileUrl = await createPresignedGet(pdfKey, 3600, {
             responseContentDisposition: outputDisp,
           });
           outputs.push({
@@ -52,10 +63,11 @@ export async function GET(
           });
         } catch (_) {}
       }
-      if (task.outputPrimaryPath && task.status === 'completed') {
+      const mdKey = readyMdExport?.r2Key ?? task.outputPrimaryPath;
+      if (mdKey && task.status === 'completed') {
         try {
           const mdDisp = 'attachment; filename="translation.md"';
-          mdFileUrl = await createPresignedGet(task.outputPrimaryPath, 3600, {
+          mdFileUrl = await createPresignedGet(mdKey, 3600, {
             responseContentDisposition: mdDisp,
           });
           outputs.push({
@@ -103,7 +115,14 @@ export async function GET(
       primary_file_url: primaryFileUrl,
       source_pdf_url: sourcePdfUrl,
       ocr_parse_result_url: ocrParseResultUrl,
-      can_download: true,
+      can_download: Boolean(primaryFileUrl || mdFileUrl),
+      exports: exportRows.map((row: (typeof exportRows)[number]) => ({
+        id: row.id,
+        format: row.format,
+        status: row.status,
+        error_message: row.errorMessage,
+        updated_at: row.updatedAt?.toISOString?.() ?? row.updatedAt,
+      })),
     });
   } catch (e) {
     console.error('get task view failed:', e);

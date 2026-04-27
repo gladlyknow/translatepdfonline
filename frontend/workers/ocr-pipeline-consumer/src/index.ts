@@ -1,11 +1,19 @@
 import {
-  dispatchPendingOcrJobs,
-  failTimedOutOcrTasks,
-  invokeOcrPipelineForTask,
+  handleOcrPipelineQueueBatch,
 } from '../../../src/shared/lib/ocr-queue';
 import { runWithCloudflareEnv } from '../../../src/shared/lib/worker-runtime-env';
 
-type OcrQueueBody = { taskId?: string };
+type OcrQueueBody =
+  | {
+      type?: 'ocr_pipeline';
+      taskId?: string;
+    }
+  | {
+      type?: 'ocr_export_generate';
+      taskId?: string;
+      exportId?: string;
+      format?: 'pdf' | 'md';
+    };
 
 type OcrQueueMessage = {
   readonly body: OcrQueueBody;
@@ -24,13 +32,10 @@ export default {
   async queue(batch: OcrQueueBatch, env: Record<string, unknown>): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
       for (const msg of batch.messages) {
-        const taskId = msg.body?.taskId;
-        if (!taskId || typeof taskId !== 'string') {
-          msg.ack();
-          continue;
-        }
         try {
-          await invokeOcrPipelineForTask(taskId);
+          await handleOcrPipelineQueueBatch({
+            messages: [{ body: (msg.body ?? {}) as any }],
+          });
           msg.ack();
         } catch (e) {
           console.error('[ocr-pipeline-consumer]', e);
@@ -41,27 +46,12 @@ export default {
   },
   async scheduled(_controller: unknown, env: Record<string, unknown>): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
-      const cronFallbackEnabled =
-        String(process.env.OCR_ENABLE_CRON_FALLBACK || '').trim().toLowerCase() === 'true';
-      if (!cronFallbackEnabled) {
-        console.log(
-          '[ocr-pipeline-consumer] cron_dispatch_skipped',
-          JSON.stringify({
-            reason: 'OCR_ENABLE_CRON_FALLBACK!=true',
-            mode: 'disabled',
-          })
-        );
-        return;
-      }
-      const timeoutFailed = await failTimedOutOcrTasks();
-      const limit = Math.min(
-        2,
-        Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
-      );
-      const result = await dispatchPendingOcrJobs(limit, { enqueueOnly: false });
       console.log(
-        '[ocr-pipeline-consumer] cron_dispatch',
-        JSON.stringify({ ...result, timeout_failed: timeoutFailed })
+        '[ocr-pipeline-consumer] cron_dispatch_disabled',
+        JSON.stringify({
+          reason: 'project_disabled_empty_scan',
+          mode: 'disabled',
+        })
       );
     });
   },

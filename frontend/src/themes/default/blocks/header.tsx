@@ -30,6 +30,7 @@ import { useMedia } from '@/shared/hooks/use-media';
 import { cn } from '@/shared/lib/utils';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Header as HeaderType } from '@/shared/types/blocks/landing';
+import { useTranslateHistoryDrawerOptional } from '@/shared/contexts/translate-history-drawer';
 
 function NavItemIcon({
   item,
@@ -81,6 +82,7 @@ export function Header({ header }: { header: HeaderType }) {
   const isLarge = useMedia('(min-width: 64rem)');
   const pathname = usePathname();
   const pathSegments = pathname.split('/').filter(Boolean);
+  const historyDrawer = useTranslateHistoryDrawerOptional();
   const isHomePage =
     pathSegments.length === 0 ||
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));
@@ -97,6 +99,27 @@ export function Header({ header }: { header: HeaderType }) {
     }
     return items;
   })();
+
+  const isHistoryTriggerItem = (item: NavItem) => {
+    const normalizedUrl = (item.url || '').toLowerCase();
+    const normalizedTitle = (item.title || '').trim().toLowerCase();
+    return (
+      normalizedUrl.includes('#translate-history') ||
+      normalizedTitle === 'history' ||
+      normalizedTitle === '历史'
+    );
+  };
+
+  const handleNavItemClick = (
+    event: React.MouseEvent,
+    item: NavItem,
+    closeMenu?: () => void
+  ) => {
+    if (!isHistoryTriggerItem(item) || !historyDrawer) return;
+    event.preventDefault();
+    historyDrawer.openHistory();
+    closeMenu?.();
+  };
 
   useEffect(() => {
     // Listen to scroll event to enable header styles on scroll
@@ -142,6 +165,7 @@ export function Header({ header }: { header: HeaderType }) {
                     href={item.url || ''}
                     target={item.target || '_self'}
                     title={item.title ?? ''}
+                    onClick={(event) => handleNavItemClick(event, item)}
                     className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:bg-muted/30 hover:text-foreground ${
                       item.is_active || pathname.endsWith(item.url as string)
                         ? 'bg-muted/40 text-muted-foreground'
@@ -217,6 +241,9 @@ export function Header({ header }: { header: HeaderType }) {
                             <Link
                               href={subItem.url || ''}
                               onClick={closeMenu}
+                              onClickCapture={(event) =>
+                                handleNavItemClick(event, subItem, closeMenu)
+                              }
                               title={subItem.title ?? ''}
                               className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
                             >
@@ -236,7 +263,12 @@ export function Header({ header }: { header: HeaderType }) {
                 ) : (
                   <Link
                     href={item.url || ''}
-                    onClick={closeMenu}
+                    onClick={(event) => {
+                      handleNavItemClick(event, item, closeMenu);
+                      if (!event.defaultPrevented) {
+                        closeMenu();
+                      }
+                    }}
                     title={item.title ?? ''}
                     className="data-[state=open]:bg-muted grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-3 text-lg **:!font-normal"
                   >

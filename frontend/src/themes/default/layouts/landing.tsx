@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 
 import { getThemeBlock } from '@/core/theme';
+import { TranslateHistoryDrawerProvider } from '@/shared/contexts/translate-history-drawer';
 import {
   Footer as FooterType,
   Header as HeaderType,
@@ -21,14 +22,16 @@ export default async function LandingLayout({
   const Footer = await getThemeBlock('footer');
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <HeaderWithTranslateBehavior>
-        <Header header={header} />
-      </HeaderWithTranslateBehavior>
-      <main className="w-full flex-1">{children}</main>
-      <FooterWithTranslateBehavior>
-        <Footer footer={footer} />
-      </FooterWithTranslateBehavior>
-    </div>
+    <TranslateHistoryDrawerProvider>
+      <div className="flex min-h-screen w-full flex-col">
+        <HeaderWithTranslateBehavior>
+          <Header header={header} />
+        </HeaderWithTranslateBehavior>
+        <main className="w-full flex-1">{children}</main>
+        <FooterWithTranslateBehavior>
+          <Footer footer={footer} />
+        </FooterWithTranslateBehavior>
+      </div>
+    </TranslateHistoryDrawerProvider>
   );
 }

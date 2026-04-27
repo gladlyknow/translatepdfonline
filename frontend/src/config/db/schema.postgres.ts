@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 import { envConfigs } from '@/config';
@@ -627,5 +628,37 @@ export const translationTasks = table(
     index('idx_translation_tasks_document_id').on(t.documentId),
     index('idx_translation_tasks_status').on(t.status),
     index('idx_translation_tasks_created_at').on(t.createdAt),
+  ]
+);
+
+/** OCR 异步导出产物（PDF/MD）：与主 OCR 流水线解耦，避免内联导出占满 CPU。 */
+export const translationTaskExport = table(
+  'translation_task_export',
+  {
+    id: text('id').primaryKey(),
+    taskId: text('task_id')
+      .notNull()
+      .references(() => translationTasks.id, { onDelete: 'cascade' }),
+    userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+    anonId: text('anon_id'),
+    format: text('format').notNull(), // pdf | md
+    status: text('status').notNull().default('pending'),
+    sourceMarkdownObjectKey: text('source_markdown_object_key').notNull(),
+    r2Key: text('r2_key'),
+    errorMessage: text('error_message'),
+    log: text('log'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    readyAt: timestamp('ready_at'),
+  },
+  (t) => [
+    unique('uq_translation_task_export_task_format').on(t.taskId, t.format),
+    index('idx_translation_task_export_user').on(t.userId),
+    index('idx_translation_task_export_anon').on(t.anonId),
+    index('idx_translation_task_export_task_created').on(t.taskId, t.createdAt),
+    index('idx_translation_task_export_status').on(t.status),
   ]
 );

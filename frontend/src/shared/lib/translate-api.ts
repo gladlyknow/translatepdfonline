@@ -119,6 +119,18 @@ export interface TaskOutputFile {
   download_url: string;
 }
 
+export interface OcrTaskExportItem {
+  id: string;
+  task_id: string;
+  format: 'pdf' | 'md';
+  status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
+  error_message?: string | null;
+  created_at: string;
+  updated_at: string;
+  ready_at?: string | null;
+  logs: string[];
+}
+
 export interface TaskView {
   task: TaskDetail;
   document_filename: string;
@@ -130,6 +142,13 @@ export interface TaskView {
   /** OCR 任务完成后的 parse JSON presigned GET */
   ocr_parse_result_url?: string | null;
   can_download?: boolean;
+  exports?: Array<{
+    id: string;
+    format: 'pdf' | 'md' | string;
+    status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled' | string;
+    error_message?: string | null;
+    updated_at?: string | null;
+  }>;
 }
 
 async function fetchTranslateApi<T>(
@@ -306,5 +325,26 @@ export const translateApi = {
     fetchTranslateApi<{ ok: boolean; task_id: string; resume_stage?: string | null }>(
       `/api/ocr/tasks/${taskId}/retry`,
       { method: 'POST' }
+    ),
+
+  listOcrTaskExports: (taskId: string) =>
+    fetchTranslateApi<{ exports: OcrTaskExportItem[] }>(
+      `/api/ocr/tasks/${taskId}/exports`
+    ),
+
+  retryOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+    fetchTranslateApi<{
+      ok: boolean;
+      export_id: string;
+      format: 'pdf' | 'md';
+      status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
+    }>(`/api/ocr/tasks/${taskId}/exports`, {
+      method: 'POST',
+      body: JSON.stringify({ format }),
+    }),
+
+  getOcrTaskExportDownloadUrl: (taskId: string, format: 'pdf' | 'md') =>
+    fetchTranslateApi<{ format: 'pdf' | 'md'; status: string; download_url: string }>(
+      `/api/ocr/tasks/${taskId}/exports?downloadUrl=1&format=${encodeURIComponent(format)}`
     ),
 };

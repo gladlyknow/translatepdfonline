@@ -4,15 +4,28 @@ import { and, asc, eq, isNull, lte, ne, or } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
 import {
-  exportMarkdownToPdfAndMd,
   loadMarkdownFromR2,
   runOcrAndPersistParse,
   translateMarkdownWithDeepSeek,
 } from '@/shared/lib/ocr-translate';
+import {
+  ensureOcrPendingExportsForTask,
+  processOcrTaskExport,
+} from '@/shared/lib/ocr-export-queue';
 import { putObject } from '@/shared/lib/translate-r2';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
-export type OcrPipelineQueueBody = { taskId: string };
+export type OcrPipelineQueueBody =
+  | {
+      type: 'ocr_pipeline';
+      taskId: string;
+    }
+  | {
+      type: 'ocr_export_generate';
+      taskId: string;
+      exportId: string;
+      format: 'pdf' | 'md';
+    };
 type OcrStage =
   | 'ocr_submit_poll'
   | 'ocr_parse_persisted'
@@ -221,28 +234,8 @@ async function runOneStage(params: {
   }
 
   if (params.stage === 'export_outputs') {
-    let finalMarkdown = '';
-    if (needTranslateForTask(params.sourceLang, params.targetLang)) {
-      finalMarkdown = await loadMarkdownFromR2(keys.translatedMarkdownObjectKey);
-    } else {
-      finalMarkdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
-    }
-    const exportMeta = await exportMarkdownToPdfAndMd({
-      markdown: finalMarkdown,
-      outputPdfObjectKey: keys.outputPdfObjectKey,
-      outputMdObjectKey: keys.outputMdObjectKey,
-    });
-    console.log(
-      '[ocr/export] done',
-      JSON.stringify({
-        task_id: params.taskId,
-        markdown_chars: exportMeta.markdownChars,
-        markdown_bytes: exportMeta.markdownBytes,
-        pdf_render_chars: exportMeta.pdfRenderChars,
-        pdf_bytes: exportMeta.pdfBytes,
-        pdf_truncated: exportMeta.pdfTruncated,
-      })
-    );
+    // 与 onlinepdftranslator 对齐：export_outputs 只负责投递异步导出任务，
+    // 不在 OCR 主流水线中执行 PDF 渲染，避免 CPU 峰值。
     return 'completed';
   }
 
@@ -285,7 +278,7 @@ export async function sendOcrPipelineQueueMessage(taskId: string): Promise<Queue
       );
       return { ok: false, reason: 'binding_unavailable' };
     }
-    await q.send({ taskId });
+    await q.send({ type: 'ocr_pipeline', taskId });
     console.log('[ocr/queue] enqueued', JSON.stringify({ task_id: taskId, at: nowIso() }));
     return { ok: true };
   } catch (e) {
@@ -299,6 +292,49 @@ export async function sendOcrPipelineQueueMessage(taskId: string): Promise<Queue
       tag,
       JSON.stringify({
         task_id: taskId,
+        reason,
+        ...sanitized,
+      })
+    );
+    return { ok: false, reason, ...sanitized };
+  }
+}
+
+export async function sendOcrExportQueueMessage(params: {
+  taskId: string;
+  exportId: string;
+  format: 'pdf' | 'md';
+}): Promise<QueueSendResult> {
+  try {
+    const q = getQueueBindingFromContext();
+    if (!q || typeof q.send !== 'function') {
+      return { ok: false, reason: 'binding_unavailable' };
+    }
+    await q.send({
+      type: 'ocr_export_generate',
+      taskId: params.taskId,
+      exportId: params.exportId,
+      format: params.format,
+    });
+    console.log(
+      '[ocr/export-queue] enqueued',
+      JSON.stringify({
+        task_id: params.taskId,
+        export_id: params.exportId,
+        format: params.format,
+        at: nowIso(),
+      })
+    );
+    return { ok: true };
+  } catch (e) {
+    const reason = classifyEnqueueError(e);
+    const sanitized = sanitizeErrorForLog(e);
+    console.warn(
+      '[ocr/export-queue] enqueue_failed',
+      JSON.stringify({
+        task_id: params.taskId,
+        export_id: params.exportId,
+        format: params.format,
         reason,
         ...sanitized,
       })
@@ -349,9 +385,18 @@ export async function handleOcrPipelineQueueBatch(batch: {
   messages: Array<{ body: OcrPipelineQueueBody }>;
 }): Promise<void> {
   for (const msg of batch.messages) {
-    const taskId = msg.body?.taskId;
-    if (!taskId || typeof taskId !== 'string') continue;
-    await invokeOcrPipelineForTask(taskId);
+    const body = msg.body;
+    if (!body || typeof body !== 'object') continue;
+    if (body.type === 'ocr_pipeline' || !('type' in body)) {
+      const taskId = (body as { taskId?: string }).taskId;
+      if (!taskId || typeof taskId !== 'string') continue;
+      await invokeOcrPipelineForTask(taskId);
+      continue;
+    }
+    if (body.type === 'ocr_export_generate') {
+      if (!body.exportId || typeof body.exportId !== 'string') continue;
+      await processOcrTaskExport(body.exportId);
+    }
   }
 }
 
@@ -480,15 +525,39 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     await ensureTaskNotCancelled(taskId);
 
     if (nextStage === 'completed') {
-      const keys = outputKeys(taskId);
+      const pendingExports = await ensureOcrPendingExportsForTask({
+        taskId,
+        userId: row.userId ?? null,
+        anonId: row.anonId ?? null,
+        sourceLang: row.sourceLang,
+        targetLang: row.targetLang,
+      });
+      for (const exp of pendingExports) {
+        const enqueueExportResult = await sendOcrExportQueueMessage({
+          taskId,
+          exportId: exp.exportId,
+          format: exp.format,
+        });
+        if (!enqueueExportResult.ok) {
+          console.warn(
+            '[ocr/export-queue] enqueue_failed',
+            JSON.stringify({
+              task_id: taskId,
+              export_id: exp.exportId,
+              format: exp.format,
+              reason: enqueueExportResult.reason,
+            })
+          );
+        }
+      }
       await db()
         .update(translationTasks)
         .set({
           status: 'completed',
           progressStage: 'completed',
           progressPercent: 100,
-          outputObjectKey: keys.outputPdfObjectKey,
-          outputPrimaryPath: keys.outputMdObjectKey,
+          outputObjectKey: null,
+          outputPrimaryPath: null,
           errorCode: null,
           errorMessage: null,
           fcNextAttemptAt: null,
