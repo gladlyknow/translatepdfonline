@@ -119,7 +119,7 @@ export default async function RootLayout({
           }
           sizes="any"
         />
-        <link rel="shortcut icon" href={cacheBustedPublicPath('/favicon.ico')} />
+        <link rel="shortcut icon" href={cacheBustedPublicPath(envConfigs.app_favicon)} />
         <link
           rel="apple-touch-icon"
           href={cacheBustedPublicPath('/brand/logo-t-pdf.jpeg')}

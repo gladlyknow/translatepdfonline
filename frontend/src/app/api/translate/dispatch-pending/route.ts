@@ -25,6 +25,9 @@ export async function POST(req: Request) {
         Math.max(1, parseInt(process.env.TRANSLATE_DISPATCH_BATCH_SIZE || '8', 10) || 8)
       )
     );
+    if (result.processed === 0) {
+      return new Response(null, { status: 204 });
+    }
     return Response.json({ ok: true, ...result });
   } catch (e) {
     console.error('[translate/dispatch-pending]', e);

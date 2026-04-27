@@ -4,14 +4,29 @@ import { translationTasks } from '@/config/db/schema';
 import { db } from '@/core/db';
 import { getTranslateAuth } from '@/app/api/translate/auth';
 import {
+  appendExportLog,
   findExportByTaskFormat,
   isOcrTaskExportFormat,
   listExportsForTask,
   OcrTaskExportStatus,
+  updateExportRow,
 } from '@/shared/models/ocr_task_export';
 import { createPresignedGet, isR2Configured } from '@/shared/lib/translate-r2';
 import { retryOcrTaskExport } from '@/shared/lib/ocr-export-queue';
 import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
+
+const OCR_EXPORT_STALE_MS = Number.parseInt(
+  process.env.OCR_EXPORT_STALE_MS || '300000',
+  10
+);
+const OCR_EXPORT_STALE_PENDING_MS = Number.parseInt(
+  process.env.OCR_EXPORT_STALE_PENDING_MS || String(Math.max(OCR_EXPORT_STALE_MS, 900000)),
+  10
+);
+const OCR_EXPORT_STALE_PROCESSING_MS = Number.parseInt(
+  process.env.OCR_EXPORT_STALE_PROCESSING_MS || String(Math.max(OCR_EXPORT_STALE_MS, 1800000)),
+  10
+);
 
 function parseLogLines(raw: string | null | undefined, maxLines = 80): string[] {
   if (!raw?.trim()) return [];
@@ -20,6 +35,41 @@ function parseLogLines(raw: string | null | undefined, maxLines = 80): string[] 
     .split('\n')
     .filter(Boolean)
     .slice(-maxLines);
+}
+
+function toTimeMs(v: Date | string | null | undefined): number {
+  if (!v) return 0;
+  const d = v instanceof Date ? v : new Date(v);
+  const ms = d.getTime();
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+async function markStaleExportIfNeeded(row: {
+  id: string;
+  format: string;
+  status: string;
+  updatedAt: Date | string | null | undefined;
+}): Promise<boolean> {
+  const staleMs =
+    row.status === OcrTaskExportStatus.pending
+      ? OCR_EXPORT_STALE_PENDING_MS
+      : row.status === OcrTaskExportStatus.processing
+        ? OCR_EXPORT_STALE_PROCESSING_MS
+        : 0;
+  if (!staleMs) return false;
+  const updatedMs = toTimeMs(row.updatedAt);
+  if (!updatedMs) return false;
+  if (Date.now() - updatedMs <= staleMs) return false;
+  await appendExportLog(
+    row.id,
+    `stale export auto-failed: status=${row.status} exceeded ${staleMs}ms`
+  );
+  await updateExportRow(row.id, {
+    status: OcrTaskExportStatus.failed,
+    errorMessage: `Export timed out after waiting over ${Math.floor(staleMs / 1000)}s`,
+    r2Key: null,
+  });
+  return true;
 }
 
 export async function GET(
@@ -72,9 +122,31 @@ export async function GET(
       });
     }
 
-    const rows = await listExportsForTask(taskId);
+    let rows = await listExportsForTask(taskId);
+    let hasStaleUpdated = false;
+    for (const row of rows) {
+      if (
+        await markStaleExportIfNeeded({
+          id: row.id,
+          format: row.format,
+          status: row.status,
+          updatedAt: row.updatedAt,
+        })
+      ) {
+        hasStaleUpdated = true;
+      }
+    }
+    if (hasStaleUpdated) {
+      rows = await listExportsForTask(taskId);
+    }
+    const latestByFormat = new Map<string, (typeof rows)[number]>();
+    for (const row of rows) {
+      if (!latestByFormat.has(row.format)) {
+        latestByFormat.set(row.format, row);
+      }
+    }
     return Response.json({
-      exports: rows.map((r: (typeof rows)[number]) => ({
+      exports: Array.from(latestByFormat.values()).map((r: (typeof rows)[number]) => ({
         id: r.id,
         task_id: r.taskId,
         format: r.format,
@@ -123,6 +195,23 @@ export async function POST(
     const format = String(body.format || '').trim().toLowerCase();
     if (!isOcrTaskExportFormat(format)) {
       return Response.json({ detail: 'invalid format' }, { status: 400 });
+    }
+    const existing = await findExportByTaskFormat(taskId, format);
+    if (existing) {
+      await markStaleExportIfNeeded({
+        id: existing.id,
+        format: existing.format,
+        status: existing.status,
+        updatedAt: existing.updatedAt,
+      });
+    }
+    const latest = await findExportByTaskFormat(taskId, format);
+    if (
+      latest &&
+      (latest.status === OcrTaskExportStatus.pending ||
+        latest.status === OcrTaskExportStatus.processing)
+    ) {
+      return Response.json({ detail: 'export already in progress' }, { status: 409 });
     }
     const exportId = await retryOcrTaskExport(taskId, format);
     if (!exportId) {

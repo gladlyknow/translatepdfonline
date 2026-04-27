@@ -24,6 +24,53 @@ const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
 );
+const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
+  30_000,
+  Number(process.env.OCR_EXPORT_STAGE_TIMEOUT_MS || '180000') || 180000
+);
+
+function toPublicExportErrorMessage(raw: string): string {
+  const msg = raw.toLowerCase();
+  if (
+    msg.includes('connect timeout') ||
+    msg.includes('fetch failed') ||
+    msg.includes('econn') ||
+    msg.includes('network')
+  ) {
+    return 'Storage network timeout, check proxy/network and retry';
+  }
+  if (msg.includes('timed out') || msg.includes('timeout')) {
+    return 'Export timed out, please retry';
+  }
+  if (msg.includes('pdf') && msg.includes('render')) {
+    return 'PDF render timed out, please retry later';
+  }
+  if (msg.includes('missing')) {
+    return 'Export source is not ready, please retry shortly';
+  }
+  return 'Export failed, please retry';
+}
+
+function withStageTimeout<T>(
+  stage: string,
+  fn: () => Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`export stage timeout (${stage}) after ${timeoutMs}ms`));
+    }, timeoutMs);
+    fn()
+      .then((v) => {
+        clearTimeout(timer);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+  });
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -145,7 +192,11 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     await appendExportLog(exportId, `start format=${row.format}`);
-    const markdown = await loadMarkdownFromR2(row.sourceMarkdownObjectKey);
+    const markdown = await withStageTimeout(
+      'load_markdown',
+      () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
+      OCR_EXPORT_STAGE_TIMEOUT_MS
+    );
     if (await isTaskCancelled(row.taskId)) {
       await updateExportRow(exportId, {
         status: OcrTaskExportStatus.cancelled,
@@ -155,7 +206,6 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       await appendExportLog(exportId, 'stopped (task cancelled)');
       return;
     }
-    const markdownBytes = new TextEncoder().encode(markdown);
     if (row.format === 'pdf') {
       const pdfMarkdown =
         markdown.length > OCR_EXPORT_PDF_RENDER_MAX_CHARS
@@ -164,7 +214,11 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
               OCR_EXPORT_PDF_RENDER_MAX_CHARS
             )}\n\n---\n\n[OCR PDF export truncated for rendering limit; full text is in markdown output.]`
           : markdown;
-      const pdfBytes = await markdownToSimplePdfBytes(pdfMarkdown);
+      const pdfBytes = await withStageTimeout(
+        'render_pdf_bytes',
+        () => markdownToSimplePdfBytes(pdfMarkdown),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
       const key = outputKeyForFormat(row.taskId, 'pdf');
       await uploadWithRetry(key, pdfBytes, 'application/pdf');
       await updateExportRow(exportId, {
@@ -178,6 +232,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         `ready pdf_bytes=${pdfBytes.byteLength} render_chars=${pdfMarkdown.length}`
       );
     } else {
+      const markdownBytes = new TextEncoder().encode(markdown);
       const key = outputKeyForFormat(row.taskId, 'md');
       await uploadWithRetry(key, markdownBytes, 'text/markdown; charset=utf-8');
       await updateExportRow(exportId, {
@@ -190,12 +245,14 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
     }
     await syncTaskOutputPointers(row.taskId);
   } catch (e) {
-    const msg = (e instanceof Error ? e.message : String(e)).slice(0, 300);
-    await appendExportLog(exportId, `failed: ${msg}`);
+    const rawMsg = e instanceof Error ? e.message : String(e);
+    const msg = rawMsg.slice(0, 300);
+    const safeMsg = toPublicExportErrorMessage(rawMsg).slice(0, 300);
+    await appendExportLog(exportId, `failed: ${safeMsg}`);
     await updateExportRow(exportId, {
       status: OcrTaskExportStatus.failed,
       r2Key: null,
-      errorMessage: msg,
+      errorMessage: safeMsg,
       readyAt: null,
     });
     throw e;

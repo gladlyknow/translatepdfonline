@@ -21,9 +21,12 @@ export async function POST(req: Request) {
     const result = await dispatchPendingOcrJobs(
       Math.min(
         2,
-        Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '2', 10) || 2)
+        Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '1', 10) || 1)
       )
     );
+    if (result.processed === 0) {
+      return new Response(null, { status: 204 });
+    }
     return Response.json({ ok: true, ...result });
   } catch (e) {
     console.error('[ocr/dispatch-pending]', e);

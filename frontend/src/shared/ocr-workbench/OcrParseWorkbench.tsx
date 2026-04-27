@@ -581,6 +581,9 @@ export function OcrParseWorkbench({
             className="border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-200"
           >
             <FileText className="mr-1 size-3.5" />
+            {exportState.md.status === 'processing' ? (
+              <Loader2 className="mr-1 size-3.5 animate-spin" />
+            ) : null}
             <span className="min-w-0 truncate">
               {exportState.md.status === 'processing'
               ? 'MD...'
