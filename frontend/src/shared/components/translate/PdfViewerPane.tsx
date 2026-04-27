@@ -46,6 +46,7 @@ type Props = {
   maxScale?: number;
   onScaleChange?: (next: number) => void;
   showZoomControls?: boolean;
+  showPageControls?: boolean;
 };
 
 export function PdfViewerPane({
@@ -62,6 +63,7 @@ export function PdfViewerPane({
   maxScale = 2.5,
   onScaleChange,
   showZoomControls = false,
+  showPageControls = true,
 }: Props) {
   const t = useTranslations('translate.pdfViewer');
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -259,69 +261,75 @@ export function PdfViewerPane({
       >
         {shouldRenderPage && (
           <>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={safePage <= 1}
-                className="rounded border border-zinc-200 bg-white px-2 py-1 text-sm disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800"
-              >
-                {t('prevPage')}
-              </button>
-              <span className="text-sm tabular-nums">
-                {safePage} /{' '}
-                {effectiveTotal != null && effectiveTotal >= 1
-                  ? effectiveTotal
-                  : (numPages ?? '…')}
-              </span>
-              <button
-                type="button"
-                onClick={goNext}
-                disabled={
-                  effectiveTotal != null && effectiveTotal >= 1
-                    ? safePage >= effectiveTotal
-                    : numPages != null
-                      ? safePage >= numPages
-                      : false
-                }
-                className="rounded border border-zinc-200 bg-white px-2 py-1 text-sm disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800"
-              >
-                {t('nextPage')}
-              </button>
-              {showZoomControls && onScaleChange && (
-                <span className="ml-auto flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={zoomOut}
-                    disabled={scale <= minScale + 0.01}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
-                    aria-label={t('zoomOut')}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="min-w-[3rem] text-center text-xs tabular-nums text-zinc-500">
-                    {Math.round(scale * 100)}%
+            {(showPageControls || (showZoomControls && onScaleChange)) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {showPageControls && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={goPrev}
+                      disabled={safePage <= 1}
+                      className="rounded border border-zinc-200 bg-white px-2 py-1 text-sm disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800"
+                    >
+                      {t('prevPage')}
+                    </button>
+                    <span className="text-sm tabular-nums">
+                      {safePage} /{' '}
+                      {effectiveTotal != null && effectiveTotal >= 1
+                        ? effectiveTotal
+                        : (numPages ?? '…')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      disabled={
+                        effectiveTotal != null && effectiveTotal >= 1
+                          ? safePage >= effectiveTotal
+                          : numPages != null
+                            ? safePage >= numPages
+                            : false
+                      }
+                      className="rounded border border-zinc-200 bg-white px-2 py-1 text-sm disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800"
+                    >
+                      {t('nextPage')}
+                    </button>
+                  </>
+                )}
+                {showZoomControls && onScaleChange && (
+                  <span className="ml-auto flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={zoomOut}
+                      disabled={scale <= minScale + 0.01}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                      aria-label={t('zoomOut')}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="min-w-[3rem] text-center text-xs tabular-nums text-zinc-500">
+                      {Math.round(scale * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={zoomIn}
+                      disabled={scale >= maxScale - 0.01}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                      aria-label={t('zoomIn')}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={zoomReset}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                      aria-label={t('zoomReset')}
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
                   </span>
-                  <button
-                    type="button"
-                    onClick={zoomIn}
-                    disabled={scale >= maxScale - 0.01}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
-                    aria-label={t('zoomIn')}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={zoomReset}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
-                    aria-label={t('zoomReset')}
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" />
-                  </button>
-                </span>
-              )}
-            </div>
+                )}
+              </div>
+            )}
             <div
               className={
                 mode === 'target'

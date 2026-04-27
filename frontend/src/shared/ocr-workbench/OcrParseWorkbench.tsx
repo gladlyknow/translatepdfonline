@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { Loader2, Redo2, Save, Undo2 } from 'lucide-react';
@@ -61,6 +61,9 @@ export function OcrParseWorkbench({
   toolbarPosition = 'bottom',
   toolbarId,
   toolbarSectionIds,
+  canvasScalePercent,
+  onCanvasScaleChange,
+  onCanvasFocus,
 }: {
   taskId: string;
   parseResultUrl: string | null;
@@ -81,6 +84,9 @@ export function OcrParseWorkbench({
     blockProps?: string;
     file?: string;
   };
+  canvasScalePercent?: number;
+  onCanvasScaleChange?: (next: number) => void;
+  onCanvasFocus?: () => void;
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -127,7 +133,7 @@ export function OcrParseWorkbench({
   const [pdfPageNum, setPdfPageNum] = useState(1);
   const [pdfPageTotal, setPdfPageTotal] = useState(1);
   const [collapsed, setCollapsed] = useState(false);
-  const [jsonCanvasScale, setJsonCanvasScale] = useState(() => {
+  const [internalJsonCanvasScale, setInternalJsonCanvasScale] = useState(() => {
     if (typeof window === 'undefined') return 100;
     const v = Number.parseInt(
       window.localStorage.getItem(JSON_SCALE_KEY) || '100',
@@ -135,6 +141,10 @@ export function OcrParseWorkbench({
     );
     return Number.isFinite(v) ? Math.max(30, Math.min(160, v)) : 100;
   });
+  const jsonCanvasScale =
+    typeof canvasScalePercent === 'number'
+      ? Math.max(30, Math.min(160, Math.round(canvasScalePercent)))
+      : internalJsonCanvasScale;
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -501,7 +511,11 @@ export function OcrParseWorkbench({
           value={jsonCanvasScale}
           onChange={(e) => {
             const n = Number.parseInt(e.target.value, 10);
-            setJsonCanvasScale(n);
+            if (onCanvasScaleChange) {
+              onCanvasScaleChange(n);
+            } else {
+              setInternalJsonCanvasScale(n);
+            }
             try {
               window.localStorage.setItem(JSON_SCALE_KEY, String(n));
             } catch {
@@ -513,7 +527,7 @@ export function OcrParseWorkbench({
         <span className="tabular-nums">{jsonCanvasScale}%</span>
       </label>
     ),
-    [jsonCanvasScale, t]
+    [jsonCanvasScale, onCanvasScaleChange, t]
   );
 
   const fileControls = useMemo(
@@ -563,16 +577,52 @@ export function OcrParseWorkbench({
     [canRedo, canUndo, doc, exportMd, redo, saveToServer, saving, t, undo]
   );
   const showTopPageControls = !(toolbarPosition === 'left' && hideSourcePanel);
+  const showLeftToolbar = toolbarPosition === 'left' && hideSourcePanel;
+
+  const renderStatusWithToolbar = (
+    panel: ReactNode,
+    tone: 'normal' | 'error' = 'normal'
+  ) => (
+    <div
+      className={cn(
+        'min-h-0 min-w-0 flex-1',
+        showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
+      )}
+    >
+      {showLeftToolbar ? (
+        <aside
+          id={toolbarId}
+          className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
+        >
+          <ParseResultEditorToolbar
+            disabled
+            currentEditorStyle={{}}
+            sectionIds={toolbarSectionIds}
+          />
+        </aside>
+      ) : null}
+      <div
+        className={cn(
+          'flex min-h-0 min-w-0 flex-1 items-center rounded-lg border p-3',
+          tone === 'error'
+            ? 'border-red-200 bg-red-50/90 text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
+            : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300'
+        )}
+      >
+        {panel}
+      </div>
+    </div>
+  );
 
   if (!parseResultUrl) {
-    return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{t('noParseUrl')}</p>
+    return renderStatusWithToolbar(
+      <p className="text-sm">{t('noParseUrl')}</p>
     );
   }
 
   if (loadState === 'loading' || loadState === 'idle') {
-    return (
-      <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+    return renderStatusWithToolbar(
+      <div className="flex items-center gap-2 text-sm">
         <Loader2 className="size-4 animate-spin" />
         {t('loadingParse')}
       </div>
@@ -580,11 +630,12 @@ export function OcrParseWorkbench({
   }
 
   if (loadState === 'error') {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50/90 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
-        <p className="font-medium">{t('parseFailedTitle')}</p>
+    return renderStatusWithToolbar(
+      <div>
+        <p className="text-sm font-medium">{t('parseFailedTitle')}</p>
         <p className="mt-1 text-xs opacity-90">{loadError}</p>
-      </div>
+      </div>,
+      'error'
     );
   }
 
@@ -671,7 +722,7 @@ export function OcrParseWorkbench({
           toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
       >
-        {toolbarPosition === 'left' && hideSourcePanel ? (
+        {showLeftToolbar ? (
           <aside
             id={toolbarId}
             className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
@@ -727,7 +778,7 @@ export function OcrParseWorkbench({
                 pageIndex={activePageIndex}
                 canvasScalePercent={jsonCanvasScale}
                 orientation="portrait"
-                onActivate={() => {}}
+                onActivate={() => onCanvasFocus?.()}
                 selectedLayoutId={selectedLayoutId}
                 onSelectLayout={setSelectedLayoutId}
                 onPositionChange={onPositionChange}

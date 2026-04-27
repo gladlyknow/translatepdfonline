@@ -44,15 +44,8 @@ export default {
       }
     });
   },
-  async scheduled(_controller: unknown, env: Record<string, unknown>): Promise<void> {
-    await runWithCloudflareEnv(env, async () => {
-      console.log(
-        '[ocr-pipeline-consumer] cron_dispatch_disabled',
-        JSON.stringify({
-          reason: 'project_disabled_empty_scan',
-          mode: 'disabled',
-        })
-      );
-    });
+  async scheduled(_controller: unknown, _env: Record<string, unknown>): Promise<void> {
+    // Intentionally noop: OCR dispatch only via queue/API, no cron fallback.
+    return;
   },
 };

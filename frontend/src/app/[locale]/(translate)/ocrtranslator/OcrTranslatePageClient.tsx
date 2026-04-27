@@ -65,6 +65,7 @@ const OCR_TOOLBAR_FONT_SETTINGS_ID = 'ocr-workbench-toolbar-font-settings';
 const OCR_TOOLBAR_BLOCK_PROPS_ID = 'ocr-workbench-toolbar-block-props';
 const OCR_TOOLBAR_FILE_ID = 'ocr-workbench-toolbar-file';
 const HISTORY_PAGE_SIZE = 3;
+type OcrFocusPanel = 'json' | 'source';
 
 type OcrUiLog = {
   at: string;
@@ -152,6 +153,8 @@ export function OcrTranslatePageClient() {
   const [sourceLang, setSourceLang] = useState<UILang | ''>('');
   const [targetLang, setTargetLang] = useState<UILang | ''>('');
   const [pdfZoom, setPdfZoom] = useState(1);
+  const [jsonCanvasScale, setJsonCanvasScale] = useState(100);
+  const [activeFocusPanel, setActiveFocusPanel] = useState<OcrFocusPanel>('json');
 
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [filename, setFilename] = useState<string | null>(null);
@@ -164,6 +167,7 @@ export function OcrTranslatePageClient() {
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
   const [taskView, setTaskView] = useState<TaskView | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [jsonPage, setJsonPage] = useState(1);
   const [targetPage, setTargetPage] = useState(1);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [documentCreatedAt, setDocumentCreatedAt] = useState<string | null>(
@@ -218,6 +222,31 @@ export function OcrTranslatePageClient() {
     at: number;
   } | null>(null);
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
+
+  const setTaskViewStable = useCallback((next: TaskView | null) => {
+    if (!next) {
+      setTaskView(null);
+      return;
+    }
+    setTaskView((prev) => {
+      if (!prev) return next;
+      const mergedOutputs =
+        Array.isArray(next.outputs) && next.outputs.length > 0
+          ? next.outputs
+          : prev.outputs;
+      return {
+        ...next,
+        // 避免轮询时 presigned URL 频繁刷新导致 workbench 每次重载闪烁
+        ocr_parse_result_url: prev.ocr_parse_result_url || next.ocr_parse_result_url,
+        source_pdf_url: prev.source_pdf_url || next.source_pdf_url,
+        primary_file_url: next.primary_file_url || prev.primary_file_url,
+        outputs: mergedOutputs,
+        can_download:
+          next.can_download ??
+          (Array.isArray(mergedOutputs) && mergedOutputs.length > 0),
+      };
+    });
+  }, []);
 
   useEffect(() => {
     setThemeMounted(true);
@@ -310,7 +339,7 @@ export function OcrTranslatePageClient() {
         setTaskStatus(detail.status);
         setTaskDetail(detail);
         if (view) {
-          setTaskView(view);
+          setTaskViewStable(view);
           blockAutoDocumentLoadRef.current = false;
           setDocumentId(detail.document_id);
           setFilename(view.document_filename);
@@ -333,7 +362,7 @@ export function OcrTranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams, pathname, router, sourceLang, targetLang, taskId]);
+  }, [searchParams, pathname, router, sourceLang, targetLang, taskId, setTaskViewStable]);
 
   useEffect(() => {
     const qDoc = searchParams.get(DOC_PARAM);
@@ -442,6 +471,10 @@ export function OcrTranslatePageClient() {
   }, [taskId]);
 
   useEffect(() => {
+    setJsonPage(1);
+  }, [taskId, documentId]);
+
+  useEffect(() => {
     if (
       !taskId ||
       taskStatus !== 'completed' ||
@@ -501,13 +534,30 @@ export function OcrTranslatePageClient() {
           detail.status === 'failed' ||
           detail.status === 'cancelled'
         ) {
-          const view = await translateApi.getTaskView(taskId).catch(() => null);
-          if (!cancelled && view) setTaskView(view);
-          if (
-            detail.status === 'completed' &&
-            (!view?.can_download || (view.outputs?.length ?? 0) === 0)
-          ) {
+          if (detail.status === 'completed') {
+            const exportState = await translateApi
+              .listOcrTaskExports(taskId)
+              .catch(() => null);
+            if (cancelled) return;
+            const hasReadyExport = Boolean(
+              exportState?.exports?.some((one) => one.status === 'ready')
+            );
+            if (hasReadyExport || !taskView || !taskView.ocr_parse_result_url) {
+              const view = await translateApi.getTaskView(taskId).catch(() => null);
+              if (!cancelled && view) {
+                setTaskViewStable(view);
+              }
+            }
+            if (!hasReadyExport) {
+              return;
+            }
             return;
+          }
+          if (!taskView) {
+            const view = await translateApi.getTaskView(taskId).catch(() => null);
+            if (!cancelled && view) {
+              setTaskViewStable(view);
+            }
           }
           return;
         }
@@ -529,7 +579,14 @@ export function OcrTranslatePageClient() {
       cancelled = true;
       if (id) clearInterval(id);
     };
-  }, [taskId, taskStatus, taskView?.can_download, taskView?.outputs?.length]);
+  }, [
+    taskId,
+    taskStatus,
+    taskView,
+    taskView?.can_download,
+    taskView?.outputs?.length,
+    setTaskViewStable,
+  ]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
@@ -597,7 +654,7 @@ export function OcrTranslatePageClient() {
         detail.status === 'cancelled'
       ) {
         const view = await translateApi.getTaskView(taskId).catch(() => null);
-        if (view) setTaskView(view);
+        if (view) setTaskViewStable(view);
       }
     } finally {
       setRefreshing(false);
@@ -806,21 +863,38 @@ export function OcrTranslatePageClient() {
   );
 
   const handlePrevPage = useCallback(() => {
-    const next = Math.max(1, currentPage - 1);
-    setCurrentPage(next);
-    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
-      setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+    if (activeFocusPanel === 'source') {
+      const next = Math.max(1, currentPage - 1);
+      setCurrentPage(next);
+      if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+        setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+      }
+      return;
     }
-  }, [currentPage, effectiveTargetTotalPages, taskStatus]);
+    const next = Math.max(1, jsonPage - 1);
+    setJsonPage(next);
+  }, [activeFocusPanel, currentPage, effectiveTargetTotalPages, jsonPage, taskStatus]);
 
   const handleNextPage = useCallback(() => {
     const total = Math.max(1, effectiveDocumentPageCount || 1);
-    const next = Math.min(total, currentPage + 1);
-    setCurrentPage(next);
-    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
-      setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+    if (activeFocusPanel === 'source') {
+      const next = Math.min(total, currentPage + 1);
+      setCurrentPage(next);
+      if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+        setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+      }
+      return;
     }
-  }, [currentPage, effectiveDocumentPageCount, effectiveTargetTotalPages, taskStatus]);
+    const next = Math.min(total, jsonPage + 1);
+    setJsonPage(next);
+  }, [
+    activeFocusPanel,
+    currentPage,
+    effectiveDocumentPageCount,
+    effectiveTargetTotalPages,
+    jsonPage,
+    taskStatus,
+  ]);
 
   const outputs = taskView?.outputs ?? [];
   const pdfOutput =
@@ -838,78 +912,68 @@ export function OcrTranslatePageClient() {
       <aside
         className="flex max-h-[45vh] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-64 md:border-b-0 md:border-r md:p-4"
       >
-        <div className="border-b border-zinc-100 pb-2 dark:border-zinc-800">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-            {tHome('workbenchModelOcr')}
-          </p>
-          <p className="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            {tHome('workbenchPipelineTitle')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900/70">
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
-            {tOcrWb('navHome')}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/upload')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
-            {tOcrWb('navUpload')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setHistoryLogOpen(true)}
-            className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/history.png" alt="" width={14} height={14} />
-            {tOcrWb('navHistLog')}
-          </button>
-        </div>
-
-        <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/40">
-          {user?.id || sessionUserId ? (
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
-                  {tHome('creditsRemaining')}
-                </p>
-                <p className="text-base font-bold tabular-nums text-slate-900 dark:text-zinc-50">
-                  {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
-                </p>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
+              {tOcrWb('navHome')}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/upload')}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
+              {tOcrWb('navUpload')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setHistoryLogOpen(true)}
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/history.png" alt="" width={14} height={14} />
+              {tOcrWb('navHistLog')}
+            </button>
+          </div>
+          <div className="mt-2 rounded-lg border border-blue-200/80 bg-blue-50/90 p-2 dark:border-blue-900/50 dark:bg-blue-950/40">
+            {user?.id || sessionUserId ? (
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
+                    {tHome('creditsRemaining')}
+                  </p>
+                  <p className="text-sm font-bold tabular-nums text-slate-900 dark:text-zinc-50">
+                    {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/pricing')}
+                  className="rounded-md border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800"
+                >
+                  {tHome('buyCredits')}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => router.push('/pricing')}
-                className="rounded-md border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800"
-              >
-                {tHome('buyCredits')}
-              </button>
-            </div>
-          ) : (
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              {tHome('creditsLoadHint')}
-            </p>
-          )}
+            ) : (
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                {tHome('creditsLoadHint')}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="order-last rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {tOcrWb('pagesTitle')}
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() =>
-                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? false))
-              }
+              onClick={() => shellChrome?.setHeaderCollapsed(false)}
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesExpandHeader')}
@@ -932,17 +996,44 @@ export function OcrTranslatePageClient() {
             </button>
             <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
               {tOcrWb('pagesSourcePage', {
-                current: currentPage,
+                current: activeFocusPanel === 'source' ? currentPage : jsonPage,
                 total: Math.max(1, effectiveDocumentPageCount || 1),
               })}
             </p>
+            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+              {activeFocusPanel === 'json' ? 'JSON focus' : 'Source focus'}
+            </p>
+            <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span>{tOcrWb('canvasScale')}</span>
+              <input
+                type="range"
+                min={30}
+                max={250}
+                value={
+                  activeFocusPanel === 'source'
+                    ? Math.round(pdfZoom * 100)
+                    : jsonCanvasScale
+                }
+                onChange={(e) => {
+                  const next = Number.parseInt(e.target.value, 10);
+                  if (activeFocusPanel === 'source') {
+                    const zoom = Math.max(0.5, Math.min(2.5, next / 100));
+                    setPdfZoom(zoom);
+                    return;
+                  }
+                  setJsonCanvasScale(Math.max(30, Math.min(160, next)));
+                }}
+                className="flex-1"
+              />
+              <span className="w-10 text-right tabular-nums">
+                {activeFocusPanel === 'source'
+                  ? `${Math.round(pdfZoom * 100)}%`
+                  : `${jsonCanvasScale}%`}
+              </span>
+            </label>
             <button
               type="button"
-              onClick={() =>
-                footerWorkbench?.setFooterExpanded(
-                  !(footerWorkbench?.footerExpanded ?? false)
-                )
-              }
+              onClick={() => footerWorkbench?.setFooterExpanded(true)}
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesExpandFooter')}
@@ -951,7 +1042,7 @@ export function OcrTranslatePageClient() {
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
-          <div className="mt-2">
+          <div>
             <UploadDropzone
               onUploaded={handleUploaded}
               initialFile={lastUploadedFile}
@@ -989,10 +1080,7 @@ export function OcrTranslatePageClient() {
               )}
             </p>
           )}
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/60">
-          <div className="grid gap-2">
+          <div className="mt-3 grid gap-2">
             <LanguageSelector
               value={sourceLang}
               onChange={setSourceLang}
@@ -1192,12 +1280,15 @@ export function OcrTranslatePageClient() {
                     taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
                   }
                   hideSourcePanel
-                  pageIndex={Math.max(0, currentPage - 1)}
+                  pageIndex={Math.max(0, jsonPage - 1)}
                   onPageIndexChange={(idx) => {
                     const maxP = Math.max(1, effectiveDocumentPageCount || 1);
-                    setCurrentPage(Math.min(maxP, Math.max(1, idx + 1)));
+                    setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
                   }}
                   onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
+                  canvasScalePercent={jsonCanvasScale}
+                  onCanvasScaleChange={setJsonCanvasScale}
+                  onCanvasFocus={() => setActiveFocusPanel('json')}
                   toolbarPosition="left"
                   toolbarId={OCR_TOOLBAR_ID}
                   toolbarSectionIds={{
@@ -1210,7 +1301,10 @@ export function OcrTranslatePageClient() {
               </div>
             </div>
             <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden md:grid-cols-2 md:gap-4 md:min-h-[180px] md:max-h-[34vh]">
-              <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+              <div
+                className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+                onMouseEnter={() => setActiveFocusPanel('source')}
+              >
                 <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                   {tHome('sourceLabel')}
                 </p>
@@ -1229,11 +1323,15 @@ export function OcrTranslatePageClient() {
                     onPdfNumPages={setSourceNumPagesFromViewer}
                     scale={pdfZoom}
                     onScaleChange={setPdfZoom}
-                    showZoomControls
+                    showZoomControls={false}
+                    showPageControls={false}
                   />
                 </div>
               </div>
-              <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+              <div
+                className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+                onMouseEnter={() => setActiveFocusPanel('json')}
+              >
                 <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                   {tOcrWb('parseJsonPanelTitle')}
                 </p>
@@ -1245,7 +1343,10 @@ export function OcrTranslatePageClient() {
           </div>
         ) : (
           <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
-            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <div
+              className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+              onMouseEnter={() => setActiveFocusPanel('source')}
+            >
               <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                 {tHome('sourceLabel')}
               </p>
@@ -1262,7 +1363,8 @@ export function OcrTranslatePageClient() {
                   onPdfNumPages={setSourceNumPagesFromViewer}
                   scale={pdfZoom}
                   onScaleChange={setPdfZoom}
-                  showZoomControls
+                    showZoomControls={false}
+                    showPageControls={false}
                 />
               </div>
             </div>
@@ -1296,6 +1398,7 @@ export function OcrTranslatePageClient() {
                     scale={pdfZoom}
                     onScaleChange={setPdfZoom}
                     showZoomControls={false}
+                    showPageControls={false}
                   />
                 )}
               </div>

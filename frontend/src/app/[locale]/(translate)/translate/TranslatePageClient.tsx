@@ -26,7 +26,6 @@ import {
   type TranslateTaskCreatedMeta,
   type UILang,
 } from '@/shared/lib/translate-api';
-import { TRANSLATE_MODEL_DISPLAY_NAME } from '@/config/translate-ui';
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
 import { Loader2, Download, Trash2, RefreshCw } from 'lucide-react';
 
@@ -386,8 +385,56 @@ export function TranslatePageClient() {
     const hasTask = Boolean(searchParams.get(TASK_PARAM)?.trim());
     const hasDoc = Boolean(searchParams.get(DOCUMENT_PARAM)?.trim());
     if (hasTask || hasDoc) return;
-    router.replace('/upload');
-  }, [documentId, searchParams, router]);
+    if (blockAutoDocumentLoadRef.current) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const recent = await translateApi.listTasks({
+          limit: 1,
+          offset: 0,
+          ocrOnly: false,
+        });
+        if (cancelled || recent.length === 0) return;
+        const latest = recent[0];
+        const [detail, view] = await Promise.all([
+          translateApi.getTask(latest.id),
+          translateApi.getTaskView(latest.id).catch(() => null),
+        ]);
+        if (cancelled) return;
+        setTaskId(latest.id);
+        setTaskStatus(detail.status);
+        setTaskDetail(detail);
+        updateTaskInUrl(latest.id);
+        if (view) {
+          setTaskView(view);
+          blockAutoDocumentLoadRef.current = false;
+          setDocumentId(detail.document_id);
+          setFilename(view.document_filename);
+          setLastUploadedFile({
+            name: view.document_filename,
+            size: view.document_size_bytes ?? 0,
+          });
+          return;
+        }
+        if (detail.document_id) {
+          const doc = await translateApi.getDocument(detail.document_id).catch(() => null);
+          if (cancelled || !doc) return;
+          blockAutoDocumentLoadRef.current = false;
+          setDocumentId(doc.id);
+          setFilename(doc.filename);
+          setLastUploadedFile({
+            name: doc.filename,
+            size: doc.size_bytes ?? 0,
+          });
+        }
+      } catch {
+        // 没有最近任务时保持当前页，等待上传
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, searchParams, updateTaskInUrl]);
 
   useEffect(() => {
     if (!documentId) {
@@ -820,8 +867,12 @@ export function TranslatePageClient() {
     taskView?.task ??
     (taskStatus === 'failed' && taskDetail ? taskDetail : null);
 
-  /** 正在从 URL（task / document）恢复工作台 */
-  if (!documentId) {
+  /** 仅在 URL 指定 task/document 且尚未恢复时显示加载 */
+  const restoringFromUrl =
+    !documentId &&
+    (Boolean(searchParams.get(TASK_PARAM)?.trim()) ||
+      Boolean(searchParams.get(DOCUMENT_PARAM)?.trim()));
+  if (restoringFromUrl) {
     return (
       <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 p-8 text-zinc-600 dark:text-zinc-400">
         <Loader2 className="h-10 w-10 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
@@ -837,69 +888,58 @@ export function TranslatePageClient() {
         id="translate-workbench-aside"
         className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
       >
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900/70">
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
-            {tOcrWb('navHome')}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/upload')}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
-            {tOcrWb('navUpload')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setHistoryLogOpen(true)}
-            className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <Image src="/brand/local/history.png" alt="" width={14} height={14} />
-            {tOcrWb('navHistLog')}
-          </button>
-        </div>
-
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            {tHome('workbenchModel')}
-          </p>
-          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-zinc-100">
-            {TRANSLATE_MODEL_DISPLAY_NAME}
-          </p>
-          <p className="mt-0.5 text-[11px] text-zinc-500">
-            {tHome('workbenchZoomHint')}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/40">
-          {user?.id || sessionUserId ? (
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
-                  {tHome('creditsRemaining')}
-                </p>
-                <p className="text-base font-bold tabular-nums text-slate-900 dark:text-zinc-50">
-                  {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
-                </p>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
+              {tOcrWb('navHome')}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/upload')}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
+              {tOcrWb('navUpload')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setHistoryLogOpen(true)}
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Image src="/brand/local/history.png" alt="" width={14} height={14} />
+              {tOcrWb('navHistLog')}
+            </button>
+          </div>
+          <div className="mt-2 rounded-lg border border-blue-200/80 bg-blue-50/90 p-2 dark:border-blue-900/50 dark:bg-blue-950/40">
+            {user?.id || sessionUserId ? (
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
+                    {tHome('creditsRemaining')}
+                  </p>
+                  <p className="text-sm font-bold tabular-nums text-slate-900 dark:text-zinc-50">
+                    {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/pricing')}
+                  className="rounded-md border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800"
+                >
+                  {tHome('buyCredits')}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => router.push('/pricing')}
-                className="rounded-md border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800"
-              >
-                {tHome('buyCredits')}
-              </button>
-            </div>
-          ) : (
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              {tHome('creditsLoadHint')}
-            </p>
-          )}
+            ) : (
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                {tHome('creditsLoadHint')}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="order-last rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
@@ -909,9 +949,7 @@ export function TranslatePageClient() {
           <div className="mt-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() =>
-                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? false))
-              }
+              onClick={() => shellChrome?.setHeaderCollapsed(false)}
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesExpandHeader')}
@@ -938,13 +976,26 @@ export function TranslatePageClient() {
                 total: Math.max(1, effectiveDocumentPageCount || 1),
               })}
             </p>
+            <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span>{tOcrWb('canvasScale')}</span>
+              <input
+                type="range"
+                min={50}
+                max={250}
+                value={Math.round(pdfZoom * 100)}
+                onChange={(e) => {
+                  const next = Number.parseInt(e.target.value, 10);
+                  setPdfZoom(Math.max(0.5, Math.min(2.5, next / 100)));
+                }}
+                className="flex-1"
+              />
+              <span className="w-10 text-right tabular-nums">
+                {Math.round(pdfZoom * 100)}%
+              </span>
+            </label>
             <button
               type="button"
-              onClick={() =>
-                footerWorkbench?.setFooterExpanded(
-                  !(footerWorkbench?.footerExpanded ?? false)
-                )
-              }
+              onClick={() => footerWorkbench?.setFooterExpanded(true)}
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesExpandFooter')}
@@ -993,22 +1044,28 @@ export function TranslatePageClient() {
           )}
         </div>
 
-        <TranslationForm
-          documentId={documentId}
-          onTaskCreated={handleTaskCreated}
-          variant="workbench"
-          taskStatus={
-            taskAwaitingResult ? taskStatus ?? 'queued' : taskStatus
-          }
-          documentPageCount={effectiveDocumentPageCount}
-          translateBilling={translateBilling}
-          isLoggedIn={Boolean(user?.id)}
-          onRequireSignIn={() => setIsShowSignModal(true)}
-          sourceLang={sourceLang}
-          targetLang={targetLang}
-          onSourceLangChange={setSourceLang}
-          onTargetLangChange={setTargetLang}
-        />
+        {documentId ? (
+          <TranslationForm
+            documentId={documentId}
+            onTaskCreated={handleTaskCreated}
+            variant="workbench"
+            taskStatus={
+              taskAwaitingResult ? taskStatus ?? 'queued' : taskStatus
+            }
+            documentPageCount={effectiveDocumentPageCount}
+            translateBilling={translateBilling}
+            isLoggedIn={Boolean(user?.id)}
+            onRequireSignIn={() => setIsShowSignModal(true)}
+            sourceLang={sourceLang}
+            targetLang={targetLang}
+            onSourceLangChange={setSourceLang}
+            onTargetLangChange={setTargetLang}
+          />
+        ) : (
+          <p className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+            {tHome('uploadCardHint')}
+          </p>
+        )}
 
         {taskStatus === 'completed' && targetPdfUrl && downloadUrl && (
           <a
@@ -1188,7 +1245,8 @@ export function TranslatePageClient() {
                 onPdfNumPages={setSourceNumPagesFromViewer}
                 scale={pdfZoom}
                 onScaleChange={setPdfZoom}
-                showZoomControls
+                showZoomControls={false}
+                showPageControls={false}
               />
             </div>
           </div>
@@ -1226,6 +1284,7 @@ export function TranslatePageClient() {
                   scale={pdfZoom}
                   onScaleChange={setPdfZoom}
                   showZoomControls={false}
+                  showPageControls={false}
                 />
               )}
             </div>
