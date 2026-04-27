@@ -12,13 +12,86 @@ const BAIDU_QUERY_URL =
 const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 const OCR_PDF_RENDER_MAX_CHARS = Math.max(
   8000,
-  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '20000') || 20000
+  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '12000') || 12000
+);
+const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
+  8000,
+  Number(process.env.OCR_EXPORT_STAGE_TIMEOUT_MS || '25000') || 25000
+);
+const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
+  1,
+  Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
 );
 
 type BaiduAuth = {
   accessToken?: string;
   authorizationHeader?: string;
 };
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function withStageTimeout<T>(
+  stage: string,
+  fn: () => Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`ocr export stage timeout (${stage}) after ${timeoutMs}ms`));
+    }, timeoutMs);
+    fn()
+      .then((v) => {
+        clearTimeout(timer);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+  });
+}
+
+function isRetryableStorageLikeError(raw: string): boolean {
+  const v = raw.toLowerCase();
+  return (
+    v.includes('timeout') ||
+    v.includes('timed out') ||
+    v.includes('network') ||
+    v.includes('fetch failed') ||
+    v.includes('socket') ||
+    v.includes('econn') ||
+    v.includes('503') ||
+    v.includes('429')
+  );
+}
+
+async function putObjectWithRetry(params: {
+  key: string;
+  body: Uint8Array;
+  contentType: string;
+  stage: string;
+}): Promise<void> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= OCR_EXPORT_UPLOAD_RETRY_MAX; attempt += 1) {
+    try {
+      await withStageTimeout(
+        `${params.stage}_attempt_${attempt}`,
+        () => putObject(params.key, params.body, params.contentType),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+      return;
+    } catch (e) {
+      lastErr = e;
+      const msg = e instanceof Error ? e.message : String(e);
+      const retryable = isRetryableStorageLikeError(msg);
+      if (!retryable || attempt >= OCR_EXPORT_UPLOAD_RETRY_MAX) break;
+      await sleep(Math.min(600 * attempt, 2500));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
 
 function normalizeBaiduAuthorizationHeader(raw: string): string {
   const t = String(raw || '').replace(/^["']|["']$/g, '').trim();
@@ -485,14 +558,45 @@ export async function exportMarkdownToPdfAndMd(params: {
   markdownBytes: number;
   pdfBytes: number;
 }> {
+  const startedAt = Date.now();
   const mdBytes = new TextEncoder().encode(params.markdown);
   const pdfMarkdown =
     params.markdown.length > OCR_PDF_RENDER_MAX_CHARS
       ? `${params.markdown.slice(0, OCR_PDF_RENDER_MAX_CHARS)}\n\n---\n\n[OCR PDF export truncated for rendering limit; full text is in markdown output.]`
       : params.markdown;
-  const pdfBytes = await markdownToSimplePdfBytes(pdfMarkdown);
-  await putObject(params.outputPdfObjectKey, pdfBytes, 'application/pdf');
-  await putObject(params.outputMdObjectKey, mdBytes, 'text/markdown; charset=utf-8');
+  console.log(
+    '[ocr/export] begin',
+    JSON.stringify({
+      markdown_chars: params.markdown.length,
+      pdf_render_chars: pdfMarkdown.length,
+      timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+      upload_retry_max: OCR_EXPORT_UPLOAD_RETRY_MAX,
+    })
+  );
+  const pdfBytes = await withStageTimeout(
+    'render_pdf_bytes',
+    () => markdownToSimplePdfBytes(pdfMarkdown),
+    OCR_EXPORT_STAGE_TIMEOUT_MS
+  );
+  console.log(
+    '[ocr/export] rendered',
+    JSON.stringify({
+      elapsed_ms: Date.now() - startedAt,
+      pdf_bytes: pdfBytes.byteLength,
+    })
+  );
+  await putObjectWithRetry({
+    key: params.outputPdfObjectKey,
+    body: pdfBytes,
+    contentType: 'application/pdf',
+    stage: 'upload_pdf',
+  });
+  await putObjectWithRetry({
+    key: params.outputMdObjectKey,
+    body: mdBytes,
+    contentType: 'text/markdown; charset=utf-8',
+    stage: 'upload_markdown',
+  });
   return {
     pdfTruncated: params.markdown.length > OCR_PDF_RENDER_MAX_CHARS,
     markdownChars: params.markdown.length,

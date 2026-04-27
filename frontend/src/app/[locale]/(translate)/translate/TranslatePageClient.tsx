@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { useRouter, usePathname } from '@/core/i18n/navigation';
+import { useSession } from '@/core/auth/client';
 import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
@@ -124,7 +125,9 @@ export function TranslatePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { user, fetchUserCredits, setIsShowSignModal } = useAppContext();
+  const { user, fetchUserCredits, fetchUserInfo, setIsShowSignModal } = useAppContext();
+  const { data: session, isPending: sessionPending } = useSession();
+  const sessionUserId = session?.user?.id ?? null;
   const { setAppearance } = useTranslateHeaderAppearance();
   const footerWorkbench = useTranslateFooterWorkbenchOptional();
   const shellChrome = useTranslateShellChromeOptional();
@@ -277,16 +280,19 @@ export function TranslatePageClient() {
   }, [documentId, resolvedTheme, themeMounted, setAppearance]);
 
   useEffect(() => {
-    if (user?.id) {
-      void fetchUserCredits();
+    if (!sessionUserId && !user?.id) return;
+    if (!user?.id) {
+      void fetchUserInfo();
+      return;
     }
-  }, [user?.id, fetchUserCredits]);
+    void fetchUserCredits();
+  }, [sessionUserId, user?.id, fetchUserCredits, fetchUserInfo]);
 
   useEffect(() => {
-    if (taskStatus === 'completed' && user?.id) {
+    if (taskStatus === 'completed' && (user?.id || sessionUserId)) {
       void fetchUserCredits();
     }
-  }, [taskStatus, user?.id, fetchUserCredits]);
+  }, [taskStatus, user?.id, sessionUserId, fetchUserCredits]);
 
   useEffect(() => {
     const tid = searchParams.get(TASK_PARAM);
@@ -871,14 +877,14 @@ export function TranslatePageClient() {
         </div>
 
         <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/40">
-          {user?.id ? (
+          {user?.id || sessionUserId ? (
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
                   {tHome('creditsRemaining')}
                 </p>
                 <p className="text-base font-bold tabular-nums text-slate-900 dark:text-zinc-50">
-                  {user.credits?.remainingCredits ?? '…'}
+                  {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
                 </p>
               </div>
               <button
@@ -896,7 +902,7 @@ export function TranslatePageClient() {
           )}
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="order-last rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {tOcrWb('pagesTitle')}
           </p>

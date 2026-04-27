@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDF 翻译",
-          "url": "/upload",
+          "url": "/translate",
           "icon": "FileText"
         },
         {
@@ -24,9 +24,24 @@
           "icon_url": "/imgs/branding/generalocr.svg"
         },
         {
+          "title": "上传",
+          "url": "/upload",
+          "icon": "Upload"
+        },
+        {
           "title": "价格",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "文档",
+          "url": "/docs",
+          "icon": "BookOpen"
+        },
+        {
+          "title": "历史",
+          "url": "/upload#translate-history",
+          "icon": "History"
         }
       ]
     },

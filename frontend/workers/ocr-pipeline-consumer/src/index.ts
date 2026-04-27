@@ -41,6 +41,18 @@ export default {
   },
   async scheduled(_controller: unknown, env: Record<string, unknown>): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
+      const cronFallbackEnabled =
+        String(process.env.OCR_ENABLE_CRON_FALLBACK || '').trim().toLowerCase() === 'true';
+      if (!cronFallbackEnabled) {
+        console.log(
+          '[ocr-pipeline-consumer] cron_dispatch_skipped',
+          JSON.stringify({
+            reason: 'OCR_ENABLE_CRON_FALLBACK!=true',
+            mode: 'disabled',
+          })
+        );
+        return;
+      }
       const timeoutFailed = await failTimedOutOcrTasks();
       const limit = Math.min(
         2,

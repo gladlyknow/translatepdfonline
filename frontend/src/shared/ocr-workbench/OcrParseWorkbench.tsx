@@ -562,6 +562,7 @@ export function OcrParseWorkbench({
     ),
     [canRedo, canUndo, doc, exportMd, redo, saveToServer, saving, t, undo]
   );
+  const showTopPageControls = !(toolbarPosition === 'left' && hideSourcePanel);
 
   if (!parseResultUrl) {
     return (
@@ -590,30 +591,34 @@ export function OcrParseWorkbench({
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 pb-2 dark:border-zinc-800">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!doc || activePageIndex <= 0}
-          onClick={() => setActivePageIndex(activePageIndex - 1)}
-        >
-          {t('parseDemoPrevPage')}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!doc || totalPages === 0 || activePageIndex >= totalPages - 1}
-          onClick={() => setActivePageIndex(activePageIndex + 1)}
-        >
-          {t('parseDemoNextPage')}
-        </Button>
-        <span className="text-xs text-zinc-600 dark:text-zinc-400">
-          {t('parseDemoPage', {
-            n: activePageIndex + 1,
-            total: Math.max(1, totalPages),
-          })}
-        </span>
+        {showTopPageControls ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!doc || activePageIndex <= 0}
+              onClick={() => setActivePageIndex(activePageIndex - 1)}
+            >
+              {t('parseDemoPrevPage')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!doc || totalPages === 0 || activePageIndex >= totalPages - 1}
+              onClick={() => setActivePageIndex(activePageIndex + 1)}
+            >
+              {t('parseDemoNextPage')}
+            </Button>
+            <span className="text-xs text-zinc-600 dark:text-zinc-400">
+              {t('parseDemoPage', {
+                n: activePageIndex + 1,
+                total: Math.max(1, totalPages),
+              })}
+            </span>
+          </>
+        ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <Button
             type="button"

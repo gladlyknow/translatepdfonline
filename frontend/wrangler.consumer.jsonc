@@ -8,9 +8,6 @@
   "observability": {
     "enabled": true
   },
-  "triggers": {
-    "crons": ["* * * * *"]
-  },
   "limits": {
     "cpu_ms": 300000
   },

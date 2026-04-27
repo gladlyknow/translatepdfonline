@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDF Translate",
-          "url": "/upload",
+          "url": "/translate",
           "icon": "FileText"
         },
         {
@@ -24,9 +24,24 @@
           "icon_url": "/imgs/branding/generalocr.svg"
         },
         {
+          "title": "Upload",
+          "url": "/upload",
+          "icon": "Upload"
+        },
+        {
           "title": "Pricing",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "Docs",
+          "url": "/docs",
+          "icon": "BookOpen"
+        },
+        {
+          "title": "History",
+          "url": "/upload#translate-history",
+          "icon": "History"
         }
       ]
     },

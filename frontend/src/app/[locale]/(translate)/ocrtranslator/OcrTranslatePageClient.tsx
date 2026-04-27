@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useSession } from '@/core/auth/client';
 import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
@@ -139,7 +140,9 @@ export function OcrTranslatePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { user, fetchUserCredits } = useAppContext();
+  const { user, fetchUserCredits, fetchUserInfo } = useAppContext();
+  const { data: session, isPending: sessionPending } = useSession();
+  const sessionUserId = session?.user?.id ?? null;
   const { setAppearance } = useTranslateHeaderAppearance();
   const footerWorkbench = useTranslateFooterWorkbenchOptional();
   const shellChrome = useTranslateShellChromeOptional();
@@ -255,16 +258,19 @@ export function OcrTranslatePageClient() {
   }, [shellChrome]);
 
   useEffect(() => {
-    if (user?.id) {
-      void fetchUserCredits();
+    if (!sessionUserId && !user?.id) return;
+    if (!user?.id) {
+      void fetchUserInfo();
+      return;
     }
-  }, [user?.id, fetchUserCredits]);
+    void fetchUserCredits();
+  }, [sessionUserId, user?.id, fetchUserCredits, fetchUserInfo]);
 
   useEffect(() => {
-    if (taskStatus === 'completed' && user?.id) {
+    if (taskStatus === 'completed' && (user?.id || sessionUserId)) {
       void fetchUserCredits();
     }
-  }, [taskStatus, user?.id, fetchUserCredits]);
+  }, [taskStatus, user?.id, sessionUserId, fetchUserCredits]);
 
   const effectiveDocumentPageCount = useMemo(
     () =>
@@ -874,14 +880,14 @@ export function OcrTranslatePageClient() {
         </div>
 
         <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/40">
-          {user?.id ? (
+          {user?.id || sessionUserId ? (
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
                   {tHome('creditsRemaining')}
                 </p>
                 <p className="text-base font-bold tabular-nums text-slate-900 dark:text-zinc-50">
-                  {user.credits?.remainingCredits ?? '…'}
+                  {user?.credits?.remainingCredits ?? (sessionPending ? '...' : '…')}
                 </p>
               </div>
               <button
@@ -899,7 +905,7 @@ export function OcrTranslatePageClient() {
           )}
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="order-last rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {tOcrWb('pagesTitle')}
           </p>
@@ -998,40 +1004,42 @@ export function OcrTranslatePageClient() {
           )}
         </div>
 
-        <div className="flex flex-col gap-3">
-          <LanguageSelector
-            value={sourceLang}
-            onChange={setSourceLang}
-            label={tTranslate('sourceLang')}
-            placeholderKey="selectSourceLang"
-          />
-          <LanguageSelector
-            value={targetLang}
-            onChange={setTargetLang}
-            label={tTranslate('targetLang')}
-            placeholderKey="selectTargetLang"
-          />
-          <button
-            type="button"
-            onClick={startOcrTask}
-            disabled={starting || taskAwaitingResult || !sourceLang}
-            className={cn(
-              'flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold',
-              TRANSLATE_PRIMARY_CTA_CLASSNAME
-            )}
-          >
-            {starting || taskAwaitingResult ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Languages size={16} />
-            )}
-            {starting || taskAwaitingResult
-              ? tTranslate('submitting')
-              : tTranslate('preprocessWithOcr')}
-          </button>
-          {submitError && (
-            <p className="text-xs text-red-600 dark:text-red-400">{submitError}</p>
-          )}
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/60">
+          <div className="grid gap-2">
+            <LanguageSelector
+              value={sourceLang}
+              onChange={setSourceLang}
+              label={tTranslate('sourceLang')}
+              placeholderKey="selectSourceLang"
+            />
+            <LanguageSelector
+              value={targetLang}
+              onChange={setTargetLang}
+              label={tTranslate('targetLang')}
+              placeholderKey="selectTargetLang"
+            />
+            <button
+              type="button"
+              onClick={startOcrTask}
+              disabled={starting || taskAwaitingResult || !sourceLang}
+              className={cn(
+                'flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold',
+                TRANSLATE_PRIMARY_CTA_CLASSNAME
+              )}
+            >
+              {starting || taskAwaitingResult ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Languages size={14} />
+              )}
+              {starting || taskAwaitingResult
+                ? tTranslate('submitting')
+                : tTranslate('preprocessWithOcr')}
+            </button>
+            {submitError ? (
+              <p className="text-xs text-red-600 dark:text-red-400">{submitError}</p>
+            ) : null}
+          </div>
         </div>
 
         {taskStatus === 'completed' && (
@@ -1207,7 +1215,36 @@ export function OcrTranslatePageClient() {
 
         {taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
           <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-3 md:p-4">
-            <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden md:grid-cols-2 md:gap-4 md:min-h-[220px] md:max-h-[42vh]">
+            <div className="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[320px] md:flex-1">
+              <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                {tOcrWb('tabWorkbench')}
+              </p>
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <OcrParseWorkbench
+                  taskId={taskId}
+                  parseResultUrl={ocrParseResultUrl}
+                  sourcePdfUrl={
+                    taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
+                  }
+                  hideSourcePanel
+                  pageIndex={Math.max(0, currentPage - 1)}
+                  onPageIndexChange={(idx) => {
+                    const maxP = Math.max(1, effectiveDocumentPageCount || 1);
+                    setCurrentPage(Math.min(maxP, Math.max(1, idx + 1)));
+                  }}
+                  onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
+                  toolbarPosition="left"
+                  toolbarId={OCR_TOOLBAR_ID}
+                  toolbarSectionIds={{
+                    textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
+                    fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
+                    blockProps: OCR_TOOLBAR_BLOCK_PROPS_ID,
+                    file: OCR_TOOLBAR_FILE_ID,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden md:grid-cols-2 md:gap-4 md:min-h-[180px] md:max-h-[34vh]">
               <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
                 <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                   {tHome('sourceLabel')}
@@ -1238,35 +1275,6 @@ export function OcrTranslatePageClient() {
                 <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words bg-zinc-950 p-3 font-mono text-[11px] leading-snug text-zinc-100 dark:bg-black">
                   {parsePageJson.trim() ? parsePageJson : tOcrWb('parseJsonEmpty')}
                 </pre>
-              </div>
-            </div>
-            <div className="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[280px] md:flex-1">
-              <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                {tOcrWb('tabWorkbench')}
-              </p>
-              <div className="min-h-0 flex-1 overflow-hidden">
-                <OcrParseWorkbench
-                  taskId={taskId}
-                  parseResultUrl={ocrParseResultUrl}
-                  sourcePdfUrl={
-                    taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
-                  }
-                  hideSourcePanel
-                  pageIndex={Math.max(0, currentPage - 1)}
-                  onPageIndexChange={(idx) => {
-                    const maxP = Math.max(1, effectiveDocumentPageCount || 1);
-                    setCurrentPage(Math.min(maxP, Math.max(1, idx + 1)));
-                  }}
-                  onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
-                  toolbarPosition="left"
-                  toolbarId={OCR_TOOLBAR_ID}
-                  toolbarSectionIds={{
-                    textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
-                    fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
-                    blockProps: OCR_TOOLBAR_BLOCK_PROPS_ID,
-                    file: OCR_TOOLBAR_FILE_ID,
-                  }}
-                />
               </div>
             </div>
           </div>
