@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
 import { useTranslateHeaderAppearance } from '@/shared/contexts/translate-header-appearance';
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
@@ -62,6 +63,7 @@ const OCR_TOOLBAR_TEXT_EDIT_ID = 'ocr-workbench-toolbar-text-edit';
 const OCR_TOOLBAR_FONT_SETTINGS_ID = 'ocr-workbench-toolbar-font-settings';
 const OCR_TOOLBAR_BLOCK_PROPS_ID = 'ocr-workbench-toolbar-block-props';
 const OCR_TOOLBAR_FILE_ID = 'ocr-workbench-toolbar-file';
+const HISTORY_PAGE_SIZE = 10;
 
 type OcrUiLog = {
   at: string;
@@ -137,6 +139,7 @@ export function OcrTranslatePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { user, fetchUserCredits } = useAppContext();
   const { setAppearance } = useTranslateHeaderAppearance();
   const footerWorkbench = useTranslateFooterWorkbenchOptional();
   const shellChrome = useTranslateShellChromeOptional();
@@ -202,6 +205,8 @@ export function OcrTranslatePageClient() {
       created_at: string;
     }>
   >([]);
+  const [recentTaskPage, setRecentTaskPage] = useState(0);
+  const [recentDocumentPage, setRecentDocumentPage] = useState(0);
 
   const blockAutoDocumentLoadRef = useRef(false);
   const outputPreviewFailedRef = useRef<{
@@ -248,6 +253,18 @@ export function OcrTranslatePageClient() {
     shellChrome.setHeaderCollapsed(true);
     return () => shellChrome.setHeaderCollapsed(false);
   }, [shellChrome]);
+
+  useEffect(() => {
+    if (user?.id) {
+      void fetchUserCredits();
+    }
+  }, [user?.id, fetchUserCredits]);
+
+  useEffect(() => {
+    if (taskStatus === 'completed' && user?.id) {
+      void fetchUserCredits();
+    }
+  }, [taskStatus, user?.id, fetchUserCredits]);
 
   const effectiveDocumentPageCount = useMemo(
     () =>
@@ -519,14 +536,18 @@ export function OcrTranslatePageClient() {
     const loadRecent = async () => {
       try {
         const [tasks, docs] = await Promise.all([
-          translateApi.listTasks(),
-          translateApi.listDocuments(),
+          translateApi.listTasks({
+            limit: HISTORY_PAGE_SIZE,
+            offset: recentTaskPage * HISTORY_PAGE_SIZE,
+            ocrOnly: true,
+          }),
+          translateApi.listDocuments({
+            limit: HISTORY_PAGE_SIZE,
+            offset: recentDocumentPage * HISTORY_PAGE_SIZE,
+          }),
         ]);
         if (cancelled) return;
-        const normalized = tasks
-          .filter((one) => one.preprocess_with_ocr)
-          .slice(0, 20)
-          .map((one) => ({
+        const normalized = tasks.map((one) => ({
             id: one.id,
             status: one.status,
             progress_stage: null,
@@ -535,7 +556,7 @@ export function OcrTranslatePageClient() {
           }));
         setRecentOcrTasks(normalized);
         setRecentDocuments(
-          docs.slice(0, 20).map((one) => ({
+          docs.map((one) => ({
             id: one.id,
             filename: one.filename,
             size_bytes: one.size_bytes,
@@ -553,7 +574,13 @@ export function OcrTranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [historyLogOpen, taskId, taskStatus]);
+  }, [historyLogOpen, taskId, taskStatus, recentTaskPage, recentDocumentPage]);
+
+  useEffect(() => {
+    if (!historyLogOpen) return;
+    setRecentTaskPage(0);
+    setRecentDocumentPage(0);
+  }, [historyLogOpen]);
 
   const handleRefreshResult = async () => {
     if (!taskId || refreshing) return;
@@ -777,6 +804,23 @@ export function OcrTranslatePageClient() {
     [taskStatus, effectiveTargetTotalPages]
   );
 
+  const handlePrevPage = useCallback(() => {
+    const next = Math.max(1, currentPage - 1);
+    setCurrentPage(next);
+    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+      setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+    }
+  }, [currentPage, effectiveTargetTotalPages, taskStatus]);
+
+  const handleNextPage = useCallback(() => {
+    const total = Math.max(1, effectiveDocumentPageCount || 1);
+    const next = Math.min(total, currentPage + 1);
+    setCurrentPage(next);
+    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+      setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
+    }
+  }, [currentPage, effectiveDocumentPageCount, effectiveTargetTotalPages, taskStatus]);
+
   const outputs = taskView?.outputs ?? [];
   const pdfOutput =
     outputs.find((o) => o.filename.toLowerCase().endsWith('.pdf')) ?? null;
@@ -827,6 +871,82 @@ export function OcrTranslatePageClient() {
             <Image src="/brand/local/history.png" alt="" width={14} height={14} />
             {tOcrWb('navHistLog')}
           </button>
+        </div>
+
+        <div className="rounded-xl border border-blue-200/80 bg-blue-50/90 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/40">
+          {user?.id ? (
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-wide text-blue-900/80 dark:text-blue-200/90">
+                  {tHome('creditsRemaining')}
+                </p>
+                <p className="text-base font-bold tabular-nums text-slate-900 dark:text-zinc-50">
+                  {user.credits?.remainingCredits ?? '…'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/pricing')}
+                className="rounded-md border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800"
+              >
+                {tHome('buyCredits')}
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+              {tHome('creditsLoadHint')}
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            {tOcrWb('pagesTitle')}
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? false))
+              }
+              className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('pagesExpandHeader')}
+            </button>
+            <button
+              type="button"
+              onClick={handlePrevPage}
+              disabled={currentPage <= 1}
+              className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('pagesPrev')}
+            </button>
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
+              className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('pagesNext')}
+            </button>
+            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+              {tOcrWb('pagesSourcePage', {
+                current: currentPage,
+                total: Math.max(1, effectiveDocumentPageCount || 1),
+              })}
+            </p>
+            <button
+              type="button"
+              onClick={() =>
+                footerWorkbench?.setFooterExpanded(
+                  !(footerWorkbench?.footerExpanded ?? false)
+                )
+              }
+              className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {tOcrWb('pagesExpandFooter')}
+            </button>
+          </div>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
@@ -1221,36 +1341,19 @@ export function OcrTranslatePageClient() {
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-                {tOcrWb('uploadedFileTitle')}
+                {tOcrWb('taskLogTitle')}
               </p>
-              <div className="max-h-40 space-y-1 overflow-auto pr-1">
-                {recentDocuments.length === 0 ? (
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {tOcrWb('uploadedFileEmpty')}
-                  </p>
+              <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 pr-1 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
+                {uiLogs.length === 0 ? (
+                  <p className="text-zinc-500 dark:text-zinc-400">{tOcrWb('taskLogEmpty')}</p>
                 ) : (
-                  recentDocuments.map((one) => (
-                    <button
-                      key={one.id}
-                      type="button"
-                      onClick={() => {
-                        setDocumentId(one.id);
-                        setFilename(one.filename);
-                        setLastUploadedFile({
-                          name: one.filename,
-                          size: one.size_bytes,
-                        });
-                        setHistoryLogOpen(false);
-                      }}
-                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
-                    >
-                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
-                        {one.filename}
+                  uiLogs.map((log, idx) => (
+                    <div key={`${log.at}-${idx}`} className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
+                      <p className="font-medium text-zinc-700 dark:text-zinc-200">
+                        {stageLabel(log.stage)} · {logStatusLabel(log.status)}
                       </p>
-                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
-                        {(one.size_bytes / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </button>
+                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">{log.message}</p>
+                    </div>
                   ))
                 )}
               </div>
@@ -1286,24 +1389,83 @@ export function OcrTranslatePageClient() {
                   ))
                 )}
               </div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-700 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200"
+                  onClick={() => setRecentTaskPage((p) => Math.max(0, p - 1))}
+                  disabled={recentTaskPage <= 0}
+                >
+                  {tOcrWb('historyPrev')}
+                </button>
+                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('historyPage', { page: recentTaskPage + 1 })}
+                </span>
+                <button
+                  type="button"
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-700 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200"
+                  onClick={() => setRecentTaskPage((p) => p + 1)}
+                  disabled={recentOcrTasks.length < HISTORY_PAGE_SIZE}
+                >
+                  {tOcrWb('historyNext')}
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-                {tOcrWb('taskLogTitle')}
+                {tOcrWb('uploadedFileTitle')}
               </p>
-              <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 pr-1 text-[11px] dark:border-zinc-700 dark:bg-zinc-950">
-                {uiLogs.length === 0 ? (
-                  <p className="text-zinc-500 dark:text-zinc-400">{tOcrWb('taskLogEmpty')}</p>
+              <div className="max-h-40 space-y-1 overflow-auto pr-1">
+                {recentDocuments.length === 0 ? (
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {tOcrWb('uploadedFileEmpty')}
+                  </p>
                 ) : (
-                  uiLogs.map((log, idx) => (
-                    <div key={`${log.at}-${idx}`} className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
-                      <p className="font-medium text-zinc-700 dark:text-zinc-200">
-                        {stageLabel(log.stage)} · {logStatusLabel(log.status)}
+                  recentDocuments.map((one) => (
+                    <button
+                      key={one.id}
+                      type="button"
+                      onClick={() => {
+                        setDocumentId(one.id);
+                        setFilename(one.filename);
+                        setLastUploadedFile({
+                          name: one.filename,
+                          size: one.size_bytes,
+                        });
+                        setHistoryLogOpen(false);
+                      }}
+                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    >
+                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
+                        {one.filename}
                       </p>
-                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">{log.message}</p>
-                    </div>
+                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
+                        {(one.size_bytes / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </button>
                   ))
                 )}
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-700 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200"
+                  onClick={() => setRecentDocumentPage((p) => Math.max(0, p - 1))}
+                  disabled={recentDocumentPage <= 0}
+                >
+                  {tOcrWb('historyPrev')}
+                </button>
+                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('historyPage', { page: recentDocumentPage + 1 })}
+                </span>
+                <button
+                  type="button"
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-700 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200"
+                  onClick={() => setRecentDocumentPage((p) => p + 1)}
+                  disabled={recentDocuments.length < HISTORY_PAGE_SIZE}
+                >
+                  {tOcrWb('historyNext')}
+                </button>
               </div>
             </div>
           </div>

@@ -75,5 +75,14 @@
   "uploadedFileEmpty": "暂无上传文件",
   "taskLogTitle": "运行日志（脱敏）",
   "taskLogEmpty": "暂无日志记录",
-  "logSanitizedHint": "仅展示阶段、状态、耗时与脱敏摘要；不展示后端路径、对象键与内部 URL。"
+  "logSanitizedHint": "仅展示阶段、状态、耗时与脱敏摘要；不展示后端路径、对象键与内部 URL。",
+  "historyPrev": "上一页",
+  "historyNext": "下一页",
+  "historyPage": "第 {page} 页",
+  "pagesTitle": "页面",
+  "pagesExpandHeader": "展开页首",
+  "pagesPrev": "上一页",
+  "pagesNext": "下一页",
+  "pagesSourcePage": "源页面 {current} / {total}",
+  "pagesExpandFooter": "展开页尾"
 }

@@ -256,7 +256,10 @@ function getQueueBindingFromContext():
   const qAls = fromAls?.OCR_PIPELINE_QUEUE as
     | { send?: (b: OcrPipelineQueueBody) => Promise<void> }
     | undefined;
-  if (qAls?.send) return { send: qAls.send };
+  if (qAls?.send) {
+    // Return the original binding object to preserve method `this`.
+    return qAls as { send: (b: OcrPipelineQueueBody) => Promise<void> };
+  }
 
   try {
     const wrapped = getCloudflareContext() as unknown as {

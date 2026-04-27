@@ -4,8 +4,17 @@ import { documents } from '@/config/db/schema';
 import type { InferSelectModel } from 'drizzle-orm';
 import { getTranslateAuth } from '../translate/auth';
 
-export async function GET() {
+function parseNumberParam(url: URL, name: string, fallback: number): number {
+  const raw = Number(url.searchParams.get(name));
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.max(0, Math.floor(raw));
+}
+
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const limit = Math.min(100, Math.max(1, parseNumberParam(url, 'limit', 100)));
+    const offset = parseNumberParam(url, 'offset', 0);
     const { userId, anonId } = await getTranslateAuth();
     const rows = await db()
       .select()
@@ -14,7 +23,8 @@ export async function GET() {
         userId ? eq(documents.userId, userId) : eq(documents.anonId, anonId)
       )
       .orderBy(desc(documents.createdAt))
-      .limit(100);
+      .limit(limit)
+      .offset(offset);
     return Response.json(
       rows.map((r: InferSelectModel<typeof documents>) => ({
         id: r.id,

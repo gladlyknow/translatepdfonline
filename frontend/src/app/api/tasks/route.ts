@@ -1,14 +1,27 @@
-import { eq, desc } from 'drizzle-orm';
+import { and, eq, desc } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { translationTasks, documents } from '@/config/db/schema';
 import { getTranslateAuth } from '../translate/auth';
 
-export async function GET() {
+function parseNumberParam(url: URL, name: string, fallback: number): number {
+  const raw = Number(url.searchParams.get(name));
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.max(0, Math.floor(raw));
+}
+
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const limit = Math.min(100, Math.max(1, parseNumberParam(url, 'limit', 100)));
+    const offset = parseNumberParam(url, 'offset', 0);
+    const ocrOnly = url.searchParams.get('ocr_only') === '1';
     const { userId, anonId } = await getTranslateAuth();
-    const where = userId
+    const ownerWhere = userId
       ? eq(translationTasks.userId, userId)
       : eq(translationTasks.anonId, anonId);
+    const where = ocrOnly
+      ? and(ownerWhere, eq(translationTasks.preprocessWithOcr, true))
+      : ownerWhere;
     const rows = await db()
       .select({
         id: translationTasks.id,
@@ -28,10 +41,10 @@ export async function GET() {
       .leftJoin(documents, eq(documents.id, translationTasks.documentId))
       .where(where)
       .orderBy(desc(translationTasks.createdAt))
-      .limit(100);
+      .limit(limit)
+      .offset(offset);
     type TaskListRow = (typeof rows)[number];
-    return Response.json(
-      rows.map((r: TaskListRow) => ({
+    const normalized = rows.map((r: TaskListRow) => ({
         id: r.id,
         document_id: r.documentId,
         status: r.status,
@@ -44,8 +57,8 @@ export async function GET() {
         page_range: r.pageRange,
         page_range_user_input: r.pageRangeUserInput ?? null,
         document_page_count: r.documentPageCount ?? null,
-      }))
-    );
+      }));
+    return Response.json(normalized);
   } catch (e) {
     console.error('list tasks failed:', e);
     return Response.json(

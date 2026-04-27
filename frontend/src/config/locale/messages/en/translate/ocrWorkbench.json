@@ -75,5 +75,14 @@
   "uploadedFileEmpty": "No uploaded files",
   "taskLogTitle": "Runtime logs (sanitized)",
   "taskLogEmpty": "No logs yet",
-  "logSanitizedHint": "Only stage, status, elapsed and sanitized summary are shown. Backend paths, object keys and internal URLs are hidden."
+  "logSanitizedHint": "Only stage, status, elapsed and sanitized summary are shown. Backend paths, object keys and internal URLs are hidden.",
+  "historyPrev": "Prev",
+  "historyNext": "Next",
+  "historyPage": "Page {page}",
+  "pagesTitle": "Pages",
+  "pagesExpandHeader": "Expand header",
+  "pagesPrev": "Prev",
+  "pagesNext": "Next",
+  "pagesSourcePage": "Source Page {current} / {total}",
+  "pagesExpandFooter": "Expand footer"
 }

@@ -23,7 +23,6 @@ export function TranslateShellHeader({
   variant?: 'translate' | 'ocr';
 }) {
   const t = useTranslations('translate.shell');
-  const tHome = useTranslations('translate.home');
   const brand = variant === 'ocr' ? t('brandShortOcr') : t('brandShort');
   const router = useRouter();
   const historyDrawer = useTranslateHistoryDrawerOptional();
@@ -33,23 +32,7 @@ export function TranslateShellHeader({
   const logoSrc = cacheBustedPublicPath(envConfigs.app_logo);
 
   if (shellChrome?.headerCollapsed) {
-    return (
-      <header
-        className={
-          onDark
-            ? 'flex h-8 shrink-0 items-center justify-center border-b border-white/10 bg-slate-950/90'
-            : 'flex h-8 shrink-0 items-center justify-center border-b border-zinc-200/90 bg-white/95 dark:border-zinc-800 dark:bg-zinc-950/95'
-        }
-      >
-        <button
-          type="button"
-          onClick={() => shellChrome.setHeaderCollapsed(false)}
-          className="text-[11px] font-medium text-zinc-500 underline hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
-        >
-          {tHome('showHeader')}
-        </button>
-      </header>
-    );
+    return null;
   }
 
   return (

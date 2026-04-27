@@ -171,8 +171,12 @@ async function fetchTranslateApi<T>(
 }
 
 export const translateApi = {
-  listDocuments: () =>
-    fetchTranslateApi<DocumentSummary[]>('/api/documents'),
+  listDocuments: (params?: { limit?: number; offset?: number }) =>
+    fetchTranslateApi<DocumentSummary[]>(
+      `/api/documents?limit=${encodeURIComponent(
+        String(params?.limit ?? 100)
+      )}&offset=${encodeURIComponent(String(params?.offset ?? 0))}`
+    ),
 
   getDocument: (documentId: string) =>
     fetchTranslateApi<DocumentDetail>(`/api/documents/${documentId}`),
@@ -263,7 +267,14 @@ export const translateApi = {
       }),
     }),
 
-  listTasks: () => fetchTranslateApi<TaskSummary[]>('/api/tasks'),
+  listTasks: (params?: { limit?: number; offset?: number; ocrOnly?: boolean }) =>
+    fetchTranslateApi<TaskSummary[]>(
+      `/api/tasks?limit=${encodeURIComponent(
+        String(params?.limit ?? 100)
+      )}&offset=${encodeURIComponent(String(params?.offset ?? 0))}&ocr_only=${
+        params?.ocrOnly ? '1' : '0'
+      }`
+    ),
 
   getTask: (taskId: string) =>
     fetchTranslateApi<TaskDetail>(`/api/tasks/${taskId}`),

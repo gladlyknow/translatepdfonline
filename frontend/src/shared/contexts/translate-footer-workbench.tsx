@@ -13,6 +13,8 @@ type TranslateFooterWorkbenchContextValue = {
   /** True when /translate has an open document (workbench + preview). */
   workbenchOpen: boolean;
   setWorkbenchOpen: (next: boolean) => void;
+  footerExpanded: boolean;
+  setFooterExpanded: (next: boolean) => void;
 };
 
 const TranslateFooterWorkbenchContext =
@@ -24,13 +26,22 @@ export function TranslateFooterWorkbenchProvider({
   children: ReactNode;
 }) {
   const [workbenchOpen, setWorkbenchOpenState] = useState(false);
+  const [footerExpanded, setFooterExpandedState] = useState(false);
   const setWorkbenchOpen = useCallback((next: boolean) => {
     setWorkbenchOpenState(next);
   }, []);
+  const setFooterExpanded = useCallback((next: boolean) => {
+    setFooterExpandedState(next);
+  }, []);
 
   const value = useMemo(
-    () => ({ workbenchOpen, setWorkbenchOpen }),
-    [workbenchOpen, setWorkbenchOpen]
+    () => ({
+      workbenchOpen,
+      setWorkbenchOpen,
+      footerExpanded,
+      setFooterExpanded,
+    }),
+    [workbenchOpen, setWorkbenchOpen, footerExpanded, setFooterExpanded]
   );
 
   return (

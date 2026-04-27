@@ -669,7 +669,7 @@ export function OcrParseWorkbench({
         {toolbarPosition === 'left' && hideSourcePanel ? (
           <aside
             id={toolbarId}
-            className="flex max-h-[36vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72"
+            className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
           >
             <ParseResultEditorToolbar
               disabled={!selectedLayoutId}
@@ -736,7 +736,7 @@ export function OcrParseWorkbench({
           <aside
             id={toolbarId}
             className={cn(
-              'flex max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none',
+              'flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:overflow-y-auto',
               hideSourcePanel ? 'md:w-full md:self-stretch' : 'md:w-72 md:self-start'
             )}
           >

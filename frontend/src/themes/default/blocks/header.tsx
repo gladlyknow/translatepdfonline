@@ -85,6 +85,18 @@ export function Header({ header }: { header: HeaderType }) {
     pathSegments.length === 0 ||
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));
   const headerSolid = isScrolled || isHomePage;
+  const navItems = (() => {
+    const items = [...(header.nav?.items ?? [])];
+    const hasUpload = items.some((item) => (item.url || '').toLowerCase() === '/upload');
+    if (!hasUpload) {
+      items.splice(Math.min(3, items.length), 0, {
+        title: 'Upload',
+        url: '/upload',
+        target: '_self',
+      } as NavItem);
+    }
+    return items;
+  })();
 
   useEffect(() => {
     // Listen to scroll event to enable header styles on scroll
@@ -122,7 +134,7 @@ export function Header({ header }: { header: HeaderType }) {
         className="**:data-[slot=navigation-menu-content]:top-10 max-lg:hidden"
       >
         <NavigationMenuList className="gap-2">
-          {header.nav?.items?.map((item, idx) => {
+          {navItems.map((item, idx) => {
             if (!item.children || item.children.length === 0) {
               return (
                 <NavigationMenuLink key={idx} asChild>
@@ -186,7 +198,7 @@ export function Header({ header }: { header: HeaderType }) {
           collapsible
           className="-mx-4 mt-0.5 space-y-0.5 **:hover:no-underline"
         >
-          {header.nav?.items?.map((item, idx) => {
+          {navItems.map((item, idx) => {
             return (
               <AccordionItem
                 key={idx}
