@@ -14,7 +14,9 @@ import {
   type OcrTaskExportFormat,
 } from '@/shared/models/ocr_task_export';
 import { loadMarkdownFromR2, markdownToSimplePdfBytes } from '@/shared/lib/ocr-translate';
-import { putObject } from '@/shared/lib/translate-r2';
+import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-result-export-md';
+import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
+import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 
 const OCR_EXPORT_PDF_RENDER_MAX_CHARS = Math.max(
   8000,
@@ -108,6 +110,46 @@ async function uploadWithRetry(
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
+
+function contentTypeForAssetName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+  if (lower.endsWith('.gif')) return 'image/gif';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.svg')) return 'image/svg+xml';
+  return 'application/octet-stream';
+}
+
+async function buildMarkdownWithR2ImageUrls(taskId: string, fallbackMarkdown: string): Promise<string> {
+  const parseKey = `translations/${taskId}/ocr-parse-result.json`;
+  let parseJson: unknown = null;
+  try {
+    const parseBytes = await withStageTimeout(
+      'load_parse_result_json',
+      () => getObjectBody(parseKey),
+      OCR_EXPORT_STAGE_TIMEOUT_MS
+    );
+    parseJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
+  } catch {
+    return fallbackMarkdown;
+  }
+  const parsed = parseParseResultJson(parseJson);
+  if (!parsed.ok) return fallbackMarkdown;
+
+  const baseName = `ocr-${taskId}`;
+  const { markdown, assets } = await buildMarkdownExportWithAssets(parsed.data, baseName);
+  if (!assets.length) return markdown;
+
+  let markdownWithR2Urls = markdown;
+  for (const asset of assets) {
+    const assetKey = `translations/${taskId}/${asset.name}`;
+    await uploadWithRetry(assetKey, asset.bytes, contentTypeForAssetName(asset.name));
+    const assetUrl = await createPresignedGet(assetKey, 7 * 24 * 3600);
+    markdownWithR2Urls = markdownWithR2Urls.replace(`(./${asset.name})`, `(${assetUrl})`);
+  }
+  return markdownWithR2Urls;
 }
 
 async function syncTaskOutputPointers(taskId: string): Promise<void> {
@@ -232,7 +274,12 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         `ready pdf_bytes=${pdfBytes.byteLength} render_chars=${pdfMarkdown.length}`
       );
     } else {
-      const markdownBytes = new TextEncoder().encode(markdown);
+      const markdownWithR2Urls = await withStageTimeout(
+        'rewrite_markdown_image_urls',
+        () => buildMarkdownWithR2ImageUrls(row.taskId, markdown),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+      const markdownBytes = new TextEncoder().encode(markdownWithR2Urls);
       const key = outputKeyForFormat(row.taskId, 'md');
       await uploadWithRetry(key, markdownBytes, 'text/markdown; charset=utf-8');
       await updateExportRow(exportId, {

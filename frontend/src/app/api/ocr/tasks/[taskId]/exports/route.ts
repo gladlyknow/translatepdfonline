@@ -223,6 +223,13 @@ export async function POST(
       format,
     });
     if (!queued.ok) {
+      await updateExportRow(exportId, {
+        status: OcrTaskExportStatus.failed,
+        r2Key: null,
+        readyAt: null,
+        errorMessage: 'Export queue unavailable',
+      });
+      await appendExportLog(exportId, `enqueue failed: ${queued.reason}`);
       return Response.json({ detail: 'Export queue unavailable' }, { status: 503 });
     }
     return Response.json({

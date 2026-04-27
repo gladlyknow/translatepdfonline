@@ -12,6 +12,11 @@ import {
   ensureOcrPendingExportsForTask,
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
+import {
+  appendExportLog,
+  OcrTaskExportStatus,
+  updateExportRow,
+} from '@/shared/models/ocr_task_export';
 import { putObject } from '@/shared/lib/translate-r2';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
@@ -539,6 +544,16 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
           format: exp.format,
         });
         if (!enqueueExportResult.ok) {
+          await updateExportRow(exp.exportId, {
+            status: OcrTaskExportStatus.failed,
+            r2Key: null,
+            readyAt: null,
+            errorMessage: 'Export queue unavailable',
+          });
+          await appendExportLog(
+            exp.exportId,
+            `enqueue failed: ${enqueueExportResult.reason}`
+          );
           console.warn(
             '[ocr/export-queue] enqueue_failed',
             JSON.stringify({
