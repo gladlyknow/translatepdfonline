@@ -84,7 +84,7 @@ export async function POST(req: Request) {
     );
 
     const queuedOnCf = await sendOcrPipelineQueueMessage(taskId);
-    if (!queuedOnCf) {
+    if (!queuedOnCf.ok) {
       const running = dispatchPendingOcrJobs(
         Math.min(
           2,

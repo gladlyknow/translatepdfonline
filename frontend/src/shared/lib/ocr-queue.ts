@@ -84,6 +84,19 @@ function outputKeys(taskId: string) {
 }
 
 type EnqueueResult = 'enqueue_ok' | 'fallback_dispatcher';
+type EnqueueFailureReason =
+  | 'binding_unavailable'
+  | 'enqueue_rate_limited'
+  | 'enqueue_runtime_error';
+type QueueSendResult =
+  | { ok: true }
+  | {
+      ok: false;
+      reason: EnqueueFailureReason;
+      errorName?: string;
+      errorMessage?: string;
+      stackHead?: string;
+    };
 
 class OcrTaskCancelledError extends Error {
   constructor() {
@@ -92,23 +105,53 @@ class OcrTaskCancelledError extends Error {
   }
 }
 
+function classifyEnqueueError(err: unknown): EnqueueFailureReason {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  if (msg.includes('429') || msg.includes('too many requests') || msg.includes('rate')) {
+    return 'enqueue_rate_limited';
+  }
+  return 'enqueue_runtime_error';
+}
+
+function sanitizeErrorForLog(err: unknown): {
+  errorName?: string;
+  errorMessage?: string;
+  stackHead?: string;
+} {
+  if (!(err instanceof Error)) {
+    return { errorMessage: String(err).slice(0, 300) };
+  }
+  return {
+    errorName: err.name?.slice(0, 80),
+    errorMessage: err.message?.slice(0, 300),
+    stackHead: err.stack?.split('\n').slice(0, 2).join(' | ').slice(0, 500),
+  };
+}
+
 async function enqueueNextStage(taskId: string, nextStage: OcrStage): Promise<EnqueueResult> {
-  const ok = await sendOcrPipelineQueueMessage(taskId);
-  if (ok) return 'enqueue_ok';
+  const sendResult = await sendOcrPipelineQueueMessage(taskId);
+  if (sendResult.ok) return 'enqueue_ok';
+  const fallbackDelayMs = sendResult.reason === 'enqueue_rate_limited' ? 5_000 : 3_000;
   await db()
     .update(translationTasks)
     .set({
       status: 'queued',
       progressStage: nextStage,
       progressPercent: stagePercent(nextStage),
-      fcNextAttemptAt: new Date(),
+      fcNextAttemptAt: new Date(Date.now() + fallbackDelayMs),
       fcInvokeLeaseUntil: null,
       updatedAt: new Date(),
     })
     .where(eq(translationTasks.id, taskId));
   console.warn(
     '[ocr/stage] enqueue_failed',
-    JSON.stringify({ task_id: taskId, next_stage: nextStage, fallback: 'dispatcher' })
+    JSON.stringify({
+      task_id: taskId,
+      next_stage: nextStage,
+      fallback: 'dispatcher',
+      fallback_reason: sendResult.reason,
+      fallback_delay_ms: fallbackDelayMs,
+    })
   );
   return 'fallback_dispatcher';
 }
@@ -229,7 +272,7 @@ function getQueueBindingFromContext():
  * 向 Cloudflare Queues 投递 OCR 任务（需在 Dashboard 创建 `ocr-pipeline-queue` 并部署带 producer 绑定的 Worker）。
  * 非 Worker 或未配置绑定时返回 false，由调用方回退到 waitUntil(dispatchPendingOcrJobs)。
  */
-export async function sendOcrPipelineQueueMessage(taskId: string): Promise<boolean> {
+export async function sendOcrPipelineQueueMessage(taskId: string): Promise<QueueSendResult> {
   try {
     const q = getQueueBindingFromContext();
     if (!q || typeof q.send !== 'function') {
@@ -237,14 +280,27 @@ export async function sendOcrPipelineQueueMessage(taskId: string): Promise<boole
         '[ocr/queue] binding_unavailable',
         JSON.stringify({ task_id: taskId })
       );
-      return false;
+      return { ok: false, reason: 'binding_unavailable' };
     }
     await q.send({ taskId });
     console.log('[ocr/queue] enqueued', JSON.stringify({ task_id: taskId, at: nowIso() }));
-    return true;
-  } catch {
-    console.warn('[ocr/queue] enqueue_exception', JSON.stringify({ task_id: taskId }));
-    return false;
+    return { ok: true };
+  } catch (e) {
+    const reason = classifyEnqueueError(e);
+    const sanitized = sanitizeErrorForLog(e);
+    const tag =
+      reason === 'enqueue_rate_limited'
+        ? '[ocr/queue] enqueue_rate_limited'
+        : '[ocr/queue] enqueue_runtime_error';
+    console.warn(
+      tag,
+      JSON.stringify({
+        task_id: taskId,
+        reason,
+        ...sanitized,
+      })
+    );
+    return { ok: false, reason, ...sanitized };
   }
 }
 
@@ -647,10 +703,10 @@ export async function dispatchPendingOcrJobs(
     if (!id) break;
     if (enqueueOnly) {
       const queued = await sendOcrPipelineQueueMessage(id);
-      if (!queued) {
+      if (!queued.ok) {
         console.warn(
           '[ocr/dispatch] enqueue_only_failed',
-          JSON.stringify({ task_id: id })
+          JSON.stringify({ task_id: id, reason: queued.reason })
         );
         continue;
       }

@@ -46,7 +46,7 @@ export default {
         2,
         Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
       );
-      const result = await dispatchPendingOcrJobs(limit, { enqueueOnly: true });
+      const result = await dispatchPendingOcrJobs(limit, { enqueueOnly: false });
       console.log(
         '[ocr-pipeline-consumer] cron_dispatch',
         JSON.stringify({ ...result, timeout_failed: timeoutFailed })
