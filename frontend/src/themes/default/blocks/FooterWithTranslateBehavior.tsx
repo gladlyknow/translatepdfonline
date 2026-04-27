@@ -22,7 +22,7 @@ export function FooterWithTranslateBehavior({
     if (workbenchOpen) {
       workbenchCtx?.setFooterExpanded(false);
     }
-  }, [workbenchCtx, workbenchOpen]);
+  }, [workbenchOpen, workbenchCtx?.setFooterExpanded]);
 
   if (!isTranslatePage) {
     return <>{children}</>;

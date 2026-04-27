@@ -42,13 +42,11 @@ type Props = {
     color?: string;
     textAlign?: 'left' | 'center' | 'right';
   };
-  inspectorControls?: ReactNode;
   extraFontControls?: ReactNode;
   fileControls?: ReactNode;
   sectionIds?: {
     textEdit?: string;
     fontSettings?: string;
-    blockProps?: string;
     file?: string;
   };
 };
@@ -366,19 +364,18 @@ function insertListCommand(
 
 /** 与侧栏「下载」按钮一致的外边框与底色 */
 const toolbarEditBtnClass =
-  'book-btn box-border flex h-10 min-h-10 w-full min-w-0 items-center justify-center gap-0.5 rounded-xl border-2 border-[#2b2525]/45 bg-[#fffdf8] px-1 text-[11px] font-semibold text-[#2b2525] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition-all hover:border-[#1f2438] hover:bg-[#fff4e0] active:translate-y-[1px] focus-visible:ring-2 focus-visible:ring-amber-800/40 [&_svg]:size-[17px]';
+  'box-border flex h-9 min-h-9 w-full min-w-0 items-center justify-center gap-0.5 rounded-lg border border-zinc-300 bg-white px-1 text-[11px] font-semibold text-zinc-800 shadow-sm transition-all duration-150 hover:-translate-y-[1px] hover:border-zinc-400 hover:bg-zinc-100 hover:shadow focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-600 dark:hover:bg-zinc-800 [&_svg]:size-4';
 
 const toolbarPanelClass =
-  'book-card space-y-2 rounded-2xl border-2 border-[#1f2438]/35 bg-[#fff6e4] p-2 shadow-[inset_0_2px_0_rgba(255,255,255,0.65),0_2px_0_rgba(31,36,56,0.06)]';
+  'space-y-1.5 rounded-xl border border-zinc-200 bg-zinc-50/90 p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70';
 const toolbarPanelTitleClass =
-  'text-center text-[11px] font-bold tracking-[0.12em] text-[#3d2e22]';
+  'text-center text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-700 dark:text-zinc-200';
 
 export function ParseResultEditorToolbar({
   disabled,
   onFlushBeforeFormat,
   onEditorStylePatch,
   currentEditorStyle,
-  inspectorControls,
   extraFontControls,
   fileControls,
   sectionIds,
@@ -394,7 +391,7 @@ export function ParseResultEditorToolbar({
   );
 
   const activeBtn = (active?: boolean) =>
-    `${toolbarEditBtnClass} ${active ? 'border-amber-900/70 bg-amber-200/95 text-amber-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_4px_rgba(120,80,20,0.35)]' : ''}`;
+    `${toolbarEditBtnClass} ${active ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950/40 dark:text-blue-300' : ''}`;
 
   const refreshFormatState = () => {
     setFormatState(getFormatState());
@@ -813,12 +810,6 @@ export function ParseResultEditorToolbar({
         {extraFontControls ? <div className="mt-2 min-w-0">{extraFontControls}</div> : null}
       </section>
 
-      {inspectorControls ? (
-        <section id={sectionIds?.blockProps} className={toolbarPanelClass}>
-          <p className={toolbarPanelTitleClass}>{t('toolbarBlockProps')}</p>
-          <div className="min-w-0">{inspectorControls}</div>
-        </section>
-      ) : null}
       {fileControls ? (
         <section id={sectionIds?.file} className={toolbarPanelClass}>
           <p className={toolbarPanelTitleClass}>{t('toolbarFileOps')}</p>

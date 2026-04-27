@@ -395,8 +395,8 @@ export function TranslationForm({
           need={creditsModal.need}
           have={creditsModal.have}
         />
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
-        <div className="flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2.5">
+        <div className="flex flex-col gap-2">
           <LanguageSelector
             value={sourceLang}
             onChange={setSourceLang}
@@ -410,7 +410,7 @@ export function TranslationForm({
             placeholderKey="selectTargetLang"
           />
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
           {sourceLang && targetLang
             ? t('confirmDirection', {
                 source: tLang(sourceLang),
@@ -418,8 +418,8 @@ export function TranslationForm({
               })
             : t('selectBothLanguages')}
         </p>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
             {t('pageRange')}
           </label>
           <input
@@ -427,14 +427,14 @@ export function TranslationForm({
             value={pageRange}
             onChange={(e) => setPageRange(e.target.value)}
             placeholder={t('pageRangeExample')}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs dark:border-zinc-600 dark:bg-zinc-800"
             aria-label={t('pageRange')}
           />
         </div>
         {(error || loginHint) && (
           <div className="flex flex-col gap-1">
             <span
-              className={`text-sm ${
+              className={`text-xs ${
                 error
                   ? 'text-red-600 dark:text-red-400'
                   : 'text-amber-700 dark:text-amber-300'
@@ -449,10 +449,10 @@ export function TranslationForm({
             type="button"
             onClick={handleGoOcr}
             disabled={ocrNavigating}
-            className="w-full rounded-xl border border-amber-300 bg-amber-50 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
+            className="w-full rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
           >
             <span className="inline-flex items-center gap-1.5">
-              {ocrNavigating ? <Loader2 size={14} className="animate-spin" /> : null}
+              {ocrNavigating ? <Loader2 size={12} className="animate-spin" /> : null}
               {t('preprocessWithOcr')}
             </span>
           </button>
@@ -460,7 +460,7 @@ export function TranslationForm({
         <button
           type="submit"
           disabled={submitDisabled}
-          className={`w-full rounded-xl py-3.5 text-sm font-semibold ${TRANSLATE_PRIMARY_CTA_CLASSNAME}`}
+          className={`w-full rounded-lg py-1.5 text-xs font-semibold ${TRANSLATE_PRIMARY_CTA_CLASSNAME}`}
         >
           {submitting || taskInProgress ? t('submitting') : t('startTranslate')}
         </button>

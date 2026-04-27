@@ -86,7 +86,7 @@ export function TranslateShellHeader({
 
       <nav className="flex items-center gap-1 sm:gap-4" aria-label={t('navAria')}>
         <Link
-          href="/translate"
+          href="/translate?recent=1"
           title={t('navPdfTranslate')}
           className={
             onDark
@@ -97,7 +97,7 @@ export function TranslateShellHeader({
           {t('navPdfTranslate')}
         </Link>
         <Link
-          href="/ocrtranslator"
+          href="/ocrtranslator?recent=1"
           title={t('navPdfOcr')}
           className={
             onDark

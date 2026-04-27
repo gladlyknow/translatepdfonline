@@ -9,7 +9,7 @@ export default async function TranslatePage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ task?: string; document?: string }>;
+  searchParams: Promise<{ task?: string; document?: string; recent?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -17,7 +17,8 @@ export default async function TranslatePage({
   const sp = await searchParams;
   const task = sp.task?.trim();
   const document = sp.document?.trim();
-  if (!task && !document) {
+  const recent = sp.recent?.trim();
+  if (!task && !document && recent !== '1') {
     redirect({ href: '/upload', locale });
   }
 

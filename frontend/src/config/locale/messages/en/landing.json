@@ -15,12 +15,12 @@
       "items": [
         {
           "title": "PDF Translate",
-          "url": "/translate",
+          "url": "/translate?recent=1",
           "icon": "FileText"
         },
         {
           "title": "PDF OCR",
-          "url": "/ocrtranslator",
+          "url": "/ocrtranslator?recent=1",
           "icon_url": "/imgs/branding/generalocr.svg"
         },
         {

@@ -1,13 +1,12 @@
 'use client';
 
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { Loader2, Redo2, Save, Undo2 } from 'lucide-react';
+import { Download, FileText, Loader2, Redo2, Save, Undo2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
 import { translateApi } from '@/shared/lib/translate-api';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -15,7 +14,6 @@ import {
   updateLayoutPosition,
   updateLayoutText,
 } from '@/shared/ocr-workbench/parse-result-document';
-import { buildMarkdownExport } from '@/shared/ocr-workbench/parse-result-export-md';
 import {
   getLayoutEditor,
   setLayoutEditor,
@@ -61,11 +59,12 @@ export function OcrParseWorkbench({
   toolbarPosition = 'bottom',
   toolbarId,
   toolbarSectionIds,
+  externalToolbarContainerId,
   canvasScalePercent,
   onCanvasScaleChange,
   onCanvasFocus,
 }: {
-  taskId: string;
+  taskId: string | null;
   parseResultUrl: string | null;
   /** 同源预签名 URL；无原稿时传 null */
   sourcePdfUrl: string | null;
@@ -81,9 +80,9 @@ export function OcrParseWorkbench({
   toolbarSectionIds?: {
     textEdit?: string;
     fontSettings?: string;
-    blockProps?: string;
     file?: string;
   };
+  externalToolbarContainerId?: string;
   canvasScalePercent?: number;
   onCanvasScaleChange?: (next: number) => void;
   onCanvasFocus?: () => void;
@@ -147,6 +146,14 @@ export function OcrParseWorkbench({
       : internalJsonCanvasScale;
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [exportState, setExportState] = useState<{
+    pdf: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+    md: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+  }>({
+    pdf: { status: 'idle', error: null },
+    md: { status: 'idle', error: null },
+  });
+  const exportPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const page = doc?.pages[activePageIndex] ?? null;
 
@@ -302,150 +309,154 @@ export function OcrParseWorkbench({
     [selectedLayoutId, activePageIndex, commitMergeText]
   );
 
-  const onLayoutPositionFieldChange = useCallback(
-    (axis: 0 | 1 | 2 | 3, raw: string) => {
-      if (!selectedLayoutId || !selectedLayout) return;
-      const n = Number.parseFloat(raw);
-      if (!Number.isFinite(n)) return;
-      const v = Math.round(n);
-      const p = [...selectedLayout.position] as [
-        number,
-        number,
-        number,
-        number,
-      ];
-      p[axis] = axis >= 2 ? Math.max(8, v) : v;
-      commit((draft) => {
-        updateLayoutPosition(draft, activePageIndex, selectedLayoutId, p);
-      });
+  const clearExportPollTimer = useCallback(() => {
+    if (exportPollTimerRef.current) {
+      clearTimeout(exportPollTimerRef.current);
+      exportPollTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearExportPollTimer, [clearExportPollTimer]);
+
+  const setSingleExportState = useCallback(
+    (
+      format: 'pdf' | 'md',
+      next: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null }
+    ) => {
+      setExportState((prev) => ({ ...prev, [format]: next }));
     },
-    [selectedLayoutId, selectedLayout, activePageIndex, commit]
+    []
   );
 
-  const onLayoutFontSizeChange = useCallback(
-    (raw: string) => {
-      if (!selectedLayoutId) return;
-      const n = Number.parseFloat(raw);
-      if (!Number.isFinite(n)) return;
-      const px = `${Math.max(6, Math.min(64, Math.round(n)))}px`;
-      commitMergeText((draft) => {
-        setLayoutEditor(draft, activePageIndex, selectedLayoutId, { fontSize: px });
-      });
+  const pollExportReady = useCallback(
+    async (format: 'pdf' | 'md', attempt = 0) => {
+      if (!taskId) return;
+      const exportsState = await translateApi.listOcrTaskExports(taskId);
+      const target = exportsState.exports.find((one) => one.format === format);
+      if (!target) {
+        setSingleExportState(format, {
+          status: 'failed',
+          error: `${format.toUpperCase()} export not found`,
+        });
+        return;
+      }
+      if (target.status === 'ready') {
+        setSingleExportState(format, { status: 'ready', error: null });
+        clearExportPollTimer();
+        return;
+      }
+      if (target.status === 'failed' || target.status === 'cancelled') {
+        setSingleExportState(format, {
+          status: 'failed',
+          error: target.error_message ?? `${format.toUpperCase()} export failed`,
+        });
+        clearExportPollTimer();
+        return;
+      }
+      if (attempt >= 30) {
+        setSingleExportState(format, {
+          status: 'failed',
+          error: `${format.toUpperCase()} export timed out`,
+        });
+        clearExportPollTimer();
+        return;
+      }
+      setSingleExportState(format, { status: 'processing', error: null });
+      clearExportPollTimer();
+      exportPollTimerRef.current = setTimeout(() => {
+        void pollExportReady(format, attempt + 1);
+      }, 4000);
     },
-    [selectedLayoutId, activePageIndex, commitMergeText]
+    [clearExportPollTimer, setSingleExportState, taskId]
   );
 
-  const onLayoutFontFamilyChange = useCallback(
-    (fontFamily: string) => {
-      if (!selectedLayoutId) return;
-      commitMergeText((draft) => {
-        setLayoutEditor(draft, activePageIndex, selectedLayoutId, { fontFamily });
+  const startExport = useCallback(async (format: 'pdf' | 'md') => {
+    if (!taskId || exportState[format].status === 'processing') return;
+    setSingleExportState(format, { status: 'processing', error: null });
+    try {
+      await translateApi.retryOcrTaskExport(taskId, format);
+      await pollExportReady(format, 0);
+    } catch (e) {
+      setSingleExportState(format, {
+        status: 'failed',
+        error: e instanceof Error ? e.message : `${format.toUpperCase()} export failed`,
       });
+      clearExportPollTimer();
+    }
+  }, [clearExportPollTimer, exportState, pollExportReady, setSingleExportState, taskId]);
+
+  const handleDownloadExport = useCallback(
+    async (format: 'pdf' | 'md') => {
+      if (!taskId) return;
+      try {
+        const dl = await translateApi.getOcrTaskExportDownloadUrl(taskId, format);
+        window.open(dl.download_url, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : `${format.toUpperCase()} download failed`);
+      }
     },
-    [selectedLayoutId, activePageIndex, commitMergeText]
+    [taskId]
   );
 
-  const inspectorControls = useMemo(() => {
-    if (!doc || !selectedLayout || !selectedLayoutId) return null;
-    return (
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex items-center gap-1.5">
-          <span className="text-muted-foreground w-4 text-xs">X</span>
-          <Input
-            type="number"
-            className="h-8 text-xs"
-            value={String(Math.round(selectedLayout.position[0]))}
-            onChange={(e) => onLayoutPositionFieldChange(0, e.target.value)}
-          />
-        </label>
-        <label className="flex items-center gap-1.5">
-          <span className="text-muted-foreground w-4 text-xs">Y</span>
-          <Input
-            type="number"
-            className="h-8 text-xs"
-            value={String(Math.round(selectedLayout.position[1]))}
-            onChange={(e) => onLayoutPositionFieldChange(1, e.target.value)}
-          />
-        </label>
-        <label className="flex items-center gap-1.5">
-          <span className="text-muted-foreground w-4 text-xs">
-            {t('parseDemoLayoutW')}
-          </span>
-          <Input
-            type="number"
-            className="h-8 text-xs"
-            min={8}
-            value={String(Math.round(selectedLayout.position[2]))}
-            onChange={(e) => onLayoutPositionFieldChange(2, e.target.value)}
-          />
-        </label>
-        <label className="flex items-center gap-1.5">
-          <span className="text-muted-foreground w-4 text-xs">
-            {t('parseDemoLayoutH')}
-          </span>
-          <Input
-            type="number"
-            className="h-8 text-xs"
-            min={8}
-            value={String(Math.round(selectedLayout.position[3]))}
-            onChange={(e) => onLayoutPositionFieldChange(3, e.target.value)}
-          />
-        </label>
-        <label className="flex items-center gap-1.5">
-          <span className="text-muted-foreground w-8 whitespace-nowrap text-xs">
-            {t('toolbarFontSize')}
-          </span>
-          <Input
-            type="number"
-            className="h-8 text-xs"
-            min={6}
-            value={String(Number.parseInt(selectedEditorStyle.fontSize || '16', 10))}
-            onChange={(e) => onLayoutFontSizeChange(e.target.value)}
-          />
-        </label>
-        <label className="flex min-w-0 items-center gap-1.5">
-          <span className="text-muted-foreground w-7 shrink-0 truncate text-[10px]">
-            {t('toolbarFontFamily')}
-          </span>
-          <select
-            className="border-input bg-background h-8 min-w-0 max-w-full flex-1 rounded-md border px-1 text-[10px]"
-            title={t('toolbarFontFamily')}
-            value={selectedEditorStyle.fontFamily || 'system-ui,sans-serif'}
-            onChange={(e) => onLayoutFontFamilyChange(e.target.value)}
-          >
-            <option value="system-ui,sans-serif" title={t('toolbarSystemDefault')}>
-              {t('toolbarSystemDefaultShort')}
-            </option>
-            <option
-              value='"Microsoft YaHei",sans-serif'
-              title={t('toolbarFontYahei')}
-            >
-              {t('toolbarFontYaheiShort')}
-            </option>
-            <option value='"Noto Sans SC",sans-serif' title="Noto Sans SC">
-              {t('toolbarFontNotoShort')}
-            </option>
-            <option value='"SimSun",serif' title={t('toolbarFontSimsun')}>
-              {t('toolbarFontSimsunShort')}
-            </option>
-            <option value='"KaiTi",serif' title={t('toolbarFontKaiti')}>
-              {t('toolbarFontKaitiShort')}
-            </option>
-          </select>
-        </label>
-      </div>
-    );
-  }, [
-    doc,
-    selectedLayout,
-    selectedLayoutId,
-    selectedEditorStyle.fontFamily,
-    selectedEditorStyle.fontSize,
-    onLayoutPositionFieldChange,
-    onLayoutFontSizeChange,
-    onLayoutFontFamilyChange,
-    t,
-  ]);
+  useEffect(() => {
+    if (!taskId) {
+      setExportState({
+        pdf: { status: 'idle', error: null },
+        md: { status: 'idle', error: null },
+      });
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const exportsState = await translateApi.listOcrTaskExports(taskId);
+        if (cancelled) return;
+        const next: {
+          pdf: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+          md: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+        } = {
+          pdf: { status: 'idle', error: null },
+          md: { status: 'idle', error: null },
+        };
+        const pdf = exportsState.exports.find((one) => one.format === 'pdf');
+        const md = exportsState.exports.find((one) => one.format === 'md');
+        if (pdf) {
+          const nextPdfStatus =
+            pdf.status === 'ready'
+              ? 'ready'
+              : pdf.status === 'failed' || pdf.status === 'cancelled'
+                ? 'failed'
+                : exportState.pdf.status === 'processing'
+                  ? 'processing'
+                  : 'idle';
+          next.pdf = {
+            status: nextPdfStatus,
+            error: pdf.error_message ?? null,
+          };
+        }
+        if (md) {
+          const nextMdStatus =
+            md.status === 'ready'
+              ? 'ready'
+              : md.status === 'failed' || md.status === 'cancelled'
+                ? 'failed'
+                : exportState.md.status === 'processing'
+                  ? 'processing'
+                  : 'idle';
+          next.md = {
+            status: nextMdStatus,
+            error: md.error_message ?? null,
+          };
+        }
+        setExportState(next);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [exportState.md.status, exportState.pdf.status, taskId]);
 
   const originalLabels = useMemo(
     () => ({
@@ -472,7 +483,7 @@ export function OcrParseWorkbench({
   }, [doc, activePageIndex, onWorkbenchPageJson]);
 
   const saveToServer = useCallback(async () => {
-    if (!docRef.current) return;
+    if (!docRef.current || !taskId) return;
     flushSync(() => {
       flushEditableText();
     });
@@ -487,18 +498,6 @@ export function OcrParseWorkbench({
       setSaving(false);
     }
   }, [taskId, flushEditableText, t]);
-
-  const exportMd = useCallback(() => {
-    if (!docRef.current) return;
-    const md = buildMarkdownExport(docRef.current);
-    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ocr-workbench-export.md';
-    a.click();
-    URL.revokeObjectURL(url);
-  }, []);
 
   const scaleControl = useMemo(
     () => (
@@ -558,7 +557,7 @@ export function OcrParseWorkbench({
             type="button"
             variant="outline"
             size="sm"
-            disabled={!doc || saving}
+            disabled={!doc || saving || !taskId}
             onClick={() => void saveToServer()}
           >
             {saving ? (
@@ -569,15 +568,97 @@ export function OcrParseWorkbench({
             {t('parseDemoSaveNow')}
           </Button>
         </div>
-        <Button type="button" variant="secondary" size="sm" disabled={!doc} onClick={exportMd}>
-          {t('parseDemoExportMd')}
-        </Button>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Button
+            type="button"
+            size="sm"
+            disabled={!taskId || exportState.md.status === 'processing'}
+            onClick={() =>
+              exportState.md.status === 'ready'
+                ? void handleDownloadExport('md')
+                : void startExport('md')
+            }
+            className="border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-200"
+          >
+            <FileText className="mr-1 size-3.5" />
+            <span className="min-w-0 truncate">
+              {exportState.md.status === 'processing'
+              ? 'MD...'
+              : exportState.md.status === 'ready'
+                ? 'MD DL'
+                : 'MD Export'}
+            </span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!taskId || exportState.pdf.status === 'processing'}
+            onClick={() =>
+              exportState.pdf.status === 'ready'
+                ? void handleDownloadExport('pdf')
+                : void startExport('pdf')
+            }
+            className="border border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-200"
+          >
+            <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
+            {exportState.pdf.status === 'processing' ? (
+              <Loader2 className="mr-1 size-3.5 animate-spin" />
+            ) : null}
+            <span className="min-w-0 truncate">
+              {exportState.pdf.status === 'processing'
+              ? 'PDF...'
+              : exportState.pdf.status === 'ready'
+                ? 'PDF DL'
+                : 'PDF Export'}
+            </span>
+          </Button>
+        </div>
+        {exportState.md.error || exportState.pdf.error ? (
+          <p className="text-[11px] text-red-600 dark:text-red-400">
+            {exportState.md.error ?? exportState.pdf.error}
+          </p>
+        ) : null}
       </div>
     ),
-    [canRedo, canUndo, doc, exportMd, redo, saveToServer, saving, t, undo]
+    [
+      canRedo,
+      canUndo,
+      doc,
+      exportState,
+      handleDownloadExport,
+      redo,
+      saveToServer,
+      saving,
+      startExport,
+      t,
+      taskId,
+      undo,
+    ]
   );
   const showTopPageControls = !(toolbarPosition === 'left' && hideSourcePanel);
   const showLeftToolbar = toolbarPosition === 'left' && hideSourcePanel;
+  const showTopFileActions = !showLeftToolbar;
+  const [externalToolbarHost, setExternalToolbarHost] = useState<HTMLElement | null>(
+    null
+  );
+  useEffect(() => {
+    if (!externalToolbarContainerId || typeof document === 'undefined') {
+      setExternalToolbarHost(null);
+      return;
+    }
+    setExternalToolbarHost(document.getElementById(externalToolbarContainerId));
+  }, [externalToolbarContainerId, loadState, taskId, parseResultUrl]);
+  const shouldUseExternalToolbar = showLeftToolbar && Boolean(externalToolbarHost);
+  const toolbarContent = (
+    <ParseResultEditorToolbar
+      disabled={!selectedLayoutId}
+      onFlushBeforeFormat={flushEditableText}
+      onEditorStylePatch={onEditorStylePatch}
+      currentEditorStyle={selectedEditorStyle}
+      fileControls={fileControls}
+      sectionIds={toolbarSectionIds}
+    />
+  );
 
   const renderStatusWithToolbar = (
     panel: ReactNode,
@@ -589,16 +670,14 @@ export function OcrParseWorkbench({
         showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
       )}
     >
-      {showLeftToolbar ? (
+      {showLeftToolbar &&
+      !externalToolbarContainerId &&
+      !shouldUseExternalToolbar ? (
         <aside
           id={toolbarId}
           className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
         >
-          <ParseResultEditorToolbar
-            disabled
-            currentEditorStyle={{}}
-            sectionIds={toolbarSectionIds}
-          />
+          <ParseResultEditorToolbar disabled currentEditorStyle={{}} sectionIds={toolbarSectionIds} />
         </aside>
       ) : null}
       <div
@@ -670,45 +749,57 @@ export function OcrParseWorkbench({
             </span>
           </>
         ) : null}
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!doc || !canUndo}
-            onClick={undo}
-          >
-            <Undo2 className="mr-1 size-3.5" />
-            {t('parseDemoUndo')}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!doc || !canRedo}
-            onClick={redo}
-          >
-            <Redo2 className="mr-1 size-3.5" />
-            {t('parseDemoRedo')}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!doc || saving}
-            onClick={() => void saveToServer()}
-          >
-            {saving ? (
-              <Loader2 className="mr-1 size-3.5 animate-spin" />
-            ) : (
-              <Save className="mr-1 size-3.5" />
-            )}
-            {t('parseDemoSaveNow')}
-          </Button>
-          <Button type="button" variant="secondary" size="sm" disabled={!doc} onClick={exportMd}>
-            {t('parseDemoExportMd')}
-          </Button>
-        </div>
+        {showTopFileActions ? (
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!doc || !canUndo}
+              onClick={undo}
+            >
+              <Undo2 className="mr-1 size-3.5" />
+              {t('parseDemoUndo')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!doc || !canRedo}
+              onClick={redo}
+            >
+              <Redo2 className="mr-1 size-3.5" />
+              {t('parseDemoRedo')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!doc || saving}
+              onClick={() => void saveToServer()}
+            >
+              {saving ? (
+                <Loader2 className="mr-1 size-3.5 animate-spin" />
+              ) : (
+                <Save className="mr-1 size-3.5" />
+              )}
+              {t('parseDemoSaveNow')}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={!taskId || exportState.md.status === 'processing'}
+              onClick={() =>
+                exportState.md.status === 'ready'
+                  ? void handleDownloadExport('md')
+                  : void startExport('md')
+              }
+            >
+              {exportState.md.status === 'ready' ? 'MD Download' : 'MD Export'}
+            </Button>
+          </div>
+        ) : null}
       </div>
       {!selectedLayoutId ? (
         <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
@@ -722,21 +813,14 @@ export function OcrParseWorkbench({
           toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
       >
-        {showLeftToolbar ? (
+        {showLeftToolbar &&
+        !externalToolbarContainerId &&
+        !shouldUseExternalToolbar ? (
           <aside
             id={toolbarId}
-            className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
+            className="flex w-full shrink-0 flex-col gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50/95 p-1.5 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-64 md:self-start md:overflow-y-auto"
           >
-            <ParseResultEditorToolbar
-              disabled={!selectedLayoutId}
-              onFlushBeforeFormat={flushEditableText}
-              onEditorStylePatch={onEditorStylePatch}
-              currentEditorStyle={selectedEditorStyle}
-              inspectorControls={inspectorControls}
-              extraFontControls={scaleControl}
-              fileControls={fileControls}
-              sectionIds={toolbarSectionIds}
-            />
+            {toolbarContent}
           </aside>
         ) : null}
         <div
@@ -792,7 +876,7 @@ export function OcrParseWorkbench({
           <aside
             id={toolbarId}
             className={cn(
-              'flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:overflow-y-auto',
+              'flex w-full shrink-0 flex-col gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50/95 p-1.5 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:overflow-y-auto',
               hideSourcePanel ? 'md:w-full md:self-stretch' : 'md:w-72 md:self-start'
             )}
           >
@@ -801,13 +885,19 @@ export function OcrParseWorkbench({
               onFlushBeforeFormat={flushEditableText}
               onEditorStylePatch={onEditorStylePatch}
               currentEditorStyle={selectedEditorStyle}
-              inspectorControls={inspectorControls}
-              extraFontControls={scaleControl}
               fileControls={fileControls}
               sectionIds={toolbarSectionIds}
             />
           </aside>
         ) : null}
+        {shouldUseExternalToolbar && externalToolbarHost
+          ? createPortal(
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50/95 p-1.5 dark:border-zinc-800 dark:bg-zinc-950">
+                {toolbarContent}
+              </div>,
+              externalToolbarHost
+            )
+          : null}
       </div>
     </div>
   );

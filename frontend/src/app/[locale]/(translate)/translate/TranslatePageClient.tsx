@@ -194,6 +194,14 @@ export function TranslatePageClient() {
   >([]);
   const [recentTaskPage, setRecentTaskPage] = useState(0);
   const [recentDocumentPage, setRecentDocumentPage] = useState(0);
+  const isRecentRequested = searchParams.get('recent') === '1';
+  const [recentBootstrapDone, setRecentBootstrapDone] = useState(
+    !isRecentRequested
+  );
+
+  useEffect(() => {
+    setRecentBootstrapDone(!isRecentRequested);
+  }, [isRecentRequested]);
 
   useEffect(() => {
     let cancelled = false;
@@ -222,15 +230,14 @@ export function TranslatePageClient() {
   }, []);
 
   useEffect(() => {
-    if (!footerWorkbench) return;
-    footerWorkbench.setWorkbenchOpen(Boolean(documentId));
-  }, [documentId, footerWorkbench]);
+    footerWorkbench?.setWorkbenchOpen(Boolean(documentId));
+  }, [documentId, footerWorkbench?.setWorkbenchOpen]);
 
   useEffect(() => {
-    if (!shellChrome) return;
+    if (!shellChrome?.setHeaderCollapsed) return;
     shellChrome.setHeaderCollapsed(true);
     return () => shellChrome.setHeaderCollapsed(false);
-  }, [shellChrome]);
+  }, [shellChrome?.setHeaderCollapsed]);
 
   const effectiveDocumentPageCount = useMemo(
     () =>
@@ -390,12 +397,27 @@ export function TranslatePageClient() {
     (async () => {
       try {
         const recent = await translateApi.listTasks({
-          limit: 1,
+          limit: 30,
           offset: 0,
           ocrOnly: false,
         });
         if (cancelled || recent.length === 0) return;
-        const latest = recent[0];
+        let latest: { id: string } | null = null;
+        for (const one of recent) {
+          const detail = await translateApi.getTask(one.id).catch(() => null);
+          if (cancelled || !detail) continue;
+          // translate 页面只允许加载非 OCR 任务
+          if (detail.preprocess_with_ocr === true) continue;
+          latest = one;
+          break;
+        }
+        if (!latest) {
+          const docs = await translateApi.listDocuments({ limit: 1, offset: 0 });
+          if (!cancelled && docs.length === 0 && isRecentRequested) {
+            router.replace('/upload');
+          }
+          return;
+        }
         const [detail, view] = await Promise.all([
           translateApi.getTask(latest.id),
           translateApi.getTaskView(latest.id).catch(() => null),
@@ -428,13 +450,19 @@ export function TranslatePageClient() {
           });
         }
       } catch {
-        // 没有最近任务时保持当前页，等待上传
+        if (!cancelled && isRecentRequested) {
+          router.replace('/upload');
+        }
+      } finally {
+        if (!cancelled && isRecentRequested) {
+          setRecentBootstrapDone(true);
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [documentId, searchParams, updateTaskInUrl]);
+  }, [documentId, isRecentRequested, searchParams, updateTaskInUrl]);
 
   useEffect(() => {
     if (!documentId) {
@@ -872,7 +900,9 @@ export function TranslatePageClient() {
     !documentId &&
     (Boolean(searchParams.get(TASK_PARAM)?.trim()) ||
       Boolean(searchParams.get(DOCUMENT_PARAM)?.trim()));
-  if (restoringFromUrl) {
+  const restoringRecent =
+    isRecentRequested && !recentBootstrapDone && !taskId && !documentId;
+  if (restoringFromUrl || restoringRecent) {
     return (
       <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 p-8 text-zinc-600 dark:text-zinc-400">
         <Loader2 className="h-10 w-10 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
@@ -949,10 +979,12 @@ export function TranslatePageClient() {
           <div className="mt-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => shellChrome?.setHeaderCollapsed(false)}
+              onClick={() =>
+                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? true))
+              }
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
-              {tOcrWb('pagesExpandHeader')}
+              {shellChrome?.headerCollapsed ? 'Expand header' : 'Close header'}
             </button>
             <button
               type="button"
@@ -995,10 +1027,14 @@ export function TranslatePageClient() {
             </label>
             <button
               type="button"
-              onClick={() => footerWorkbench?.setFooterExpanded(true)}
+              onClick={() =>
+                footerWorkbench?.setFooterExpanded(
+                  !(footerWorkbench?.footerExpanded ?? false)
+                )
+              }
               className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
-              {tOcrWb('pagesExpandFooter')}
+              {footerWorkbench?.footerExpanded ? 'Close footer' : 'Expand footer'}
             </button>
           </div>
         </div>

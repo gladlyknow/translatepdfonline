@@ -30,10 +30,8 @@ import {
 } from '@/shared/lib/translate-api';
 import {
   Loader2,
-  Download,
   Trash2,
   RefreshCw,
-  FileText,
   Languages,
 } from 'lucide-react';
 
@@ -60,9 +58,9 @@ const TARGET_LANG_PARAM = 'target_lang';
 const POLL_INTERVAL_MS_ACTIVE = 10_000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
 const OCR_TOOLBAR_ID = 'ocr-workbench-toolbar';
+const OCR_TOOLBAR_HOST_ID = 'ocr-workbench-toolbar-host';
 const OCR_TOOLBAR_TEXT_EDIT_ID = 'ocr-workbench-toolbar-text-edit';
 const OCR_TOOLBAR_FONT_SETTINGS_ID = 'ocr-workbench-toolbar-font-settings';
-const OCR_TOOLBAR_BLOCK_PROPS_ID = 'ocr-workbench-toolbar-block-props';
 const OCR_TOOLBAR_FILE_ID = 'ocr-workbench-toolbar-file';
 const HISTORY_PAGE_SIZE = 3;
 type OcrFocusPanel = 'json' | 'source';
@@ -82,28 +80,6 @@ function sanitizeUiLogMessage(raw: string | null | undefined): string {
     .replace(/(?:^|[\s"'`])(\/[^\s"'`]+)+/g, ' [path]')
     .replace(/translations\/[^\s"'`]+/gi, '[object_key]')
     .slice(0, 220);
-}
-
-function parsePageRange(range: string | null): [number, number] | null {
-  if (range == null || range.trim() === '') return null;
-  const s = range.trim();
-  const dash = s.indexOf('-');
-  if (dash === -1) {
-    const n = parseInt(s, 10);
-    if (Number.isNaN(n) || n < 1) return null;
-    return [n, n];
-  }
-  const start = parseInt(s.slice(0, dash).trim(), 10);
-  const end = parseInt(s.slice(dash + 1).trim(), 10);
-  if (
-    Number.isNaN(start) ||
-    Number.isNaN(end) ||
-    start < 1 ||
-    end < start
-  ) {
-    return null;
-  }
-  return [start, end];
 }
 
 function useDebouncedValue<T>(value: T, delayMs: number): T {
@@ -168,7 +144,6 @@ export function OcrTranslatePageClient() {
   const [taskView, setTaskView] = useState<TaskView | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [jsonPage, setJsonPage] = useState(1);
-  const [targetPage, setTargetPage] = useState(1);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [documentCreatedAt, setDocumentCreatedAt] = useState<string | null>(
     null
@@ -184,15 +159,12 @@ export function OcrTranslatePageClient() {
   const [documentPageCountFromDb, setDocumentPageCountFromDb] = useState<
     number | null
   >(null);
-  const [targetSliceUrl, setTargetSliceUrl] = useState<string>('');
-  const [targetTotalPages, setTargetTotalPages] = useState<number>(0);
-  const [targetNumPagesFromViewer, setTargetNumPagesFromViewer] = useState<
-    number | null
-  >(null);
   const [refreshing, setRefreshing] = useState(false);
   const [starting, setStarting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [parsePageJson, setParsePageJson] = useState('');
+  const [stableParseResultUrl, setStableParseResultUrl] = useState<string | null>(
+    null
+  );
   const [lastResumeStage, setLastResumeStage] = useState<string | null>(null);
   const [historyLogOpen, setHistoryLogOpen] = useState(false);
   const [recentOcrTasks, setRecentOcrTasks] = useState<
@@ -214,14 +186,20 @@ export function OcrTranslatePageClient() {
   >([]);
   const [recentTaskPage, setRecentTaskPage] = useState(0);
   const [recentDocumentPage, setRecentDocumentPage] = useState(0);
+  const isRecentRequested = searchParams.get('recent') === '1';
+  const [recentBootstrapDone, setRecentBootstrapDone] = useState(
+    !isRecentRequested
+  );
+
+  useEffect(() => {
+    setRecentBootstrapDone(!isRecentRequested);
+  }, [isRecentRequested]);
 
   const blockAutoDocumentLoadRef = useRef(false);
-  const outputPreviewFailedRef = useRef<{
-    taskId: string;
-    page: number;
-    at: number;
-  } | null>(null);
-  const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
+  const taskViewRef = useRef<TaskView | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollInFlightRef = useRef(false);
+  const pollNextAllowedAtRef = useRef(0);
 
   const setTaskViewStable = useCallback((next: TaskView | null) => {
     if (!next) {
@@ -249,6 +227,10 @@ export function OcrTranslatePageClient() {
   }, []);
 
   useEffect(() => {
+    taskViewRef.current = taskView;
+  }, [taskView]);
+
+  useEffect(() => {
     setThemeMounted(true);
   }, []);
 
@@ -262,15 +244,14 @@ export function OcrTranslatePageClient() {
   }, [documentId, resolvedTheme, themeMounted, setAppearance]);
 
   useEffect(() => {
-    if (!footerWorkbench) return;
-    footerWorkbench.setWorkbenchOpen(Boolean(documentId));
-  }, [documentId, footerWorkbench]);
+    footerWorkbench?.setWorkbenchOpen(Boolean(documentId));
+  }, [documentId, footerWorkbench?.setWorkbenchOpen]);
 
   useEffect(() => {
-    if (!shellChrome) return;
+    if (!shellChrome?.setHeaderCollapsed) return;
     shellChrome.setHeaderCollapsed(true);
     return () => shellChrome.setHeaderCollapsed(false);
-  }, [shellChrome]);
+  }, [shellChrome?.setHeaderCollapsed]);
 
   useEffect(() => {
     if (!sessionUserId && !user?.id) return;
@@ -299,17 +280,8 @@ export function OcrTranslatePageClient() {
     [sourceTotalPages, sourceNumPagesFromViewer, documentPageCountFromDb]
   );
 
-  const effectiveTargetTotalPages = useMemo(
-    () => Math.max(targetTotalPages, targetNumPagesFromViewer ?? 0),
-    [targetTotalPages, targetNumPagesFromViewer]
-  );
-
   const debouncedSourcePage = useDebouncedValue(
     currentPage,
-    PREVIEW_PAGE_DEBOUNCE_MS
-  );
-  const debouncedTargetPage = useDebouncedValue(
-    targetPage,
     PREVIEW_PAGE_DEBOUNCE_MS
   );
 
@@ -376,6 +348,77 @@ export function OcrTranslatePageClient() {
   }, [searchParams, documentId, sourceLang, targetLang]);
 
   useEffect(() => {
+    if (taskView?.ocr_parse_result_url) {
+      setStableParseResultUrl(taskView.ocr_parse_result_url);
+    }
+  }, [taskView?.ocr_parse_result_url]);
+
+  useEffect(() => {
+    setStableParseResultUrl(null);
+  }, [taskId]);
+
+  useEffect(() => {
+    if (searchParams.get(TASK_PARAM)) return;
+    if (taskId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const recent = await translateApi.listTasks({
+          limit: 30,
+          offset: 0,
+          ocrOnly: true,
+        });
+        if (cancelled || recent.length === 0) return;
+        let latest: { id: string } | null = null;
+        for (const one of recent) {
+          const detail = await translateApi.getTask(one.id).catch(() => null);
+          if (cancelled || !detail) continue;
+          // OCR 页面只允许加载 OCR 任务
+          if (detail.preprocess_with_ocr !== true) continue;
+          latest = one;
+          break;
+        }
+        if (!latest) {
+          const docs = await translateApi.listDocuments({ limit: 1, offset: 0 });
+          if (!cancelled && docs.length === 0 && isRecentRequested) {
+            router.replace('/upload');
+          }
+          return;
+        }
+        const [detail, view] = await Promise.all([
+          translateApi.getTask(latest.id),
+          translateApi.getTaskView(latest.id).catch(() => null),
+        ]);
+        if (cancelled) return;
+        setTaskId(latest.id);
+        setTaskStatus(detail.status);
+        setTaskDetail(detail);
+        updateTaskInUrl(latest.id);
+        if (view) {
+          setTaskViewStable(view);
+          setDocumentId(detail.document_id);
+          setFilename(view.document_filename);
+          setLastUploadedFile({
+            name: view.document_filename,
+            size: view.document_size_bytes ?? 0,
+          });
+        }
+      } catch {
+        if (!cancelled && isRecentRequested) {
+          router.replace('/upload');
+        }
+      } finally {
+        if (!cancelled && isRecentRequested) {
+          setRecentBootstrapDone(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isRecentRequested, searchParams, taskId, updateTaskInUrl, setTaskViewStable]);
+
+  useEffect(() => {
     if (documentId) return;
     if (searchParams.get(TASK_PARAM)) return;
     if (blockAutoDocumentLoadRef.current) return;
@@ -434,10 +477,6 @@ export function OcrTranslatePageClient() {
   }, [documentId]);
 
   useEffect(() => {
-    setTargetNumPagesFromViewer(null);
-  }, [taskId]);
-
-  useEffect(() => {
     if (!documentId || debouncedSourcePage < 1) {
       setSourceSliceUrl('');
       setSourceTotalPages(0);
@@ -467,126 +506,89 @@ export function OcrTranslatePageClient() {
   }, [documentId, debouncedSourcePage]);
 
   useEffect(() => {
-    setTargetPage(1);
-  }, [taskId]);
-
-  useEffect(() => {
     setJsonPage(1);
   }, [taskId, documentId]);
 
   useEffect(() => {
-    if (
-      !taskId ||
-      taskStatus !== 'completed' ||
-      !taskView?.primary_file_url ||
-      debouncedTargetPage < 1
-    ) {
-      setTargetSliceUrl('');
-      setTargetTotalPages(0);
-      return;
-    }
-    const failed = outputPreviewFailedRef.current;
-    if (
-      failed &&
-      failed.taskId === taskId &&
-      failed.page === debouncedTargetPage &&
-      Date.now() - failed.at < OUTPUT_PREVIEW_BACKOFF_MS
-    ) {
-      return;
-    }
-    let cancelled = false;
-    translateApi
-      .getTaskOutputPreviewUrl(taskId, debouncedTargetPage)
-      .then((res) => {
-        if (!cancelled) {
-          outputPreviewFailedRef.current = null;
-          setTargetSliceUrl(res.preview_url);
-          setTargetTotalPages(res.total_pages);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          outputPreviewFailedRef.current = {
-            taskId,
-            page: debouncedTargetPage,
-            at: Date.now(),
-          };
-          setTargetSliceUrl('');
-          setTargetTotalPages(0);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [taskId, taskStatus, taskView?.primary_file_url, debouncedTargetPage]);
-
-  useEffect(() => {
     if (!taskId) return;
     let cancelled = false;
+    const clearPollTimer = () => {
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+    const schedulePoll = (delayMs: number) => {
+      if (cancelled) return;
+      clearPollTimer();
+      pollTimerRef.current = setTimeout(() => {
+        void poll();
+      }, Math.max(0, delayMs));
+    };
     const poll = async () => {
+      if (cancelled) return;
+      if (pollInFlightRef.current) {
+        schedulePoll(POLL_INTERVAL_MS_ACTIVE);
+        return;
+      }
+      const now = Date.now();
+      if (now < pollNextAllowedAtRef.current) {
+        schedulePoll(pollNextAllowedAtRef.current - now);
+        return;
+      }
+      pollInFlightRef.current = true;
       try {
         const detail = await translateApi.getTask(taskId);
         if (cancelled) return;
         setTaskStatus(detail.status);
         setTaskDetail(detail);
+        let shouldContinue = true;
         if (
           detail.status === 'completed' ||
           detail.status === 'failed' ||
           detail.status === 'cancelled'
         ) {
           if (detail.status === 'completed') {
-            const exportState = await translateApi
-              .listOcrTaskExports(taskId)
-              .catch(() => null);
-            if (cancelled) return;
-            const hasReadyExport = Boolean(
-              exportState?.exports?.some((one) => one.status === 'ready')
-            );
-            if (hasReadyExport || !taskView || !taskView.ocr_parse_result_url) {
+            let currentView = taskViewRef.current;
+            if (!currentView || !currentView.ocr_parse_result_url) {
+              const view = await translateApi.getTaskView(taskId).catch(() => null);
+              if (!cancelled && view) {
+                setTaskViewStable(view);
+                currentView = view;
+              }
+            }
+            shouldContinue = !Boolean(currentView?.ocr_parse_result_url);
+          } else {
+            if (!taskViewRef.current) {
               const view = await translateApi.getTaskView(taskId).catch(() => null);
               if (!cancelled && view) {
                 setTaskViewStable(view);
               }
             }
-            if (!hasReadyExport) {
-              return;
-            }
-            return;
+            shouldContinue = false;
           }
-          if (!taskView) {
-            const view = await translateApi.getTaskView(taskId).catch(() => null);
-            if (!cancelled && view) {
-              setTaskViewStable(view);
-            }
-          }
-          return;
+        }
+        if (!cancelled && shouldContinue) {
+          pollNextAllowedAtRef.current = Date.now() + POLL_INTERVAL_MS_ACTIVE;
+          schedulePoll(POLL_INTERVAL_MS_ACTIVE);
         }
       } catch {
-        // ignore
+        if (!cancelled) {
+          pollNextAllowedAtRef.current = Date.now() + POLL_INTERVAL_MS_ACTIVE;
+          schedulePoll(POLL_INTERVAL_MS_ACTIVE);
+        }
+      } finally {
+        pollInFlightRef.current = false;
       }
     };
-    poll();
-    const waitingExportReady =
-      taskStatus === 'completed' &&
-      (!(taskView?.can_download ?? false) || (taskView?.outputs?.length ?? 0) === 0);
-    const terminal =
-      (taskStatus === 'completed' && !waitingExportReady) ||
-      taskStatus === 'failed' ||
-      taskStatus === 'cancelled';
-    const shouldPoll = !terminal;
-    const id = shouldPoll ? setInterval(poll, POLL_INTERVAL_MS_ACTIVE) : undefined;
+    pollNextAllowedAtRef.current = 0;
+    void poll();
     return () => {
       cancelled = true;
-      if (id) clearInterval(id);
+      clearPollTimer();
+      pollInFlightRef.current = false;
     };
-  }, [
-    taskId,
-    taskStatus,
-    taskView,
-    taskView?.can_download,
-    taskView?.outputs?.length,
-    setTaskViewStable,
-  ]);
+  }, [taskId, setTaskViewStable]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
@@ -642,7 +644,6 @@ export function OcrTranslatePageClient() {
 
   const handleRefreshResult = async () => {
     if (!taskId || refreshing) return;
-    outputPreviewFailedRef.current = null;
     setRefreshing(true);
     try {
       const detail = await translateApi.getTask(taskId);
@@ -686,9 +687,7 @@ export function OcrTranslatePageClient() {
     try {
       await translateApi.deleteDocument(documentId);
       blockAutoDocumentLoadRef.current = true;
-      outputPreviewFailedRef.current = null;
       setCurrentPage(1);
-      setTargetPage(1);
       setDocumentId(null);
       setFilename(null);
       setLastUploadedFile(null);
@@ -846,43 +845,28 @@ export function OcrTranslatePageClient() {
   }, [taskId, taskDetail, lastResumeStage, tOcrWb, stageLabel]);
 
   const sourcePdfUrl = documentId ? sourceSliceUrl : '';
-  const targetPdfUrl =
-    taskStatus === 'completed' && targetSliceUrl ? targetSliceUrl : '';
-  const pageRange = parsePageRange(taskView?.task?.page_range ?? null);
-  const isPageTranslated =
-    pageRange == null || (currentPage >= pageRange[0] && currentPage <= pageRange[1]);
-
   const handleSourcePageChange = useCallback(
     (p: number) => {
       setCurrentPage(p);
-      if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
-        setTargetPage(Math.min(Math.max(1, p), effectiveTargetTotalPages));
-      }
     },
-    [taskStatus, effectiveTargetTotalPages]
+    []
   );
 
   const handlePrevPage = useCallback(() => {
     if (activeFocusPanel === 'source') {
       const next = Math.max(1, currentPage - 1);
       setCurrentPage(next);
-      if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
-        setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
-      }
       return;
     }
     const next = Math.max(1, jsonPage - 1);
     setJsonPage(next);
-  }, [activeFocusPanel, currentPage, effectiveTargetTotalPages, jsonPage, taskStatus]);
+  }, [activeFocusPanel, currentPage, jsonPage]);
 
   const handleNextPage = useCallback(() => {
     const total = Math.max(1, effectiveDocumentPageCount || 1);
     if (activeFocusPanel === 'source') {
       const next = Math.min(total, currentPage + 1);
       setCurrentPage(next);
-      if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
-        setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
-      }
       return;
     }
     const next = Math.min(total, jsonPage + 1);
@@ -891,33 +875,35 @@ export function OcrTranslatePageClient() {
     activeFocusPanel,
     currentPage,
     effectiveDocumentPageCount,
-    effectiveTargetTotalPages,
     jsonPage,
-    taskStatus,
   ]);
+  const ocrParseResultUrl = stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null;
+  const sidebarBtnClass =
+    'inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition-all duration-150 hover:-translate-y-[1px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800';
+  const sidebarCardClass =
+    'rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 shadow-[0_1px_0_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900/60';
+  const restoringFromUrl = Boolean(searchParams.get(TASK_PARAM)?.trim()) && !taskId;
+  const restoringRecent =
+    isRecentRequested && !recentBootstrapDone && !taskId && !documentId;
 
-  const outputs = taskView?.outputs ?? [];
-  const pdfOutput =
-    outputs.find((o) => o.filename.toLowerCase().endsWith('.pdf')) ?? null;
-  const mdOutput =
-    outputs.find((o) => o.filename.toLowerCase().endsWith('.md')) ?? null;
-  const ocrParseResultUrl = taskView?.ocr_parse_result_url ?? null;
-
-  useEffect(() => {
-    setParsePageJson('');
-  }, [ocrParseResultUrl, taskId]);
+  if (restoringFromUrl || restoringRecent) {
+    return (
+      <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 p-8 text-zinc-600 dark:text-zinc-400">
+        <Loader2 className="h-10 w-10 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
+        <p className="text-center text-sm">{t('restoring')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
-      <aside
-        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-64 md:border-b-0 md:border-r md:p-4"
-      >
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
+      <aside className="flex max-h-[45vh] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:overflow-y-visible md:border-b-0 md:border-r md:p-4">
+        <div className={sidebarCardClass}>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => router.push('/')}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+              className={sidebarBtnClass}
             >
               <Image src="/brand/local/upload.png" alt="" width={14} height={14} />
               {tOcrWb('navHome')}
@@ -925,7 +911,7 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={() => router.push('/upload')}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+              className={sidebarBtnClass}
             >
               <Image src="/brand/local/upload.webp" alt="" width={14} height={14} />
               {tOcrWb('navUpload')}
@@ -933,7 +919,7 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={() => setHistoryLogOpen(true)}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+              className={`col-span-2 ${sidebarBtnClass}`}
             >
               <Image src="/brand/local/history.png" alt="" width={14} height={14} />
               {tOcrWb('navHistLog')}
@@ -966,82 +952,7 @@ export function OcrTranslatePageClient() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
-          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            {tOcrWb('pagesTitle')}
-          </p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => shellChrome?.setHeaderCollapsed(false)}
-              className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('pagesExpandHeader')}
-            </button>
-            <button
-              type="button"
-              onClick={handlePrevPage}
-              disabled={currentPage <= 1}
-              className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('pagesPrev')}
-            </button>
-            <button
-              type="button"
-              onClick={handleNextPage}
-              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
-              className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('pagesNext')}
-            </button>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {tOcrWb('pagesSourcePage', {
-                current: activeFocusPanel === 'source' ? currentPage : jsonPage,
-                total: Math.max(1, effectiveDocumentPageCount || 1),
-              })}
-            </p>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {activeFocusPanel === 'json' ? 'JSON focus' : 'Source focus'}
-            </p>
-            <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
-              <span>{tOcrWb('canvasScale')}</span>
-              <input
-                type="range"
-                min={30}
-                max={250}
-                value={
-                  activeFocusPanel === 'source'
-                    ? Math.round(pdfZoom * 100)
-                    : jsonCanvasScale
-                }
-                onChange={(e) => {
-                  const next = Number.parseInt(e.target.value, 10);
-                  if (activeFocusPanel === 'source') {
-                    const zoom = Math.max(0.5, Math.min(2.5, next / 100));
-                    setPdfZoom(zoom);
-                    return;
-                  }
-                  setJsonCanvasScale(Math.max(30, Math.min(160, next)));
-                }}
-                className="flex-1"
-              />
-              <span className="w-10 text-right tabular-nums">
-                {activeFocusPanel === 'source'
-                  ? `${Math.round(pdfZoom * 100)}%`
-                  : `${jsonCanvasScale}%`}
-              </span>
-            </label>
-            <button
-              type="button"
-              onClick={() => footerWorkbench?.setFooterExpanded(true)}
-              className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {tOcrWb('pagesExpandFooter')}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <div className={sidebarCardClass}>
           <div>
             <UploadDropzone
               onUploaded={handleUploaded}
@@ -1098,7 +1009,7 @@ export function OcrTranslatePageClient() {
               onClick={startOcrTask}
               disabled={starting || taskAwaitingResult || !sourceLang}
               className={cn(
-                'flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold',
+                'flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold',
                 TRANSLATE_PRIMARY_CTA_CLASSNAME
               )}
             >
@@ -1117,35 +1028,91 @@ export function OcrTranslatePageClient() {
           </div>
         </div>
 
-        {taskStatus === 'completed' && (
-          <div className="flex flex-col gap-2">
-            {pdfOutput && (
-              <a
-                href={pdfOutput.download_url}
-                download="translation.pdf"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white shadow hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
-              >
-                <Download size={16} className="shrink-0" />
-                {tHome('download')} PDF
-              </a>
-            )}
-            {mdOutput && (
-              <a
-                href={mdOutput.download_url}
-                download="translation.md"
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white py-2.5 text-sm font-semibold text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              >
-                <FileText size={16} className="shrink-0" />
-                {tHome('download')} MD
-              </a>
-            )}
-            {!pdfOutput && !mdOutput ? (
-              <p className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-2 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-                {tOcrWb('logCurrentStage', { stage: tOcrWb('stageExportOutputs') })}
-              </p>
-            ) : null}
+        <div
+          id={OCR_TOOLBAR_HOST_ID}
+          className="space-y-2 md:sticky md:top-4 md:z-20 md:max-h-[calc(100vh-10rem)] md:overflow-y-auto"
+        />
+
+        <div className={`order-last ${sidebarCardClass}`}>
+          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            {tOcrWb('pagesTitle')}
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? true));
+              }}
+              className={`col-span-2 ${sidebarBtnClass}`}
+            >
+              {shellChrome?.headerCollapsed ? 'Expand header' : 'Close header'}
+            </button>
+            <button
+              type="button"
+              onClick={handlePrevPage}
+              disabled={currentPage <= 1}
+              className={`${sidebarBtnClass} disabled:opacity-50`}
+            >
+              {tOcrWb('pagesPrev')}
+            </button>
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
+              className={`${sidebarBtnClass} disabled:opacity-50`}
+            >
+              {tOcrWb('pagesNext')}
+            </button>
+            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+              {tOcrWb('pagesSourcePage', {
+                current: activeFocusPanel === 'source' ? currentPage : jsonPage,
+                total: Math.max(1, effectiveDocumentPageCount || 1),
+              })}
+            </p>
+            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+              {activeFocusPanel === 'json' ? 'JSON focus' : 'Source focus'}
+            </p>
+            <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span>{tOcrWb('canvasScale')}</span>
+              <input
+                type="range"
+                min={30}
+                max={250}
+                value={
+                  activeFocusPanel === 'source'
+                    ? Math.round(pdfZoom * 100)
+                    : jsonCanvasScale
+                }
+                onChange={(e) => {
+                  const next = Number.parseInt(e.target.value, 10);
+                  if (activeFocusPanel === 'source') {
+                    const zoom = Math.max(0.5, Math.min(2.5, next / 100));
+                    setPdfZoom(zoom);
+                    return;
+                  }
+                  setJsonCanvasScale(Math.max(30, Math.min(160, next)));
+                }}
+                className="flex-1"
+              />
+              <span className="w-10 text-right tabular-nums">
+                {activeFocusPanel === 'source'
+                  ? `${Math.round(pdfZoom * 100)}%`
+                  : `${jsonCanvasScale}%`}
+              </span>
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                footerWorkbench?.setFooterExpanded(
+                  !(footerWorkbench?.footerExpanded ?? false)
+                );
+              }}
+              className={`col-span-2 ${sidebarBtnClass}`}
+            >
+              {footerWorkbench?.footerExpanded ? 'Close footer' : 'Expand footer'}
+            </button>
           </div>
-        )}
+        </div>
 
         {taskId && (
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/80">
@@ -1266,145 +1233,65 @@ export function OcrTranslatePageClient() {
           </div>
         )}
 
-        {taskStatus === 'completed' && ocrParseResultUrl && taskId ? (
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-3 md:p-4">
-            <div className="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 md:min-h-[320px] md:flex-1">
-              <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                {tOcrWb('tabWorkbench')}
-              </p>
-              <div className="min-h-0 flex-1 overflow-hidden">
-                <OcrParseWorkbench
-                  taskId={taskId}
-                  parseResultUrl={ocrParseResultUrl}
-                  sourcePdfUrl={
-                    taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
-                  }
-                  hideSourcePanel
-                  pageIndex={Math.max(0, jsonPage - 1)}
-                  onPageIndexChange={(idx) => {
-                    const maxP = Math.max(1, effectiveDocumentPageCount || 1);
-                    setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
-                  }}
-                  onWorkbenchPageJson={({ json }) => setParsePageJson(json)}
-                  canvasScalePercent={jsonCanvasScale}
-                  onCanvasScaleChange={setJsonCanvasScale}
-                  onCanvasFocus={() => setActiveFocusPanel('json')}
-                  toolbarPosition="left"
-                  toolbarId={OCR_TOOLBAR_ID}
-                  toolbarSectionIds={{
-                    textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
-                    fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
-                    blockProps: OCR_TOOLBAR_BLOCK_PROPS_ID,
-                    file: OCR_TOOLBAR_FILE_ID,
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden md:grid-cols-2 md:gap-4 md:min-h-[180px] md:max-h-[34vh]">
-              <div
-                className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-                onMouseEnter={() => setActiveFocusPanel('source')}
-              >
-                <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                  {tHome('sourceLabel')}
-                </p>
-                <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
-                  <PdfViewerPane
-                    key={`source-ocr-wb-${documentId}-${currentPage}`}
-                    fileUrl={sourcePdfUrl ?? ''}
-                    mode="source"
-                    page={currentPage}
-                    onPageChange={handleSourcePageChange}
-                    totalPages={
-                      effectiveDocumentPageCount > 0
-                        ? effectiveDocumentPageCount
-                        : undefined
-                    }
-                    onPdfNumPages={setSourceNumPagesFromViewer}
-                    scale={pdfZoom}
-                    onScaleChange={setPdfZoom}
-                    showZoomControls={false}
-                    showPageControls={false}
-                  />
-                </div>
-              </div>
-              <div
-                className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-                onMouseEnter={() => setActiveFocusPanel('json')}
-              >
-                <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                  {tOcrWb('parseJsonPanelTitle')}
-                </p>
-                <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words bg-zinc-950 p-3 font-mono text-[11px] leading-snug text-zinc-100 dark:bg-black">
-                  {parsePageJson.trim() ? parsePageJson : tOcrWb('parseJsonEmpty')}
-                </pre>
-              </div>
+        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
+          <div
+            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+            onClick={() => setActiveFocusPanel('source')}
+          >
+            <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+              {tHome('sourceLabel')}
+            </p>
+            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable] p-2">
+              <PdfViewerPane
+                key={`source-ocr-${documentId}-${currentPage}`}
+                fileUrl={sourcePdfUrl ?? ''}
+                mode="source"
+                page={currentPage}
+                onPageChange={handleSourcePageChange}
+                totalPages={
+                  effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
+                }
+                onPdfNumPages={setSourceNumPagesFromViewer}
+                scale={pdfZoom}
+                onScaleChange={setPdfZoom}
+                showZoomControls={false}
+                showPageControls={false}
+              />
             </div>
           </div>
-        ) : (
-          <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
-            <div
-              className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-              onMouseEnter={() => setActiveFocusPanel('source')}
-            >
-              <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                {tHome('sourceLabel')}
-              </p>
-              <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
-                <PdfViewerPane
-                  key={`source-ocr-${documentId}-${currentPage}`}
-                  fileUrl={sourcePdfUrl ?? ''}
-                  mode="source"
-                  page={currentPage}
-                  onPageChange={handleSourcePageChange}
-                  totalPages={
-                    effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
-                  }
-                  onPdfNumPages={setSourceNumPagesFromViewer}
-                  scale={pdfZoom}
-                  onScaleChange={setPdfZoom}
-                    showZoomControls={false}
-                    showPageControls={false}
-                />
-              </div>
-            </div>
-            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-              <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                {tHome('targetLabel')}
-              </p>
-              <div className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable] p-2">
-                {taskStatus === 'completed' && targetPdfUrl && !isPageTranslated ? (
-                  <div className="flex h-full min-h-[280px] items-center justify-center">
-                    <span className="text-zinc-500">{tPdf('pageNotTranslated')}</span>
-                  </div>
-                ) : (
-                  <PdfViewerPane
-                    key={`target-ocr-${taskId ?? ''}-${targetPage}`}
-                    fileUrl={targetPdfUrl ?? ''}
-                    mode="target"
-                    placeholder={
-                      taskId && !targetPdfUrl
-                        ? taskAwaitingResult
-                          ? t('targetPlaceholder')
-                          : tPdf('noPdf')
-                        : undefined
-                    }
-                    page={targetPdfUrl ? targetPage : undefined}
-                    onPageChange={targetPdfUrl ? setTargetPage : undefined}
-                    totalPages={
-                      effectiveTargetTotalPages > 0 ? effectiveTargetTotalPages : undefined
-                    }
-                    onPdfNumPages={setTargetNumPagesFromViewer}
-                    scale={pdfZoom}
-                    onScaleChange={setPdfZoom}
-                    showZoomControls={false}
-                    showPageControls={false}
-                  />
-                )}
-              </div>
+          <div
+            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+            onClick={() => setActiveFocusPanel('json')}
+          >
+            <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+              {tOcrWb('tabWorkbench')}
+            </p>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <OcrParseWorkbench
+                taskId={taskId ?? 'pending'}
+                parseResultUrl={ocrParseResultUrl}
+                sourcePdfUrl={taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)}
+                hideSourcePanel
+                pageIndex={Math.max(0, jsonPage - 1)}
+                onPageIndexChange={(idx) => {
+                  const maxP = Math.max(1, effectiveDocumentPageCount || 1);
+                  setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
+                }}
+                canvasScalePercent={jsonCanvasScale}
+                onCanvasScaleChange={setJsonCanvasScale}
+                onCanvasFocus={() => setActiveFocusPanel('json')}
+                toolbarPosition="left"
+                toolbarId={OCR_TOOLBAR_ID}
+                externalToolbarContainerId={OCR_TOOLBAR_HOST_ID}
+                toolbarSectionIds={{
+                  textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
+                  fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
+                  file: OCR_TOOLBAR_FILE_ID,
+                }}
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
       <Sheet open={historyLogOpen} onOpenChange={setHistoryLogOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md">
