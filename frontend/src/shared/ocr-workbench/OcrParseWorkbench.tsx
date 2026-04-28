@@ -3,7 +3,16 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { Download, FileText, Loader2, Redo2, Save, Undo2 } from 'lucide-react';
+import {
+  Download,
+  FileText,
+  Loader2,
+  Redo2,
+  RotateCw,
+  Save,
+  Trash2,
+  Undo2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
@@ -176,7 +185,7 @@ export function OcrParseWorkbench({
     setLoadError(null);
     void (async () => {
       try {
-        const res = await fetch(parseResultUrl);
+        const res = await fetch(parseResultUrl, { credentials: 'include' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const raw = (await res.json()) as unknown;
         if (cancelled) return;
@@ -345,7 +354,12 @@ export function OcrParseWorkbench({
         clearExportPollTimer();
         return;
       }
-      if (target.status === 'failed' || target.status === 'cancelled') {
+      if (target.status === 'cancelled') {
+        setSingleExportState(format, { status: 'idle', error: null });
+        clearExportPollTimer();
+        return;
+      }
+      if (target.status === 'failed') {
         setSingleExportState(format, {
           status: 'failed',
           error: target.error_message ?? `${format.toUpperCase()} export failed`,
@@ -398,6 +412,36 @@ export function OcrParseWorkbench({
     [taskId]
   );
 
+  const cancelExport = useCallback(
+    async (format: 'pdf' | 'md') => {
+      if (!taskId) return;
+      try {
+        await translateApi.cancelOcrTaskExport(taskId, format);
+        clearExportPollTimer();
+        setSingleExportState(format, { status: 'idle', error: null });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Cancel failed');
+      }
+    },
+    [clearExportPollTimer, setSingleExportState, taskId]
+  );
+
+  const deleteExport = useCallback(
+    async (format: 'pdf' | 'md') => {
+      if (!taskId) return;
+      try {
+        await translateApi.deleteOcrTaskExport(taskId, format);
+        setSingleExportState(format, { status: 'idle', error: null });
+        toast.success(
+          format === 'pdf' ? 'PDF export removed' : 'Markdown export removed'
+        );
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Delete failed');
+      }
+    },
+    [setSingleExportState, taskId]
+  );
+
   useEffect(() => {
     if (!taskId) {
       setExportState({
@@ -424,28 +468,42 @@ export function OcrParseWorkbench({
           const nextPdfStatus =
             pdf.status === 'ready'
               ? 'ready'
-              : pdf.status === 'failed' || pdf.status === 'cancelled'
+              : pdf.status === 'cancelled'
+                ? 'idle'
+              : pdf.status === 'failed'
                 ? 'failed'
-                : exportState.pdf.status === 'processing'
+                : pdf.status === 'pending' ||
+                    pdf.status === 'processing' ||
+                    exportState.pdf.status === 'processing'
                   ? 'processing'
                   : 'idle';
           next.pdf = {
             status: nextPdfStatus,
-            error: pdf.error_message ?? null,
+            error:
+              pdf.status === 'cancelled'
+                ? null
+                : (pdf.error_message ?? null),
           };
         }
         if (md) {
           const nextMdStatus =
             md.status === 'ready'
               ? 'ready'
-              : md.status === 'failed' || md.status === 'cancelled'
+              : md.status === 'cancelled'
+                ? 'idle'
+              : md.status === 'failed'
                 ? 'failed'
-                : exportState.md.status === 'processing'
+                : md.status === 'pending' ||
+                    md.status === 'processing' ||
+                    exportState.md.status === 'processing'
                   ? 'processing'
                   : 'idle';
           next.md = {
             status: nextMdStatus,
-            error: md.error_message ?? null,
+            error:
+              md.status === 'cancelled'
+                ? null
+                : (md.error_message ?? null),
           };
         }
         setExportState(next);
@@ -568,59 +626,148 @@ export function OcrParseWorkbench({
             {t('parseDemoSaveNow')}
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Button
-            type="button"
-            size="sm"
-            disabled={!taskId || exportState.md.status === 'processing'}
-            onClick={() =>
-              exportState.md.status === 'ready'
-                ? void handleDownloadExport('md')
-                : void startExport('md')
-            }
-            className="border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-200"
-          >
-            <FileText className="mr-1 size-3.5" />
-            {exportState.md.status === 'processing' ? (
-              <Loader2 className="mr-1 size-3.5 animate-spin" />
-            ) : null}
-            <span className="min-w-0 truncate">
-              {exportState.md.status === 'processing'
-              ? 'MD...'
-              : exportState.md.status === 'ready'
-                ? 'MD DL'
-                : 'MD Export'}
-            </span>
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            disabled={!taskId || exportState.pdf.status === 'processing'}
-            onClick={() =>
-              exportState.pdf.status === 'ready'
-                ? void handleDownloadExport('pdf')
-                : void startExport('pdf')
-            }
-            className="border border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-200"
-          >
-            <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
-            {exportState.pdf.status === 'processing' ? (
-              <Loader2 className="mr-1 size-3.5 animate-spin" />
-            ) : null}
-            <span className="min-w-0 truncate">
-              {exportState.pdf.status === 'processing'
-              ? 'PDF...'
-              : exportState.pdf.status === 'ready'
-                ? 'PDF DL'
-                : 'PDF Export'}
-            </span>
-          </Button>
+        <div className="space-y-2">
+          <div className="rounded-md border border-emerald-200/80 bg-emerald-50/60 p-2 dark:border-emerald-900/50 dark:bg-emerald-950/25">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+              Markdown
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {exportState.md.status === 'ready' ? (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="border border-emerald-400 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
+                    disabled={!taskId}
+                    onClick={() => void handleDownloadExport('md')}
+                  >
+                    <Download className="mr-1 size-3.5" />
+                    Download
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!taskId}
+                    title="Remove exported file"
+                    onClick={() => void deleteExport('md')}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </>
+              ) : exportState.md.status === 'processing' ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-emerald-700 dark:text-emerald-400" />
+                  <span className="text-[11px] text-emerald-900 dark:text-emerald-200">
+                    Exporting…
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px]"
+                    disabled={!taskId}
+                    onClick={() => void cancelExport('md')}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!taskId}
+                    onClick={() => void startExport('md')}
+                    className="border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
+                  >
+                    {exportState.md.status === 'failed' ? (
+                      <RotateCw className="mr-1 size-3.5" />
+                    ) : (
+                      <FileText className="mr-1 size-3.5" />
+                    )}
+                    {exportState.md.status === 'failed' ? 'Retry' : 'Export'}
+                  </Button>
+                  {exportState.md.error ? (
+                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                      {exportState.md.error}
+                    </span>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </div>
+          <div className="rounded-md border border-blue-200/80 bg-blue-50/60 p-2 dark:border-blue-900/50 dark:bg-blue-950/25">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+              PDF
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {exportState.pdf.status === 'ready' ? (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="border border-blue-400 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+                    disabled={!taskId}
+                    onClick={() => void handleDownloadExport('pdf')}
+                  >
+                    <Download className="mr-1 size-3.5" />
+                    Download
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!taskId}
+                    title="Remove exported file"
+                    onClick={() => void deleteExport('pdf')}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </>
+              ) : exportState.pdf.status === 'processing' ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-blue-700 dark:text-blue-400" />
+                  <span className="text-[11px] text-blue-900 dark:text-blue-200">
+                    Exporting…
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px]"
+                    disabled={!taskId}
+                    onClick={() => void cancelExport('pdf')}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!taskId}
+                    onClick={() => void startExport('pdf')}
+                    className="border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
+                  >
+                    {exportState.pdf.status === 'failed' ? (
+                      <RotateCw className="mr-1 size-3.5" />
+                    ) : (
+                      <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                    )}
+                    {exportState.pdf.status === 'failed' ? 'Retry' : 'Export'}
+                  </Button>
+                  {exportState.pdf.error ? (
+                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                      {exportState.pdf.error}
+                    </span>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </div>
         </div>
-        {exportState.md.error || exportState.pdf.error ? (
-          <p className="text-[11px] text-red-600 dark:text-red-400">
-            {exportState.md.error ?? exportState.pdf.error}
-          </p>
-        ) : null}
       </div>
     ),
     [
@@ -628,6 +775,8 @@ export function OcrParseWorkbench({
       canUndo,
       doc,
       exportState,
+      cancelExport,
+      deleteExport,
       handleDownloadExport,
       redo,
       saveToServer,
@@ -792,14 +941,43 @@ export function OcrParseWorkbench({
               type="button"
               variant="secondary"
               size="sm"
-              disabled={!taskId || exportState.md.status === 'processing'}
+              disabled={
+                !taskId ||
+                exportState.md.status === 'processing' ||
+                exportState.pdf.status === 'processing'
+              }
               onClick={() =>
                 exportState.md.status === 'ready'
                   ? void handleDownloadExport('md')
                   : void startExport('md')
               }
             >
-              {exportState.md.status === 'ready' ? 'MD Download' : 'MD Export'}
+              {exportState.md.status === 'ready'
+                ? 'MD · Download'
+                : exportState.md.status === 'failed'
+                  ? 'MD · Retry'
+                  : 'MD · Export'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={
+                !taskId ||
+                exportState.md.status === 'processing' ||
+                exportState.pdf.status === 'processing'
+              }
+              onClick={() =>
+                exportState.pdf.status === 'ready'
+                  ? void handleDownloadExport('pdf')
+                  : void startExport('pdf')
+              }
+            >
+              {exportState.pdf.status === 'ready'
+                ? 'PDF · Download'
+                : exportState.pdf.status === 'failed'
+                  ? 'PDF · Retry'
+                  : 'PDF · Export'}
             </Button>
           </div>
         ) : null}

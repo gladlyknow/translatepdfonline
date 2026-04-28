@@ -4,7 +4,7 @@
     "brand": {
       "title": "Translate PDF Online",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/tpdf.svg",
         "alt": "TranslatePDFOnline",
         "width": 32,
         "height": 32
@@ -70,7 +70,7 @@
       "title": "Translate PDF Online",
       "description": "レイアウトを保ったままブラウザで PDF を翻訳。多数の言語ペア。通信は暗号化され、ファイルは定められた保持期間に従い削除されます。",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/tpdf.svg",
         "alt": "Translate PDF Online",
         "width": 32,
         "height": 32

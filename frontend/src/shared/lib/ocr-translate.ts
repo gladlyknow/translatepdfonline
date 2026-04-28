@@ -410,21 +410,32 @@ function wrapLineByWidth(
   return out;
 }
 
-export async function markdownToSimplePdfBytes(markdown: string): Promise<Uint8Array> {
+/** Cloudflare Queues 内 PDF 渲染应传 `skipCjkFont: true`，避免 pdf-lib subset CJK 远超 Workers CPU 配额。 */
+export type MarkdownToSimplePdfOptions = {
+  skipCjkFont?: boolean;
+};
+
+export async function markdownToSimplePdfBytes(
+  markdown: string,
+  options?: MarkdownToSimplePdfOptions
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
-  doc.registerFontkit(fontkit);
   let font = await doc.embedFont(StandardFonts.Helvetica);
   let useCjkFont = false;
-  const cjkBytes = await loadOcrPdfCjkFontBytesAsync();
-  if (cjkBytes) {
-    try {
-      font = await doc.embedFont(cjkBytes, { subset: true });
-      useCjkFont = true;
-    } catch (e) {
-      console.warn(
-        '[ocr/pdf] cjk_font_embed_failed_fallback_helvetica',
-        e instanceof Error ? e.message : String(e)
-      );
+  const skipCjk = options?.skipCjkFont === true;
+  if (!skipCjk) {
+    doc.registerFontkit(fontkit);
+    const cjkBytes = await loadOcrPdfCjkFontBytesAsync();
+    if (cjkBytes) {
+      try {
+        font = await doc.embedFont(cjkBytes, { subset: true });
+        useCjkFont = true;
+      } catch (e) {
+        console.warn(
+          '[ocr/pdf] cjk_font_embed_failed_fallback_helvetica',
+          e instanceof Error ? e.message : String(e)
+        );
+      }
     }
   }
   const pageWidth = 595;

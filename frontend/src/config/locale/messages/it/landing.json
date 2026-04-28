@@ -4,7 +4,7 @@
     "brand": {
       "title": "Translate PDF Online",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/tpdf.svg",
         "alt": "TranslatePDFOnline",
         "width": 32,
         "height": 32
@@ -70,7 +70,7 @@
       "title": "Translate PDF Online",
       "description": "Traduzione PDF nel browser con layout preservato. Molte coppie di lingue; file crittografati in transito e rimossi secondo una politica di conservazione definita.",
       "logo": {
-        "src": "/favicon.svg",
+        "src": "/brand/tpdf.svg",
         "alt": "Translate PDF Online",
         "width": 32,
         "height": 32

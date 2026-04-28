@@ -98,6 +98,43 @@ export async function updateExportRow(
     .where(eq(translationTaskExport.id, exportId));
 }
 
+export async function cancelExportByTaskFormat(
+  taskId: string,
+  format: OcrTaskExportFormat
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const row = await findExportByTaskFormat(taskId, format);
+  if (!row) return { ok: false, reason: 'not_found' };
+  if (
+    row.status !== OcrTaskExportStatus.pending &&
+    row.status !== OcrTaskExportStatus.processing
+  ) {
+    return { ok: false, reason: 'not_cancellable' };
+  }
+  await db()
+    .update(translationTaskExport)
+    .set({
+      status: OcrTaskExportStatus.cancelled,
+      errorMessage: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(translationTaskExport.id, row.id));
+  return { ok: true };
+}
+
+export async function deleteExportByTaskFormat(
+  taskId: string,
+  format: OcrTaskExportFormat
+): Promise<void> {
+  await db()
+    .delete(translationTaskExport)
+    .where(
+      and(
+        eq(translationTaskExport.taskId, taskId),
+        eq(translationTaskExport.format, format)
+      )
+    );
+}
+
 export async function replaceWithPendingExport(params: {
   taskId: string;
   userId: string | null;

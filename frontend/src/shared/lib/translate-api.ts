@@ -301,10 +301,29 @@ export const translateApi = {
   getTaskView: (taskId: string) =>
     fetchTranslateApi<TaskView>(`/api/tasks/${taskId}/view`),
 
+  /** 与 PATCH `/api/tasks/:id/parse-result` 相同（保存前将外链/data URL 图片写入 R2）。 */
   patchOcrParseResult: (taskId: string, body: unknown) =>
     fetchTranslateApi<{ ok: boolean; object_key: string }>(
-      `/api/tasks/${taskId}/ocr-parse-result`,
+      `/api/tasks/${taskId}/parse-result`,
       { method: 'PATCH', body: JSON.stringify(body) }
+    ),
+
+  getTaskParseResult: (taskId: string) =>
+    fetchTranslateApi<Record<string, unknown>>(
+      `/api/tasks/${taskId}/parse-result`
+    ),
+
+  getTaskMarkdown: (taskId: string) =>
+    fetchTranslateApi<{
+      markdown: string;
+      object_key: string;
+      updated_at?: string;
+    }>(`/api/tasks/${taskId}/markdown`),
+
+  patchTaskMarkdown: (taskId: string, markdown: string) =>
+    fetchTranslateApi<{ ok: boolean; object_key: string }>(
+      `/api/tasks/${taskId}/markdown`,
+      { method: 'PATCH', body: JSON.stringify({ markdown }) }
     ),
 
   getTaskOutputPreviewUrl: (taskId: string, page = 1) =>
@@ -344,7 +363,51 @@ export const translateApi = {
     }),
 
   getOcrTaskExportDownloadUrl: (taskId: string, format: 'pdf' | 'md') =>
-    fetchTranslateApi<{ format: 'pdf' | 'md'; status: string; download_url: string }>(
+    fetchTranslateApi<{
+      format: 'pdf' | 'md';
+      status: string;
+      download_url: string;
+      file_name?: string;
+      expires_in_seconds?: number;
+      via?: string;
+    }>(
       `/api/ocr/tasks/${taskId}/exports?downloadUrl=1&format=${encodeURIComponent(format)}`
     ),
+
+  cancelOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+    fetchTranslateApi<{ ok: boolean; format: string; status: string }>(
+      `/api/ocr/tasks/${taskId}/exports`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ format, action: 'cancel' }),
+      }
+    ),
+
+  deleteOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+    fetchTranslateApi<{ ok: boolean }>(
+      `/api/ocr/tasks/${taskId}/exports?format=${encodeURIComponent(format)}`,
+      { method: 'DELETE' }
+    ),
+
+  postOcrExportsDownloadList: (body: {
+    task_ids: string[];
+    formats?: ('pdf' | 'md')[];
+  }) =>
+    fetchTranslateApi<{
+      expires_in_seconds: number;
+      items: Array<{
+        task_id: string;
+        source_filename: string;
+        format: 'pdf' | 'md';
+        status: 'ready' | 'not_ready' | 'missing' | 'error';
+        reason?: string;
+        download_url?: string;
+      }>;
+    }>('/api/ocr/exports/download-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        task_ids: body.task_ids,
+        formats: body.formats,
+      }),
+    }),
 };

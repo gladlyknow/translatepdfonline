@@ -4,7 +4,7 @@
     "brand": {
       "title": "在线 PDF 翻译",
       "logo": {
-        "src": "/brand/logo-t-pdf.jpeg",
+        "src": "/brand/tpdf.svg",
         "alt": "在线 PDF 翻译",
         "width": 32,
         "height": 32
@@ -85,7 +85,7 @@
       "title": "在线 PDF 翻译",
       "description": "浏览器内版式保留翻译；多语言对。文件通过 HTTPS 加密传输，并按固定保留策略从服务器删除。",
       "logo": {
-        "src": "/brand/logo-t-pdf.jpeg",
+        "src": "/brand/tpdf.svg",
         "alt": "在线 PDF 翻译",
         "width": 32,
         "height": 32

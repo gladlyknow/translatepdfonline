@@ -108,7 +108,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* 标签页图标：rel=icon 优先 SVG；ICO 作回退。SVG 勿用对角渐变（小尺寸摩尔纹）。href 带 ?v= 便于刷新缓存。 */}
+        {/* 标签页图标：favicon-rounded.svg 内嵌 PNG，圆角裁剪；勿用外链 SVG 引用其它静态文件（标签页常空白）。 */}
         <link
           rel="icon"
           href={cacheBustedPublicPath(envConfigs.app_favicon)}
@@ -122,7 +122,7 @@ export default async function RootLayout({
         <link rel="shortcut icon" href={cacheBustedPublicPath(envConfigs.app_favicon)} />
         <link
           rel="apple-touch-icon"
-          href={cacheBustedPublicPath('/brand/logo-t-pdf.jpeg')}
+          href={cacheBustedPublicPath('/brand/tpdf.svg')}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         {/* Bing Webmaster Tools — keep after verification succeeds */}

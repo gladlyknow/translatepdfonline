@@ -479,6 +479,47 @@ export async function putObject(
   );
 }
 
+/** 删除 R2 对象（用于导出删除等；404 视为成功）。 */
+export async function deleteObject(key: string): Promise<void> {
+  const creds = await resolveTranslateR2S3Env();
+  if (!creds) throw new Error('R2 not configured');
+  if (isCloudflareWorker) {
+    const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+    const client = new AwsClient({
+      service: 's3',
+      region: 'auto',
+      accessKeyId,
+      secretAccessKey,
+    });
+    const url = `${endpoint}/${bucket}/${key}`;
+    const signed = await client.sign(new Request(url, { method: 'DELETE' }));
+    const res = await fetch(signed);
+    if (res.status === 404) return;
+    if (!res.ok) throw new Error(`R2 delete failed: ${res.status}`);
+    return;
+  }
+  const { DeleteObjectCommand, S3Client } = await import('@aws-sdk/client-s3');
+  const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+  const client = new S3Client({
+    region: 'auto',
+    endpoint,
+    credentials: { accessKeyId, secretAccessKey },
+    forcePathStyle: true,
+  });
+  try {
+    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+  } catch (e) {
+    const err = e as { name?: string; $metadata?: { httpStatusCode?: number } };
+    if (
+      err?.name === 'NotFound' ||
+      err?.$metadata?.httpStatusCode === 404
+    ) {
+      return;
+    }
+    throw e;
+  }
+}
+
 export type R2HeadResult = {
   ok: boolean;
   /** Response Content-Length when present */

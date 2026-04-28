@@ -1,19 +1,32 @@
 import { and, eq } from 'drizzle-orm';
 
-import { translationTasks } from '@/config/db/schema';
+import { documents, translationTasks } from '@/config/db/schema';
 import { db } from '@/core/db';
 import { getTranslateAuth } from '@/app/api/translate/auth';
 import {
   appendExportLog,
+  cancelExportByTaskFormat,
+  deleteExportByTaskFormat,
   findExportByTaskFormat,
   isOcrTaskExportFormat,
   listExportsForTask,
   OcrTaskExportStatus,
   updateExportRow,
+  type OcrTaskExportFormat,
 } from '@/shared/models/ocr_task_export';
-import { createPresignedGet, isR2Configured } from '@/shared/lib/translate-r2';
-import { retryOcrTaskExport } from '@/shared/lib/ocr-export-queue';
+import {
+  retryOcrTaskExport,
+  syncOcrTaskOutputPointersForTask,
+} from '@/shared/lib/ocr-export-queue';
+import {
+  createPresignedGet,
+  deleteObject,
+  isR2Configured,
+  r2ObjectExists,
+} from '@/shared/lib/translate-r2';
 import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
+
+export const maxDuration = 300;
 
 const OCR_EXPORT_STALE_MS = Number.parseInt(
   process.env.OCR_EXPORT_STALE_MS || '300000',
@@ -27,6 +40,18 @@ const OCR_EXPORT_STALE_PROCESSING_MS = Number.parseInt(
   process.env.OCR_EXPORT_STALE_PROCESSING_MS || String(Math.max(OCR_EXPORT_STALE_MS, 1800000)),
   10
 );
+const OCR_EXPORT_SIGNED_URL_TTL_SECONDS = Math.max(
+  60,
+  Math.min(
+    3600,
+    Number.parseInt(process.env.OCR_EXPORT_SIGNED_URL_TTL_SECONDS || '900', 10)
+  )
+);
+
+function dispositionFilename(base: string, ext: string) {
+  const safe = `${base}.${ext}`.replace(/[^\w.\-]+/g, '_');
+  return `attachment; filename="${encodeURIComponent(safe)}"`;
+}
 
 function parseLogLines(raw: string | null | undefined, maxLines = 80): string[] {
   if (!raw?.trim()) return [];
@@ -35,6 +60,32 @@ function parseLogLines(raw: string | null | undefined, maxLines = 80): string[] 
     .split('\n')
     .filter(Boolean)
     .slice(-maxLines);
+}
+
+function toPublicErrorMessage(msg: string | null | undefined): string | null {
+  if (!msg) return null;
+  const v = msg.toLowerCase();
+  if (
+    v.includes('connect timeout') ||
+    v.includes('fetch failed') ||
+    v.includes('econn') ||
+    v.includes('network')
+  ) {
+    return 'Storage network timeout, check proxy/network and retry';
+  }
+  if (v.includes('timed out') || v.includes('timeout')) {
+    return 'Export timed out, please retry';
+  }
+  if (v.includes('pdf') && v.includes('render')) {
+    return 'PDF render timed out, please retry later';
+  }
+  if (v.includes('missing')) {
+    return 'Export source is not ready, please retry shortly';
+  }
+  if (v.includes('queue unavailable')) {
+    return 'Export queue unavailable, please retry later';
+  }
+  return msg.slice(0, 300) || 'Export failed, please retry';
 }
 
 function toTimeMs(v: Date | string | null | undefined): number {
@@ -72,6 +123,36 @@ async function markStaleExportIfNeeded(row: {
   return true;
 }
 
+async function resolveTaskDocumentBasename(taskId: string): Promise<string> {
+  const [row] = await db()
+    .select({
+      documentId: translationTasks.documentId,
+    })
+    .from(translationTasks)
+    .where(eq(translationTasks.id, taskId))
+    .limit(1);
+  if (!row?.documentId) return 'document';
+  const [doc] = await db()
+    .select({ filename: documents.filename })
+    .from(documents)
+    .where(eq(documents.id, row.documentId))
+    .limit(1);
+  const base = (doc?.filename || 'document').replace(/\.[^.]+$/, '') || 'document';
+  return base;
+}
+
+function exportContentDispositionForFormat(
+  base: string,
+  format: OcrTaskExportFormat
+): string {
+  const ext = format === 'pdf' ? 'pdf' : 'md';
+  return dispositionFilename(base, ext);
+}
+
+/**
+ * GET — 列出导出；?downloadUrl=1&format= — JSON 含签名 URL；
+ * ?download=1&format= — 302 跳转签名地址（对齐 translator exports）。
+ */
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ taskId: string }> }
@@ -98,9 +179,11 @@ export async function GET(
     }
 
     const url = new URL(req.url);
+    const download = url.searchParams.get('download');
     const downloadUrlOnly = url.searchParams.get('downloadUrl') === '1';
     const format = (url.searchParams.get('format') || '').toLowerCase();
-    if (downloadUrlOnly) {
+
+    if (download === '1' || downloadUrlOnly) {
       if (!isOcrTaskExportFormat(format)) {
         return Response.json({ detail: 'invalid format' }, { status: 400 });
       }
@@ -111,15 +194,35 @@ export async function GET(
       if (!row || row.status !== OcrTaskExportStatus.ready || !row.r2Key) {
         return Response.json({ detail: 'export not ready' }, { status: 404 });
       }
-      const fileName = format === 'pdf' ? 'translation.pdf' : 'translation.md';
-      const downloadUrl = await createPresignedGet(row.r2Key, 900, {
-        responseContentDisposition: `attachment; filename="${fileName}"`,
+      const base = await resolveTaskDocumentBasename(taskId);
+      const disp = exportContentDispositionForFormat(base, format);
+      let exists = true;
+      try {
+        exists = await r2ObjectExists(row.r2Key);
+      } catch {
+        exists = true;
+      }
+      if (!exists) {
+        console.warn('[ocr/exports] exists check negative, continue signing', {
+          taskId,
+          format,
+          key: row.r2Key,
+        });
+      }
+      const downloadUrl = await createPresignedGet(row.r2Key, OCR_EXPORT_SIGNED_URL_TTL_SECONDS, {
+        responseContentDisposition: disp,
       });
-      return Response.json({
-        format,
-        status: row.status,
-        download_url: downloadUrl,
-      });
+      if (downloadUrlOnly) {
+        return Response.json({
+          format,
+          status: row.status,
+          download_url: downloadUrl,
+          file_name: `${base}.${format === 'pdf' ? 'pdf' : 'md'}`,
+          expires_in_seconds: OCR_EXPORT_SIGNED_URL_TTL_SECONDS,
+          via: 'signed',
+        });
+      }
+      return Response.redirect(downloadUrl, 302);
     }
 
     let rows = await listExportsForTask(taskId);
@@ -151,7 +254,7 @@ export async function GET(
         task_id: r.taskId,
         format: r.format,
         status: r.status,
-        error_message: r.errorMessage,
+        error_message: toPublicErrorMessage(r.errorMessage),
         created_at: r.createdAt?.toISOString?.() ?? r.createdAt,
         updated_at: r.updatedAt?.toISOString?.() ?? r.updatedAt,
         ready_at: r.readyAt?.toISOString?.() ?? r.readyAt ?? null,
@@ -191,11 +294,30 @@ export async function POST(
     if (!task.preprocessWithOcr) {
       return Response.json({ detail: 'Not an OCR task' }, { status: 400 });
     }
-    const body = (await req.json()) as { format?: string };
+    const body = (await req.json()) as {
+      format?: string;
+      action?: string;
+    };
     const format = String(body.format || '').trim().toLowerCase();
     if (!isOcrTaskExportFormat(format)) {
       return Response.json({ detail: 'invalid format' }, { status: 400 });
     }
+
+    if (body.action === 'cancel') {
+      const r = await cancelExportByTaskFormat(taskId, format);
+      if (!r.ok) {
+        if (r.reason === 'not_found') {
+          return Response.json({ detail: 'no export to cancel' }, { status: 404 });
+        }
+        return Response.json({ detail: 'export cannot be cancelled' }, { status: 409 });
+      }
+      const row = await findExportByTaskFormat(taskId, format);
+      if (row?.id) {
+        await appendExportLog(row.id, 'cancel requested via API');
+      }
+      return Response.json({ ok: true, format, status: OcrTaskExportStatus.cancelled });
+    }
+
     const existing = await findExportByTaskFormat(taskId, format);
     if (existing) {
       await markStaleExportIfNeeded({
@@ -242,6 +364,54 @@ export async function POST(
     console.error('[ocr/exports POST]', e);
     return Response.json(
       { detail: e instanceof Error ? e.message : 'Failed to start export' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ taskId: string }> }
+) {
+  try {
+    const { taskId } = await params;
+    const { userId, anonId } = await getTranslateAuth();
+    const ownerWhere = userId
+      ? eq(translationTasks.userId, userId)
+      : eq(translationTasks.anonId, anonId);
+    const [task] = await db()
+      .select({ id: translationTasks.id, preprocessWithOcr: translationTasks.preprocessWithOcr })
+      .from(translationTasks)
+      .where(and(eq(translationTasks.id, taskId), ownerWhere))
+      .limit(1);
+    if (!task) {
+      return Response.json({ detail: 'Task not found' }, { status: 404 });
+    }
+    if (!task.preprocessWithOcr) {
+      return Response.json({ detail: 'Not an OCR task' }, { status: 400 });
+    }
+
+    const format = (new URL(req.url).searchParams.get('format') || '').toLowerCase();
+    if (!isOcrTaskExportFormat(format)) {
+      return Response.json({ detail: 'invalid format' }, { status: 400 });
+    }
+
+    const row = await findExportByTaskFormat(taskId, format);
+    if (row?.r2Key && (await isR2Configured())) {
+      try {
+        await deleteObject(row.r2Key);
+      } catch (e) {
+        console.warn('[ocr/exports DELETE] r2 delete', e);
+      }
+    }
+
+    await deleteExportByTaskFormat(taskId, format as OcrTaskExportFormat);
+    await syncOcrTaskOutputPointersForTask(taskId);
+    return Response.json({ ok: true });
+  } catch (e) {
+    console.error('[ocr/exports DELETE]', e);
+    return Response.json(
+      { detail: e instanceof Error ? e.message : 'failed to delete export' },
       { status: 500 }
     );
   }

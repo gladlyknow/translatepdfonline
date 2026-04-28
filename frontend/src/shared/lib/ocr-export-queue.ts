@@ -78,6 +78,14 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** 默认 false：Queues 内嵌入 CJK 字体会极易触发 exceededCpu */
+function ocrQueuePdfUseCjkEmbed(): boolean {
+  return (
+    process.env.OCR_PDF_QUEUE_USE_CJK === '1' ||
+    process.env.OCR_PDF_QUEUE_USE_CJK === 'true'
+  );
+}
+
 function outputKeyForFormat(taskId: string, format: OcrTaskExportFormat): string {
   return format === 'pdf'
     ? `translations/${taskId}/ocr-output.pdf`
@@ -150,6 +158,11 @@ async function buildMarkdownWithR2ImageUrls(taskId: string, fallbackMarkdown: st
     markdownWithR2Urls = markdownWithR2Urls.replace(`(./${asset.name})`, `(${assetUrl})`);
   }
   return markdownWithR2Urls;
+}
+
+/** 供导出 DELETE 等路径在删库后刷新 translation_tasks 输出指针 */
+export async function syncOcrTaskOutputPointersForTask(taskId: string): Promise<void> {
+  await syncTaskOutputPointers(taskId);
 }
 
 async function syncTaskOutputPointers(taskId: string): Promise<void> {
@@ -234,6 +247,14 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     await appendExportLog(exportId, `start format=${row.format}`);
+    if (row.format === 'pdf') {
+      await appendExportLog(
+        exportId,
+        ocrQueuePdfUseCjkEmbed()
+          ? 'pdf render: OCR_PDF_QUEUE_USE_CJK enabled (may exceed Workers CPU on large docs)'
+          : 'pdf render: queue light mode (Helvetica, no CJK font embed) to stay within Workers CPU'
+      );
+    }
     const markdown = await withStageTimeout(
       'load_markdown',
       () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
@@ -258,7 +279,10 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
           : markdown;
       const pdfBytes = await withStageTimeout(
         'render_pdf_bytes',
-        () => markdownToSimplePdfBytes(pdfMarkdown),
+        () =>
+          markdownToSimplePdfBytes(pdfMarkdown, {
+            skipCjkFont: !ocrQueuePdfUseCjkEmbed(),
+          }),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       const key = outputKeyForFormat(row.taskId, 'pdf');

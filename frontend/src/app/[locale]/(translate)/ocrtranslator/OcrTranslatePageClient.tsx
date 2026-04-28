@@ -877,7 +877,10 @@ export function OcrTranslatePageClient() {
     effectiveDocumentPageCount,
     jsonPage,
   ]);
-  const ocrParseResultUrl = stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null;
+  const ocrParseResultUrl =
+    taskId && taskView?.task?.preprocess_with_ocr
+      ? `/api/tasks/${taskId}/parse-result`
+      : stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null;
   const sidebarBtnClass =
     'inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition-all duration-150 hover:-translate-y-[1px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800';
   const sidebarCardClass =

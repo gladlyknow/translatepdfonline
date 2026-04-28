@@ -68,8 +68,9 @@ export const envConfigs: ConfigMap = {
   app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Translate PDF Online',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
-  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/brand/logo-t-pdf.jpeg',
-  app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/brand/logo-copy.png',
+  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/brand/tpdf.svg',
+  /** 标签页图标：`favicon-rounded.svg` 圆角矩形 + 内嵌 PNG（data URI），避免外链 SVG 空白。重建：`pnpm brand:favicon-rounded`（脚本默认嵌入 `logo-512.png`，与 logo-copy 同源时需改脚本内文件名）。 */
+  app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/brand/favicon-rounded.svg',
   app_preview_image: process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/brand/tpdf.svg',
   /** 与 `public/preview.png` 像素尺寸一致，供 OG/Twitter meta；若更换预览图请同步改此值或设对应 env */
   app_preview_image_width:

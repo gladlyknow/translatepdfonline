@@ -23,7 +23,9 @@ export function BrandLogo({ brand }: { brand: BrandType }) {
             alt={logoAlt}
             width={32}
             height={32}
-            className="h-full w-full object-cover"
+            className={
+              isSvg ? 'h-full w-full object-contain' : 'h-full w-full object-cover'
+            }
             unoptimized={unoptimized}
           />
         </span>

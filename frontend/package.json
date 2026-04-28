@@ -45,6 +45,7 @@
     "cf:upload": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "brand:icons": "python scripts/export-brand-icons.py",
+    "brand:favicon-rounded": "node scripts/gen-favicon-rounded-svg.mjs",
     "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js"
   },
   "dependencies": {
