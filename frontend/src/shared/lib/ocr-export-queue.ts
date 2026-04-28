@@ -13,15 +13,13 @@ import {
   updateExportRow,
   type OcrTaskExportFormat,
 } from '@/shared/models/ocr_task_export';
-import { loadMarkdownFromR2, markdownToSimplePdfBytes } from '@/shared/lib/ocr-translate';
+import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
+import { loadMarkdownFromR2 } from '@/shared/lib/ocr-translate';
 import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-result-export-md';
+import { buildSelfContainedHtml } from '@/shared/ocr-workbench/parse-result-export-html';
 import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
+import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-pdf-worker';
 import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
-
-const OCR_EXPORT_PDF_RENDER_MAX_CHARS = Math.max(
-  8000,
-  Number(process.env.OCR_PDF_RENDER_MAX_CHARS || '12000') || 12000
-);
 const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
@@ -46,6 +44,12 @@ function toPublicExportErrorMessage(raw: string): string {
   }
   if (msg.includes('pdf') && msg.includes('render')) {
     return 'PDF render timed out, please retry later';
+  }
+  if (
+    msg.includes('pdf_render_backend') ||
+    (msg.includes('browser') && msg.includes('binding'))
+  ) {
+    return 'PDF export requires Browser Rendering (BROWSER binding)';
   }
   if (msg.includes('missing')) {
     return 'Export source is not ready, please retry shortly';
@@ -76,14 +80,6 @@ function withStageTimeout<T>(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** 默认 false：Queues 内嵌入 CJK 字体会极易触发 exceededCpu */
-function ocrQueuePdfUseCjkEmbed(): boolean {
-  return (
-    process.env.OCR_PDF_QUEUE_USE_CJK === '1' ||
-    process.env.OCR_PDF_QUEUE_USE_CJK === 'true'
-  );
 }
 
 function outputKeyForFormat(taskId: string, format: OcrTaskExportFormat): string {
@@ -194,10 +190,9 @@ export async function ensureOcrPendingExportsForTask(params: {
 }): Promise<Array<{ exportId: string; format: OcrTaskExportFormat }>> {
   const translatedMarkdownKey = `translations/${params.taskId}/ocr-translated.md`;
   const sourceMarkdownKey = `translations/${params.taskId}/ocr-source.md`;
-  const finalMarkdownKey =
-    params.sourceLang.trim().toLowerCase() === params.targetLang.trim().toLowerCase()
-      ? sourceMarkdownKey
-      : translatedMarkdownKey;
+  const finalMarkdownKey = languagesNeedTranslation(params.sourceLang, params.targetLang)
+    ? translatedMarkdownKey
+    : sourceMarkdownKey;
 
   const exportIds: Array<{ exportId: string; format: OcrTaskExportFormat }> = [];
   for (const format of ['pdf', 'md'] as const) {
@@ -250,9 +245,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
     if (row.format === 'pdf') {
       await appendExportLog(
         exportId,
-        ocrQueuePdfUseCjkEmbed()
-          ? 'pdf render: OCR_PDF_QUEUE_USE_CJK enabled (may exceed Workers CPU on large docs)'
-          : 'pdf render: queue light mode (Helvetica, no CJK font embed) to stay within Workers CPU'
+        'pdf: workbench_like HTML → Chromium (Browser Rendering required)'
       );
     }
     const markdown = await withStageTimeout(
@@ -270,21 +263,40 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     if (row.format === 'pdf') {
-      const pdfMarkdown =
-        markdown.length > OCR_EXPORT_PDF_RENDER_MAX_CHARS
-          ? `${markdown.slice(
-              0,
-              OCR_EXPORT_PDF_RENDER_MAX_CHARS
-            )}\n\n---\n\n[OCR PDF export truncated for rendering limit; full text is in markdown output.]`
-          : markdown;
-      const pdfBytes = await withStageTimeout(
-        'render_pdf_bytes',
-        () =>
-          markdownToSimplePdfBytes(pdfMarkdown, {
-            skipCjkFont: !ocrQueuePdfUseCjkEmbed(),
-          }),
+      const parseKey = `translations/${row.taskId}/ocr-parse-result.json`;
+      const parseBytes = await withStageTimeout(
+        'load_parse_result_json',
+        () => getObjectBody(parseKey),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
+      const rawJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
+      const parsed = parseParseResultJson(rawJson);
+      if (!parsed.ok) {
+        throw new Error(parsed.error);
+      }
+
+      const appOrigin = (process.env.NEXT_PUBLIC_APP_URL || '')
+        .trim()
+        .replace(/\/$/, '');
+      const { html, imageWarnings } = await buildSelfContainedHtml(parsed.data, {
+        forPrint: true,
+        renderMode: 'workbench_like',
+        appOrigin: appOrigin || undefined,
+        locale: 'zh-CN',
+      });
+      if (imageWarnings > 0) {
+        await appendExportLog(
+          exportId,
+          `pdf: ${imageWarnings} image(s) missing or could not be inlined`
+        );
+      }
+
+      const pdfBytes = await withStageTimeout(
+        'render_pdf_from_workbench_html',
+        () => renderWorkbenchHtmlToPdfBytes(html),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+
       const key = outputKeyForFormat(row.taskId, 'pdf');
       await uploadWithRetry(key, pdfBytes, 'application/pdf');
       await updateExportRow(exportId, {
@@ -295,7 +307,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       });
       await appendExportLog(
         exportId,
-        `ready pdf_bytes=${pdfBytes.byteLength} render_chars=${pdfMarkdown.length}`
+        `ready pdf_bytes=${pdfBytes.byteLength} workbench_html`
       );
     } else {
       const markdownWithR2Urls = await withStageTimeout(
@@ -345,10 +357,9 @@ export async function retryOcrTaskExport(taskId: string, format: OcrTaskExportFo
   if (!task) return null;
   const translatedMarkdownKey = `translations/${taskId}/ocr-translated.md`;
   const sourceMarkdownKey = `translations/${taskId}/ocr-source.md`;
-  const finalMarkdownKey =
-    task.sourceLang.trim().toLowerCase() === task.targetLang.trim().toLowerCase()
-      ? sourceMarkdownKey
-      : translatedMarkdownKey;
+  const finalMarkdownKey = languagesNeedTranslation(task.sourceLang, task.targetLang)
+    ? translatedMarkdownKey
+    : sourceMarkdownKey;
   const exportId = await replaceWithPendingExport({
     taskId,
     userId: task.userId,

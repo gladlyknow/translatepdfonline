@@ -18,6 +18,7 @@ import {
   updateExportRow,
 } from '@/shared/models/ocr_task_export';
 import { putObject } from '@/shared/lib/translate-r2';
+import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
 export type OcrPipelineQueueBody =
@@ -175,10 +176,7 @@ async function enqueueNextStage(taskId: string, nextStage: OcrStage): Promise<En
 }
 
 function needTranslateForTask(sourceLang: string, targetLang: string): boolean {
-  const src = String(sourceLang || '').trim().toLowerCase();
-  const tgt = String(targetLang || '').trim().toLowerCase();
-  if (!src || !tgt) return false;
-  return src !== tgt;
+  return languagesNeedTranslation(sourceLang, targetLang);
 }
 
 async function markStageQueued(taskId: string, stage: OcrStage, percent: number): Promise<void> {
@@ -270,8 +268,9 @@ function getQueueBindingFromContext():
 }
 
 /**
- * 向 Cloudflare Queues 投递 OCR 任务（需在 Dashboard 创建 `ocr-pipeline-queue` 并部署带 producer 绑定的 Worker）。
- * 非 Worker 或未配置绑定时返回 false，由调用方回退到 waitUntil(dispatchPendingOcrJobs)。
+ * 向 Cloudflare Queues 投递 OCR 任务。Consumer Worker 的 `wrangler.consumer*.jsonc` 须为同名队列配置
+ * `queues.producers` → `OCR_PIPELINE_QUEUE`，否则此处会得到 `binding_unavailable`。
+ * 非 Worker 或未配置绑定时返回 false，由调用方回退到 dispatchPendingOcrJobs（invoke）。
  */
 export async function sendOcrPipelineQueueMessage(taskId: string): Promise<QueueSendResult> {
   try {
