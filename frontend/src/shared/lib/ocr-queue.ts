@@ -28,7 +28,7 @@ export type OcrPipelineQueueBody =
       type: 'ocr_export_generate';
       taskId: string;
       exportId: string;
-      format: 'pdf' | 'md';
+      format: 'pdf' | 'md' | 'html';
     };
 type OcrStage =
   | 'ocr_submit_poll'
@@ -317,7 +317,7 @@ export async function sendOcrPipelineQueueMessage(taskId: string): Promise<Queue
 export async function sendOcrExportQueueMessage(params: {
   taskId: string;
   exportId: string;
-  format: 'pdf' | 'md';
+  format: 'pdf' | 'md' | 'html';
 }): Promise<QueueSendResult> {
   try {
     const q = getQueueBindingFromContext();

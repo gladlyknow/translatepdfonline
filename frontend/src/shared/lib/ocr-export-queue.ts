@@ -16,11 +16,10 @@ import {
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { loadMarkdownFromR2 } from '@/shared/lib/ocr-translate';
 import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-result-export-md';
-import { buildSelfContainedHtml } from '@/shared/ocr-workbench/parse-result-export-html';
 import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
 import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-pdf-worker';
 import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
-import { createPresignedGet, putObject } from '@/shared/lib/translate-r2';
+import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
 const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
@@ -30,20 +29,6 @@ const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
   30_000,
   Number(process.env.OCR_EXPORT_STAGE_TIMEOUT_MS || '180000') || 180000
 );
-
-function localeFromTargetLang(targetLang: string): string {
-  const lang = String(targetLang || '').trim().toLowerCase();
-  if (lang === 'zh') return 'zh-CN';
-  if (lang === 'ja') return 'ja';
-  if (lang === 'ko') return 'ko';
-  if (lang === 'fr') return 'fr';
-  if (lang === 'es') return 'es';
-  if (lang === 'it') return 'it';
-  if (lang === 'el') return 'el';
-  if (lang === 'de') return 'de';
-  if (lang === 'ru') return 'ru';
-  return 'en';
-}
 
 function toPublicExportErrorMessage(raw: string): string {
   return toPublicOcrErrorMessage(raw, 'Export failed, please retry');
@@ -77,7 +62,13 @@ function sleep(ms: number): Promise<void> {
 function outputKeyForFormat(taskId: string, format: OcrTaskExportFormat): string {
   return format === 'pdf'
     ? `translations/${taskId}/ocr-output.pdf`
-    : `translations/${taskId}/ocr-output.md`;
+    : format === 'html'
+      ? `translations/${taskId}/ocr-output.html`
+      : `translations/${taskId}/ocr-output.md`;
+}
+
+export function exportStagingHtmlKey(taskId: string, exportId: string): string {
+  return `translations/${taskId}/staging/ocr-export-${exportId}.html`;
 }
 
 async function isTaskCancelled(taskId: string): Promise<boolean> {
@@ -238,28 +229,12 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     await appendExportLog(exportId, `start format=${row.format}`);
-    const [langRow] = await db()
-      .select({
-        sourceLang: translationTasks.sourceLang,
-        targetLang: translationTasks.targetLang,
-      })
-      .from(translationTasks)
-      .where(eq(translationTasks.id, row.taskId))
-      .limit(1);
-    const sourceLang = langRow?.sourceLang ?? '';
-    const targetLang = langRow?.targetLang ?? '';
-
     if (row.format === 'pdf') {
       await appendExportLog(
         exportId,
         'pdf: workbench_like HTML → Chromium (Browser Rendering required)'
       );
     }
-    const markdown = await withStageTimeout(
-      'load_markdown',
-      () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
-      OCR_EXPORT_STAGE_TIMEOUT_MS
-    );
     if (await isTaskCancelled(row.taskId)) {
       await updateExportRow(exportId, {
         status: OcrTaskExportStatus.cancelled,
@@ -270,46 +245,29 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     if (row.format === 'pdf') {
-      const parseBytes = await withStageTimeout(
-        'load_parse_result_json',
-        () => getOcrParseResultBodyForRead(row.taskId, sourceLang, targetLang),
+      const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
+      const htmlBytes = await withStageTimeout(
+        'load_staging_html',
+        () => getObjectBody(stagingHtmlKey),
         OCR_EXPORT_STAGE_TIMEOUT_MS
-      );
-      const rawJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
-      const parsed = parseParseResultJson(rawJson);
-      if (!parsed.ok) {
-        throw new Error(parsed.error);
+      ).catch(() => null);
+      if (!htmlBytes) {
+        throw new Error('staging html missing for pdf export');
       }
-
-      const appOrigin = (process.env.NEXT_PUBLIC_APP_URL || '')
-        .trim()
-        .replace(/\/$/, '');
-      const { html, imageWarnings } = await buildSelfContainedHtml(parsed.data, {
-        // Keep PDF visuals as close as possible to workbench preview.
-        forPrint: false,
-        renderMode: 'workbench_like',
-        appOrigin: appOrigin || undefined,
-        locale: localeFromTargetLang(targetLang),
-      });
+      const html = new TextDecoder('utf-8').decode(htmlBytes);
       console.log(
         '[ocr/export] pdf_render_context',
         JSON.stringify({
           task_id: row.taskId,
           export_id: exportId,
-          render_mode: 'workbench_like',
+          render_mode: 'dom_snapshot_staging',
+          staging_html_key: stagingHtmlKey,
           html_length: html.length,
-          image_warnings: imageWarnings,
         })
       );
-      if (imageWarnings > 0) {
-        await appendExportLog(
-          exportId,
-          `pdf: ${imageWarnings} image(s) missing or could not be inlined`
-        );
-      }
 
       const pdfBytes = await withStageTimeout(
-        'render_pdf_from_workbench_html',
+        'render_pdf_from_staging_html',
         () => renderWorkbenchHtmlToPdfBytes(html),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
@@ -332,9 +290,43 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       });
       await appendExportLog(
         exportId,
-        `ready pdf_bytes=${pdfBytes.byteLength} workbench_html`
+        `ready pdf_bytes=${pdfBytes.byteLength} staging_html`
       );
+    } else if (row.format === 'html') {
+      const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
+      const htmlBytes = await withStageTimeout(
+        'load_staging_html',
+        () => getObjectBody(stagingHtmlKey),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      ).catch(() => null);
+      if (!htmlBytes) {
+        throw new Error('staging html missing for html export');
+      }
+      const key = outputKeyForFormat(row.taskId, 'html');
+      await uploadWithRetry(key, htmlBytes, 'text/html; charset=utf-8');
+      await updateExportRow(exportId, {
+        status: OcrTaskExportStatus.ready,
+        r2Key: key,
+        errorMessage: null,
+        readyAt: new Date(),
+      });
+      await appendExportLog(exportId, `ready html_bytes=${htmlBytes.byteLength}`);
     } else {
+      const [langRow] = await db()
+        .select({
+          sourceLang: translationTasks.sourceLang,
+          targetLang: translationTasks.targetLang,
+        })
+        .from(translationTasks)
+        .where(eq(translationTasks.id, row.taskId))
+        .limit(1);
+      const sourceLang = langRow?.sourceLang ?? '';
+      const targetLang = langRow?.targetLang ?? '';
+      const markdown = await withStageTimeout(
+        'load_markdown',
+        () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
       const markdownWithR2Urls = await withStageTimeout(
         'rewrite_markdown_image_urls',
         () => buildMarkdownWithR2ImageUrls(row.taskId, sourceLang, targetLang, markdown),

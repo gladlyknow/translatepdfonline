@@ -12,7 +12,7 @@ type OcrQueueBody =
       type?: 'ocr_export_generate';
       taskId?: string;
       exportId?: string;
-      format?: 'pdf' | 'md';
+      format?: 'pdf' | 'md' | 'html';
     };
 
 type OcrQueueMessage = {

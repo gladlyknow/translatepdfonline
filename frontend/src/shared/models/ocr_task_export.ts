@@ -12,10 +12,10 @@ export const OcrTaskExportStatus = {
   cancelled: 'cancelled',
 } as const;
 
-export type OcrTaskExportFormat = 'pdf' | 'md';
+export type OcrTaskExportFormat = 'pdf' | 'md' | 'html';
 
 export function isOcrTaskExportFormat(v: string): v is OcrTaskExportFormat {
-  return v === 'pdf' || v === 'md';
+  return v === 'pdf' || v === 'md' || v === 'html';
 }
 
 const OCR_EXPORT_LOG_MAX_CHARS = 12_000;

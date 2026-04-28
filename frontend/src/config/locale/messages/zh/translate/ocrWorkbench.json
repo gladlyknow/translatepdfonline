@@ -84,5 +84,11 @@
   "pagesPrev": "上一页",
   "pagesNext": "下一页",
   "pagesSourcePage": "源页面 {current} / {total}",
-  "pagesExpandFooter": "展开页尾"
+  "pagesExpandFooter": "展开页尾",
+  "exportAction": "导出",
+  "downloadAction": "下载",
+  "retryAction": "重试",
+  "cancelAction": "取消",
+  "exportingStatus": "导出中…",
+  "removeExportTitle": "删除导出文件"
 }

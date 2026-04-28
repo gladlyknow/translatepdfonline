@@ -84,5 +84,11 @@
   "pagesPrev": "Prev",
   "pagesNext": "Next",
   "pagesSourcePage": "Source Page {current} / {total}",
-  "pagesExpandFooter": "Expand footer"
+  "pagesExpandFooter": "Expand footer",
+  "exportAction": "Export",
+  "downloadAction": "Download",
+  "retryAction": "Retry",
+  "cancelAction": "Cancel",
+  "exportingStatus": "Exporting…",
+  "removeExportTitle": "Remove exported file"
 }

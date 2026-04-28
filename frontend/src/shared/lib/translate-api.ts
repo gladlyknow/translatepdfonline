@@ -122,7 +122,7 @@ export interface TaskOutputFile {
 export interface OcrTaskExportItem {
   id: string;
   task_id: string;
-  format: 'pdf' | 'md';
+  format: 'pdf' | 'md' | 'html';
   status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
   error_message?: string | null;
   created_at: string;
@@ -351,20 +351,31 @@ export const translateApi = {
       `/api/ocr/tasks/${taskId}/exports`
     ),
 
-  retryOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+  retryOcrTaskExport: (
+    taskId: string,
+    format: 'pdf' | 'md' | 'html',
+    snapshot?: {
+      htmlDocument?: string;
+      orientation?: 'portrait' | 'landscape';
+    }
+  ) =>
     fetchTranslateApi<{
       ok: boolean;
       export_id: string;
-      format: 'pdf' | 'md';
+      format: 'pdf' | 'md' | 'html';
       status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
     }>(`/api/ocr/tasks/${taskId}/exports`, {
       method: 'POST',
-      body: JSON.stringify({ format }),
+      body: JSON.stringify({
+        format,
+        htmlDocument: snapshot?.htmlDocument,
+        orientation: snapshot?.orientation,
+      }),
     }),
 
-  getOcrTaskExportDownloadUrl: (taskId: string, format: 'pdf' | 'md') =>
+  getOcrTaskExportDownloadUrl: (taskId: string, format: 'pdf' | 'md' | 'html') =>
     fetchTranslateApi<{
-      format: 'pdf' | 'md';
+      format: 'pdf' | 'md' | 'html';
       status: string;
       download_url: string;
       file_name?: string;
@@ -374,7 +385,7 @@ export const translateApi = {
       `/api/ocr/tasks/${taskId}/exports?downloadUrl=1&format=${encodeURIComponent(format)}`
     ),
 
-  cancelOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+  cancelOcrTaskExport: (taskId: string, format: 'pdf' | 'md' | 'html') =>
     fetchTranslateApi<{ ok: boolean; format: string; status: string }>(
       `/api/ocr/tasks/${taskId}/exports`,
       {
@@ -383,7 +394,7 @@ export const translateApi = {
       }
     ),
 
-  deleteOcrTaskExport: (taskId: string, format: 'pdf' | 'md') =>
+  deleteOcrTaskExport: (taskId: string, format: 'pdf' | 'md' | 'html') =>
     fetchTranslateApi<{ ok: boolean }>(
       `/api/ocr/tasks/${taskId}/exports?format=${encodeURIComponent(format)}`,
       { method: 'DELETE' }

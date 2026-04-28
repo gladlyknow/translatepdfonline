@@ -15,6 +15,7 @@ import {
   type OcrTaskExportFormat,
 } from '@/shared/models/ocr_task_export';
 import {
+  exportStagingHtmlKey,
   retryOcrTaskExport,
   syncOcrTaskOutputPointersForTask,
 } from '@/shared/lib/ocr-export-queue';
@@ -22,6 +23,7 @@ import {
   createPresignedGet,
   deleteObject,
   isR2Configured,
+  putObject,
   r2ObjectExists,
 } from '@/shared/lib/translate-r2';
 import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
@@ -145,7 +147,7 @@ function exportContentDispositionForFormat(
   base: string,
   format: OcrTaskExportFormat
 ): string {
-  const ext = format === 'pdf' ? 'pdf' : 'md';
+  const ext = format === 'pdf' ? 'pdf' : format === 'html' ? 'html' : 'md';
   return dispositionFilename(base, ext);
 }
 
@@ -217,7 +219,7 @@ export async function GET(
           format,
           status: row.status,
           download_url: downloadUrl,
-          file_name: `${base}.${format === 'pdf' ? 'pdf' : 'md'}`,
+          file_name: `${base}.${format === 'pdf' ? 'pdf' : format === 'html' ? 'html' : 'md'}`,
           expires_in_seconds: OCR_EXPORT_SIGNED_URL_TTL_SECONDS,
           via: 'signed',
         });
@@ -297,6 +299,8 @@ export async function POST(
     const body = (await req.json()) as {
       format?: string;
       action?: string;
+      htmlDocument?: string;
+      orientation?: 'portrait' | 'landscape';
     };
     const format = String(body.format || '').trim().toLowerCase();
     if (!isOcrTaskExportFormat(format)) {
@@ -338,6 +342,25 @@ export async function POST(
     const exportId = await retryOcrTaskExport(taskId, format);
     if (!exportId) {
       return Response.json({ detail: 'Task not found' }, { status: 404 });
+    }
+    if (format === 'pdf' || format === 'html') {
+      const htmlDocument = String(body.htmlDocument || '');
+      if (!htmlDocument.trim()) {
+        return Response.json(
+          { detail: 'htmlDocument is required for pdf/html export' },
+          { status: 400 }
+        );
+      }
+      const stagingKey = exportStagingHtmlKey(taskId, exportId);
+      await putObject(
+        stagingKey,
+        new TextEncoder().encode(htmlDocument),
+        'text/html; charset=utf-8'
+      );
+      await appendExportLog(
+        exportId,
+        `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
+      );
     }
     const queued = await sendOcrExportQueueMessage({
       taskId,
@@ -402,6 +425,11 @@ export async function DELETE(
         await deleteObject(row.r2Key);
       } catch (e) {
         console.warn('[ocr/exports DELETE] r2 delete', e);
+      }
+      try {
+        await deleteObject(exportStagingHtmlKey(taskId, row.id));
+      } catch (e) {
+        console.warn('[ocr/exports DELETE] staging r2 delete', e);
       }
     }
 

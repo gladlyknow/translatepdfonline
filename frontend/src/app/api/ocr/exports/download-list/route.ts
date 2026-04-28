@@ -119,7 +119,7 @@ export async function POST(req: Request) {
           const signed = await createPresignedGet(row.r2Key, expiresInSeconds, {
             responseContentDisposition: dispositionFilename(
               base,
-              format === 'pdf' ? 'pdf' : 'md'
+              format === 'pdf' ? 'pdf' : format === 'html' ? 'html' : 'md'
             ),
           });
           items.push({

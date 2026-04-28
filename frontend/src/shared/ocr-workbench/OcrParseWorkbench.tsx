@@ -27,6 +27,10 @@ import {
   getLayoutEditor,
   setLayoutEditor,
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
+import {
+  buildSnapshotHtmlDocument,
+  snapshotPageElement,
+} from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
 import { ParseResultEditorToolbar } from '@/shared/ocr-workbench/parse-result-editor-toolbar';
@@ -158,9 +162,11 @@ export function OcrParseWorkbench({
   const [exportState, setExportState] = useState<{
     pdf: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
     md: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+    html: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
   }>({
     pdf: { status: 'idle', error: null },
     md: { status: 'idle', error: null },
+    html: { status: 'idle', error: null },
   });
   const exportPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -329,7 +335,7 @@ export function OcrParseWorkbench({
 
   const setSingleExportState = useCallback(
     (
-      format: 'pdf' | 'md',
+      format: 'pdf' | 'md' | 'html',
       next: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null }
     ) => {
       setExportState((prev) => ({ ...prev, [format]: next }));
@@ -338,7 +344,7 @@ export function OcrParseWorkbench({
   );
 
   const pollExportReady = useCallback(
-    async (format: 'pdf' | 'md', attempt = 0) => {
+    async (format: 'pdf' | 'md' | 'html', attempt = 0) => {
       if (!taskId) return;
       const exportsState = await translateApi.listOcrTaskExports(taskId);
       const target = exportsState.exports.find((one) => one.format === format);
@@ -384,7 +390,52 @@ export function OcrParseWorkbench({
     [clearExportPollTimer, setSingleExportState, taskId]
   );
 
-  const startExport = useCallback(async (format: 'pdf' | 'md') => {
+  const collectWorkbenchSnapshotHtml = useCallback(async () => {
+    if (!docRef.current) {
+      throw new Error('Parse result not loaded');
+    }
+    const pages = docRef.current.pages || [];
+    if (pages.length === 0) {
+      throw new Error('No page available for export');
+    }
+    const beforePageIndex = activePageIndex;
+    const sections: string[] = [];
+    const cache = new Map<string, string>();
+    try {
+      for (let i = 0; i < pages.length; i += 1) {
+        flushSync(() => {
+          setActivePageIndex(i);
+        });
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        );
+        const pageEl = document.querySelector<HTMLElement>(
+          `[data-export-page="true"][data-export-page-index="${i}"]`
+        );
+        if (!pageEl) {
+          throw new Error(`Export page ${i + 1} is not rendered`);
+        }
+        const snapshot = await snapshotPageElement(pageEl, cache, {
+          orientation: 'portrait',
+        });
+        sections.push(snapshot.sectionHtml);
+      }
+    } finally {
+      flushSync(() => {
+        setActivePageIndex(beforePageIndex);
+      });
+    }
+    return {
+      htmlDocument: buildSnapshotHtmlDocument(
+        sections,
+        docRef.current.file_name || 'document',
+        { orientation: 'portrait' }
+      ),
+      orientation: 'portrait' as const,
+    };
+  }, [activePageIndex, setActivePageIndex]);
+
+  const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (!taskId || exportState[format].status === 'processing') return;
     setSingleExportState(format, { status: 'processing', error: null });
     try {
@@ -396,7 +447,11 @@ export function OcrParseWorkbench({
         const payload = cloneParseResult(docRef.current) as unknown;
         await translateApi.patchOcrParseResult(taskId, payload);
       }
-      await translateApi.retryOcrTaskExport(taskId, format);
+      const snapshotPayload =
+        format === 'pdf' || format === 'html'
+          ? await collectWorkbenchSnapshotHtml()
+          : undefined;
+      await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
     } catch (e) {
       setSingleExportState(format, {
@@ -407,6 +462,7 @@ export function OcrParseWorkbench({
     }
   }, [
     clearExportPollTimer,
+    collectWorkbenchSnapshotHtml,
     exportState,
     flushEditableText,
     pollExportReady,
@@ -415,7 +471,7 @@ export function OcrParseWorkbench({
   ]);
 
   const handleDownloadExport = useCallback(
-    async (format: 'pdf' | 'md') => {
+    async (format: 'pdf' | 'md' | 'html') => {
       if (!taskId) return;
       try {
         const dl = await translateApi.getOcrTaskExportDownloadUrl(taskId, format);
@@ -428,7 +484,7 @@ export function OcrParseWorkbench({
   );
 
   const cancelExport = useCallback(
-    async (format: 'pdf' | 'md') => {
+    async (format: 'pdf' | 'md' | 'html') => {
       if (!taskId) return;
       try {
         await translateApi.cancelOcrTaskExport(taskId, format);
@@ -442,7 +498,7 @@ export function OcrParseWorkbench({
   );
 
   const deleteExport = useCallback(
-    async (format: 'pdf' | 'md') => {
+    async (format: 'pdf' | 'md' | 'html') => {
       if (!taskId) return;
       try {
         await translateApi.deleteOcrTaskExport(taskId, format);
@@ -462,6 +518,7 @@ export function OcrParseWorkbench({
       setExportState({
         pdf: { status: 'idle', error: null },
         md: { status: 'idle', error: null },
+        html: { status: 'idle', error: null },
       });
       return;
     }
@@ -473,12 +530,15 @@ export function OcrParseWorkbench({
         const next: {
           pdf: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
           md: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
+          html: { status: 'idle' | 'processing' | 'ready' | 'failed'; error: string | null };
         } = {
           pdf: { status: 'idle', error: null },
           md: { status: 'idle', error: null },
+          html: { status: 'idle', error: null },
         };
         const pdf = exportsState.exports.find((one) => one.format === 'pdf');
         const md = exportsState.exports.find((one) => one.format === 'md');
+        const html = exportsState.exports.find((one) => one.format === 'html');
         if (pdf) {
           const nextPdfStatus =
             pdf.status === 'ready'
@@ -521,6 +581,27 @@ export function OcrParseWorkbench({
                 : (md.error_message ?? null),
           };
         }
+        if (html) {
+          const nextHtmlStatus =
+            html.status === 'ready'
+              ? 'ready'
+              : html.status === 'cancelled'
+                ? 'idle'
+                : html.status === 'failed'
+                  ? 'failed'
+                  : html.status === 'pending' ||
+                      html.status === 'processing' ||
+                      exportState.html.status === 'processing'
+                    ? 'processing'
+                    : 'idle';
+          next.html = {
+            status: nextHtmlStatus,
+            error:
+              html.status === 'cancelled'
+                ? null
+                : (html.error_message ?? null),
+          };
+        }
         setExportState(next);
       } catch {
         // ignore
@@ -529,7 +610,7 @@ export function OcrParseWorkbench({
     return () => {
       cancelled = true;
     };
-  }, [exportState.md.status, exportState.pdf.status, taskId]);
+  }, [exportState.html.status, exportState.md.status, exportState.pdf.status, taskId]);
 
   const originalLabels = useMemo(
     () => ({
@@ -642,6 +723,76 @@ export function OcrParseWorkbench({
           </Button>
         </div>
         <div className="space-y-2">
+          <div className="rounded-md border border-fuchsia-200/80 bg-fuchsia-50/60 p-2 dark:border-fuchsia-900/50 dark:bg-fuchsia-950/25">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-fuchsia-800 dark:text-fuchsia-300">
+              HTML
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {exportState.html.status === 'ready' ? (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="border border-fuchsia-400 bg-fuchsia-600 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
+                    disabled={!taskId}
+                    onClick={() => void handleDownloadExport('html')}
+                  >
+                    <Download className="mr-1 size-3.5" />
+                    {t('downloadAction')}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!taskId}
+                    title={t('removeExportTitle')}
+                    onClick={() => void deleteExport('html')}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </>
+              ) : exportState.html.status === 'processing' ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-fuchsia-700 dark:text-fuchsia-400" />
+                  <span className="text-[11px] text-fuchsia-900 dark:text-fuchsia-200">
+                    {t('exportingStatus')}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px]"
+                    disabled={!taskId}
+                    onClick={() => void cancelExport('html')}
+                  >
+                    {t('cancelAction')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!taskId}
+                    onClick={() => void startExport('html')}
+                    className="border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
+                  >
+                    {exportState.html.status === 'failed' ? (
+                      <RotateCw className="mr-1 size-3.5" />
+                    ) : (
+                      <img src="/brand/local/html.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                    )}
+                    {exportState.html.status === 'failed' ? t('retryAction') : t('exportAction')}
+                  </Button>
+                  {exportState.html.error ? (
+                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                      {exportState.html.error}
+                    </span>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </div>
           <div className="rounded-md border border-emerald-200/80 bg-emerald-50/60 p-2 dark:border-emerald-900/50 dark:bg-emerald-950/25">
             <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
               Markdown
@@ -657,14 +808,14 @@ export function OcrParseWorkbench({
                     onClick={() => void handleDownloadExport('md')}
                   >
                     <Download className="mr-1 size-3.5" />
-                    Download
+                    {t('downloadAction')}
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     disabled={!taskId}
-                    title="Remove exported file"
+                    title={t('removeExportTitle')}
                     onClick={() => void deleteExport('md')}
                   >
                     <Trash2 className="size-3.5" />
@@ -674,7 +825,7 @@ export function OcrParseWorkbench({
                 <>
                   <Loader2 className="size-3.5 animate-spin text-emerald-700 dark:text-emerald-400" />
                   <span className="text-[11px] text-emerald-900 dark:text-emerald-200">
-                    Exporting…
+                    {t('exportingStatus')}
                   </span>
                   <Button
                     type="button"
@@ -684,7 +835,7 @@ export function OcrParseWorkbench({
                     disabled={!taskId}
                     onClick={() => void cancelExport('md')}
                   >
-                    Cancel
+                    {t('cancelAction')}
                   </Button>
                 </>
               ) : (
@@ -701,7 +852,7 @@ export function OcrParseWorkbench({
                     ) : (
                       <FileText className="mr-1 size-3.5" />
                     )}
-                    {exportState.md.status === 'failed' ? 'Retry' : 'Export'}
+                    {exportState.md.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.md.error ? (
                     <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
@@ -727,14 +878,14 @@ export function OcrParseWorkbench({
                     onClick={() => void handleDownloadExport('pdf')}
                   >
                     <Download className="mr-1 size-3.5" />
-                    Download
+                    {t('downloadAction')}
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     disabled={!taskId}
-                    title="Remove exported file"
+                    title={t('removeExportTitle')}
                     onClick={() => void deleteExport('pdf')}
                   >
                     <Trash2 className="size-3.5" />
@@ -744,7 +895,7 @@ export function OcrParseWorkbench({
                 <>
                   <Loader2 className="size-3.5 animate-spin text-blue-700 dark:text-blue-400" />
                   <span className="text-[11px] text-blue-900 dark:text-blue-200">
-                    Exporting…
+                    {t('exportingStatus')}
                   </span>
                   <Button
                     type="button"
@@ -754,7 +905,7 @@ export function OcrParseWorkbench({
                     disabled={!taskId}
                     onClick={() => void cancelExport('pdf')}
                   >
-                    Cancel
+                    {t('cancelAction')}
                   </Button>
                 </>
               ) : (
@@ -771,7 +922,7 @@ export function OcrParseWorkbench({
                     ) : (
                       <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
                     )}
-                    {exportState.pdf.status === 'failed' ? 'Retry' : 'Export'}
+                    {exportState.pdf.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.pdf.error ? (
                     <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
@@ -959,7 +1110,8 @@ export function OcrParseWorkbench({
               disabled={
                 !taskId ||
                 exportState.md.status === 'processing' ||
-                exportState.pdf.status === 'processing'
+                exportState.pdf.status === 'processing' ||
+                exportState.html.status === 'processing'
               }
               onClick={() =>
                 exportState.md.status === 'ready'
@@ -968,10 +1120,10 @@ export function OcrParseWorkbench({
               }
             >
               {exportState.md.status === 'ready'
-                ? 'MD · Download'
+                ? `MD · ${t('downloadAction')}`
                 : exportState.md.status === 'failed'
-                  ? 'MD · Retry'
-                  : 'MD · Export'}
+                  ? `MD · ${t('retryAction')}`
+                  : `MD · ${t('exportAction')}`}
             </Button>
             <Button
               type="button"
@@ -980,7 +1132,8 @@ export function OcrParseWorkbench({
               disabled={
                 !taskId ||
                 exportState.md.status === 'processing' ||
-                exportState.pdf.status === 'processing'
+                exportState.pdf.status === 'processing' ||
+                exportState.html.status === 'processing'
               }
               onClick={() =>
                 exportState.pdf.status === 'ready'
@@ -989,10 +1142,32 @@ export function OcrParseWorkbench({
               }
             >
               {exportState.pdf.status === 'ready'
-                ? 'PDF · Download'
+                ? `PDF · ${t('downloadAction')}`
                 : exportState.pdf.status === 'failed'
-                  ? 'PDF · Retry'
-                  : 'PDF · Export'}
+                  ? `PDF · ${t('retryAction')}`
+                  : `PDF · ${t('exportAction')}`}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={
+                !taskId ||
+                exportState.md.status === 'processing' ||
+                exportState.pdf.status === 'processing' ||
+                exportState.html.status === 'processing'
+              }
+              onClick={() =>
+                exportState.html.status === 'ready'
+                  ? void handleDownloadExport('html')
+                  : void startExport('html')
+              }
+            >
+              {exportState.html.status === 'ready'
+                ? `HTML · ${t('downloadAction')}`
+                : exportState.html.status === 'failed'
+                  ? `HTML · ${t('retryAction')}`
+                  : `HTML · ${t('exportAction')}`}
             </Button>
           </div>
         ) : null}
