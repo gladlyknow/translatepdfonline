@@ -10,19 +10,7 @@ import {
   sendOcrPipelineQueueMessage,
 } from '@/shared/lib/ocr-queue';
 import { isCloudflareWorker } from '@/shared/lib/env';
-
-const ALLOWED_TRANSLATE_LANGS = new Set([
-  'en',
-  'zh',
-  'es',
-  'fr',
-  'it',
-  'el',
-  'ja',
-  'ko',
-  'de',
-  'ru',
-]);
+import { isSupportedUiLang } from '@/shared/lib/translate-langs';
 
 export async function POST(req: Request) {
   try {
@@ -39,13 +27,13 @@ export async function POST(req: Request) {
     if (!documentId) {
       return Response.json({ detail: 'document_id required' }, { status: 400 });
     }
-    if (!ALLOWED_TRANSLATE_LANGS.has(sourceLang)) {
+    if (!isSupportedUiLang(sourceLang)) {
       return Response.json(
         { detail: 'Unsupported source_lang' },
         { status: 400 }
       );
     }
-    if (rawTargetLang && !ALLOWED_TRANSLATE_LANGS.has(rawTargetLang)) {
+    if (rawTargetLang && !isSupportedUiLang(rawTargetLang)) {
       return Response.json(
         { detail: 'Unsupported target_lang' },
         { status: 400 }

@@ -2,60 +2,7 @@ import {
   parseParseResultJson,
   type ParseResult,
 } from '@/shared/ocr-workbench/translator-parse-result';
-
-/** 与旧站 extractOcrDocument 对齐：从 Baidu 嵌套响应中取出含 pages 的对象 */
-function extractOcrDocument(root: unknown): Record<string, unknown> {
-  if (root === null || root === undefined) {
-    return { pages: [] };
-  }
-  if (typeof root === 'string') {
-    const s = root.trim();
-    if (!s || s === 'null') {
-      return { pages: [] };
-    }
-    try {
-      return extractOcrDocument(JSON.parse(s));
-    } catch {
-      return { pages: [], _unparsedResult: s.slice(0, 500) };
-    }
-  }
-  if (typeof root !== 'object') {
-    return { pages: [] };
-  }
-  const r = root as Record<string, unknown>;
-  if (Array.isArray(r.pages)) {
-    return r;
-  }
-  const purl = r.parse_result_url;
-  if (typeof purl === 'string' && /^https?:\/\//i.test(purl)) {
-    return r;
-  }
-  if ('result' in r && r.result !== undefined) {
-    const inner = extractOcrDocument(r.result);
-    if (Array.isArray(inner.pages) && inner.pages.length > 0) {
-      return inner;
-    }
-    if (
-      typeof inner.parse_result_url === 'string' &&
-      /^https?:\/\//i.test(inner.parse_result_url)
-    ) {
-      return inner;
-    }
-  }
-  const ret = r.ret as Record<string, unknown> | undefined;
-  if (ret && Array.isArray(ret.pages)) {
-    return ret;
-  }
-  const data = r.data as Record<string, unknown> | undefined;
-  if (data && Array.isArray(data.pages)) {
-    return data;
-  }
-  const pr = r.parse_result as Record<string, unknown> | undefined;
-  if (pr && Array.isArray(pr.pages)) {
-    return pr;
-  }
-  return { pages: [], _normalizedFromKeys: Object.keys(r) };
-}
+import { extractOcrDocument } from '@/shared/lib/ocr-baidu-ocr-result';
 
 function coercePagesShape(raw: Record<string, unknown>): Record<string, unknown> {
   const pages = raw.pages;

@@ -4,11 +4,13 @@ import { translationTasks } from '@/config/db/schema';
 import { db } from '@/core/db';
 import { getTranslateAuth } from '@/app/api/translate/auth';
 import { rewriteExternalImagesToR2 } from '@/shared/lib/ocr-parse-result-image-proxy';
-import { getObjectBody, isR2Configured, putObject } from '@/shared/lib/translate-r2';
+import {
+  getOcrParseResultBodyForRead,
+  resolveOcrParseResultSaveKey,
+} from '@/shared/lib/ocr-parse-result-r2-keys';
+import { isR2Configured, putObject } from '@/shared/lib/translate-r2';
 
 export const maxDuration = 300;
-
-const PARSE_KEY = (taskId: string) => `translations/${taskId}/ocr-parse-result.json`;
 
 export async function GET(
   _req: Request,
@@ -24,6 +26,8 @@ export async function GET(
       .select({
         id: translationTasks.id,
         preprocessWithOcr: translationTasks.preprocessWithOcr,
+        sourceLang: translationTasks.sourceLang,
+        targetLang: translationTasks.targetLang,
       })
       .from(translationTasks)
       .where(and(eq(translationTasks.id, taskId), ownerWhere))
@@ -39,7 +43,11 @@ export async function GET(
     }
     let raw: unknown;
     try {
-      const bytes = await getObjectBody(PARSE_KEY(taskId));
+      const bytes = await getOcrParseResultBodyForRead(
+        taskId,
+        task.sourceLang,
+        task.targetLang
+      );
       raw = JSON.parse(new TextDecoder('utf-8').decode(bytes));
     } catch {
       return Response.json({ detail: 'Parse result not found' }, { status: 404 });
@@ -68,7 +76,12 @@ export async function PATCH(
       ? eq(translationTasks.userId, userId)
       : eq(translationTasks.anonId, anonId);
     const [task] = await db()
-      .select({ id: translationTasks.id, preprocessWithOcr: translationTasks.preprocessWithOcr })
+      .select({
+        id: translationTasks.id,
+        preprocessWithOcr: translationTasks.preprocessWithOcr,
+        sourceLang: translationTasks.sourceLang,
+        targetLang: translationTasks.targetLang,
+      })
       .from(translationTasks)
       .where(and(eq(translationTasks.id, taskId), ownerWhere))
       .limit(1);
@@ -99,7 +112,11 @@ export async function PATCH(
       console.warn('[tasks/parse-result PATCH] rewrite images', e);
     }
 
-    const key = PARSE_KEY(taskId);
+    const key = await resolveOcrParseResultSaveKey({
+      taskId,
+      sourceLang: task.sourceLang,
+      targetLang: task.targetLang,
+    });
     const encoded = new TextEncoder().encode(JSON.stringify(json, null, 2));
     await putObject(key, encoded, 'application/json; charset=utf-8');
     await db()

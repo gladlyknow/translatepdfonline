@@ -28,6 +28,7 @@ import {
   type TaskView,
   type UILang,
 } from '@/shared/lib/translate-api';
+import { toSupportedUiLang } from '@/shared/lib/translate-langs';
 import {
   Loader2,
   Trash2,
@@ -92,20 +93,7 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 function toLang(v: string | null): UILang | '' {
-  const low = String(v || '').trim().toLowerCase();
-  const allow: UILang[] = [
-    'en',
-    'zh',
-    'es',
-    'fr',
-    'it',
-    'el',
-    'ja',
-    'ko',
-    'de',
-    'ru',
-  ];
-  return allow.includes(low as UILang) ? (low as UILang) : '';
+  return toSupportedUiLang(v);
 }
 
 export function OcrTranslatePageClient() {

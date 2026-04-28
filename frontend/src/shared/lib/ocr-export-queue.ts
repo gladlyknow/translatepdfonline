@@ -19,7 +19,9 @@ import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-resu
 import { buildSelfContainedHtml } from '@/shared/ocr-workbench/parse-result-export-html';
 import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
 import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-pdf-worker';
-import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
+import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
+import { createPresignedGet, putObject } from '@/shared/lib/translate-r2';
+import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
 const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
@@ -30,31 +32,7 @@ const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
 );
 
 function toPublicExportErrorMessage(raw: string): string {
-  const msg = raw.toLowerCase();
-  if (
-    msg.includes('connect timeout') ||
-    msg.includes('fetch failed') ||
-    msg.includes('econn') ||
-    msg.includes('network')
-  ) {
-    return 'Storage network timeout, check proxy/network and retry';
-  }
-  if (msg.includes('timed out') || msg.includes('timeout')) {
-    return 'Export timed out, please retry';
-  }
-  if (msg.includes('pdf') && msg.includes('render')) {
-    return 'PDF render timed out, please retry later';
-  }
-  if (
-    msg.includes('pdf_render_backend') ||
-    (msg.includes('browser') && msg.includes('binding'))
-  ) {
-    return 'PDF export requires Browser Rendering (BROWSER binding)';
-  }
-  if (msg.includes('missing')) {
-    return 'Export source is not ready, please retry shortly';
-  }
-  return 'Export failed, please retry';
+  return toPublicOcrErrorMessage(raw, 'Export failed, please retry');
 }
 
 function withStageTimeout<T>(
@@ -126,13 +104,17 @@ function contentTypeForAssetName(name: string): string {
   return 'application/octet-stream';
 }
 
-async function buildMarkdownWithR2ImageUrls(taskId: string, fallbackMarkdown: string): Promise<string> {
-  const parseKey = `translations/${taskId}/ocr-parse-result.json`;
+async function buildMarkdownWithR2ImageUrls(
+  taskId: string,
+  sourceLang: string,
+  targetLang: string,
+  fallbackMarkdown: string
+): Promise<string> {
   let parseJson: unknown = null;
   try {
     const parseBytes = await withStageTimeout(
       'load_parse_result_json',
-      () => getObjectBody(parseKey),
+      () => getOcrParseResultBodyForRead(taskId, sourceLang, targetLang),
       OCR_EXPORT_STAGE_TIMEOUT_MS
     );
     parseJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
@@ -242,6 +224,17 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     await appendExportLog(exportId, `start format=${row.format}`);
+    const [langRow] = await db()
+      .select({
+        sourceLang: translationTasks.sourceLang,
+        targetLang: translationTasks.targetLang,
+      })
+      .from(translationTasks)
+      .where(eq(translationTasks.id, row.taskId))
+      .limit(1);
+    const sourceLang = langRow?.sourceLang ?? '';
+    const targetLang = langRow?.targetLang ?? '';
+
     if (row.format === 'pdf') {
       await appendExportLog(
         exportId,
@@ -263,10 +256,9 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       return;
     }
     if (row.format === 'pdf') {
-      const parseKey = `translations/${row.taskId}/ocr-parse-result.json`;
       const parseBytes = await withStageTimeout(
         'load_parse_result_json',
-        () => getObjectBody(parseKey),
+        () => getOcrParseResultBodyForRead(row.taskId, sourceLang, targetLang),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       const rawJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
@@ -312,7 +304,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
     } else {
       const markdownWithR2Urls = await withStageTimeout(
         'rewrite_markdown_image_urls',
-        () => buildMarkdownWithR2ImageUrls(row.taskId, markdown),
+        () => buildMarkdownWithR2ImageUrls(row.taskId, sourceLang, targetLang, markdown),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       const markdownBytes = new TextEncoder().encode(markdownWithR2Urls);

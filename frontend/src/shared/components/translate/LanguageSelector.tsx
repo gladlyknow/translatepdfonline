@@ -3,19 +3,12 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/lib/utils';
 import type { UILang } from '@/shared/lib/translate-api';
+import { SUPPORTED_UI_LANGS } from '@/shared/lib/translate-langs';
 
-const LANGS: { value: UILang; labelKey: string }[] = [
-  { value: 'en', labelKey: 'en' },
-  { value: 'zh', labelKey: 'zh' },
-  { value: 'es', labelKey: 'es' },
-  { value: 'fr', labelKey: 'fr' },
-  { value: 'it', labelKey: 'it' },
-  { value: 'el', labelKey: 'el' },
-  { value: 'ja', labelKey: 'ja' },
-  { value: 'ko', labelKey: 'ko' },
-  { value: 'de', labelKey: 'de' },
-  { value: 'ru', labelKey: 'ru' },
-];
+const LANGS: { value: UILang; labelKey: UILang }[] = SUPPORTED_UI_LANGS.map((lang) => ({
+  value: lang,
+  labelKey: lang,
+}));
 
 type Props = {
   value: UILang | '';

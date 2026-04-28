@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "translatepdfonline-quenues-dev",
-  "keep_vars": true,
   "main": "workers/ocr-pipeline-consumer/src/index.ts",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": [
@@ -30,8 +29,8 @@
     "consumers": [
       {
         "queue": "translatepdfonline-dev",
-        "max_batch_size": 1,
-        "max_batch_timeout": 30,
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
         "max_retries": 5
       }
     ]

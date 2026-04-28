@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { getAllConfigs } from '@/shared/models/config';
 import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { loadOcrPdfCjkFontBytesAsync } from '@/shared/lib/ocr-export-pdf-font-bytes';
+import { resolveBaiduOcrPayload } from '@/shared/lib/ocr-baidu-ocr-result';
 
 const BAIDU_TOKEN_URL = 'https://aip.baidubce.com/oauth/2.0/token';
 const BAIDU_TASK_URL =
@@ -317,21 +318,24 @@ async function resolveOcrMarkdownAndStoragePayload(payload: unknown): Promise<{
   markdown: string;
   parseJson: unknown;
 }> {
+  const cfg = await getAllConfigs();
+  const authorizationRaw = String(
+    cfg.baidu_authorization || process.env.BAIDU_AUTHORIZATION || ''
+  ).trim();
+  const authorizationHeader = normalizeBaiduAuthorizationHeader(authorizationRaw) || undefined;
+  const tokenAuth = await resolveBaiduAuth().catch(() => ({} as BaiduAuth));
+  const accessToken = tokenAuth.accessToken;
+  const resolved = await resolveBaiduOcrPayload(payload, { authorizationHeader, accessToken });
+  const mdFromResolved = buildMarkdownFromOcrPayload(resolved);
+  if (mdFromResolved.trim()) {
+    return { markdown: mdFromResolved, parseJson: resolved };
+  }
   const parseResultUrl = extractParseResultUrl(payload);
   if (parseResultUrl) {
     const res = await fetch(parseResultUrl);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch OCR parse_result_url (${res.status})`);
-    }
+    if (!res.ok) throw new Error(`Failed to fetch OCR parse_result_url (${res.status})`);
     const json = (await res.json()) as unknown;
-    const mdFromJson = buildMarkdownFromOcrPayload(json);
-    if (mdFromJson.trim()) {
-      return { markdown: mdFromJson, parseJson: json };
-    }
-    return {
-      markdown: buildMarkdownFromOcrPayload(payload),
-      parseJson: json,
-    };
+    return { markdown: buildMarkdownFromOcrPayload(json), parseJson: json };
   }
   return {
     markdown: buildMarkdownFromOcrPayload(payload),
@@ -386,6 +390,116 @@ export async function translateMarkdownWithDeepSeek(params: {
     );
   }
   return content;
+}
+
+/**
+ * 将字符串列表按批送给 DeepSeek，顺序与长度必须一致（用于版面 JSON 字段翻译）。
+ */
+export async function translateStringListWithDeepSeek(params: {
+  parts: string[];
+  sourceLang: string;
+  targetLang: string;
+}): Promise<string[]> {
+  const { parts, sourceLang, targetLang } = params;
+  if (parts.length === 0) return [];
+  const cfg = await getAllConfigs();
+  const apiKey = String(
+    cfg.deepseek_api_key || process.env.DEEPSEEK_API_KEY || ''
+  ).trim();
+  if (!apiKey) {
+    throw new Error('DeepSeek API key missing');
+  }
+  const model =
+    String(process.env.OCR_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || '')
+      .trim() || 'deepseek-chat';
+  const maxChunkItems = Math.max(
+    8,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '48') || 48
+  );
+  const maxChunkChars = Math.max(
+    2000,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '12000') || 12000
+  );
+
+  const out: string[] = new Array(parts.length);
+  let start = 0;
+  const RETRY_MAX = Math.max(1, Number(process.env.OCR_PARSE_TRANSLATE_RETRY_MAX || '3') || 3);
+  while (start < parts.length) {
+    let end = start;
+    let charBudget = 0;
+    while (
+      end < parts.length &&
+      end - start < maxChunkItems &&
+      charBudget < maxChunkChars
+    ) {
+      charBudget += (parts[end]?.length ?? 0) + 8;
+      end += 1;
+    }
+    if (end === start) end = start + 1;
+    const slice = parts.slice(start, end);
+    const prompt = [
+      `Translate each string in the JSON array below from ${sourceLang} to ${targetLang}.`,
+      'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
+      `Return ONLY a JSON array of strings with exactly ${slice.length} elements, same order.`,
+      '',
+      JSON.stringify(slice),
+    ].join('\n');
+    let parsedArr: unknown = null;
+    let lastError = '';
+    for (let attempt = 1; attempt <= RETRY_MAX; attempt += 1) {
+      const res = await fetch(DEEPSEEK_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        error?: { message?: string };
+        message?: string;
+      };
+      const rawContent = json.choices?.[0]?.message?.content?.trim();
+      if (!res.ok || !rawContent) {
+        lastError =
+          json.error?.message || json.message || `DeepSeek batch translate failed (${res.status})`;
+      } else {
+        try {
+          parsedArr = JSON.parse(rawContent);
+        } catch {
+          const fence = rawContent.match(/\[[\s\S]*\]/);
+          if (fence) {
+            parsedArr = JSON.parse(fence[0]);
+          } else {
+            lastError = 'DeepSeek batch translate: invalid JSON array';
+          }
+        }
+        if (Array.isArray(parsedArr) && parsedArr.length === slice.length) {
+          break;
+        }
+        lastError = `DeepSeek batch translate: expected ${slice.length} strings, got ${
+          Array.isArray(parsedArr) ? parsedArr.length : 'non-array'
+        }`;
+      }
+      if (attempt < RETRY_MAX) {
+        await sleep(Math.min(700 * attempt, 2500));
+      }
+    }
+    if (!Array.isArray(parsedArr) || parsedArr.length !== slice.length) {
+      throw new Error(lastError || 'DeepSeek batch translate failed');
+    }
+    for (let i = 0; i < slice.length; i++) {
+      out[start + i] =
+        typeof parsedArr[i] === 'string' ? parsedArr[i] : String(parsedArr[i] ?? '');
+    }
+    start = end;
+  }
+  return out;
 }
 
 function wrapLineByWidth(

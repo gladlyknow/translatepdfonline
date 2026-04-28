@@ -20,6 +20,7 @@ import {
   isTranslateCreditsEnabled,
   parseTranslatePageRange,
 } from '@/shared/lib/translate-billing';
+import { isSupportedUiLang } from '@/shared/lib/translate-langs';
 import { invokeTranslateFcForTask } from './invoke-fc';
 
 /** 日志用：不输出完整预签名 URL（含凭证 query）。 */
@@ -164,20 +165,6 @@ function detectLikelyScannedPdf(params: {
   };
 }
 
-/** 与前端 UILang / LanguageSelector 一致；FC 内可再规范化（如 zh → zh_cn） */
-const ALLOWED_TRANSLATE_LANGS = new Set([
-  'en',
-  'zh',
-  'es',
-  'fr',
-  'it',
-  'el',
-  'ja',
-  'ko',
-  'de',
-  'ru',
-]);
-
 export async function POST(req: Request) {
   try {
     const { userId, anonId } = await getTranslateAuth();
@@ -189,10 +176,7 @@ export async function POST(req: Request) {
     const targetLang = String(body.target_lang ?? 'zh')
       .trim()
       .toLowerCase();
-    if (
-      !ALLOWED_TRANSLATE_LANGS.has(sourceLang) ||
-      !ALLOWED_TRANSLATE_LANGS.has(targetLang)
-    ) {
+    if (!isSupportedUiLang(sourceLang) || !isSupportedUiLang(targetLang)) {
       return Response.json(
         {
           detail: 'Unsupported source_lang or target_lang',

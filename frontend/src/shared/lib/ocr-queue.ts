@@ -19,7 +19,11 @@ import {
 } from '@/shared/models/ocr_task_export';
 import { putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
+import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
+import { runOcrStage } from '@/shared/lib/ocr-step-runner';
+import { ocrMetricLog, ocrWorkLog } from '@/shared/lib/ocr-work-log';
+import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
 
 export type OcrPipelineQueueBody =
   | {
@@ -36,6 +40,7 @@ type OcrStage =
   | 'ocr_submit_poll'
   | 'ocr_parse_persisted'
   | 'translate_markdown'
+  | 'translate_parse_result'
   | 'export_outputs'
   | 'completed';
 
@@ -60,7 +65,8 @@ function nowIso() {
 function stagePercent(stage: OcrStage): number {
   if (stage === 'ocr_submit_poll') return 20;
   if (stage === 'ocr_parse_persisted') return 45;
-  if (stage === 'translate_markdown') return 70;
+  if (stage === 'translate_markdown') return 65;
+  if (stage === 'translate_parse_result') return 80;
   if (stage === 'export_outputs') return 90;
   return 100;
 }
@@ -70,6 +76,7 @@ function normalizeStage(raw: string | null | undefined): OcrStage {
   if (s === 'ocr_submit_poll') return 'ocr_submit_poll';
   if (s === 'ocr_parse_persisted') return 'ocr_parse_persisted';
   if (s === 'translate_markdown') return 'translate_markdown';
+  if (s === 'translate_parse_result') return 'translate_parse_result';
   if (s === 'export_outputs') return 'export_outputs';
   if (s === 'completed') return 'completed';
   return 'ocr_submit_poll';
@@ -233,6 +240,15 @@ async function runOneStage(params: {
       new TextEncoder().encode(translated),
       'text/markdown; charset=utf-8'
     );
+    return 'translate_parse_result';
+  }
+
+  if (params.stage === 'translate_parse_result') {
+    await translateAndPersistParseResultTarget({
+      taskId: params.taskId,
+      sourceLang: params.sourceLang,
+      targetLang: params.targetLang,
+    });
     return 'export_outputs';
   }
 
@@ -459,22 +475,26 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     await deferTaskForConcurrency(taskId, 'owner_concurrency_limit');
     return;
   }
-  const createdAtMs = row.createdAt ? new Date(row.createdAt).getTime() : NaN;
-  if (Number.isFinite(createdAtMs) && Date.now() - createdAtMs > OCR_TASK_TIMEOUT_MS) {
-    await db()
-      .update(translationTasks)
-      .set({
-        status: 'failed',
-        progressStage: normalizeStage(row.progressStage),
-        errorCode: 'ocr_task_timeout_20m',
-        errorMessage: 'OCR task exceeded 20 minutes timeout window',
-        fcNextAttemptAt: null,
-        fcInvokeLeaseUntil: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(translationTasks.id, taskId));
-    console.warn('[ocr/stage] timeout', JSON.stringify({ task_id: taskId }));
-    return;
+  const stage = normalizeStage(row.progressStage);
+  /** 仅首轮 OCR 轮询用任务创建时间判超时；后续阶段 / 用户重试的旧任务不因 createdAt 过长被立即拒绝 */
+  if (stage === 'ocr_submit_poll') {
+    const createdAtMs = row.createdAt ? new Date(row.createdAt).getTime() : NaN;
+    if (Number.isFinite(createdAtMs) && Date.now() - createdAtMs > OCR_TASK_TIMEOUT_MS) {
+      await db()
+        .update(translationTasks)
+        .set({
+          status: 'failed',
+          progressStage: stage,
+          errorCode: 'ocr_task_timeout_20m',
+          errorMessage: 'OCR task exceeded 20 minutes timeout window',
+          fcNextAttemptAt: null,
+          fcInvokeLeaseUntil: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(translationTasks.id, taskId));
+      console.warn('[ocr/stage] timeout', JSON.stringify({ task_id: taskId }));
+      return;
+    }
   }
   const [doc] = await db()
     .select()
@@ -496,7 +516,6 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     return;
   }
 
-  const stage = normalizeStage(row.progressStage);
   const startedAt = Date.now();
   const prevAttempts = row.fcDispatchAttemptCount ?? 0;
   const thisAttempt = prevAttempts + 1;
@@ -504,6 +523,7 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     '[ocr/stage] start',
     JSON.stringify({ task_id: taskId, stage, attempt: thisAttempt, at: nowIso() })
   );
+  ocrWorkLog(taskId, `stage_start:${stage}`, { attempt: thisAttempt });
 
   await db()
     .update(translationTasks)
@@ -518,13 +538,37 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
 
   try {
     await ensureTaskNotCancelled(taskId);
-    const nextStage = await runOneStage({
+    const nextStage = await runOcrStage({
       taskId,
       stage,
-      sourcePdfObjectKey: row.sourceSliceObjectKey || doc.objectKey,
-      sourceFilename: doc.filename,
-      sourceLang: row.sourceLang,
-      targetLang: row.targetLang,
+      fn: () =>
+        runOneStage({
+          taskId,
+          stage,
+          sourcePdfObjectKey: row.sourceSliceObjectKey || doc.objectKey,
+          sourceFilename: doc.filename,
+          sourceLang: row.sourceLang,
+          targetLang: row.targetLang,
+        }),
+      onStart: () => {
+        ocrWorkLog(taskId, `run_stage:${stage}`);
+      },
+      onSuccess: (out) => {
+        ocrMetricLog('ocr_stage_succeeded', {
+          taskId,
+          stage,
+          nextStage: out,
+          attempt: thisAttempt,
+        });
+      },
+      onError: (error) => {
+        ocrMetricLog('ocr_stage_failed', {
+          taskId,
+          stage,
+          attempt: thisAttempt,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      },
     });
     await ensureTaskNotCancelled(taskId);
 
@@ -628,9 +672,9 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
           progressStage: stage,
           progressPercent: stagePercent(stage),
           errorCode: normalizeErrorCodeForStage(stage),
-          errorMessage: `Stage retry (${stage}): ${
-            e instanceof Error ? e.message : String(e)
-          }`.slice(0, 500),
+          errorMessage: toPublicOcrErrorMessage(
+            `Stage retry (${stage}): ${e instanceof Error ? e.message : String(e)}`
+          ).slice(0, 500),
           fcDispatchAttemptCount: thisAttempt,
           fcNextAttemptAt: new Date(),
           fcInvokeLeaseUntil: null,
@@ -658,7 +702,9 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
         progressStage: stage,
         progressPercent: stagePercent(stage),
         errorCode: normalizeErrorCodeForStage(stage),
-        errorMessage: (e instanceof Error ? e.message : String(e)).slice(0, 500),
+          errorMessage: toPublicOcrErrorMessage(
+            e instanceof Error ? e.message : String(e)
+          ).slice(0, 500),
         fcNextAttemptAt: null,
         fcDispatchAttemptCount: thisAttempt,
         fcInvokeLeaseUntil: null,
