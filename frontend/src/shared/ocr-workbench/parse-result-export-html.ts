@@ -9,6 +9,7 @@ import {
 import { resolveImageDataUrl } from '@/shared/ocr-workbench/parse-result-image-data';
 import { stripUrlsFromText } from '@/shared/ocr-workbench/strip-urls';
 import type { ParseLayout, ParseResult } from '@/shared/ocr-workbench/translator-parse-result';
+import { buildSnapshotHtmlDocument } from '@/shared/ocr-workbench/parse-result-export-snapshot';
 
 const mdIt = new MarkdownIt({ html: false, linkify: false });
 
@@ -119,6 +120,7 @@ export async function buildSelfContainedHtml(
   let imageWarnings = 0;
 
   let body = '';
+  const snapshotSections: string[] = [];
   const renderMode = options?.renderMode || 'standard';
   const orientation = options?.orientation === 'landscape' ? 'landscape' : 'portrait';
   const printLimitW = orientation === 'landscape' ? 1123 : 794;
@@ -128,7 +130,7 @@ export async function buildSelfContainedHtml(
     const pageBreak = options?.forPrint ? 'page-break-after:always;' : '';
     if (renderMode === 'workbench_like') {
       const printScale = Math.min(1, printLimitW / w, printLimitH / h);
-      body += `<section class="snapshot-page-wrap" style="--page-w:${w}px;--page-h:${h}px;--print-scale:${printScale};"><div class="snapshot-page-scale"><section class="pr-page" style="position:relative;width:${w}px;height:${h}px;${pageBreak}">`;
+      body += `<section class="pr-page" style="position:relative;width:${w}px;height:${h}px;${pageBreak}">`;
     } else {
       body += `<section class="pr-page-wrap"><section class="pr-page" style="position:relative;width:${w}px;height:${h}px;${pageBreak}">`;
     }
@@ -171,7 +173,15 @@ export async function buildSelfContainedHtml(
       body += `<div class="pr-layout" data-layout-id="${escapeHtml(ly.layout_id)}" data-layout-type="${escapeHtml(ly.type || 'text')}" style="position:absolute;left:${x}px;top:${y}px;width:${pw}px;height:${ph}px;overflow:hidden;box-sizing:border-box;${ed}">${inner}</div>`;
     }
     if (renderMode === 'workbench_like') {
-      body += `</section></div></section>`;
+      body += `</section>`;
+      snapshotSections.push(
+        `<section class="snapshot-page-wrap" style="--page-w:${w}px;--page-h:${h}px;--print-scale:${Math.min(
+          1,
+          printLimitW / w,
+          printLimitH / h
+        )};"><div class="snapshot-page-scale">${body}</div></section>`
+      );
+      body = '';
     } else {
       body += `</section></section>`;
     }
@@ -180,6 +190,57 @@ export async function buildSelfContainedHtml(
   const rawLocale = (options?.locale || 'zh-CN').trim().slice(0, 24);
   const lang = /^[\w-]+$/.test(rawLocale) ? escapeHtml(rawLocale) : 'zh-CN';
   const title = escapeHtml(doc.file_name || 'document');
+  const workbenchLayoutFitScript = `<script>
+    (() => {
+      const MIN_FONT = 7;
+      const MAX_STEPS = 30;
+      function isOverflow(el) {
+        return el.scrollHeight > el.clientHeight + 0.8 || el.scrollWidth > el.clientWidth + 0.8;
+      }
+      function fitTextLayout(el) {
+        const kind = (el.getAttribute('data-layout-type') || '').toLowerCase();
+        if (kind === 'image' || kind === 'table') return;
+        if (!isOverflow(el)) return;
+        const cs = window.getComputedStyle(el);
+        let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
+        let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.4;
+        let steps = 0;
+        while (steps < MAX_STEPS && isOverflow(el) && fontSize > MIN_FONT) {
+          fontSize -= 0.5;
+          lineHeight = Math.max(fontSize * 1.15, lineHeight - 0.35);
+          el.style.fontSize = fontSize.toFixed(2) + 'px';
+          el.style.lineHeight = lineHeight.toFixed(2) + 'px';
+          steps += 1;
+        }
+      }
+      function runFit() {
+        const layouts = Array.from(document.querySelectorAll('.pr-layout'));
+        for (const one of layouts) {
+          fitTextLayout(one);
+        }
+        window.__prLayoutFitDone = true;
+      }
+      window.__prLayoutFitDone = false;
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runFit, { once: true });
+      } else {
+        runFit();
+      }
+    })();
+  </script>`;
+
+  if (renderMode === 'workbench_like') {
+    const snapshotHtml = buildSnapshotHtmlDocument(
+      snapshotSections,
+      doc.file_name || 'document',
+      { orientation }
+    );
+    return {
+      html: snapshotHtml.replace('</body></html>', `${workbenchLayoutFitScript}</body></html>`),
+      imageWarnings,
+    };
+  }
+
   const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>
     :root{color-scheme:light;}
     html,body{margin:0;padding:0;}
@@ -260,43 +321,6 @@ export async function buildSelfContainedHtml(
         transform:scale(var(--print-scale));
       }
     }
-  </style></head><body>${body}<script>
-    (() => {
-      const MIN_FONT = 7;
-      const MAX_STEPS = 30;
-      function isOverflow(el) {
-        return el.scrollHeight > el.clientHeight + 0.8 || el.scrollWidth > el.clientWidth + 0.8;
-      }
-      function fitTextLayout(el) {
-        const kind = (el.getAttribute('data-layout-type') || '').toLowerCase();
-        if (kind === 'image' || kind === 'table') return;
-        if (!isOverflow(el)) return;
-        const cs = window.getComputedStyle(el);
-        let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
-        let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.4;
-        let steps = 0;
-        while (steps < MAX_STEPS && isOverflow(el) && fontSize > MIN_FONT) {
-          fontSize -= 0.5;
-          lineHeight = Math.max(fontSize * 1.15, lineHeight - 0.35);
-          el.style.fontSize = fontSize.toFixed(2) + 'px';
-          el.style.lineHeight = lineHeight.toFixed(2) + 'px';
-          steps += 1;
-        }
-      }
-      function runFit() {
-        const layouts = Array.from(document.querySelectorAll('.pr-layout'));
-        for (const one of layouts) {
-          fitTextLayout(one);
-        }
-        window.__prLayoutFitDone = true;
-      }
-      window.__prLayoutFitDone = false;
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', runFit, { once: true });
-      } else {
-        runFit();
-      }
-    })();
-  </script></body></html>`;
+  </style></head><body>${body}${workbenchLayoutFitScript}</body></html>`;
   return { html, imageWarnings };
 }
