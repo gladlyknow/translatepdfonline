@@ -1,0 +1,20 @@
+---
+title: OCR Workbench
+description: Run OCR translation for scanned PDFs and export results.
+---
+
+## When to use OCR
+
+Use OCR when your PDF is image-based (scanned pages) and regular text extraction is not reliable.
+
+## OCR workflow
+
+1. Open `/ocrtranslator` with an uploaded file.
+2. Confirm source and target languages.
+3. Start OCR task and wait for parsing/translation to complete.
+4. Review output and export result.
+
+## UX rules
+
+- When OCR page has an active document/task context, re-upload is disabled.
+- If Translate detects a high-confidence scanned PDF, users are guided here directly.

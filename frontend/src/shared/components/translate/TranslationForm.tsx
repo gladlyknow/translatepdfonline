@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -206,12 +206,23 @@ export function TranslationForm({
   } | null>(null);
   const [ocrNavigating, setOcrNavigating] = useState(false);
 
+  useEffect(() => {
+    if (!ocrSuggestion) return;
+    if (
+      ocrSuggestion.sourceLang !== sourceLang ||
+      ocrSuggestion.targetLang !== targetLang
+    ) {
+      setOcrSuggestion(null);
+      setError(null);
+    }
+  }, [ocrSuggestion, sourceLang, targetLang]);
+
   usePreventBackgroundWheel(creditsModal.open, null);
 
   const taskInProgress =
     taskStatus === 'queued' || taskStatus === 'processing';
   const submitDisabled =
-    submitting || taskInProgress || !sourceLang || !targetLang;
+    submitting || taskInProgress || !sourceLang || !targetLang || Boolean(ocrSuggestion);
 
   const handleGoOcr = () => {
     if (!ocrSuggestion || ocrNavigating) return;

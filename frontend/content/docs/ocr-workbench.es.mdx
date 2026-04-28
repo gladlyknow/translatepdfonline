@@ -1,0 +1,20 @@
+---
+title: Banco OCR
+description: Ejecuta traduccion OCR para PDF escaneados y exporta resultados.
+---
+
+## Cuando usar OCR
+
+Usa OCR cuando el PDF sea de imagen/escaneo y la extraccion de texto normal no sea fiable.
+
+## Flujo OCR
+
+1. Abre `/ocrtranslator` con un archivo ya cargado.
+2. Confirma idioma origen y destino.
+3. Inicia la tarea OCR y espera parseo/traduccion.
+4. Revisa y exporta el resultado.
+
+## Reglas UX
+
+- Si hay contexto activo de documento/tarea, se desactiva una nueva carga.
+- Si Translate detecta escaneo con alta confianza, redirige a OCR.

@@ -689,6 +689,26 @@ export function OcrTranslatePageClient() {
     }
   };
 
+  const handleDeleteRecentTask = useCallback(async (id: string) => {
+    await translateApi.deleteTask(id);
+    setRecentOcrTasks((prev) => prev.filter((one) => one.id !== id));
+  }, []);
+
+  const handleDeleteRecentDocument = useCallback(async (id: string) => {
+    await translateApi.deleteDocument(id);
+    setRecentDocuments((prev) => prev.filter((one) => one.id !== id));
+    if (documentId === id) {
+      setDocumentId(null);
+      setFilename(null);
+      setLastUploadedFile(null);
+      setTaskId(null);
+      setTaskView(null);
+      setTaskDetail(null);
+      setTaskStatus(null);
+      updateTaskInUrl(null);
+    }
+  }, [documentId, updateTaskInUrl]);
+
   const startOcrTask = async () => {
     if (!documentId || !sourceLang || starting) return;
     setStarting(true);
@@ -950,6 +970,8 @@ export function OcrTranslatePageClient() {
               initialFile={lastUploadedFile}
               compactToolbar
               onRequireSignIn={handleRequireSignInForUpload}
+              locked={Boolean(documentId || taskId)}
+              lockedHint={tOcrWb('uploadedFileTitle')}
             />
           </div>
           <button
@@ -1323,23 +1345,33 @@ export function OcrTranslatePageClient() {
                   </p>
                 ) : (
                   recentOcrTasks.map((one) => (
-                    <button
-                      key={one.id}
-                      type="button"
-                      onClick={() => {
-                        setTaskId(one.id);
-                        updateTaskInUrl(one.id);
-                        setHistoryLogOpen(false);
-                      }}
-                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
-                    >
-                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
-                        {one.id}
-                      </p>
-                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
-                        {statusLabel(one.status)}
-                      </p>
-                    </button>
+                    <div key={one.id} className="flex items-start gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTaskId(one.id);
+                          updateTaskInUrl(one.id);
+                          setHistoryLogOpen(false);
+                        }}
+                        className="min-w-0 flex-1 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                      >
+                        <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
+                          {one.id}
+                        </p>
+                        <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
+                          {statusLabel(one.status)}
+                        </p>
+                      </button>
+                      <button
+                        type="button"
+                        title={tHome('delete')}
+                        aria-label={tHome('delete')}
+                        onClick={() => void handleDeleteRecentTask(one.id)}
+                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
                   ))
                 )}
               </div>
@@ -1376,27 +1408,37 @@ export function OcrTranslatePageClient() {
                   </p>
                 ) : (
                   recentDocuments.map((one) => (
-                    <button
-                      key={one.id}
-                      type="button"
-                      onClick={() => {
-                        setDocumentId(one.id);
-                        setFilename(one.filename);
-                        setLastUploadedFile({
-                          name: one.filename,
-                          size: one.size_bytes,
-                        });
-                        setHistoryLogOpen(false);
-                      }}
-                      className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
-                    >
-                      <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
-                        {one.filename}
-                      </p>
-                      <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
-                        {(one.size_bytes / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </button>
+                    <div key={one.id} className="flex items-start gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDocumentId(one.id);
+                          setFilename(one.filename);
+                          setLastUploadedFile({
+                            name: one.filename,
+                            size: one.size_bytes,
+                          });
+                          setHistoryLogOpen(false);
+                        }}
+                        className="min-w-0 flex-1 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-left text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                      >
+                        <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
+                          {one.filename}
+                        </p>
+                        <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
+                          {(one.size_bytes / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </button>
+                      <button
+                        type="button"
+                        title={tHome('delete')}
+                        aria-label={tHome('delete')}
+                        onClick={() => void handleDeleteRecentDocument(one.id)}
+                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
                   ))
                 )}
               </div>

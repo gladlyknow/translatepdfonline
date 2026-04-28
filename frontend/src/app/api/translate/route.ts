@@ -99,8 +99,8 @@ function summarizeFcEndpoint(fcUrl: string) {
 }
 
 type ScanPrecheckResult = {
-  likelyScanned: boolean;
-  reason: string;
+  decision: 'high_confidence_scan' | 'suspected_scan' | 'normal_pdf';
+  reasonCodes: string[];
   confidence: 'low' | 'medium' | 'high';
 };
 
@@ -133,8 +133,8 @@ function detectLikelyScannedPdf(params: {
   }
   if (effectivePages <= 0) {
     return {
-      likelyScanned: false,
-      reason: 'page_count_unknown',
+      decision: 'normal_pdf',
+      reasonCodes: ['page_count_unknown'],
       confidence: 'low',
     };
   }
@@ -143,24 +143,32 @@ function detectLikelyScannedPdf(params: {
   const hugeImagePages = avgBytesPerPage >= 900 * 1024;
   const mediumImagePages = avgBytesPerPage >= 600 * 1024;
   const veryLargeFile = sizeBytes >= 30 * 1024 * 1024;
+  const enoughPages = effectivePages >= 2;
 
-  if (hugeImagePages && (effectivePages >= 2 || hasScanHintInName)) {
+  const reasonCodes: string[] = [];
+  if (hasScanHintInName) reasonCodes.push('filename_scan_hint');
+  if (hugeImagePages) reasonCodes.push('avg_page_size_very_high');
+  if (mediumImagePages) reasonCodes.push('avg_page_size_high');
+  if (veryLargeFile) reasonCodes.push('file_size_very_large');
+  if (enoughPages) reasonCodes.push('multi_page');
+
+  if (hugeImagePages && veryLargeFile && enoughPages && hasScanHintInName) {
     return {
-      likelyScanned: true,
-      reason: 'avg_page_size_very_high',
+      decision: 'high_confidence_scan',
+      reasonCodes,
       confidence: 'high',
     };
   }
-  if (mediumImagePages && veryLargeFile && hasScanHintInName) {
+  if ((hugeImagePages && enoughPages) || (mediumImagePages && veryLargeFile)) {
     return {
-      likelyScanned: true,
-      reason: 'filename_scan_hint_and_large_image_pdf',
+      decision: 'suspected_scan',
+      reasonCodes,
       confidence: 'medium',
     };
   }
   return {
-    likelyScanned: false,
-    reason: 'not_enough_scan_signals',
+    decision: 'normal_pdf',
+    reasonCodes: reasonCodes.length > 0 ? reasonCodes : ['not_enough_scan_signals'],
     confidence: 'low',
   };
 }
@@ -241,18 +249,29 @@ export async function POST(req: Request) {
       pageCount: doc.pageCount,
       pageRange,
     });
-    if (scanPrecheck.likelyScanned) {
+    const scanBlockMode = String(
+      getWorkerBindingString('SCAN_BLOCK_MODE') || process.env.SCAN_BLOCK_MODE || 'warn'
+    ).toLowerCase();
+    const shouldBlockScan =
+      scanBlockMode === 'strict' &&
+      scanPrecheck.decision === 'high_confidence_scan';
+    if (scanPrecheck.decision !== 'normal_pdf') {
       console.log(
-        '[translate] scan_precheck_blocked',
+        '[translate] scan_precheck_detected',
         JSON.stringify({
           document_id: documentId,
           page_range: pageRange,
           page_count: doc.pageCount ?? null,
           file_size_bytes: doc.sizeBytes ?? null,
-          scan_reason: scanPrecheck.reason,
+          decision: scanPrecheck.decision,
+          scan_block_mode: scanBlockMode,
+          should_block: shouldBlockScan,
+          reason_codes: scanPrecheck.reasonCodes,
           confidence: scanPrecheck.confidence,
         })
       );
+    }
+    if (shouldBlockScan) {
       return Response.json(
         {
           detail:
@@ -260,7 +279,8 @@ export async function POST(req: Request) {
           code: 'scan_detected_use_ocr',
           document_id: documentId,
           ocr_redirect_url: '/ocrtranslator',
-          scan_reason: scanPrecheck.reason,
+          decision: scanPrecheck.decision,
+          reason_codes: scanPrecheck.reasonCodes,
           confidence: scanPrecheck.confidence,
         },
         { status: 409 }

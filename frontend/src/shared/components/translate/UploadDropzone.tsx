@@ -32,6 +32,8 @@ type Props = {
   /** 与 variant=hero 配合：深色渐变 Hero 上的玻璃态与发光描边 */
   heroTone?: 'light' | 'dark';
   onRequireSignIn?: () => void;
+  locked?: boolean;
+  lockedHint?: string;
 };
 
 export function UploadDropzone({
@@ -41,6 +43,8 @@ export function UploadDropzone({
   variant = 'default',
   heroTone = 'light',
   onRequireSignIn,
+  locked = false,
+  lockedHint,
 }: Props) {
   const t = useTranslations('translate.upload');
   const tHome = useTranslations('translate.home');
@@ -217,7 +221,7 @@ export function UploadDropzone({
           ? t('error')
           : '';
 
-  const disabled = !isLoggedIn || uploading;
+  const disabled = !isLoggedIn || uploading || locked;
   const showLoginRequired = !sessionPending && !isLoggedIn;
   const isHero = variant === 'hero';
   const heroDark = isHero && heroTone === 'dark';
@@ -262,6 +266,10 @@ export function UploadDropzone({
       <label
         htmlFor={disabled ? undefined : inputId}
         onClick={(e) => {
+          if (locked) {
+            e.preventDefault();
+            return;
+          }
           if (!isLoggedIn) {
             e.preventDefault();
             handleRequireSignIn();
@@ -274,6 +282,10 @@ export function UploadDropzone({
         {showLoginRequired ? (
           <span className="text-center text-amber-600 dark:text-amber-400">
             {t('loginRequired')}
+          </span>
+        ) : locked ? (
+          <span className="text-center text-zinc-600 dark:text-zinc-300">
+            {lockedHint || tHome('uploadOcrHint')}
           </span>
         ) : hasFile ? (
           <div

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { History } from 'lucide-react';
+import { History, Trash2 } from 'lucide-react';
 
 import { useRouter } from '@/core/i18n/navigation';
 import {
@@ -144,6 +144,22 @@ export function TranslateHistoryDrawerPanel({
     onOpenChange(false);
   }, [router, selectedDocumentId, onOpenChange]);
 
+  const handleDeleteTask = useCallback(
+    async (taskId: string) => {
+      await translateApi.deleteTask(taskId);
+      await refreshTasks();
+    },
+    [refreshTasks]
+  );
+
+  const handleDeleteDocument = useCallback(
+    async (documentId: string) => {
+      await translateApi.deleteDocument(documentId);
+      await Promise.all([refreshDocuments(), refreshTasks()]);
+    },
+    [refreshDocuments, refreshTasks]
+  );
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-full flex-col overflow-hidden sm:max-w-lg">
@@ -216,11 +232,11 @@ export function TranslateHistoryDrawerPanel({
                 {shownTasks.map((task) => {
                   const ocr = Boolean(task.preprocess_with_ocr);
                   return (
-                    <li key={task.id}>
+                    <li key={task.id} className="flex items-stretch gap-2">
                       <button
                         type="button"
                         onClick={() => handleSelectTask(task)}
-                        className="flex w-full flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-3 py-3 text-left transition hover:border-sky-300/80 hover:bg-sky-50/40 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:border-sky-700 dark:hover:bg-sky-950/20"
+                        className="flex min-w-0 flex-1 flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-3 py-3 text-left transition hover:border-sky-300/80 hover:bg-sky-50/40 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:border-sky-700 dark:hover:bg-sky-950/20"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <span className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -242,6 +258,15 @@ export function TranslateHistoryDrawerPanel({
                           {' · '}
                           {ocr ? t('badgeOcr') : t('badgeTranslate')}
                         </span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="delete task"
+                        title="Delete"
+                        onClick={() => void handleDeleteTask(task.id)}
+                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                      >
+                        <Trash2 className="size-4" />
                       </button>
                     </li>
                   );
@@ -293,12 +318,12 @@ export function TranslateHistoryDrawerPanel({
                 {shownDocuments.map((doc) => {
                   const selected = doc.id === selectedDocumentId;
                   return (
-                    <li key={doc.id}>
+                    <li key={doc.id} className="flex items-stretch gap-2">
                       <button
                         type="button"
                         onClick={() => setSelectedDocumentId(doc.id)}
                         className={cn(
-                          'flex w-full flex-col gap-0.5 rounded-xl border px-3 py-3 text-left transition',
+                          'flex min-w-0 flex-1 flex-col gap-0.5 rounded-xl border px-3 py-3 text-left transition',
                           selected
                             ? 'border-sky-500 bg-sky-50/80 ring-1 ring-sky-200 dark:border-sky-600 dark:bg-sky-950/40 dark:ring-sky-900'
                             : 'border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:border-zinc-600 dark:hover:bg-zinc-900'
@@ -312,6 +337,15 @@ export function TranslateHistoryDrawerPanel({
                             size: (doc.size_bytes / 1024 / 1024).toFixed(2),
                           })}
                         </span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="delete file"
+                        title="Delete"
+                        onClick={() => void handleDeleteDocument(doc.id)}
+                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                      >
+                        <Trash2 className="size-4" />
                       </button>
                     </li>
                   );
