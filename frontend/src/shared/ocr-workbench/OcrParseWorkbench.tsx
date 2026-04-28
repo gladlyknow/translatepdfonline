@@ -388,6 +388,14 @@ export function OcrParseWorkbench({
     if (!taskId || exportState[format].status === 'processing') return;
     setSingleExportState(format, { status: 'processing', error: null });
     try {
+      // Ensure export is generated from the latest workbench edits.
+      if (docRef.current) {
+        flushSync(() => {
+          flushEditableText();
+        });
+        const payload = cloneParseResult(docRef.current) as unknown;
+        await translateApi.patchOcrParseResult(taskId, payload);
+      }
       await translateApi.retryOcrTaskExport(taskId, format);
       await pollExportReady(format, 0);
     } catch (e) {
@@ -397,7 +405,14 @@ export function OcrParseWorkbench({
       });
       clearExportPollTimer();
     }
-  }, [clearExportPollTimer, exportState, pollExportReady, setSingleExportState, taskId]);
+  }, [
+    clearExportPollTimer,
+    exportState,
+    flushEditableText,
+    pollExportReady,
+    setSingleExportState,
+    taskId,
+  ]);
 
   const handleDownloadExport = useCallback(
     async (format: 'pdf' | 'md') => {

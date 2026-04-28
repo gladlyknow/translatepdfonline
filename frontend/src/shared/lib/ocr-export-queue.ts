@@ -31,6 +31,20 @@ const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
   Number(process.env.OCR_EXPORT_STAGE_TIMEOUT_MS || '180000') || 180000
 );
 
+function localeFromTargetLang(targetLang: string): string {
+  const lang = String(targetLang || '').trim().toLowerCase();
+  if (lang === 'zh') return 'zh-CN';
+  if (lang === 'ja') return 'ja';
+  if (lang === 'ko') return 'ko';
+  if (lang === 'fr') return 'fr';
+  if (lang === 'es') return 'es';
+  if (lang === 'it') return 'it';
+  if (lang === 'el') return 'el';
+  if (lang === 'de') return 'de';
+  if (lang === 'ru') return 'ru';
+  return 'en';
+}
+
 function toPublicExportErrorMessage(raw: string): string {
   return toPublicOcrErrorMessage(raw, 'Export failed, please retry');
 }
@@ -271,10 +285,11 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         .trim()
         .replace(/\/$/, '');
       const { html, imageWarnings } = await buildSelfContainedHtml(parsed.data, {
-        forPrint: true,
+        // Keep PDF visuals as close as possible to workbench preview.
+        forPrint: false,
         renderMode: 'workbench_like',
         appOrigin: appOrigin || undefined,
-        locale: 'zh-CN',
+        locale: localeFromTargetLang(targetLang),
       });
       if (imageWarnings > 0) {
         await appendExportLog(

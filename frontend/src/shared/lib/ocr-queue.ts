@@ -9,14 +9,8 @@ import {
   translateMarkdownWithDeepSeek,
 } from '@/shared/lib/ocr-translate';
 import {
-  ensureOcrPendingExportsForTask,
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
-import {
-  appendExportLog,
-  OcrTaskExportStatus,
-  updateExportRow,
-} from '@/shared/models/ocr_task_export';
 import { putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
@@ -573,41 +567,8 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     await ensureTaskNotCancelled(taskId);
 
     if (nextStage === 'completed') {
-      const pendingExports = await ensureOcrPendingExportsForTask({
-        taskId,
-        userId: row.userId ?? null,
-        anonId: row.anonId ?? null,
-        sourceLang: row.sourceLang,
-        targetLang: row.targetLang,
-      });
-      for (const exp of pendingExports) {
-        const enqueueExportResult = await sendOcrExportQueueMessage({
-          taskId,
-          exportId: exp.exportId,
-          format: exp.format,
-        });
-        if (!enqueueExportResult.ok) {
-          await updateExportRow(exp.exportId, {
-            status: OcrTaskExportStatus.failed,
-            r2Key: null,
-            readyAt: null,
-            errorMessage: 'Export queue unavailable',
-          });
-          await appendExportLog(
-            exp.exportId,
-            `enqueue failed: ${enqueueExportResult.reason}`
-          );
-          console.warn(
-            '[ocr/export-queue] enqueue_failed',
-            JSON.stringify({
-              task_id: taskId,
-              export_id: exp.exportId,
-              format: exp.format,
-              reason: enqueueExportResult.reason,
-            })
-          );
-        }
-      }
+      // Export is now strictly user-triggered from OCR workbench.
+      // Do not auto-create/auto-enqueue exports when OCR pipeline completes.
       await db()
         .update(translationTasks)
         .set({
