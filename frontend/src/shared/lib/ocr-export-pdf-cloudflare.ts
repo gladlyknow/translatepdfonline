@@ -91,7 +91,7 @@ export async function htmlToPdfBytesCloudflareWithDiagnostics(
     const output = await page.pdf({
       printBackground: true,
       preferCSSPageSize: true,
-      margin: { top: '0mm', bottom: '0mm', left: '0mm', right: '0mm' },
+      margin: { top: '8mm', bottom: '8mm', left: '8mm', right: '8mm' },
     });
     return {
       bytes: toUint8Array(output),

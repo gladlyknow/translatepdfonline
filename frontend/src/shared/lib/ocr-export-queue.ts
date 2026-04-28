@@ -291,6 +291,16 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         appOrigin: appOrigin || undefined,
         locale: localeFromTargetLang(targetLang),
       });
+      console.log(
+        '[ocr/export] pdf_render_context',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          render_mode: 'workbench_like',
+          html_length: html.length,
+          image_warnings: imageWarnings,
+        })
+      );
       if (imageWarnings > 0) {
         await appendExportLog(
           exportId,
@@ -302,6 +312,14 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         'render_pdf_from_workbench_html',
         () => renderWorkbenchHtmlToPdfBytes(html),
         OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+      console.log(
+        '[ocr/export] pdf_render_done',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          pdf_bytes: pdfBytes.byteLength,
+        })
       );
 
       const key = outputKeyForFormat(row.taskId, 'pdf');
