@@ -97,7 +97,9 @@ export async function snapshotPageElement(
       );
       dst.setAttribute('src', optimized || inlined);
     } else {
-      dst.setAttribute('src', BLANK_PIXEL_DATA_URL);
+      // Keep original URL for backend staging download/rewrite.
+      // Do not blank it here, otherwise export loses recoverable images.
+      dst.setAttribute('src', raw);
       imageWarnings += 1;
       imageIssues.push({ layoutId, src: raw, reason: 'resolve-failed' });
     }
