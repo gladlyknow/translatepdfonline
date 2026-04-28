@@ -1,4 +1,22 @@
-import type { Browser } from 'playwright';
+type PlaywrightBrowser = {
+  newPage: () => Promise<{
+    setContent: (
+      html: string,
+      opts?: { waitUntil?: 'domcontentloaded'; timeout?: number }
+    ) => Promise<void>;
+    waitForFunction: (
+      pageFunction: () => unknown,
+      opts?: { timeout?: number }
+    ) => Promise<void>;
+    evaluate: <T>(fn: () => T | Promise<T>) => Promise<T>;
+    pdf: (opts?: {
+      printBackground?: boolean;
+      preferCSSPageSize?: boolean;
+      margin?: { top?: string; bottom?: string; left?: string; right?: string };
+    }) => Promise<Uint8Array | ArrayBuffer>;
+  }>;
+  close: () => Promise<void>;
+};
 
 /**
  * 将完整 HTML（含内联样式）用无头 Chromium 打印为 PDF，与浏览器「打印到 PDF」接近。
@@ -7,7 +25,7 @@ import type { Browser } from 'playwright';
  * 启动顺序：PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH → 本机 Chrome → Edge → Playwright 自带 Chromium
  *（自带需执行 `pnpm exec playwright install chromium`）。
  */
-export async function launchChromiumForPdf(): Promise<Browser> {
+export async function launchChromiumForPdf(): Promise<PlaywrightBrowser> {
   const { chromium } = await import('playwright');
   const base = {
     headless: true,
