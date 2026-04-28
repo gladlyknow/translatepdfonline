@@ -29,6 +29,9 @@ const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
   30_000,
   Number(process.env.OCR_EXPORT_STAGE_TIMEOUT_MS || '180000') || 180000
 );
+const OCR_EXPORT_IMAGE_RETRY_MAX = 5;
+const OCR_EXPORT_IMAGE_CONCURRENCY = 4;
+const OCR_EXPORT_IMAGE_URL_TTL_SECONDS = Math.max(3600, 7 * 24 * 3600);
 
 function toPublicExportErrorMessage(raw: string): string {
   return toPublicOcrErrorMessage(raw, 'Export failed, please retry');
@@ -107,6 +110,112 @@ function contentTypeForAssetName(name: string): string {
   if (lower.endsWith('.webp')) return 'image/webp';
   if (lower.endsWith('.svg')) return 'image/svg+xml';
   return 'application/octet-stream';
+}
+
+function extByContentType(contentType: string | null | undefined): string {
+  const ct = String(contentType || '').toLowerCase();
+  if (ct.includes('png')) return 'png';
+  if (ct.includes('jpeg') || ct.includes('jpg')) return 'jpg';
+  if (ct.includes('gif')) return 'gif';
+  if (ct.includes('webp')) return 'webp';
+  if (ct.includes('svg')) return 'svg';
+  return 'bin';
+}
+
+function decodeDataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: string } {
+  const match = dataUrl.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/i);
+  if (!match) throw new Error('invalid data url');
+  const contentType = (match[1] || 'application/octet-stream').toLowerCase();
+  const body = match[3] || '';
+  const isBase64 = Boolean(match[2]);
+  if (isBase64) {
+    const raw = atob(body);
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i += 1) out[i] = raw.charCodeAt(i);
+    return { bytes: out, contentType };
+  }
+  return { bytes: new TextEncoder().encode(decodeURIComponent(body)), contentType };
+}
+
+async function withRetry<T>(attempts: number, fn: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let i = 1; i <= attempts; i += 1) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastError = e;
+      if (i >= attempts) break;
+      await sleep(Math.min(300 * i, 1500));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+async function runWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<void>
+): Promise<void> {
+  let cursor = 0;
+  const workers = new Array(Math.max(1, Math.min(limit, items.length)))
+    .fill(0)
+    .map(async () => {
+      while (true) {
+        const index = cursor;
+        cursor += 1;
+        if (index >= items.length) return;
+        await worker(items[index], index);
+      }
+    });
+  await Promise.all(workers);
+}
+
+async function materializeHtmlImagesToR2(params: {
+  taskId: string;
+  exportId: string;
+  html: string;
+}): Promise<{ html: string; count: number }> {
+  const imgSrcRegex = /(<img\b[^>]*\bsrc=)(['"])([^'"]+)\2/gi;
+  const uniqueSrcs = new Set<string>();
+  let match: RegExpExecArray | null = null;
+  while ((match = imgSrcRegex.exec(params.html)) !== null) {
+    const src = (match[3] || '').trim();
+    if (src) uniqueSrcs.add(src);
+  }
+  const srcList = Array.from(uniqueSrcs);
+  if (srcList.length === 0) return { html: params.html, count: 0 };
+
+  const replaceMap = new Map<string, string>();
+  await runWithConcurrency(srcList, OCR_EXPORT_IMAGE_CONCURRENCY, async (src, index) => {
+    const seq = index + 1;
+    if (!src.startsWith('data:') && !/^https?:\/\//i.test(src)) return;
+    const signed = await withRetry(OCR_EXPORT_IMAGE_RETRY_MAX, async () => {
+      let bytes: Uint8Array;
+      let contentType = 'application/octet-stream';
+      if (src.startsWith('data:')) {
+        const decoded = decodeDataUrlToBytes(src);
+        bytes = decoded.bytes;
+        contentType = decoded.contentType;
+      } else {
+        const res = await fetch(src);
+        if (!res.ok) {
+          throw new Error(`download export image failed: HTTP ${res.status}`);
+        }
+        bytes = new Uint8Array(await res.arrayBuffer());
+        contentType = res.headers.get('content-type') || contentType;
+      }
+      const key = `translations/${params.taskId}/staging-assets/${params.exportId}/img-${seq}.${extByContentType(contentType)}`;
+      await uploadWithRetry(key, bytes, contentType);
+      return createPresignedGet(key, OCR_EXPORT_IMAGE_URL_TTL_SECONDS);
+    });
+    replaceMap.set(src, signed);
+  });
+
+  let nextHtml = params.html;
+  for (const [from, to] of replaceMap.entries()) {
+    nextHtml = nextHtml.split(from).join(to);
+  }
+  return { html: nextHtml, count: replaceMap.size };
 }
 
 async function buildMarkdownWithR2ImageUrls(
@@ -255,6 +364,16 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         throw new Error('staging html missing for pdf export');
       }
       const html = new TextDecoder('utf-8').decode(htmlBytes);
+      const normalized = await withStageTimeout(
+        'materialize_html_images_to_r2',
+        () =>
+          materializeHtmlImagesToR2({
+            taskId: row.taskId,
+            exportId,
+            html,
+          }),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
       console.log(
         '[ocr/export] pdf_render_context',
         JSON.stringify({
@@ -262,13 +381,14 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
           export_id: exportId,
           render_mode: 'dom_snapshot_staging',
           staging_html_key: stagingHtmlKey,
-          html_length: html.length,
+          html_length: normalized.html.length,
+          image_r2_urls: normalized.count,
         })
       );
 
       const pdfBytes = await withStageTimeout(
         'render_pdf_from_staging_html',
-        () => renderWorkbenchHtmlToPdfBytes(html),
+        () => renderWorkbenchHtmlToPdfBytes(normalized.html),
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       console.log(
@@ -302,15 +422,33 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       if (!htmlBytes) {
         throw new Error('staging html missing for html export');
       }
+      const html = new TextDecoder('utf-8').decode(htmlBytes);
+      const normalized = await withStageTimeout(
+        'materialize_html_images_to_r2',
+        () =>
+          materializeHtmlImagesToR2({
+            taskId: row.taskId,
+            exportId,
+            html,
+          }),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
       const key = outputKeyForFormat(row.taskId, 'html');
-      await uploadWithRetry(key, htmlBytes, 'text/html; charset=utf-8');
+      await uploadWithRetry(
+        key,
+        new TextEncoder().encode(normalized.html),
+        'text/html; charset=utf-8'
+      );
       await updateExportRow(exportId, {
         status: OcrTaskExportStatus.ready,
         r2Key: key,
         errorMessage: null,
         readyAt: new Date(),
       });
-      await appendExportLog(exportId, `ready html_bytes=${htmlBytes.byteLength}`);
+      await appendExportLog(
+        exportId,
+        `ready html_bytes=${normalized.html.length} image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
+      );
     } else {
       const [langRow] = await db()
         .select({

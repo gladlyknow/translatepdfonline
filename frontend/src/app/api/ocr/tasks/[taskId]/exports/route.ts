@@ -49,86 +49,6 @@ const OCR_EXPORT_SIGNED_URL_TTL_SECONDS = Math.max(
     Number.parseInt(process.env.OCR_EXPORT_SIGNED_URL_TTL_SECONDS || '900', 10)
   )
 );
-const OCR_EXPORT_IMAGE_URL_TTL_SECONDS = Math.max(3600, 7 * 24 * 3600);
-
-function extByContentType(contentType: string | null | undefined): string {
-  const ct = String(contentType || '').toLowerCase();
-  if (ct.includes('png')) return 'png';
-  if (ct.includes('jpeg') || ct.includes('jpg')) return 'jpg';
-  if (ct.includes('gif')) return 'gif';
-  if (ct.includes('webp')) return 'webp';
-  if (ct.includes('svg')) return 'svg';
-  return 'bin';
-}
-
-function extByDataUrlMime(mime: string): string {
-  const m = mime.toLowerCase();
-  if (m.includes('png')) return 'png';
-  if (m.includes('jpeg') || m.includes('jpg')) return 'jpg';
-  if (m.includes('gif')) return 'gif';
-  if (m.includes('webp')) return 'webp';
-  if (m.includes('svg')) return 'svg';
-  return 'bin';
-}
-
-async function materializeHtmlImagesToR2(params: {
-  taskId: string;
-  exportId: string;
-  html: string;
-}): Promise<{ html: string; count: number }> {
-  const imgSrcRegex = /(<img\b[^>]*\bsrc=)(['"])([^'"]+)\2/gi;
-  const srcs = new Set<string>();
-  let m: RegExpExecArray | null = null;
-  while ((m = imgSrcRegex.exec(params.html)) !== null) {
-    const src = (m[3] || '').trim();
-    if (src) srcs.add(src);
-  }
-  if (srcs.size === 0) return { html: params.html, count: 0 };
-
-  const replaceMap = new Map<string, string>();
-  let idx = 0;
-  for (const src of srcs) {
-    idx += 1;
-    let bytes: Uint8Array;
-    let contentType = 'application/octet-stream';
-    if (src.startsWith('data:')) {
-      const dm = src.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/i);
-      if (!dm) throw new Error(`invalid data url image #${idx}`);
-      const mime = (dm[1] || 'application/octet-stream').toLowerCase();
-      const payload = dm[3] || '';
-      const isBase64 = Boolean(dm[2]);
-      bytes = isBase64
-        ? Uint8Array.from(Buffer.from(payload, 'base64'))
-        : new TextEncoder().encode(decodeURIComponent(payload));
-      contentType = mime;
-      const key = `translations/${params.taskId}/staging-assets/${params.exportId}/img-${idx}.${extByDataUrlMime(mime)}`;
-      await putObject(key, bytes, contentType);
-      const signed = await createPresignedGet(key, OCR_EXPORT_IMAGE_URL_TTL_SECONDS);
-      replaceMap.set(src, signed);
-      continue;
-    }
-    if (!/^https?:\/\//i.test(src)) {
-      continue;
-    }
-    const res = await fetch(src);
-    if (!res.ok) {
-      throw new Error(`download export image failed: HTTP ${res.status}`);
-    }
-    bytes = new Uint8Array(await res.arrayBuffer());
-    contentType = res.headers.get('content-type') || contentType;
-    const key = `translations/${params.taskId}/staging-assets/${params.exportId}/img-${idx}.${extByContentType(contentType)}`;
-    await putObject(key, bytes, contentType);
-    const signed = await createPresignedGet(key, OCR_EXPORT_IMAGE_URL_TTL_SECONDS);
-    replaceMap.set(src, signed);
-  }
-
-  if (replaceMap.size === 0) return { html: params.html, count: 0 };
-  let nextHtml = params.html;
-  for (const [from, to] of replaceMap.entries()) {
-    nextHtml = nextHtml.split(from).join(to);
-  }
-  return { html: nextHtml, count: replaceMap.size };
-}
 
 function dispositionFilename(base: string, ext: string) {
   const safe = `${base}.${ext}`.replace(/[^\w.\-]+/g, '_');
@@ -431,20 +351,15 @@ export async function POST(
           { status: 400 }
         );
       }
-      const normalized = await materializeHtmlImagesToR2({
-        taskId,
-        exportId,
-        html: htmlDocument,
-      });
       const stagingKey = exportStagingHtmlKey(taskId, exportId);
       await putObject(
         stagingKey,
-        new TextEncoder().encode(normalized.html),
+        new TextEncoder().encode(htmlDocument),
         'text/html; charset=utf-8'
       );
       await appendExportLog(
         exportId,
-        `staged html uploaded key=${stagingKey} bytes=${normalized.html.length} image_r2_urls=${normalized.count}`
+        `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
       );
     }
     const queued = await sendOcrExportQueueMessage({
