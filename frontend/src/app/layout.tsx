@@ -108,16 +108,24 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* 标签页图标：favicon-rounded.svg 内嵌 PNG，圆角裁剪；勿用外链 SVG 引用其它静态文件（标签页常空白）。 */}
-        <link
+        {/* 标签页图标：优先 logo.webp，附带 png 回退。 */}
+        {/* <link
           rel="icon"
           href={cacheBustedPublicPath(envConfigs.app_favicon)}
           type={
-            envConfigs.app_favicon.endsWith('.svg')
-              ? 'image/svg+xml'
+            envConfigs.app_favicon.endsWith('.webp')
+              ? 'image/webp'
+              : envConfigs.app_favicon.endsWith('.svg')
+                ? 'image/svg+xml'
               : undefined
           }
           sizes="any"
+        /> */}
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="64x64"
+          href={cacheBustedPublicPath('/brand/logo.webp')}
         />
         <link rel="shortcut icon" href={cacheBustedPublicPath(envConfigs.app_favicon)} />
         <link
