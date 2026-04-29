@@ -283,10 +283,6 @@ export function UploadDropzone({
           <span className="text-center text-amber-600 dark:text-amber-400">
             {t('loginRequired')}
           </span>
-        ) : locked ? (
-          <span className="text-center text-zinc-600 dark:text-zinc-300">
-            {lockedHint || tHome('uploadOcrHint')}
-          </span>
         ) : hasFile ? (
           <div
             className={`w-full max-w-md rounded-lg border p-3 text-xs shadow-sm ${
@@ -333,6 +329,10 @@ export function UploadDropzone({
               </div>
             )}
           </div>
+        ) : locked ? (
+          <span className="text-center text-zinc-600 dark:text-zinc-300">
+            {lockedHint || tHome('uploadOcrHint')}
+          </span>
         ) : (
           <>
             {isHero ? (

@@ -1,6 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -96,6 +104,59 @@ function toLang(v: string | null): UILang | '' {
   return toSupportedUiLang(v);
 }
 
+/** 与 JSON 画布 scale 解耦，避免拖动滑块时整页重绘导致左侧 pdf.js 闪屏 */
+const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
+  sourceLabel,
+  documentId,
+  currentPage,
+  sourcePdfUrl,
+  effectiveDocumentPageCount,
+  pdfZoom,
+  onSourcePageChange,
+  onPdfNumPages,
+  onScaleChange,
+  onFocusSource,
+}: {
+  sourceLabel: string;
+  documentId: string | null;
+  currentPage: number;
+  sourcePdfUrl: string;
+  effectiveDocumentPageCount: number;
+  pdfZoom: number;
+  onSourcePageChange: (p: number) => void;
+  onPdfNumPages: (n: number | null) => void;
+  onScaleChange: (next: number) => void;
+  onFocusSource: () => void;
+}) {
+  return (
+    <div
+      className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+      onClick={onFocusSource}
+    >
+      <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+        {sourceLabel}
+      </p>
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable] p-2">
+        <PdfViewerPane
+          key={`source-ocr-${documentId}-${currentPage}`}
+          fileUrl={sourcePdfUrl ?? ''}
+          mode="source"
+          page={currentPage}
+          onPageChange={onSourcePageChange}
+          totalPages={
+            effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
+          }
+          onPdfNumPages={onPdfNumPages}
+          scale={pdfZoom}
+          onScaleChange={onScaleChange}
+          showZoomControls={false}
+          showPageControls={false}
+        />
+      </div>
+    </div>
+  );
+});
+
 export function OcrTranslatePageClient() {
   const t = useTranslations('translate.task');
   const tHome = useTranslations('translate.home');
@@ -184,6 +245,7 @@ export function OcrTranslatePageClient() {
   }, [isRecentRequested]);
 
   const blockAutoDocumentLoadRef = useRef(false);
+  const startOcrLockRef = useRef(false);
   const taskViewRef = useRef<TaskView | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollInFlightRef = useRef(false);
@@ -710,7 +772,8 @@ export function OcrTranslatePageClient() {
   }, [documentId, updateTaskInUrl]);
 
   const startOcrTask = async () => {
-    if (!documentId || !sourceLang || starting) return;
+    if (!documentId || !sourceLang || starting || startOcrLockRef.current) return;
+    startOcrLockRef.current = true;
     setStarting(true);
     setSubmitError(null);
     try {
@@ -730,6 +793,7 @@ export function OcrTranslatePageClient() {
       );
     } finally {
       setStarting(false);
+      startOcrLockRef.current = false;
     }
   };
 
@@ -1103,7 +1167,10 @@ export function OcrTranslatePageClient() {
                     setPdfZoom(zoom);
                     return;
                   }
-                  setJsonCanvasScale(Math.max(30, Math.min(160, next)));
+                  const clamped = Math.max(30, Math.min(160, next));
+                  startTransition(() => {
+                    setJsonCanvasScale(clamped);
+                  });
                 }}
                 className="flex-1"
               />
@@ -1247,31 +1314,18 @@ export function OcrTranslatePageClient() {
         )}
 
         <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
-          <div
-            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-            onClick={() => setActiveFocusPanel('source')}
-          >
-            <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-              {tHome('sourceLabel')}
-            </p>
-            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable] p-2">
-              <PdfViewerPane
-                key={`source-ocr-${documentId}-${currentPage}`}
-                fileUrl={sourcePdfUrl ?? ''}
-                mode="source"
-                page={currentPage}
-                onPageChange={handleSourcePageChange}
-                totalPages={
-                  effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
-                }
-                onPdfNumPages={setSourceNumPagesFromViewer}
-                scale={pdfZoom}
-                onScaleChange={setPdfZoom}
-                showZoomControls={false}
-                showPageControls={false}
-              />
-            </div>
-          </div>
+          <OcrSourcePdfPanel
+            sourceLabel={tHome('sourceLabel')}
+            documentId={documentId}
+            currentPage={currentPage}
+            sourcePdfUrl={sourcePdfUrl}
+            effectiveDocumentPageCount={effectiveDocumentPageCount}
+            pdfZoom={pdfZoom}
+            onSourcePageChange={handleSourcePageChange}
+            onPdfNumPages={setSourceNumPagesFromViewer}
+            onScaleChange={setPdfZoom}
+            onFocusSource={() => setActiveFocusPanel('source')}
+          />
           <div
             className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
             onClick={() => setActiveFocusPanel('json')}
@@ -1402,7 +1456,20 @@ export function OcrTranslatePageClient() {
                 {tOcrWb('uploadedFileTitle')}
               </p>
               <div className="space-y-1">
-                {recentDocuments.length === 0 ? (
+                {recentDocuments.length === 0 &&
+                documentId &&
+                (filename || lastUploadedFile?.name) ? (
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50/80 px-2 py-1.5 dark:border-emerald-800/50 dark:bg-emerald-950/30">
+                    <p className="truncate text-[11px] font-medium text-zinc-800 dark:text-zinc-100">
+                      {filename ?? lastUploadedFile?.name}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {lastUploadedFile != null && lastUploadedFile.size > 0
+                        ? `${(lastUploadedFile.size / 1024 / 1024).toFixed(2)} MB`
+                        : '—'}
+                    </p>
+                  </div>
+                ) : recentDocuments.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('uploadedFileEmpty')}
                   </p>

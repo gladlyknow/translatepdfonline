@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter, usePathname } from '@/core/i18n/navigation';
 import { useTranslations } from 'next-intl';
@@ -26,6 +26,7 @@ export function UploadPageClient() {
   const [uploadedDocumentId, setUploadedDocumentId] = useState<string | null>(null);
   const [launchingMode, setLaunchingMode] = useState<'translate' | 'ocr' | null>(null);
   const [launchError, setLaunchError] = useState<string | null>(null);
+  const launchLockRef = useRef(false);
 
   const handleUploaded = useCallback(
     async (documentId: string, filename: string, sizeBytes: number) => {
@@ -44,7 +45,8 @@ export function UploadPageClient() {
   const canStartTask = Boolean(uploadedDocumentId && sourceLang && targetLang);
 
   const goTranslate = useCallback(async () => {
-    if (!uploadedDocumentId || !sourceLang || !targetLang) return;
+    if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
+    launchLockRef.current = true;
     try {
       setLaunchError(null);
       setLaunchingMode('translate');
@@ -58,11 +60,13 @@ export function UploadPageClient() {
       setLaunchError(tHome('uploadFirstHint'));
     } finally {
       setLaunchingMode(null);
+      launchLockRef.current = false;
     }
   }, [router, sourceLang, tHome, targetLang, uploadedDocumentId]);
 
   const goOcr = useCallback(async () => {
-    if (!uploadedDocumentId || !sourceLang || !targetLang) return;
+    if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
+    launchLockRef.current = true;
     try {
       setLaunchError(null);
       setLaunchingMode('ocr');
@@ -78,6 +82,7 @@ export function UploadPageClient() {
       setLaunchError(tHome('uploadFirstHint'));
     } finally {
       setLaunchingMode(null);
+      launchLockRef.current = false;
     }
   }, [router, sourceLang, tHome, targetLang, uploadedDocumentId]);
 

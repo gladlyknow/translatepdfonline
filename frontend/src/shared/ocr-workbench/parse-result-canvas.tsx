@@ -727,7 +727,8 @@ export function ParseResultCanvas({
   }, [renderBox.w, renderBox.h, containerSize.w, containerSize.h]);
 
   const scale = useMemo(() => {
-    const clampedPercent = Math.max(20, Math.min(100, canvasScalePercent));
+    /** 与侧栏 / 工作台滑块一致：约 20%–160%，100% = 适配后的基准 fitScale */
+    const clampedPercent = Math.max(20, Math.min(160, canvasScalePercent));
     const factor = clampedPercent / 100;
     return Math.min(Math.max(fitScale * factor, MIN_CANVAS_SCALE), MAX_CANVAS_SCALE);
   }, [fitScale, canvasScalePercent]);

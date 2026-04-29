@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePreventBackgroundWheel } from '@/shared/hooks/use-prevent-background-wheel';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -205,6 +205,7 @@ export function TranslationForm({
     targetLang: UILang;
   } | null>(null);
   const [ocrNavigating, setOcrNavigating] = useState(false);
+  const submitLockRef = useRef(false);
 
   useEffect(() => {
     if (!ocrSuggestion) return;
@@ -222,10 +223,15 @@ export function TranslationForm({
   const taskInProgress =
     taskStatus === 'queued' || taskStatus === 'processing';
   const submitDisabled =
-    submitting || taskInProgress || !sourceLang || !targetLang || Boolean(ocrSuggestion);
+    submitting ||
+    ocrNavigating ||
+    taskInProgress ||
+    !sourceLang ||
+    !targetLang ||
+    Boolean(ocrSuggestion);
 
   const handleGoOcr = () => {
-    if (!ocrSuggestion || ocrNavigating) return;
+    if (!ocrSuggestion || ocrNavigating || submitting) return;
     setOcrNavigating(true);
     const qs = new URLSearchParams({
       document: ocrSuggestion.documentId,
@@ -237,12 +243,16 @@ export function TranslationForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     if (!sourceLang || !targetLang) {
       setError(t('selectBothLanguages'));
+      submitLockRef.current = false;
       return;
     }
     if (sourceLang === targetLang) {
       setError(t('sameLangError'));
+      submitLockRef.current = false;
       return;
     }
     setSubmitting(true);
@@ -264,12 +274,14 @@ export function TranslationForm({
         onRequireSignIn?.();
         setLoginHint(t('loginRequiredTranslate'));
         setSubmitting(false);
+        submitLockRef.current = false;
         return;
       }
       const hasRange = Boolean(rangeTrimmed);
       if (!hasRange && documentPageCount < 1) {
         setError(t('documentPagesUnknown'));
         setSubmitting(false);
+        submitLockRef.current = false;
         return;
       }
       const estPages = estimateTranslatedPages(
@@ -281,6 +293,7 @@ export function TranslationForm({
       if (balance == null) {
         setError(t('creditsLoadFailed'));
         setSubmitting(false);
+        submitLockRef.current = false;
         return;
       }
       if (balance < creditsNeeded) {
@@ -291,6 +304,7 @@ export function TranslationForm({
         });
         setError(null);
         setSubmitting(false);
+        submitLockRef.current = false;
         return;
       }
     }
@@ -394,6 +408,7 @@ export function TranslationForm({
       setError(err instanceof Error ? err.message : t('createTaskFailed'));
     } finally {
       setSubmitting(false);
+      submitLockRef.current = false;
     }
   };
 
@@ -459,7 +474,7 @@ export function TranslationForm({
           <button
             type="button"
             onClick={handleGoOcr}
-            disabled={ocrNavigating}
+            disabled={ocrNavigating || submitting}
             className="w-full rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
           >
             <span className="inline-flex items-center gap-1.5">
@@ -565,7 +580,7 @@ export function TranslationForm({
           <button
             type="button"
             onClick={handleGoOcr}
-            disabled={ocrNavigating}
+            disabled={ocrNavigating || submitting}
             className="min-h-[32px] shrink-0 whitespace-nowrap rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
           >
             <span className="inline-flex items-center gap-1.5">
@@ -636,7 +651,7 @@ export function TranslationForm({
         <button
           type="button"
           onClick={handleGoOcr}
-          disabled={ocrNavigating}
+          disabled={ocrNavigating || submitting}
           className="min-h-[40px] rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
         >
           <span className="inline-flex items-center gap-1.5">

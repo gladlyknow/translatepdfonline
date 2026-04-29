@@ -1,6 +1,14 @@
 'use client';
 
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import {
@@ -169,6 +177,20 @@ export function OcrParseWorkbench({
     html: { status: 'idle', error: null },
   });
   const exportPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exportStartLockRef = useRef<Set<'pdf' | 'md' | 'html'>>(new Set());
+  const downloadBusyRef = useRef(false);
+  const [downloadBusyFormat, setDownloadBusyFormat] = useState<
+    'pdf' | 'md' | 'html' | null
+  >(null);
+
+  const exportSidebarLocked = useMemo(
+    () =>
+      exportState.md.status === 'processing' ||
+      exportState.pdf.status === 'processing' ||
+      exportState.html.status === 'processing' ||
+      downloadBusyFormat !== null,
+    [exportState, downloadBusyFormat]
+  );
 
   const page = doc?.pages[activePageIndex] ?? null;
 
@@ -436,7 +458,14 @@ export function OcrParseWorkbench({
   }, [activePageIndex, setActivePageIndex]);
 
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
-    if (!taskId || exportState[format].status === 'processing') return;
+    if (
+      !taskId ||
+      exportState[format].status === 'processing' ||
+      exportStartLockRef.current.has(format)
+    ) {
+      return;
+    }
+    exportStartLockRef.current.add(format);
     setSingleExportState(format, { status: 'processing', error: null });
     try {
       // Ensure export is generated from the latest workbench edits.
@@ -459,6 +488,8 @@ export function OcrParseWorkbench({
         error: e instanceof Error ? e.message : `${format.toUpperCase()} export failed`,
       });
       clearExportPollTimer();
+    } finally {
+      exportStartLockRef.current.delete(format);
     }
   }, [
     clearExportPollTimer,
@@ -472,12 +503,17 @@ export function OcrParseWorkbench({
 
   const handleDownloadExport = useCallback(
     async (format: 'pdf' | 'md' | 'html') => {
-      if (!taskId) return;
+      if (!taskId || downloadBusyRef.current) return;
+      downloadBusyRef.current = true;
+      setDownloadBusyFormat(format);
       try {
         const dl = await translateApi.getOcrTaskExportDownloadUrl(taskId, format);
         window.open(dl.download_url, '_blank', 'noopener,noreferrer');
       } catch (e) {
         toast.error(e instanceof Error ? e.message : `${format.toUpperCase()} download failed`);
+      } finally {
+        downloadBusyRef.current = false;
+        setDownloadBusyFormat(null);
       }
     },
     [taskId]
@@ -664,11 +700,13 @@ export function OcrParseWorkbench({
           value={jsonCanvasScale}
           onChange={(e) => {
             const n = Number.parseInt(e.target.value, 10);
-            if (onCanvasScaleChange) {
-              onCanvasScaleChange(n);
-            } else {
-              setInternalJsonCanvasScale(n);
-            }
+            startTransition(() => {
+              if (onCanvasScaleChange) {
+                onCanvasScaleChange(n);
+              } else {
+                setInternalJsonCanvasScale(n);
+              }
+            });
             try {
               window.localStorage.setItem(JSON_SCALE_KEY, String(n));
             } catch {
@@ -734,7 +772,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     className="border border-fuchsia-400 bg-fuchsia-600 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
-                    disabled={!taskId}
+                    disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('html')}
                   >
                     <Download className="mr-1 size-3.5" />
@@ -744,7 +782,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     variant="outline"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('html')}
                   >
@@ -773,7 +811,7 @@ export function OcrParseWorkbench({
                   <Button
                     type="button"
                     size="sm"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('html')}
                     className="border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
                   >
@@ -804,7 +842,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     className="border border-emerald-400 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
-                    disabled={!taskId}
+                    disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('md')}
                   >
                     <Download className="mr-1 size-3.5" />
@@ -814,7 +852,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     variant="outline"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('md')}
                   >
@@ -843,7 +881,7 @@ export function OcrParseWorkbench({
                   <Button
                     type="button"
                     size="sm"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('md')}
                     className="border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
                   >
@@ -874,7 +912,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     className="border border-blue-400 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
-                    disabled={!taskId}
+                    disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('pdf')}
                   >
                     <Download className="mr-1 size-3.5" />
@@ -884,7 +922,7 @@ export function OcrParseWorkbench({
                     type="button"
                     size="sm"
                     variant="outline"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('pdf')}
                   >
@@ -913,7 +951,7 @@ export function OcrParseWorkbench({
                   <Button
                     type="button"
                     size="sm"
-                    disabled={!taskId}
+                    disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('pdf')}
                     className="border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
                   >
@@ -940,6 +978,8 @@ export function OcrParseWorkbench({
       canRedo,
       canUndo,
       doc,
+      downloadBusyFormat,
+      exportSidebarLocked,
       exportState,
       cancelExport,
       deleteExport,
@@ -1107,12 +1147,7 @@ export function OcrParseWorkbench({
               type="button"
               variant="secondary"
               size="sm"
-              disabled={
-                !taskId ||
-                exportState.md.status === 'processing' ||
-                exportState.pdf.status === 'processing' ||
-                exportState.html.status === 'processing'
-              }
+              disabled={!taskId || exportSidebarLocked}
               onClick={() =>
                 exportState.md.status === 'ready'
                   ? void handleDownloadExport('md')
@@ -1129,12 +1164,7 @@ export function OcrParseWorkbench({
               type="button"
               variant="secondary"
               size="sm"
-              disabled={
-                !taskId ||
-                exportState.md.status === 'processing' ||
-                exportState.pdf.status === 'processing' ||
-                exportState.html.status === 'processing'
-              }
+              disabled={!taskId || exportSidebarLocked}
               onClick={() =>
                 exportState.pdf.status === 'ready'
                   ? void handleDownloadExport('pdf')
@@ -1151,12 +1181,7 @@ export function OcrParseWorkbench({
               type="button"
               variant="secondary"
               size="sm"
-              disabled={
-                !taskId ||
-                exportState.md.status === 'processing' ||
-                exportState.pdf.status === 'processing' ||
-                exportState.html.status === 'processing'
-              }
+              disabled={!taskId || exportSidebarLocked}
               onClick={() =>
                 exportState.html.status === 'ready'
                   ? void handleDownloadExport('html')

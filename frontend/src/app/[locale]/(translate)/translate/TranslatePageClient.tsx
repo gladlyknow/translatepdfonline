@@ -547,6 +547,10 @@ export function TranslatePageClient() {
     page: number;
     at: number;
   } | null>(null);
+  const refreshInFlightRef = useRef(false);
+  const mainPdfDownloadLockRef = useRef(false);
+  const [mainPdfDownloadBusy, setMainPdfDownloadBusy] = useState(false);
+  const ocrNavLockRef = useRef(false);
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
 
   useEffect(() => {
@@ -678,7 +682,8 @@ export function TranslatePageClient() {
   }, [historyLogOpen]);
 
   const handleRefreshResult = async () => {
-    if (!taskId || refreshing) return;
+    if (!taskId || refreshInFlightRef.current) return;
+    refreshInFlightRef.current = true;
     outputPreviewFailedRef.current = null;
     setRefreshing(true);
     try {
@@ -691,6 +696,7 @@ export function TranslatePageClient() {
       }
     } finally {
       setRefreshing(false);
+      refreshInFlightRef.current = false;
     }
   };
 
@@ -911,6 +917,17 @@ export function TranslatePageClient() {
       ? (taskView.primary_file_url ?? taskView.outputs![0].download_url)
       : null;
 
+  const handleMainPdfDownload = useCallback(() => {
+    if (!downloadUrl || mainPdfDownloadLockRef.current) return;
+    mainPdfDownloadLockRef.current = true;
+    setMainPdfDownloadBusy(true);
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+    window.setTimeout(() => {
+      mainPdfDownloadLockRef.current = false;
+      setMainPdfDownloadBusy(false);
+    }, 1200);
+  }, [downloadUrl]);
+
   const failedTaskInfo =
     taskView?.task ??
     (taskStatus === 'failed' && taskDetail ? taskDetail : null);
@@ -1124,14 +1141,19 @@ export function TranslatePageClient() {
         )}
 
         {taskStatus === 'completed' && targetPdfUrl && downloadUrl && (
-          <a
-            href={downloadUrl}
-            download="translation.pdf"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white shadow hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+          <button
+            type="button"
+            onClick={handleMainPdfDownload}
+            disabled={mainPdfDownloadBusy}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white shadow hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-500"
           >
-            <Download size={18} className="shrink-0" />
+            {mainPdfDownloadBusy ? (
+              <Loader2 size={18} className="shrink-0 animate-spin" />
+            ) : (
+              <Download size={18} className="shrink-0" />
+            )}
             {tHome('download')}
-          </a>
+          </button>
         )}
 
         {taskId && (
@@ -1217,7 +1239,8 @@ export function TranslatePageClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (ocrRedirecting) return;
+                    if (ocrRedirecting || ocrNavLockRef.current) return;
+                    ocrNavLockRef.current = true;
                     setOcrRedirecting(true);
                     const qs = new URLSearchParams({
                       document: documentId,
@@ -1231,7 +1254,10 @@ export function TranslatePageClient() {
                         'zh',
                     });
                     router.push(`/ocrtranslator?${qs.toString()}`);
-                    setTimeout(() => setOcrRedirecting(false), 3000);
+                    setTimeout(() => {
+                      setOcrRedirecting(false);
+                      ocrNavLockRef.current = false;
+                    }, 3000);
                   }}
                   disabled={ocrRedirecting}
                   className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
@@ -1446,7 +1472,20 @@ export function TranslatePageClient() {
                 {tOcrWb('uploadedFileTitle')}
               </p>
               <div className="space-y-1">
-                {recentDocuments.length === 0 ? (
+                {recentDocuments.length === 0 &&
+                documentId &&
+                (filename || lastUploadedFile?.name) ? (
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50/80 px-2 py-1.5 dark:border-emerald-800/50 dark:bg-emerald-950/30">
+                    <p className="truncate text-[11px] font-medium text-zinc-800 dark:text-zinc-100">
+                      {filename ?? lastUploadedFile?.name}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {lastUploadedFile != null && lastUploadedFile.size > 0
+                        ? `${(lastUploadedFile.size / 1024 / 1024).toFixed(2)} MB`
+                        : '—'}
+                    </p>
+                  </div>
+                ) : recentDocuments.length === 0 ? (
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {tOcrWb('uploadedFileEmpty')}
                   </p>
