@@ -129,12 +129,127 @@ function decodeDataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType
   const body = match[3] || '';
   const isBase64 = Boolean(match[2]);
   if (isBase64) {
+    if (typeof Buffer !== 'undefined') {
+      return { bytes: Uint8Array.from(Buffer.from(body, 'base64')), contentType };
+    }
     const raw = atob(body);
     const out = new Uint8Array(raw.length);
     for (let i = 0; i < raw.length; i += 1) out[i] = raw.charCodeAt(i);
     return { bytes: out, contentType };
   }
   return { bytes: new TextEncoder().encode(decodeURIComponent(body)), contentType };
+}
+
+function getExportAppOrigin(): string {
+  return (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '').trim().replace(/\/$/, '');
+}
+
+/** 从任意 HTTP(S) URL 中提取以 translations/ 开头的对象键（R2 / 签名 GET 常见）。 */
+function tryTranslationsObjectKeyFromHttpUrl(urlStr: string): string | null {
+  const noHash = urlStr.split('#')[0] || '';
+  const base = noHash.split('?')[0] || '';
+  const idx = base.indexOf('/translations/');
+  if (idx < 0) return null;
+  return base.slice(idx + 1);
+}
+
+function sniffImageContentType(bytes: Uint8Array): string {
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47
+  ) {
+    return 'image/png';
+  }
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return 'image/jpeg';
+  }
+  if (
+    bytes.length >= 6 &&
+    bytes[0] === 0x47 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x38
+  ) {
+    return 'image/gif';
+  }
+  return 'application/octet-stream';
+}
+
+function resolveExportImageFetchUrl(src: string): string {
+  const s = src.trim();
+  if (!s || s.startsWith('data:') || s.startsWith('blob:')) return s;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.startsWith('/')) {
+    const origin = getExportAppOrigin();
+    if (origin) return `${origin}${s}`;
+  }
+  return s;
+}
+
+async function fetchExportImageBytes(src: string): Promise<{ bytes: Uint8Array; contentType: string }> {
+  const origin = getExportAppOrigin();
+  const fetchHeaders: Record<string, string> = {
+    Accept: 'image/*,*/*;q=0.8',
+    'User-Agent':
+      'Mozilla/5.0 (compatible; OCRExport/1.0; +https://translatepdf.online)',
+  };
+  if (origin) fetchHeaders.Referer = `${origin}/`;
+
+  const resolved = resolveExportImageFetchUrl(src);
+
+  if (resolved.startsWith('blob:')) {
+    throw new Error('blob URL cannot be fetched in export worker; save parse result so images use data URLs or R2 keys');
+  }
+  if (resolved.startsWith('data:')) {
+    return decodeDataUrlToBytes(resolved);
+  }
+
+  if (!/^https?:\/\//i.test(resolved)) {
+    throw new Error(`unsupported image src (need absolute URL or leading slash with NEXT_PUBLIC_APP_URL): ${src.slice(0, 120)}`);
+  }
+
+  const objectKey = tryTranslationsObjectKeyFromHttpUrl(resolved);
+  if (objectKey?.startsWith('translations/')) {
+    try {
+      const bytes = await getObjectBody(objectKey);
+      return { bytes, contentType: sniffImageContentType(bytes) };
+    } catch {
+      /* fall through to HTTP fetch (e.g. foreign bucket or credentials mismatch) */
+    }
+  }
+
+  try {
+    const u = new URL(resolved);
+    const path = u.pathname || '';
+    if (path.includes('/api/proxy/file')) {
+      const inner = u.searchParams.get('url');
+      if (inner) {
+        const innerUrl = decodeURIComponent(inner.trim());
+        if (/^https?:\/\//i.test(innerUrl)) {
+          const res = await fetch(innerUrl, { redirect: 'follow', headers: fetchHeaders });
+          if (!res.ok) {
+            throw new Error(`proxy inner fetch failed: HTTP ${res.status}`);
+          }
+          const bytes = new Uint8Array(await res.arrayBuffer());
+          const ct = res.headers.get('content-type') || sniffImageContentType(bytes);
+          return { bytes, contentType: ct };
+        }
+      }
+    }
+  } catch {
+    /* continue to direct fetch */
+  }
+
+  const res = await fetch(resolved, { redirect: 'follow', headers: fetchHeaders });
+  if (!res.ok) {
+    throw new Error(`download export image failed: HTTP ${res.status} url=${resolved.slice(0, 200)}`);
+  }
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  const ct = res.headers.get('content-type') || sniffImageContentType(bytes);
+  return { bytes, contentType: ct };
 }
 
 async function withRetry<T>(attempts: number, fn: () => Promise<T>): Promise<T> {
@@ -185,25 +300,54 @@ async function materializeHtmlImagesToR2(params: {
   const srcList = Array.from(uniqueSrcs);
   if (srcList.length === 0) return { html: params.html, count: 0 };
 
+  const preview = srcList.slice(0, 5).map((s) => s.slice(0, 160));
+  await appendExportLog(
+    params.exportId,
+    `materialize_images: unique_srcs=${srcList.length} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY} sample=${JSON.stringify(preview)}`
+  );
+  console.log(
+    '[ocr/export] materialize_images_start',
+    JSON.stringify({
+      task_id: params.taskId,
+      export_id: params.exportId,
+      unique_srcs: srcList.length,
+      img_retry: OCR_EXPORT_IMAGE_RETRY_MAX,
+      img_concurrency: OCR_EXPORT_IMAGE_CONCURRENCY,
+      sample_src: preview,
+    })
+  );
+
   const replaceMap = new Map<string, string>();
   await runWithConcurrency(srcList, OCR_EXPORT_IMAGE_CONCURRENCY, async (src, index) => {
     const seq = index + 1;
-    if (!src.startsWith('data:') && !/^https?:\/\//i.test(src)) return;
+    const trimmed = src.trim();
+    if (!trimmed) return;
+    if (trimmed.startsWith('blob:')) {
+      await appendExportLog(
+        params.exportId,
+        `skip blob: image (cannot fetch in worker): ${trimmed.slice(0, 80)}`
+      );
+      return;
+    }
+    const resolvedPreview = resolveExportImageFetchUrl(trimmed);
+    if (
+      !trimmed.startsWith('data:') &&
+      !/^https?:\/\//i.test(resolvedPreview) &&
+      !trimmed.startsWith('/')
+    ) {
+      await appendExportLog(params.exportId, `skip unsupported image src: ${trimmed.slice(0, 120)}`);
+      return;
+    }
+    if (trimmed.startsWith('/') && !getExportAppOrigin()) {
+      await appendExportLog(
+        params.exportId,
+        `skip relative image src (set NEXT_PUBLIC_APP_URL): ${trimmed.slice(0, 120)}`
+      );
+      return;
+    }
+
     const signed = await withRetry(OCR_EXPORT_IMAGE_RETRY_MAX, async () => {
-      let bytes: Uint8Array;
-      let contentType = 'application/octet-stream';
-      if (src.startsWith('data:')) {
-        const decoded = decodeDataUrlToBytes(src);
-        bytes = decoded.bytes;
-        contentType = decoded.contentType;
-      } else {
-        const res = await fetch(src);
-        if (!res.ok) {
-          throw new Error(`download export image failed: HTTP ${res.status}`);
-        }
-        bytes = new Uint8Array(await res.arrayBuffer());
-        contentType = res.headers.get('content-type') || contentType;
-      }
+      const { bytes, contentType } = await fetchExportImageBytes(trimmed);
       const key = `translations/${params.taskId}/staging-assets/${params.exportId}/img-${seq}.${extByContentType(contentType)}`;
       await uploadWithRetry(key, bytes, contentType);
       return createPresignedGet(key, OCR_EXPORT_IMAGE_URL_TTL_SECONDS);
@@ -215,6 +359,20 @@ async function materializeHtmlImagesToR2(params: {
   for (const [from, to] of replaceMap.entries()) {
     nextHtml = nextHtml.split(from).join(to);
   }
+
+  await appendExportLog(
+    params.exportId,
+    `materialize_images_done: image_r2_urls=${replaceMap.size} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
+  );
+  console.log(
+    '[ocr/export] materialize_images_done',
+    JSON.stringify({
+      task_id: params.taskId,
+      export_id: params.exportId,
+      image_r2_urls: replaceMap.size,
+    })
+  );
+
   return { html: nextHtml, count: replaceMap.size };
 }
 
@@ -410,7 +568,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       });
       await appendExportLog(
         exportId,
-        `ready pdf_bytes=${pdfBytes.byteLength} staging_html`
+        `ready pdf_bytes=${pdfBytes.byteLength} staging_html image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
       );
     } else if (row.format === 'html') {
       const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
