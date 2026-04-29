@@ -11,13 +11,15 @@ import {
 import {
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
-import { putObject } from '@/shared/lib/translate-r2';
+import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
+import { ocrParseResultSourceKey } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import { runOcrStage } from '@/shared/lib/ocr-step-runner';
 import { ocrMetricLog, ocrWorkLog } from '@/shared/lib/ocr-work-log';
 import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
+import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
 import {
   getTranslateCreditsPerPage,
   isTranslateCreditsEnabled,
@@ -267,7 +269,6 @@ async function settleOcrBillingOnCompleted(params: {
   taskId: string;
   userId: string | null;
   creditConsumeId: string | null;
-  documentPageCount: number | null;
   creditsEstimated: number | null;
 }): Promise<{
   creditConsumeId: string | null;
@@ -295,12 +296,25 @@ async function settleOcrBillingOnCompleted(params: {
       billingError: null,
     };
   }
-  const pageCount = params.documentPageCount ?? 0;
+
+  let pageCountFromParse: number | null = null;
+  try {
+    const parseBody = await getObjectBody(ocrParseResultSourceKey(params.taskId));
+    const parseJson = JSON.parse(new TextDecoder().decode(parseBody));
+    const parsed = parseParseResultJson(parseJson);
+    if (parsed.ok) {
+      pageCountFromParse = parsed.data.pages.length;
+    }
+  } catch {
+    pageCountFromParse = null;
+  }
+
+  const pageCount = pageCountFromParse ?? 0;
   if (pageCount < 1) {
     return {
       creditConsumeId: null,
       creditsCharged: null,
-      billingError: 'ocr_billing_skipped_page_count_unknown',
+      billingError: 'ocr_billing_skipped_parse_pages_unknown',
     };
   }
   const creditsPerPage = getTranslateCreditsPerPage();
@@ -321,6 +335,7 @@ async function settleOcrBillingOnCompleted(params: {
       metadata: JSON.stringify({
         task_id: params.taskId,
         page_count: pageCount,
+        page_count_source: 'ocr_parse_result',
         credits_per_page: creditsPerPage,
         mode: 'ocr',
       }),
@@ -658,9 +673,31 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
         taskId,
         userId: row.userId ?? null,
         creditConsumeId: row.creditConsumeId ?? null,
-        documentPageCount: doc.pageCount ?? null,
         creditsEstimated: row.creditsEstimated ?? null,
       });
+      const creditsPerPage = getTranslateCreditsPerPage();
+      const billedPageCount =
+        billing.creditsCharged != null && creditsPerPage > 0
+          ? Math.floor(billing.creditsCharged / creditsPerPage)
+          : null;
+      console.log(
+        '[ocr/billing] settle_on_completed',
+        JSON.stringify({
+          task_id: taskId,
+          recognized_pages: billedPageCount,
+          credits_per_page: creditsPerPage,
+          credits_to_charge:
+            billedPageCount != null ? billedPageCount * creditsPerPage : null,
+          credits_charged: billing.creditsCharged,
+          charge_result: billing.creditConsumeId
+            ? 'charged'
+            : billing.billingError
+              ? 'failed_or_skipped'
+              : 'skipped',
+          credit_consume_id: billing.creditConsumeId,
+          billing_error: billing.billingError,
+        })
+      );
       // Export is now strictly user-triggered from OCR workbench.
       // Do not auto-create/auto-enqueue exports when OCR pipeline completes.
       await db()

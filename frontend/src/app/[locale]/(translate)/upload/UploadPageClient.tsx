@@ -79,23 +79,6 @@ export function UploadPageClient() {
     try {
       setLaunchError(null);
       setLaunchingMode('translate');
-      let activeDocumentId = uploadedDocumentId;
-      try {
-        const result = await translateApi.translate(
-          activeDocumentId,
-          sourceLang,
-          targetLang
-        );
-        const qs = new URLSearchParams({
-          task: result.task_id,
-          document: activeDocumentId,
-        });
-        router.push(`/translate?${qs.toString()}`);
-        return;
-      } catch (error) {
-        const err = error as Error & { status?: number };
-        if (err?.status !== 404) throw error;
-      }
       const resolvedDocumentId = await resolveActiveDocumentId();
       if (!resolvedDocumentId) {
         throw new Error(tHome('uploadFirstHint'));
@@ -103,11 +86,10 @@ export function UploadPageClient() {
       if (resolvedDocumentId !== uploadedDocumentId) {
         setUploadedDocumentId(resolvedDocumentId);
       }
-      activeDocumentId = resolvedDocumentId;
-      const result = await translateApi.translate(activeDocumentId, sourceLang, targetLang);
       const qs = new URLSearchParams({
-        task: result.task_id,
-        document: activeDocumentId,
+        document: resolvedDocumentId,
+        source_lang: sourceLang,
+        target_lang: targetLang,
       });
       router.push(`/translate?${qs.toString()}`);
     } catch (error) {
@@ -132,25 +114,6 @@ export function UploadPageClient() {
     try {
       setLaunchError(null);
       setLaunchingMode('ocr');
-      let activeDocumentId = uploadedDocumentId;
-      try {
-        const result = await translateApi.createOcrTask(
-          activeDocumentId,
-          sourceLang,
-          targetLang
-        );
-        const qs = new URLSearchParams({
-          task: result.task_id,
-          document: activeDocumentId,
-          source_lang: sourceLang,
-          target_lang: targetLang,
-        });
-        router.push(`/ocrtranslator?${qs.toString()}`);
-        return;
-      } catch (error) {
-        const err = error as Error & { status?: number };
-        if (err?.status !== 404) throw error;
-      }
       const resolvedDocumentId = await resolveActiveDocumentId();
       if (!resolvedDocumentId) {
         throw new Error(tHome('uploadFirstHint'));
@@ -158,15 +121,8 @@ export function UploadPageClient() {
       if (resolvedDocumentId !== uploadedDocumentId) {
         setUploadedDocumentId(resolvedDocumentId);
       }
-      activeDocumentId = resolvedDocumentId;
-      const result = await translateApi.createOcrTask(
-        activeDocumentId,
-        sourceLang,
-        targetLang
-      );
       const qs = new URLSearchParams({
-        task: result.task_id,
-        document: activeDocumentId,
+        document: resolvedDocumentId,
         source_lang: sourceLang,
         target_lang: targetLang,
       });

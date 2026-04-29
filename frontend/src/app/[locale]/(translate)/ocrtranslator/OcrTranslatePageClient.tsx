@@ -1061,8 +1061,6 @@ export function OcrTranslatePageClient() {
               initialFile={lastUploadedFile}
               compactToolbar
               onRequireSignIn={handleRequireSignInForUpload}
-              locked={Boolean(documentId || taskId)}
-              lockedHint={tOcrWb('uploadedFileTitle')}
             />
           </div>
           <button
