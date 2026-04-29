@@ -44,25 +44,87 @@ export function UploadPageClient() {
 
   const canStartTask = Boolean(uploadedDocumentId && sourceLang && targetLang);
 
+  const resolveActiveDocumentId = useCallback(async (): Promise<string | null> => {
+    if (!uploadedDocumentId) return null;
+    try {
+      const docs = await translateApi.listDocuments({ limit: 30, offset: 0 });
+      if (docs.some((d) => d.id === uploadedDocumentId)) return uploadedDocumentId;
+      if (lastUploadedFile) {
+        const byFile = docs.find(
+          (d) =>
+            d.filename === lastUploadedFile.name &&
+            Number(d.size_bytes) === Number(lastUploadedFile.size)
+        );
+        if (byFile?.id) return byFile.id;
+      }
+      return docs[0]?.id ?? null;
+    } catch {
+      return uploadedDocumentId;
+    }
+  }, [lastUploadedFile, uploadedDocumentId]);
+
+  const toLaunchError = useCallback(
+    (error: unknown): string => {
+      const err = error as Error & { status?: number };
+      if (err?.status === 404) return tHome('uploadFirstHint');
+      if (err instanceof Error && err.message.trim()) return err.message;
+      return tHome('uploadFirstHint');
+    },
+    [tHome]
+  );
+
   const goTranslate = useCallback(async () => {
     if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
     launchLockRef.current = true;
     try {
       setLaunchError(null);
       setLaunchingMode('translate');
-      const result = await translateApi.translate(uploadedDocumentId, sourceLang, targetLang);
+      let activeDocumentId = uploadedDocumentId;
+      try {
+        const result = await translateApi.translate(
+          activeDocumentId,
+          sourceLang,
+          targetLang
+        );
+        const qs = new URLSearchParams({
+          task: result.task_id,
+          document: activeDocumentId,
+        });
+        router.push(`/translate?${qs.toString()}`);
+        return;
+      } catch (error) {
+        const err = error as Error & { status?: number };
+        if (err?.status !== 404) throw error;
+      }
+      const resolvedDocumentId = await resolveActiveDocumentId();
+      if (!resolvedDocumentId) {
+        throw new Error(tHome('uploadFirstHint'));
+      }
+      if (resolvedDocumentId !== uploadedDocumentId) {
+        setUploadedDocumentId(resolvedDocumentId);
+      }
+      activeDocumentId = resolvedDocumentId;
+      const result = await translateApi.translate(activeDocumentId, sourceLang, targetLang);
       const qs = new URLSearchParams({
         task: result.task_id,
-        document: uploadedDocumentId,
+        document: activeDocumentId,
       });
       router.push(`/translate?${qs.toString()}`);
-    } catch {
-      setLaunchError(tHome('uploadFirstHint'));
+    } catch (error) {
+      setLaunchError(toLaunchError(error));
     } finally {
       setLaunchingMode(null);
       launchLockRef.current = false;
     }
-  }, [router, sourceLang, tHome, targetLang, uploadedDocumentId]);
+  }, [
+    resolveActiveDocumentId,
+    router,
+    sourceLang,
+    tHome,
+    targetLang,
+    toLaunchError,
+    uploadedDocumentId,
+  ]);
 
   const goOcr = useCallback(async () => {
     if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
@@ -70,21 +132,60 @@ export function UploadPageClient() {
     try {
       setLaunchError(null);
       setLaunchingMode('ocr');
-      const result = await translateApi.createOcrTask(uploadedDocumentId, sourceLang, targetLang);
+      let activeDocumentId = uploadedDocumentId;
+      try {
+        const result = await translateApi.createOcrTask(
+          activeDocumentId,
+          sourceLang,
+          targetLang
+        );
+        const qs = new URLSearchParams({
+          task: result.task_id,
+          document: activeDocumentId,
+          source_lang: sourceLang,
+          target_lang: targetLang,
+        });
+        router.push(`/ocrtranslator?${qs.toString()}`);
+        return;
+      } catch (error) {
+        const err = error as Error & { status?: number };
+        if (err?.status !== 404) throw error;
+      }
+      const resolvedDocumentId = await resolveActiveDocumentId();
+      if (!resolvedDocumentId) {
+        throw new Error(tHome('uploadFirstHint'));
+      }
+      if (resolvedDocumentId !== uploadedDocumentId) {
+        setUploadedDocumentId(resolvedDocumentId);
+      }
+      activeDocumentId = resolvedDocumentId;
+      const result = await translateApi.createOcrTask(
+        activeDocumentId,
+        sourceLang,
+        targetLang
+      );
       const qs = new URLSearchParams({
         task: result.task_id,
-        document: uploadedDocumentId,
+        document: activeDocumentId,
         source_lang: sourceLang,
         target_lang: targetLang,
       });
       router.push(`/ocrtranslator?${qs.toString()}`);
-    } catch {
-      setLaunchError(tHome('uploadFirstHint'));
+    } catch (error) {
+      setLaunchError(toLaunchError(error));
     } finally {
       setLaunchingMode(null);
       launchLockRef.current = false;
     }
-  }, [router, sourceLang, tHome, targetLang, uploadedDocumentId]);
+  }, [
+    resolveActiveDocumentId,
+    router,
+    sourceLang,
+    tHome,
+    targetLang,
+    toLaunchError,
+    uploadedDocumentId,
+  ]);
 
   const uploadedHint = useMemo(() => {
     if (!lastUploadedFile) return '';
