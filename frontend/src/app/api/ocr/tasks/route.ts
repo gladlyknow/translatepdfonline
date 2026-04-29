@@ -16,6 +16,7 @@ import {
   isTranslateCreditsEnabled,
 } from '@/shared/lib/translate-billing';
 import { getRemainingCredits } from '@/shared/models/credit';
+import { ensureDocumentPageCount } from '@/shared/lib/document-page-count';
 
 export async function POST(req: Request) {
   try {
@@ -66,21 +67,50 @@ export async function POST(req: Request) {
           { status: 401 }
         );
       }
-      if (doc.pageCount == null || doc.pageCount < 1) {
+      const pageCountResult = await ensureDocumentPageCount({
+        documentId: doc.id,
+        objectKey: doc.objectKey,
+        knownPageCount: doc.pageCount ?? null,
+        reason: 'ocr_precheck',
+      });
+      const resolvedPageCount = pageCountResult.pageCount;
+      console.log(
+        '[ocr/precheck] page_count',
+        JSON.stringify({
+          document_id: doc.id,
+          page_count_value: resolvedPageCount,
+          page_count_ready: resolvedPageCount != null && resolvedPageCount > 0,
+          page_count_source: pageCountResult.source,
+          page_count_fill_latency_ms: pageCountResult.latencyMs,
+          page_count_attempts: pageCountResult.attempts,
+        })
+      );
+      if (resolvedPageCount == null || resolvedPageCount < 1) {
         return Response.json(
           {
             detail:
-              'Document page count is unknown. Open the document preview first, then try OCR again.',
+              'Document page count is still being prepared. Please retry in a few seconds.',
             code: 'document_pages_required_for_billing',
           },
           { status: 400 }
         );
       }
-      const estimatedPages = doc.pageCount;
+      const estimatedPages = resolvedPageCount;
       const creditsPerPage = getTranslateCreditsPerPage();
       creditsEstimated = estimatedPages * creditsPerPage;
       const balance = await getRemainingCredits(userId);
       if (balance < creditsEstimated) {
+        console.warn(
+          '[ocr/precheck] blocked_insufficient_credits',
+          JSON.stringify({
+            document_id: doc.id,
+            estimated_pages: estimatedPages,
+            credits_per_page: creditsPerPage,
+            need: creditsEstimated,
+            have: balance,
+            reason: 'insufficient_credits',
+          })
+        );
         return Response.json(
           {
             detail: `Insufficient credits: need ${creditsEstimated}, have ${balance}.`,

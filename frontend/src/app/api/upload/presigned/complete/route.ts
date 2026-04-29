@@ -7,6 +7,7 @@ import {
   isValidObjectKey,
   sanitizeFilename,
 } from '../../constants';
+import { ensureDocumentPageCount } from '@/shared/lib/document-page-count';
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +51,17 @@ export async function POST(req: Request) {
         status: 'uploaded',
         expiresAt,
       });
-    return Response.json({ document_id: documentId });
+    const pageCountResult = await ensureDocumentPageCount({
+      documentId,
+      objectKey,
+      knownPageCount: null,
+      reason: 'upload_complete',
+    });
+    return Response.json({
+      document_id: documentId,
+      page_count: pageCountResult.pageCount,
+      page_count_ready: pageCountResult.pageCount != null,
+    });
   } catch (e) {
     console.error('complete presigned upload failed:', e);
     return Response.json(

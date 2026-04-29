@@ -210,6 +210,7 @@ export function OcrTranslatePageClient() {
   >(null);
   const [refreshing, setRefreshing] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [resolvingPageCount, setResolvingPageCount] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [stableParseResultUrl, setStableParseResultUrl] = useState<string | null>(
     null
@@ -245,6 +246,7 @@ export function OcrTranslatePageClient() {
   }, [isRecentRequested]);
 
   const blockAutoDocumentLoadRef = useRef(false);
+  const blockAutoRecentTaskRestoreRef = useRef(false);
   const startOcrLockRef = useRef(false);
   const taskViewRef = useRef<TaskView | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -409,7 +411,10 @@ export function OcrTranslatePageClient() {
 
   useEffect(() => {
     if (searchParams.get(TASK_PARAM)) return;
+    if (searchParams.get(DOC_PARAM)) return;
     if (taskId) return;
+    if (documentId) return;
+    if (blockAutoRecentTaskRestoreRef.current) return;
     let cancelled = false;
     (async () => {
       try {
@@ -466,7 +471,14 @@ export function OcrTranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [isRecentRequested, searchParams, taskId, updateTaskInUrl, setTaskViewStable]);
+  }, [
+    isRecentRequested,
+    searchParams,
+    taskId,
+    documentId,
+    updateTaskInUrl,
+    setTaskViewStable,
+  ]);
 
   useEffect(() => {
     if (documentId) return;
@@ -719,6 +731,7 @@ export function OcrTranslatePageClient() {
     _file?: File
   ) => {
     blockAutoDocumentLoadRef.current = false;
+    blockAutoRecentTaskRestoreRef.current = true;
     setDocumentId(docId);
     setFilename(name);
     setLastUploadedFile({ name, size: sizeBytes });
@@ -777,6 +790,27 @@ export function OcrTranslatePageClient() {
     setStarting(true);
     setSubmitError(null);
     try {
+      if (documentPageCountFromDb == null || documentPageCountFromDb < 1) {
+        setResolvingPageCount(true);
+        const retryMax = 6;
+        let resolvedPageCount: number | null = null;
+        for (let i = 0; i < retryMax; i += 1) {
+          const doc = await translateApi.getDocument(documentId).catch(() => null);
+          const pc = doc?.page_count;
+          if (typeof pc === 'number' && pc > 0) {
+            resolvedPageCount = pc;
+            break;
+          }
+          if (i < retryMax - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 350));
+          }
+        }
+        if (resolvedPageCount == null || resolvedPageCount < 1) {
+          setSubmitError(tTranslate('documentPagesUnknown'));
+          return;
+        }
+        setDocumentPageCountFromDb(resolvedPageCount);
+      }
       const res = await translateApi.createOcrTask(
         documentId,
         sourceLang,
@@ -819,6 +853,7 @@ export function OcrTranslatePageClient() {
         );
       }
     } finally {
+      setResolvingPageCount(false);
       setStarting(false);
       startOcrLockRef.current = false;
     }
@@ -1109,18 +1144,18 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={startOcrTask}
-              disabled={starting || taskAwaitingResult || !sourceLang}
+              disabled={starting || resolvingPageCount || taskAwaitingResult || !sourceLang}
               className={cn(
                 'flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold',
                 TRANSLATE_PRIMARY_CTA_CLASSNAME
               )}
             >
-              {starting || taskAwaitingResult ? (
+              {starting || resolvingPageCount || taskAwaitingResult ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : (
                 <Languages size={14} />
               )}
-              {starting || taskAwaitingResult
+              {starting || resolvingPageCount || taskAwaitingResult
                 ? tTranslate('submitting')
                 : tTranslate('preprocessWithOcr')}
             </button>
