@@ -199,15 +199,6 @@ export function OcrParseWorkbench({
 
   const page = doc?.pages[activePageIndex] ?? null;
 
-  const pickDefaultLayoutId = useCallback((nextDoc: { pages?: Array<{ layouts?: Array<{ layout_id: string; type?: string }> }> } | null | undefined): string | null => {
-    const layouts = nextDoc?.pages?.[0]?.layouts ?? [];
-    if (layouts.length === 0) return null;
-    const textLike =
-      layouts.find((ly) => ly.type !== 'image' && ly.type !== 'table') ??
-      layouts[0];
-    return textLike?.layout_id ?? null;
-  }, []);
-
   useEffect(() => {
     if (!parseResultUrl) {
       setLoadState('idle');
@@ -219,7 +210,14 @@ export function OcrParseWorkbench({
     void (async () => {
       try {
         const res = await fetch(parseResultUrl, { credentials: 'include' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            setLoadState('idle');
+            setLoadError(null);
+            return;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
         const raw = (await res.json()) as unknown;
         if (cancelled) return;
         const parsed = tryNormalizeToParseResult(raw);
@@ -231,27 +229,32 @@ export function OcrParseWorkbench({
         reset(parsed.data);
         setInternalPageIndex(0);
         onPageIndexChange?.(0);
-        setSelectedLayoutId(pickDefaultLayoutId(parsed.data));
+        setSelectedLayoutId(null);
         setLoadState('ok');
       } catch (e) {
         if (cancelled) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (/HTTP\s+404/i.test(msg)) {
+          setLoadState('idle');
+          setLoadError(null);
+          return;
+        }
         setLoadState('error');
-        setLoadError(e instanceof Error ? e.message : String(e));
+        setLoadError(msg);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [parseResultUrl, reset, pickDefaultLayoutId, onPageIndexChange]);
+  }, [parseResultUrl, reset, onPageIndexChange]);
 
   useEffect(() => {
     if (!doc || !page) return;
     const exists = selectedLayoutId
       ? page.layouts.some((ly) => ly.layout_id === selectedLayoutId)
       : false;
-    if (!exists) {
-      const first = page.layouts[0]?.layout_id ?? null;
-      if (first) setSelectedLayoutId(first);
+    if (selectedLayoutId && !exists) {
+      setSelectedLayoutId(null);
     }
   }, [doc, page, selectedLayoutId, activePageIndex]);
 

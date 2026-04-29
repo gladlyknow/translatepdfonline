@@ -1011,10 +1011,19 @@ export function OcrTranslatePageClient() {
     effectiveDocumentPageCount,
     jsonPage,
   ]);
+  const handleJsonPageIndexChange = useCallback(
+    (idx: number) => {
+      const maxP = Math.max(1, effectiveDocumentPageCount || 1);
+      setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
+    },
+    [effectiveDocumentPageCount]
+  );
   const ocrParseResultUrl =
-    taskId && taskView?.task?.preprocess_with_ocr
-      ? `/api/tasks/${taskId}/parse-result`
-      : stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null;
+    taskId && taskStatus === 'completed'
+      ? taskView?.task?.preprocess_with_ocr
+        ? `/api/tasks/${taskId}/parse-result`
+        : stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null
+      : null;
   const sidebarBtnClass =
     'inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition-all duration-150 hover:-translate-y-[1px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800';
   const sidebarCardClass =
@@ -1397,13 +1406,14 @@ export function OcrTranslatePageClient() {
               <OcrParseWorkbench
                 taskId={taskId ?? 'pending'}
                 parseResultUrl={ocrParseResultUrl}
-                sourcePdfUrl={taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)}
+                sourcePdfUrl={
+                  taskId
+                    ? taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
+                    : sourcePdfUrl || null
+                }
                 hideSourcePanel
                 pageIndex={Math.max(0, jsonPage - 1)}
-                onPageIndexChange={(idx) => {
-                  const maxP = Math.max(1, effectiveDocumentPageCount || 1);
-                  setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
-                }}
+                onPageIndexChange={handleJsonPageIndexChange}
                 canvasScalePercent={jsonCanvasScale}
                 onCanvasScaleChange={setJsonCanvasScale}
                 onCanvasFocus={() => setActiveFocusPanel('json')}
