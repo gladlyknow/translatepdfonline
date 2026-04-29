@@ -24,6 +24,25 @@ const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
 );
 
+function resolveOcrDeepSeekModel(): string {
+  return (
+    String(process.env.OCR_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || '').trim() ||
+    'deepseek-v4-flash'
+  );
+}
+
+function resolveReasoningEffort(): 'high' | 'max' | undefined {
+  const raw = String(
+    process.env.OCR_DEEPSEEK_REASONING_EFFORT ||
+      process.env.DEEPSEEK_REASONING_EFFORT ||
+      ''
+  )
+    .trim()
+    .toLowerCase();
+  if (raw === 'high' || raw === 'max') return raw;
+  return undefined;
+}
+
 type BaiduAuth = {
   accessToken?: string;
   authorizationHeader?: string;
@@ -362,6 +381,8 @@ export async function translateMarkdownWithDeepSeek(params: {
     '',
     params.markdown,
   ].join('\n');
+  const model = resolveOcrDeepSeekModel();
+  const reasoningEffort = resolveReasoningEffort();
   const res = await fetch(DEEPSEEK_URL, {
     method: 'POST',
     headers: {
@@ -369,10 +390,9 @@ export async function translateMarkdownWithDeepSeek(params: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model:
-        String(process.env.OCR_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || '')
-          .trim() || 'deepseek-chat',
+      model,
       temperature: 0.2,
+      reasoning_effort: reasoningEffort,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -409,9 +429,8 @@ export async function translateStringListWithDeepSeek(params: {
   if (!apiKey) {
     throw new Error('DeepSeek API key missing');
   }
-  const model =
-    String(process.env.OCR_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || '')
-      .trim() || 'deepseek-chat';
+  const model = resolveOcrDeepSeekModel();
+  const reasoningEffort = resolveReasoningEffort();
   const maxChunkItems = Math.max(
     8,
     Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '48') || 48
@@ -456,6 +475,7 @@ export async function translateStringListWithDeepSeek(params: {
         body: JSON.stringify({
           model,
           temperature: 0.2,
+          reasoning_effort: reasoningEffort,
           messages: [{ role: 'user', content: prompt }],
         }),
       });

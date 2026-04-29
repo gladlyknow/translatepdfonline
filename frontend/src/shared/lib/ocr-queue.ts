@@ -274,12 +274,14 @@ async function settleOcrBillingOnCompleted(params: {
   creditConsumeId: string | null;
   creditsCharged: number | null;
   billingError: string | null;
+  skipReason: string | null;
 }> {
   if (!isTranslateCreditsEnabled()) {
     return {
       creditConsumeId: params.creditConsumeId,
       creditsCharged: null,
       billingError: null,
+      skipReason: 'credits_disabled',
     };
   }
   if (!params.userId) {
@@ -287,6 +289,7 @@ async function settleOcrBillingOnCompleted(params: {
       creditConsumeId: params.creditConsumeId,
       creditsCharged: null,
       billingError: null,
+      skipReason: 'missing_user_id',
     };
   }
   if (params.creditConsumeId) {
@@ -294,6 +297,7 @@ async function settleOcrBillingOnCompleted(params: {
       creditConsumeId: params.creditConsumeId,
       creditsCharged: params.creditsEstimated ?? null,
       billingError: null,
+      skipReason: 'already_charged',
     };
   }
 
@@ -315,6 +319,7 @@ async function settleOcrBillingOnCompleted(params: {
       creditConsumeId: null,
       creditsCharged: null,
       billingError: 'ocr_billing_skipped_parse_pages_unknown',
+      skipReason: 'parse_pages_unknown',
     };
   }
   const creditsPerPage = getTranslateCreditsPerPage();
@@ -324,6 +329,7 @@ async function settleOcrBillingOnCompleted(params: {
       creditConsumeId: null,
       creditsCharged: null,
       billingError: null,
+      skipReason: 'credits_to_charge_lt_1',
     };
   }
   try {
@@ -344,6 +350,7 @@ async function settleOcrBillingOnCompleted(params: {
       creditConsumeId: consumed.id,
       creditsCharged: creditsToCharge,
       billingError: null,
+      skipReason: null,
     };
   } catch (error) {
     return {
@@ -353,6 +360,7 @@ async function settleOcrBillingOnCompleted(params: {
         error instanceof Error
           ? `ocr_billing_failed:${error.message}`
           : 'ocr_billing_failed',
+      skipReason: 'consume_credits_failed',
     };
   }
 }
@@ -694,6 +702,8 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
             : billing.billingError
               ? 'failed_or_skipped'
               : 'skipped',
+          skip_reason: billing.skipReason,
+          task_user_id: row.userId ?? null,
           credit_consume_id: billing.creditConsumeId,
           billing_error: billing.billingError,
         })
