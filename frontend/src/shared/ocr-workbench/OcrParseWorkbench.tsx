@@ -178,6 +178,11 @@ export function OcrParseWorkbench({
   });
   const exportPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exportStartLockRef = useRef<Set<'pdf' | 'md' | 'html'>>(new Set());
+  const exportPendingRef = useRef<Record<'pdf' | 'md' | 'html', boolean>>({
+    pdf: false,
+    md: false,
+    html: false,
+  });
   const downloadBusyRef = useRef(false);
   const [downloadBusyFormat, setDownloadBusyFormat] = useState<
     'pdf' | 'md' | 'html' | null
@@ -371,23 +376,36 @@ export function OcrParseWorkbench({
       const exportsState = await translateApi.listOcrTaskExports(taskId);
       const target = exportsState.exports.find((one) => one.format === format);
       if (!target) {
-        setSingleExportState(format, {
-          status: 'failed',
-          error: `${format.toUpperCase()} export not found`,
-        });
+        if (attempt >= 30) {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, {
+            status: 'failed',
+            error: `${format.toUpperCase()} export not found`,
+          });
+          clearExportPollTimer();
+          return;
+        }
+        setSingleExportState(format, { status: 'processing', error: null });
+        clearExportPollTimer();
+        exportPollTimerRef.current = setTimeout(() => {
+          void pollExportReady(format, attempt + 1);
+        }, 4000);
         return;
       }
       if (target.status === 'ready') {
+        exportPendingRef.current[format] = false;
         setSingleExportState(format, { status: 'ready', error: null });
         clearExportPollTimer();
         return;
       }
       if (target.status === 'cancelled') {
+        exportPendingRef.current[format] = false;
         setSingleExportState(format, { status: 'idle', error: null });
         clearExportPollTimer();
         return;
       }
       if (target.status === 'failed') {
+        exportPendingRef.current[format] = false;
         setSingleExportState(format, {
           status: 'failed',
           error: target.error_message ?? `${format.toUpperCase()} export failed`,
@@ -396,6 +414,7 @@ export function OcrParseWorkbench({
         return;
       }
       if (attempt >= 30) {
+        exportPendingRef.current[format] = false;
         setSingleExportState(format, {
           status: 'failed',
           error: `${format.toUpperCase()} export timed out`,
@@ -466,6 +485,7 @@ export function OcrParseWorkbench({
       return;
     }
     exportStartLockRef.current.add(format);
+    exportPendingRef.current[format] = true;
     setSingleExportState(format, { status: 'processing', error: null });
     try {
       // Ensure export is generated from the latest workbench edits.
@@ -483,6 +503,7 @@ export function OcrParseWorkbench({
       await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
     } catch (e) {
+      exportPendingRef.current[format] = false;
       setSingleExportState(format, {
         status: 'failed',
         error: e instanceof Error ? e.message : `${format.toUpperCase()} export failed`,
@@ -551,6 +572,7 @@ export function OcrParseWorkbench({
 
   useEffect(() => {
     if (!taskId) {
+      exportPendingRef.current = { pdf: false, md: false, html: false };
       setExportState({
         pdf: { status: 'idle', error: null },
         md: { status: 'idle', error: null },
@@ -595,6 +617,9 @@ export function OcrParseWorkbench({
                 ? null
                 : (pdf.error_message ?? null),
           };
+          if (pdf.status === 'ready' || pdf.status === 'failed' || pdf.status === 'cancelled') {
+            exportPendingRef.current.pdf = false;
+          }
         }
         if (md) {
           const nextMdStatus =
@@ -616,6 +641,9 @@ export function OcrParseWorkbench({
                 ? null
                 : (md.error_message ?? null),
           };
+          if (md.status === 'ready' || md.status === 'failed' || md.status === 'cancelled') {
+            exportPendingRef.current.md = false;
+          }
         }
         if (html) {
           const nextHtmlStatus =
@@ -637,6 +665,18 @@ export function OcrParseWorkbench({
                 ? null
                 : (html.error_message ?? null),
           };
+          if (html.status === 'ready' || html.status === 'failed' || html.status === 'cancelled') {
+            exportPendingRef.current.html = false;
+          }
+        }
+        if (next.pdf.status === 'idle' && exportPendingRef.current.pdf) {
+          next.pdf.status = 'processing';
+        }
+        if (next.md.status === 'idle' && exportPendingRef.current.md) {
+          next.md.status = 'processing';
+        }
+        if (next.html.status === 'idle' && exportPendingRef.current.html) {
+          next.html.status = 'processing';
         }
         setExportState(next);
       } catch {

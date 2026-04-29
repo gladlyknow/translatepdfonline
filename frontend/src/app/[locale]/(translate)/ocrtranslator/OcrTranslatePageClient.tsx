@@ -788,9 +788,36 @@ export function OcrTranslatePageClient() {
       setTaskView(null);
       updateTaskInUrl(res.task_id);
     } catch (e) {
-      setSubmitError(
-        e instanceof Error ? e.message : tTranslate('createTaskFailed')
-      );
+      const err = e as Error & {
+        status?: number;
+        body?: Record<string, unknown>;
+      };
+      if (err.status === 402) {
+        const body = err.body ?? {};
+        const need = typeof body.need === 'number' ? body.need : null;
+        const have = typeof body.have === 'number' ? body.have : null;
+        if (need != null && have != null) {
+          setSubmitError(
+            tTranslate('creditsModalIntro', {
+              shortfall: String(Math.max(0, need - have)),
+              need: String(need),
+              have: String(have),
+            })
+          );
+        } else {
+          setSubmitError(tTranslate('creditsModalIntroGeneric'));
+        }
+      } else if (
+        err.status === 400 &&
+        typeof err.body?.code === 'string' &&
+        err.body.code === 'document_pages_required_for_billing'
+      ) {
+        setSubmitError(tTranslate('documentPagesUnknown'));
+      } else {
+        setSubmitError(
+          e instanceof Error ? e.message : tTranslate('createTaskFailed')
+        );
+      }
     } finally {
       setStarting(false);
       startOcrLockRef.current = false;

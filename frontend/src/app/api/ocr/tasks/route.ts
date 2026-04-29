@@ -11,6 +11,11 @@ import {
 } from '@/shared/lib/ocr-queue';
 import { isCloudflareWorker } from '@/shared/lib/env';
 import { isSupportedUiLang } from '@/shared/lib/translate-langs';
+import {
+  getTranslateCreditsPerPage,
+  isTranslateCreditsEnabled,
+} from '@/shared/lib/translate-billing';
+import { getRemainingCredits } from '@/shared/models/credit';
 
 export async function POST(req: Request) {
   try {
@@ -50,6 +55,45 @@ export async function POST(req: Request) {
     if (!doc) {
       return Response.json({ detail: 'Document not found' }, { status: 404 });
     }
+    let creditsEstimated: number | null = null;
+    if (isTranslateCreditsEnabled()) {
+      if (!userId) {
+        return Response.json(
+          {
+            detail: 'Sign in is required to start OCR when credits billing is enabled.',
+            code: 'translate_login_required',
+          },
+          { status: 401 }
+        );
+      }
+      if (doc.pageCount == null || doc.pageCount < 1) {
+        return Response.json(
+          {
+            detail:
+              'Document page count is unknown. Open the document preview first, then try OCR again.',
+            code: 'document_pages_required_for_billing',
+          },
+          { status: 400 }
+        );
+      }
+      const estimatedPages = doc.pageCount;
+      const creditsPerPage = getTranslateCreditsPerPage();
+      creditsEstimated = estimatedPages * creditsPerPage;
+      const balance = await getRemainingCredits(userId);
+      if (balance < creditsEstimated) {
+        return Response.json(
+          {
+            detail: `Insufficient credits: need ${creditsEstimated}, have ${balance}.`,
+            code: 'insufficient_credits',
+            need: creditsEstimated,
+            have: balance,
+            estimated_pages: estimatedPages,
+            credits_per_page: creditsPerPage,
+          },
+          { status: 402 }
+        );
+      }
+    }
     const taskId = nanoid(21);
     await db().insert(translationTasks).values({
       id: taskId,
@@ -64,6 +108,7 @@ export async function POST(req: Request) {
       progressStage: 'ocr_submit_created',
       fcNextAttemptAt: new Date(),
       fcDispatchAttemptCount: 0,
+      creditsEstimated,
     });
     await enqueueOcrTask(taskId);
     console.log(

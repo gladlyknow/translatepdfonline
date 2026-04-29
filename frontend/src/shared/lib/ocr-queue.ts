@@ -18,6 +18,14 @@ import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import { runOcrStage } from '@/shared/lib/ocr-step-runner';
 import { ocrMetricLog, ocrWorkLog } from '@/shared/lib/ocr-work-log';
 import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
+import {
+  getTranslateCreditsPerPage,
+  isTranslateCreditsEnabled,
+} from '@/shared/lib/translate-billing';
+import {
+  consumeCredits,
+  CreditTransactionScene,
+} from '@/shared/models/credit';
 
 export type OcrPipelineQueueBody =
   | {
@@ -253,6 +261,85 @@ async function runOneStage(params: {
   }
 
   return 'completed';
+}
+
+async function settleOcrBillingOnCompleted(params: {
+  taskId: string;
+  userId: string | null;
+  creditConsumeId: string | null;
+  documentPageCount: number | null;
+  creditsEstimated: number | null;
+}): Promise<{
+  creditConsumeId: string | null;
+  creditsCharged: number | null;
+  billingError: string | null;
+}> {
+  if (!isTranslateCreditsEnabled()) {
+    return {
+      creditConsumeId: params.creditConsumeId,
+      creditsCharged: null,
+      billingError: null,
+    };
+  }
+  if (!params.userId) {
+    return {
+      creditConsumeId: params.creditConsumeId,
+      creditsCharged: null,
+      billingError: null,
+    };
+  }
+  if (params.creditConsumeId) {
+    return {
+      creditConsumeId: params.creditConsumeId,
+      creditsCharged: params.creditsEstimated ?? null,
+      billingError: null,
+    };
+  }
+  const pageCount = params.documentPageCount ?? 0;
+  if (pageCount < 1) {
+    return {
+      creditConsumeId: null,
+      creditsCharged: null,
+      billingError: 'ocr_billing_skipped_page_count_unknown',
+    };
+  }
+  const creditsPerPage = getTranslateCreditsPerPage();
+  const creditsToCharge = pageCount * creditsPerPage;
+  if (creditsToCharge < 1) {
+    return {
+      creditConsumeId: null,
+      creditsCharged: null,
+      billingError: null,
+    };
+  }
+  try {
+    const consumed = await consumeCredits({
+      userId: params.userId,
+      credits: creditsToCharge,
+      scene: CreditTransactionScene.TRANSLATE,
+      description: `OCR task ${params.taskId} completed`,
+      metadata: JSON.stringify({
+        task_id: params.taskId,
+        page_count: pageCount,
+        credits_per_page: creditsPerPage,
+        mode: 'ocr',
+      }),
+    });
+    return {
+      creditConsumeId: consumed.id,
+      creditsCharged: creditsToCharge,
+      billingError: null,
+    };
+  } catch (error) {
+    return {
+      creditConsumeId: null,
+      creditsCharged: null,
+      billingError:
+        error instanceof Error
+          ? `ocr_billing_failed:${error.message}`
+          : 'ocr_billing_failed',
+    };
+  }
 }
 
 function getQueueBindingFromContext():
@@ -567,6 +654,13 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     await ensureTaskNotCancelled(taskId);
 
     if (nextStage === 'completed') {
+      const billing = await settleOcrBillingOnCompleted({
+        taskId,
+        userId: row.userId ?? null,
+        creditConsumeId: row.creditConsumeId ?? null,
+        documentPageCount: doc.pageCount ?? null,
+        creditsEstimated: row.creditsEstimated ?? null,
+      });
       // Export is now strictly user-triggered from OCR workbench.
       // Do not auto-create/auto-enqueue exports when OCR pipeline completes.
       await db()
@@ -579,6 +673,9 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
           outputPrimaryPath: null,
           errorCode: null,
           errorMessage: null,
+          creditConsumeId: billing.creditConsumeId,
+          creditsCharged: billing.creditsCharged,
+          billingError: billing.billingError,
           fcNextAttemptAt: null,
           fcDispatchAttemptCount: 0,
           fcInvokeLeaseUntil: null,
