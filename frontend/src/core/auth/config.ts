@@ -141,6 +141,7 @@ export async function getAuthOptions(
               // Prefer NEXT_LOCALE cookie (next-intl). Fallback to accept-language.
               const localeFromCookie = getCookieFromCtx(ctx, 'NEXT_LOCALE');
 
+              
               const localeFromHeader = guessLocaleFromAcceptLanguage(
                 getHeaderValue(ctx, 'accept-language')
               );
