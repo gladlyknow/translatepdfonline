@@ -1,0 +1,57 @@
+# BabelDOC FC 纯 CPU 镜像：构建并推送至阿里云 ACR
+# Secrets：REGISTRY（如 registry.cn-hangzhou.aliyuncs.com/ns/babeldoc-fc）、ALIBABA_CLOUD_USERNAME、ALIBABA_CLOUD_PASSWORD
+name: Build BabelDOC FC (CPU) and push to ACR
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # BabelDOC 的 document_il.backend 必须存在，否则 FC 运行时报 ModuleNotFoundError（.gitignore 曾忽略 backend/ 导致未入库）
+      - name: Ensure BabelDOC document_il backend
+        run: |
+          PARENT_DIR="tmp/BabelDOC/babeldoc/format/pdf/document_il"
+          BACKEND_DIR="$PARENT_DIR/backend"
+          if [ ! -d "$BACKEND_DIR" ]; then
+            echo "Fetching document_il/backend from funstory-ai/BabelDOC..."
+            git clone --depth 1 https://github.com/funstory-ai/BabelDOC.git /tmp/babeldoc-upstream
+            mkdir -p "$PARENT_DIR"
+            cp -r /tmp/babeldoc-upstream/babeldoc/format/pdf/document_il/backend "$PARENT_DIR/"
+            rm -rf /tmp/babeldoc-upstream
+          fi
+          test -d "$BACKEND_DIR" || { echo "::error::BabelDOC backend dir still missing"; exit 1; }
+
+      - name: Check ACR registry secret
+        run: |
+          if [ -z "$REGISTRY" ]; then
+            echo "::error::REGISTRY secret is not set. Add it in Settings → Secrets → Actions (e.g. registry.cn-hangzhou.aliyuncs.com/your-ns/babeldoc-fc)"
+            exit 1
+          fi
+          echo "Pushing to registry: ${REGISTRY%%:*}"
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}
+
+      - name: Login to Aliyun ACR
+        run: |
+          ACR_HOST="${REGISTRY%%/*}"
+          echo "::add-mask::$ALIBABA_CLOUD_PASSWORD"
+          echo "$ALIBABA_CLOUD_PASSWORD" | docker login "$ACR_HOST" -u "$ALIBABA_CLOUD_USERNAME" --password-stdin
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}
+          ALIBABA_CLOUD_USERNAME: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
+          ALIBABA_CLOUD_PASSWORD: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
+
+      - name: Build and push CPU image
+        run: |
+          docker build -f docker/Dockerfile.babeldoc-fc -t "$REGISTRY:latest" -t "$REGISTRY:sha-${{ github.sha }}" .
+          docker push "$REGISTRY:latest"
+          docker push "$REGISTRY:sha-${{ github.sha }}"
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}

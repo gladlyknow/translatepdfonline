@@ -616,6 +616,10 @@ export const translationTasks = table(
     fcDispatchAttemptCount: integer('fc_dispatch_attempt_count').default(0),
     /** 防止多 Worker 同时对同一任务发起 FC HTTP */
     fcInvokeLeaseUntil: timestamp('fc_invoke_lease_until'),
+    /** fetch 超时/断连等挂起类错误是否已用过 1 次自动重试（与 429 等 HTTP 退避计数分离） */
+    fcFetchHangRetryUsed: boolean('fc_fetch_hang_retry_used')
+      .default(false)
+      .notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()

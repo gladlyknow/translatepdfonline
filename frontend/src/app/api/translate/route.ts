@@ -402,7 +402,7 @@ export async function POST(req: Request) {
         return Response.json(
           {
             detail:
-              'translation_tasks 表缺少列（常见于未跑迁移）。请在 Postgres 中依次执行：frontend/docs/migrations/translation_tasks_billing.sql，再执行 translation_tasks_fc_dispatch.sql，然后重试。',
+              'translation_tasks 表缺少列（常见于未跑迁移）。请在 Postgres 中依次执行：frontend/docs/migrations/translation_tasks_billing.sql，再执行 translation_tasks_fc_dispatch.sql、translation_tasks_fc_fetch_hang_retry.sql，然后重试。',
             code: 'schema_migration_required',
           },
           { status: 503 }

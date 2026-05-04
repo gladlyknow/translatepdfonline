@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import tempfile
+import time
 from pathlib import Path
 
 import httpx
@@ -165,10 +166,10 @@ def _notify_callback(
     error_message: str | None = None,
     translated_page_count: int | None = None,
     error_code: str | None = None,
-) -> None:
-    """POST 到 Next 的 callback_url，通知任务完成或失败。"""
+) -> bool:
+    """POST 到 Next 的 callback_url，通知任务完成或失败。返回 True 表示跳过（无 URL）或 HTTP 200。"""
     if not callback_url or not task_id:
-        return
+        return True
     payload: dict = {"task_id": task_id, "status": status}
     if output_object_key:
         payload["output_object_key"] = output_object_key
@@ -187,8 +188,42 @@ def _notify_callback(
             r = client.post(callback_url, json=payload, headers=headers or None)
             if r.status_code != 200:
                 logger.warning("callback POST %s status=%s body=%s", callback_url, r.status_code, r.text[:200])
+                return False
+            return True
     except Exception as e:
         logger.warning("callback POST failed url=%s err=%s", callback_url, e)
+        return False
+
+
+def _notify_completed_callback_with_retry(
+    callback_url: str,
+    task_id: str,
+    output_object_key: str,
+    translated_page_count: int,
+) -> None:
+    """成功路径：回调必须送达，否则抛 422（Next 侧非可重试，避免任务永久 queued）。"""
+    backoff_seconds = (1, 2, 4, 8)
+    last_ok = False
+    for attempt in range(5):
+        if attempt > 0:
+            time.sleep(backoff_seconds[attempt - 1])
+        if _notify_callback(
+            callback_url,
+            task_id,
+            "completed",
+            output_object_key=output_object_key,
+            translated_page_count=translated_page_count,
+        ):
+            last_ok = True
+            break
+    if not last_ok:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Callback to Next failed after retries (translation may be on R2); "
+                "caller should surface failed task so user can retry."
+            )[:500],
+        )
 
 
 @app.post("/translate", response_model=TranslateResponse)
@@ -280,12 +315,11 @@ async def translate(
                 babeldoc_page_hint, body.page_range, input_pdf
             )
         if body.callback_url and body.task_id:
-            _notify_callback(
+            _notify_completed_callback_with_retry(
                 body.callback_url,
                 body.task_id,
-                "completed",
-                output_object_key=body.output_object_key,
-                translated_page_count=page_count_for_callback,
+                body.output_object_key,
+                page_count_for_callback,
             )
         return TranslateResponse(output_object_key=body.output_object_key)
     except HTTPException:

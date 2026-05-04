@@ -70,7 +70,7 @@ frontend/.next/
 frontend/.git/
 frontend_old/
 frontend/db_bak/
-/.github/
+# /.github/
 # 仅忽略仓库根目录的 backend，避免把 BabelDOC 的 document_il/backend 也忽略掉（FC 镜像依赖）
 /backend/
 

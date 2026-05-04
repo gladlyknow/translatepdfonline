@@ -1,4 +1,7 @@
-import { dispatchPendingTranslateFcJobs } from '../invoke-fc';
+import {
+  dispatchPendingTranslateFcJobs,
+  reapStaleFcAcceptedTasks,
+} from '../invoke-fc';
 
 /**
  * Cron：自动重试 / 派发 queued 的翻译任务（FC 429/503 或首次未在 waitUntil 内完成时）。
@@ -19,16 +22,17 @@ export async function POST(req: Request) {
   }
 
   try {
+    const reap = await reapStaleFcAcceptedTasks();
     const result = await dispatchPendingTranslateFcJobs(
       Math.min(
         20,
         Math.max(1, parseInt(process.env.TRANSLATE_DISPATCH_BATCH_SIZE || '8', 10) || 8)
       )
     );
-    if (result.processed === 0) {
+    if (result.processed === 0 && reap.reaped === 0) {
       return new Response(null, { status: 204 });
     }
-    return Response.json({ ok: true, ...result });
+    return Response.json({ ok: true, ...result, ...reap });
   } catch (e) {
     console.error('[translate/dispatch-pending]', e);
     return Response.json(

@@ -1,5 +1,8 @@
 /**
  * 调用 babeldoc_fc（与 POST /api/translate 内逻辑一致），并更新 FC 调度字段（重试 / 可观测）。
+ *
+ * FC「挂起」重试：`fetch` 抛错（超时/断连）时最多自动再派发 1 次（`fcFetchHangRetryUsed`），
+ * 与 babeldoc_fc 内「翻译完成后的 callback HTTP 重试」无关；`reapStaleFcAcceptedTasks` 仅匹配已 `fc_accepted` 的任务。
  */
 
 import { eq, and, or, isNull, lte, asc } from 'drizzle-orm';
@@ -222,27 +225,51 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
       signal: fcFetchSignal(),
     });
   } catch (e) {
-    const delay = fcBackoffMs(thisAttempt);
-    const nextAt = new Date(Date.now() + delay);
+    const msg = `FC fetch failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 500);
+    const hangRetryAlreadyUsed = Boolean(row.fcFetchHangRetryUsed);
+
+    if (hangRetryAlreadyUsed) {
+      await db()
+        .update(translationTasks)
+        .set({
+          status: 'failed',
+          errorCode: 'fc_invoke_timeout_exhausted',
+          errorMessage: msg,
+          fcLastHttpStatus: null,
+          fcLastInvokedAt: new Date(),
+          fcNextAttemptAt: null,
+          fcDispatchAttemptCount: thisAttempt,
+          fcInvokeLeaseUntil: null,
+          progressStage: 'fc_invoke_exhausted',
+          progressPercent: 0,
+          updatedAt: new Date(),
+        })
+        .where(eq(translationTasks.id, taskId));
+      console.error(
+        '[translate/invoke-fc] fetch_failed_exhausted',
+        JSON.stringify({ task_id: taskId, attempt: thisAttempt })
+      );
+      return;
+    }
+
+    const nextAt = new Date(Date.now() + 8_000);
     await db()
       .update(translationTasks)
       .set({
+        fcFetchHangRetryUsed: true,
         fcLastHttpStatus: null,
         fcLastInvokedAt: new Date(),
         fcNextAttemptAt: nextAt,
         fcDispatchAttemptCount: thisAttempt,
         fcInvokeLeaseUntil: null,
-        progressStage: 'fc_network_error_retry_scheduled',
+        progressStage: 'fc_hang_retry_scheduled',
         progressPercent: Math.min(15, 5 + thisAttempt * 2),
-        errorMessage: `FC fetch failed: ${e instanceof Error ? e.message : String(e)}`.slice(
-          0,
-          500
-        ),
+        errorMessage: msg,
         updatedAt: new Date(),
       })
       .where(eq(translationTasks.id, taskId));
-    console.error(
-      '[translate/invoke-fc] fetch_failed',
+    console.warn(
+      '[translate/invoke-fc] fetch_failed_one_retry_scheduled',
       JSON.stringify({ task_id: taskId, attempt: thisAttempt, next_at: nextAt.toISOString() })
     );
     return;
@@ -259,6 +286,7 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
         fcLastInvokedAt: new Date(),
         fcNextAttemptAt: null,
         fcDispatchAttemptCount: 0,
+        fcFetchHangRetryUsed: false,
         fcInvokeLeaseUntil: null,
         progressStage: 'fc_accepted',
         progressPercent: Math.max(row.progressPercent ?? 0, 25),
@@ -398,4 +426,54 @@ export async function dispatchPendingTranslateFcJobs(limit = 8): Promise<{
   }
 
   return { processed: taskIds.length, task_ids: taskIds };
+}
+
+/**
+ * Cron 兜底：FC 曾返回 200（progress fc_accepted）但回调未把任务置终态时，长时间仍为 queued。
+ * 将超时任务标为 failed，避免界面永久「排队中」。
+ */
+export async function reapStaleFcAcceptedTasks(): Promise<{ reaped: number }> {
+  const raw = parseInt(
+    process.env.TRANSLATE_STALE_FC_ACCEPTED_MINUTES || '45',
+    10
+  );
+  const minutes = Math.min(24 * 60, Math.max(5, Number.isFinite(raw) ? raw : 45));
+  const cutoff = new Date(Date.now() - minutes * 60_000);
+
+  const rows = await db()
+    .update(translationTasks)
+    .set({
+      status: 'failed',
+      errorCode: 'stale_fc_accepted',
+      errorMessage: `No terminal state within ${minutes}m after FC accepted; please retry translate.`.slice(
+        0,
+        500
+      ),
+      fcInvokeLeaseUntil: null,
+      fcNextAttemptAt: null,
+      progressPercent: 0,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(translationTasks.status, 'queued'),
+        eq(translationTasks.preprocessWithOcr, false),
+        eq(translationTasks.progressStage, 'fc_accepted'),
+        lte(translationTasks.updatedAt, cutoff)
+      )
+    )
+    .returning({ id: translationTasks.id });
+
+  const reaped = rows.length;
+  if (reaped > 0) {
+    console.warn(
+      '[translate/reap-stale-fc-accepted]',
+      JSON.stringify({
+        reaped,
+        minutes,
+        task_ids: rows.map((r: { id: string }) => r.id),
+      })
+    );
+  }
+  return { reaped };
 }
