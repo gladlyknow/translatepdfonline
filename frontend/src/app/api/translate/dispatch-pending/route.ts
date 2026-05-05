@@ -4,7 +4,9 @@ import {
 } from '../invoke-fc';
 
 /**
- * Cron：自动重试 / 派发 queued 的翻译任务（FC 429/503 或首次未在 waitUntil 内完成时）。
+ * Cron：派发仍为 queued 的翻译任务（仅负责向 FC **提交**请求：异步 ACK 或同步首轮）。
+ * 长耗时翻译与 LLM 重试在 **babeldoc_fc 内部**；此处仅为调度下一窗口或提交失败后的有限次重试（见 TRANSLATE_FC_SUBMIT_MAX_ATTEMPTS）。
+ * 顺带 reap：已 fc_async_submitted / fc_accepted 但长期无 callback 的任务。
  * Header: x-cron-secret 与 CRON_SECRET 或 TRANSLATE_DISPATCH_SECRET 一致。
  */
 export async function POST(req: Request) {

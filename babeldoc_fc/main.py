@@ -5,6 +5,7 @@ BabelDOC FC HTTP 入口：POST /translate 接收源 PDF URL 与参数，执行�
 from __future__ import annotations
 
 import logging
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -19,7 +20,7 @@ from .config import (
     get_fc_secret,
     get_r2_config,
 )
-from .run_translate import run_translate_local
+from .run_translate import _normalize_lang, run_translate_local_with_retries
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -47,11 +48,54 @@ class TranslateResponse(BaseModel):
     output_object_key: str = Field(..., description="R2 key of the uploaded result PDF")
 
 
+# 与 frontend SUPPORTED_UI_LANGS 归一化后一致（zh → zh_cn）
+ALLOWED_LANGS_NORMALIZED = frozenset(
+    {"en", "zh_cn", "es", "fr", "it", "el", "ja", "ko", "de", "ru"}
+)
+
+
+def _validate_translate_langs(source_lang: str, target_lang: str) -> None:
+    s = _normalize_lang(source_lang)
+    t = _normalize_lang(target_lang)
+    if s not in ALLOWED_LANGS_NORMALIZED:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported source_lang (normalized={s!r}); allowed={sorted(ALLOWED_LANGS_NORMALIZED)}",
+        )
+    if t not in ALLOWED_LANGS_NORMALIZED:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported target_lang (normalized={t!r}); allowed={sorted(ALLOWED_LANGS_NORMALIZED)}",
+        )
+    if s == t:
+        raise HTTPException(
+            status_code=400,
+            detail="source_lang and target_lang must differ after normalization",
+        )
+
+
 def _download_pdf(url: str, dest: Path) -> None:
     with httpx.Client(timeout=300.0) as client:
         resp = client.get(url)
         resp.raise_for_status()
         dest.write_bytes(resp.content)
+
+
+def _download_pdf_with_retry(url: str, dest: Path) -> None:
+    max_n = max(1, min(6, int(os.getenv("BABELDOC_DOWNLOAD_MAX_ATTEMPTS", "4"))))
+    backoff = (1.0, 2.0, 4.0, 8.0, 16.0)
+    last: BaseException | None = None
+    for i in range(max_n):
+        if i > 0:
+            time.sleep(backoff[min(i - 1, len(backoff) - 1)])
+        try:
+            _download_pdf(url, dest)
+            return
+        except Exception as e:
+            last = e
+            logger.warning("download attempt %s/%s failed: %s", i + 1, max_n, e)
+    assert last is not None
+    raise last
 
 
 def _upload_to_r2(local_path: Path, object_key: str) -> None:
@@ -74,6 +118,23 @@ def _upload_to_r2(local_path: Path, object_key: str) -> None:
         object_key,
         ExtraArgs={"ContentType": "application/pdf"},
     )
+
+
+def _upload_to_r2_with_retry(local_path: Path, object_key: str) -> None:
+    max_n = max(1, min(6, int(os.getenv("BABELDOC_UPLOAD_MAX_ATTEMPTS", "4"))))
+    backoff = (1.0, 2.0, 4.0, 8.0, 16.0)
+    last: BaseException | None = None
+    for i in range(max_n):
+        if i > 0:
+            time.sleep(backoff[min(i - 1, len(backoff) - 1)])
+        try:
+            _upload_to_r2(local_path, object_key)
+            return
+        except Exception as e:
+            last = e
+            logger.warning("R2 upload attempt %s/%s failed: %s", i + 1, max_n, e)
+    assert last is not None
+    raise last
 
 
 def _parse_page_range(s: str | None) -> tuple[int, int] | None:
@@ -239,20 +300,21 @@ async def translate(
     expected_header = get_fc_auth_scheme() + secret if secret else ""
     if secret and (x_babeldoc_secret or "") != expected_header:
         raise HTTPException(status_code=403, detail="Invalid or missing X-Babeldoc-Secret")
+    _validate_translate_langs(body.source_lang, body.target_lang)
     try:
         with tempfile.TemporaryDirectory(prefix="babeldoc_fc_") as tmp:
             tmp_path = Path(tmp)
             input_pdf = tmp_path / "input.pdf"
             output_dir = tmp_path / "output"
             try:
-                _download_pdf(body.source_pdf_url, input_pdf)
+                _download_pdf_with_retry(body.source_pdf_url, input_pdf)
             except Exception as e:
                 logger.exception("download failed url=%s", body.source_pdf_url[:80])
                 if body.callback_url and body.task_id:
                     _notify_callback(body.callback_url, body.task_id, "failed", error_message=f"Failed to download source PDF: {e}")
                 raise HTTPException(status_code=502, detail=f"Failed to download source PDF: {e}") from e
             try:
-                output_paths, babeldoc_page_hint = run_translate_local(
+                output_paths, babeldoc_page_hint = run_translate_local_with_retries(
                     local_pdf_path=input_pdf,
                     output_dir=output_dir,
                     source_lang=body.source_lang,
@@ -302,7 +364,7 @@ async def translate(
                 raise HTTPException(status_code=500, detail=f"Output PDF not accessible: {e}") from e
             logger.info("Uploading to R2 key=%s path=%s size=%s", body.output_object_key, primary, primary_size)
             try:
-                _upload_to_r2(primary, body.output_object_key)
+                _upload_to_r2_with_retry(primary, body.output_object_key)
             except Exception as e:
                 logger.exception("R2 upload failed key=%s err=%s", body.output_object_key, e)
                 if body.callback_url and body.task_id:

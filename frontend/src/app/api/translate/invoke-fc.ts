@@ -1,8 +1,9 @@
 /**
  * 调用 babeldoc_fc（与 POST /api/translate 内逻辑一致），并更新 FC 调度字段（重试 / 可观测）。
  *
- * FC「挂起」重试：`fetch` 抛错（超时/断连）时最多自动再派发 1 次（`fcFetchHangRetryUsed`），
- * 与 babeldoc_fc 内「翻译完成后的 callback HTTP 重试」无关；`reapStaleFcAcceptedTasks` 仅匹配已 `fc_accepted` 的任务。
+ * 默认使用阿里云 FC HTTP **异步调用**（`X-Fc-Invocation-Type: Async`）：Worker 只等网关 ACK，
+ * 短超时；翻译在 FC 内执行，结果只经 callback 落地。同步模式（`TRANSLATE_FC_INVOCATION_TYPE=sync`）用于本地调试。
+ * `reapStaleFcAcceptedTasks` 匹配已提交 FC（`fc_async_submitted` / `fc_accepted`）但长期无终态回调的任务。
  */
 
 import { eq, and, or, isNull, lte, asc } from 'drizzle-orm';
@@ -17,7 +18,7 @@ import {
 
 const RETRYABLE_STATUS = new Set([429, 502, 503, 500]);
 
-/** FC 冷启动 + BabelDOC 可能数分钟；过短会导致对端报 Invocation canceled by client */
+/** 同步模式：等待 FC 完整执行完 HTTP 响应（本地 / 调试） */
 const FC_FETCH_TIMEOUT_MS = Math.min(
   900_000,
   Math.max(
@@ -26,11 +27,37 @@ const FC_FETCH_TIMEOUT_MS = Math.min(
   )
 );
 
-function fcFetchSignal(): AbortSignal | undefined {
+/** 异步模式：仅等待阿里云网关接受异步任务（秒级） */
+const FC_ASYNC_ACK_TIMEOUT_MS = Math.min(
+  120_000,
+  Math.max(
+    10_000,
+    Number(process.env.TRANSLATE_FC_ASYNC_ACK_TIMEOUT_MS) || 25_000
+  )
+);
+
+/** 阿里云异步调用请求体上限约 128KB，预留余量 */
+const FC_ASYNC_BODY_MAX_BYTES = 120_000;
+
+function translateFcInvocationAsync(): boolean {
+  const raw =
+    getWorkerBindingString('TRANSLATE_FC_INVOCATION_TYPE') ||
+    process.env.TRANSLATE_FC_INVOCATION_TYPE ||
+    '';
+  return String(raw).trim().toLowerCase() !== 'sync';
+}
+
+function fcFetchSignalForInvocation(asyncMode: boolean): AbortSignal | undefined {
   if (typeof AbortSignal === 'undefined' || typeof AbortSignal.timeout !== 'function') {
     return undefined;
   }
-  return AbortSignal.timeout(FC_FETCH_TIMEOUT_MS);
+  const ms = asyncMode ? FC_ASYNC_ACK_TIMEOUT_MS : FC_FETCH_TIMEOUT_MS;
+  return AbortSignal.timeout(ms);
+}
+
+function fcSubmitMaxAttempts(): number {
+  const n = parseInt(process.env.TRANSLATE_FC_SUBMIT_MAX_ATTEMPTS || '5', 10);
+  return Math.min(20, Math.max(1, Number.isFinite(n) ? n : 5));
 }
 
 function errorCodeFromFcErrorBodySnippet(snippet: string): string | null {
@@ -111,6 +138,7 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
     return;
   }
 
+  const asyncMode = translateFcInvocationAsync();
   const now = new Date();
   const leaseUntil = new Date(Date.now() + 120_000);
 
@@ -200,6 +228,9 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
   if (FC_SECRET) {
     headers[authHeader] = authScheme + FC_SECRET;
   }
+  if (asyncMode) {
+    headers['X-Fc-Invocation-Type'] = 'Async';
+  }
 
   const fcPayload: Record<string, unknown> = {
     task_id: taskId,
@@ -213,64 +244,87 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
     fcPayload.page_range = row.pageRange;
   }
 
+  const bodyStr = JSON.stringify(fcPayload);
+  if (asyncMode && new TextEncoder().encode(bodyStr).length > FC_ASYNC_BODY_MAX_BYTES) {
+    await db()
+      .update(translationTasks)
+      .set({
+        status: 'failed',
+        errorCode: 'fc_payload_too_large',
+        errorMessage:
+          `FC async request body exceeds ${FC_ASYNC_BODY_MAX_BYTES} bytes; shorten presigned URL_ttl or use sync mode.`,
+        fcInvokeLeaseUntil: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(translationTasks.id, taskId));
+    console.error(
+      '[translate/invoke-fc] payload_too_large',
+      JSON.stringify({ task_id: taskId, bytes: new TextEncoder().encode(bodyStr).length })
+    );
+    return;
+  }
+
   const prevAttempts = row.fcDispatchAttemptCount ?? 0;
   const thisAttempt = prevAttempts + 1;
+  const submitCap = fcSubmitMaxAttempts();
 
   let res: Response;
   try {
     res = await fetch(FC_URL, {
       method: 'POST',
       headers,
-      body: JSON.stringify(fcPayload),
-      signal: fcFetchSignal(),
+      body: bodyStr,
+      signal: fcFetchSignalForInvocation(asyncMode),
     });
   } catch (e) {
     const msg = `FC fetch failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 500);
-    const hangRetryAlreadyUsed = Boolean(row.fcFetchHangRetryUsed);
-
-    if (hangRetryAlreadyUsed) {
+    if (thisAttempt >= submitCap) {
       await db()
         .update(translationTasks)
         .set({
           status: 'failed',
-          errorCode: 'fc_invoke_timeout_exhausted',
+          errorCode: 'fc_submit_exhausted',
           errorMessage: msg,
           fcLastHttpStatus: null,
           fcLastInvokedAt: new Date(),
           fcNextAttemptAt: null,
           fcDispatchAttemptCount: thisAttempt,
           fcInvokeLeaseUntil: null,
-          progressStage: 'fc_invoke_exhausted',
+          progressStage: 'fc_submit_exhausted',
           progressPercent: 0,
           updatedAt: new Date(),
         })
         .where(eq(translationTasks.id, taskId));
       console.error(
         '[translate/invoke-fc] fetch_failed_exhausted',
-        JSON.stringify({ task_id: taskId, attempt: thisAttempt })
+        JSON.stringify({ task_id: taskId, attempt: thisAttempt, async: asyncMode })
       );
       return;
     }
-
-    const nextAt = new Date(Date.now() + 8_000);
+    const delay = fcBackoffMs(thisAttempt);
+    const nextAt = new Date(Date.now() + delay);
     await db()
       .update(translationTasks)
       .set({
-        fcFetchHangRetryUsed: true,
         fcLastHttpStatus: null,
         fcLastInvokedAt: new Date(),
         fcNextAttemptAt: nextAt,
         fcDispatchAttemptCount: thisAttempt,
         fcInvokeLeaseUntil: null,
-        progressStage: 'fc_hang_retry_scheduled',
+        progressStage: 'fc_submit_retry_scheduled',
         progressPercent: Math.min(15, 5 + thisAttempt * 2),
         errorMessage: msg,
         updatedAt: new Date(),
       })
       .where(eq(translationTasks.id, taskId));
     console.warn(
-      '[translate/invoke-fc] fetch_failed_one_retry_scheduled',
-      JSON.stringify({ task_id: taskId, attempt: thisAttempt, next_at: nextAt.toISOString() })
+      '[translate/invoke-fc] fetch_failed_retry_scheduled',
+      JSON.stringify({
+        task_id: taskId,
+        attempt: thisAttempt,
+        async: asyncMode,
+        next_at: nextAt.toISOString(),
+      })
     );
     return;
   }
@@ -286,9 +340,8 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
         fcLastInvokedAt: new Date(),
         fcNextAttemptAt: null,
         fcDispatchAttemptCount: 0,
-        fcFetchHangRetryUsed: false,
         fcInvokeLeaseUntil: null,
-        progressStage: 'fc_accepted',
+        progressStage: asyncMode ? 'fc_async_submitted' : 'fc_accepted',
         progressPercent: Math.max(row.progressPercent ?? 0, 25),
         errorMessage: null,
         updatedAt: new Date(),
@@ -296,7 +349,12 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
       .where(eq(translationTasks.id, taskId));
     console.log(
       '[translate/invoke-fc] ok',
-      JSON.stringify({ task_id: taskId, http_status: status })
+      JSON.stringify({
+        task_id: taskId,
+        http_status: status,
+        async: asyncMode,
+        stage: asyncMode ? 'fc_async_submitted' : 'fc_accepted',
+      })
     );
     return;
   }
@@ -325,6 +383,31 @@ export async function invokeTranslateFcForTask(taskId: string): Promise<void> {
         .where(eq(translationTasks.id, taskId));
       console.warn(
         '[translate/invoke-fc] classified_as_scanned_skip_retry',
+        JSON.stringify({ task_id: taskId, http_status: status })
+      );
+      return;
+    }
+    if (thisAttempt >= submitCap) {
+      await db()
+        .update(translationTasks)
+        .set({
+          fcLastHttpStatus: status,
+          fcLastInvokedAt: new Date(),
+          status: 'failed',
+          errorCode: 'fc_submit_exhausted',
+          errorMessage:
+            `FC returned ${status} after ${submitCap} submit attempts: ${snippet}`.slice(
+              0,
+              500
+            ),
+          progressPercent: 0,
+          fcInvokeLeaseUntil: null,
+          fcNextAttemptAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(translationTasks.id, taskId));
+      console.error(
+        '[translate/invoke-fc] retryable_exhausted',
         JSON.stringify({ task_id: taskId, http_status: status })
       );
       return;
@@ -429,8 +512,7 @@ export async function dispatchPendingTranslateFcJobs(limit = 8): Promise<{
 }
 
 /**
- * Cron 兜底：FC 曾返回 200（progress fc_accepted）但回调未把任务置终态时，长时间仍为 queued。
- * 将超时任务标为 failed，避免界面永久「排队中」。
+ * Cron 兜底：已向 FC 提交（异步 ACK 或同步 200）但 callback 未置终态时，长时间仍为 queued。
  */
 export async function reapStaleFcAcceptedTasks(): Promise<{ reaped: number }> {
   const raw = parseInt(
@@ -445,7 +527,7 @@ export async function reapStaleFcAcceptedTasks(): Promise<{ reaped: number }> {
     .set({
       status: 'failed',
       errorCode: 'stale_fc_accepted',
-      errorMessage: `No terminal state within ${minutes}m after FC accepted; please retry translate.`.slice(
+      errorMessage: `No terminal state within ${minutes}m after FC submit (fc_async_submitted/fc_accepted); please retry translate.`.slice(
         0,
         500
       ),
@@ -458,7 +540,10 @@ export async function reapStaleFcAcceptedTasks(): Promise<{ reaped: number }> {
       and(
         eq(translationTasks.status, 'queued'),
         eq(translationTasks.preprocessWithOcr, false),
-        eq(translationTasks.progressStage, 'fc_accepted'),
+        or(
+          eq(translationTasks.progressStage, 'fc_accepted'),
+          eq(translationTasks.progressStage, 'fc_async_submitted')
+        ),
         lte(translationTasks.updatedAt, cutoff)
       )
     )

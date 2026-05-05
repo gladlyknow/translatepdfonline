@@ -4,8 +4,8 @@ name: Build BabelDOC FC (CPU) and push to ACR
 
 on:
   push:
-    # branches: [develop]
-    branches: [master]
+    branches: [develop]
+    # branches: [master]
   workflow_dispatch:
 
 jobs:

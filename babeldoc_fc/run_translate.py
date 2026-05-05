@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 
 from .config import get_deepseek_api_key, get_deepseek_base_url, get_deepseek_model
@@ -272,3 +273,71 @@ def run_translate_local(
             logger.info("run_translate_local: using rglob fallback %s", [str(p) for p in pdfs])
             return [str(p) for p in pdfs], page_hint
     return [], page_hint
+
+
+def _is_transient_translate_error(exc: BaseException) -> bool:
+    """API 抖动、空响应、JSON 解析失败等可尝试重试。"""
+    low = str(exc).lower()
+    markers = (
+        "rate limit",
+        "ratelimit",
+        "timeout",
+        "timed out",
+        "connection",
+        "expecting value",
+        "jsondecodeerror",
+        "json decode",
+        "503",
+        "502",
+        "429",
+        "remote end closed",
+        "broken pipe",
+        "temporarily unavailable",
+        "eof",
+        "incomplete",
+    )
+    return any(m in low for m in markers)
+
+
+def run_translate_local_with_retries(
+    local_pdf_path: str | Path,
+    output_dir: str | Path,
+    source_lang: str,
+    target_lang: str,
+    page_range: str | None = None,
+) -> tuple[list[str], int | None]:
+    """包装 run_translate_local：对瞬时错误有限次重试（次数由 BABELDOC_TRANSLATE_MAX_ATTEMPTS 控制）。"""
+    max_n = max(1, min(8, int(os.getenv("BABELDOC_TRANSLATE_MAX_ATTEMPTS", "3"))))
+    last_exc: BaseException | None = None
+    for attempt in range(max_n):
+        if attempt > 0:
+            delay = min(45.0, 2.0**attempt)
+            logger.warning(
+                "run_translate_local retry sleeping %.1fs (attempt %s/%s)",
+                delay,
+                attempt + 1,
+                max_n,
+            )
+            time.sleep(delay)
+        try:
+            return run_translate_local(
+                local_pdf_path=local_pdf_path,
+                output_dir=output_dir,
+                source_lang=source_lang,
+                target_lang=target_lang,
+                page_range=page_range,
+            )
+        except Exception as e:
+            last_exc = e
+            transient = _is_transient_translate_error(e)
+            logger.warning(
+                "run_translate_local attempt %s/%s failed transient=%s err=%s",
+                attempt + 1,
+                max_n,
+                transient,
+                e,
+            )
+            if not transient or attempt == max_n - 1:
+                raise
+    assert last_exc is not None
+    raise last_exc
