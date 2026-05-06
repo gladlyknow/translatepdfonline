@@ -123,6 +123,70 @@ class TestEnforceGate(unittest.TestCase):
                     None,
                 )
 
+    def test_fallback_share_raises_single_page_selection(self):
+        """range=1 页、与日志类似 3 批里 1 次 fallback → 应拦截。"""
+        os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
+        pdf = MagicMock(spec=Path)
+        with unittest.mock.patch(
+            "babeldoc_fc.text_layer_gate._pdf_num_pages", return_value=1
+        ):
+            with self.assertRaises(InsufficientTextLayerForTranslationError):
+                enforce_text_layer_after_translate(
+                    _FakeResult(
+                        total_valid_character_count=800,
+                        paragraph_extractable_total=3,
+                        paragraph_llm_total=3,
+                        paragraph_llm_ok=2,
+                        paragraph_llm_fallback=1,
+                    ),
+                    pdf,
+                    "1",
+                )
+
+    def test_partial_one_page_of_multi_page_sparse_raises(self):
+        """用户只选 1 页翻译，但整份 PDF 多页且可译段落相对全文过稀。"""
+        os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
+        pdf = MagicMock(spec=Path)
+        with (
+            unittest.mock.patch(
+                "babeldoc_fc.text_layer_gate._pdf_num_pages", return_value=20
+            ),
+            unittest.mock.patch(
+                "babeldoc_fc.text_layer_gate.effective_pages_for_gate", return_value=1
+            ),
+        ):
+            with self.assertRaises(InsufficientTextLayerForTranslationError):
+                enforce_text_layer_after_translate(
+                    _FakeResult(
+                        total_valid_character_count=2000,
+                        paragraph_extractable_total=3,
+                        paragraph_llm_total=3,
+                        paragraph_llm_ok=3,
+                        paragraph_llm_fallback=0,
+                    ),
+                    pdf,
+                    "1",
+                )
+
+    def test_true_single_page_dense_passes(self):
+        """真·单页文件：不触发「相对全文稀疏」；无高 fallback 时应通过。"""
+        os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
+        pdf = MagicMock(spec=Path)
+        with unittest.mock.patch(
+            "babeldoc_fc.text_layer_gate._pdf_num_pages", return_value=1
+        ):
+            enforce_text_layer_after_translate(
+                _FakeResult(
+                    total_valid_character_count=500,
+                    paragraph_extractable_total=8,
+                    paragraph_llm_total=4,
+                    paragraph_llm_ok=4,
+                    paragraph_llm_fallback=0,
+                ),
+                pdf,
+                "1",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,9 +4,12 @@ Maps to scan_detected_use_ocr via InsufficientTextLayerForTranslationError in ma
 """
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class InsufficientTextLayerForTranslationError(RuntimeError):
@@ -99,7 +102,9 @@ def enforce_text_layer_after_translate(
             "babeldoc_insufficient_text_layer: translate returned no result"
         )
 
-    pages = effective_pages_for_gate(input_pdf, page_range)
+    # 用户所选页数（如 page_range=1 或 1-3）；整份 PDF 页数用于「只译 1 页但文件多页」的稀疏检测
+    range_pages = effective_pages_for_gate(input_pdf, page_range)
+    doc_pages = _pdf_num_pages(input_pdf)
 
     valid_chars = getattr(result, "total_valid_character_count", None)
     if valid_chars is None:
@@ -125,36 +130,71 @@ def enforce_text_layer_after_translate(
     except (TypeError, ValueError):
         lt, lo = 0, 0
 
+    llm_fb_raw = getattr(result, "paragraph_llm_fallback", None)
+    try:
+        lfb = int(llm_fb_raw) if llm_fb_raw is not None else 0
+    except (TypeError, ValueError):
+        lfb = 0
+
     min_chars_total = _env_int("BABELDOC_MIN_VALID_CHARS_TOTAL", 8)
     min_chars_per_page = _env_int("BABELDOC_MIN_VALID_CHARS_PER_PAGE", 85)
     min_extractable_per_page = _env_float(
         "BABELDOC_MIN_EXTRACTABLE_PARAS_PER_PAGE", 0.2
     )
+    min_extractable_per_doc_page = _env_float(
+        "BABELDOC_MIN_EXTRACTABLE_PARAS_PER_DOC_PAGE", 0.22
+    )
+    min_doc_pages_for_partial_sparse = _env_int(
+        "BABELDOC_MIN_DOC_PAGES_FOR_PARTIAL_SPARSE", 3
+    )
     min_llm_total_for_ratio = _env_int("BABELDOC_MIN_LLM_TOTAL_FOR_RATIO", 3)
     min_llm_ok_ratio = _env_float("BABELDOC_MIN_LLM_OK_RATIO", 0.34)
+    min_llm_total_for_fallback = _env_int(
+        "BABELDOC_MIN_LLM_TOTAL_FOR_FALLBACK_RATIO", 3
+    )
+    min_fallback_ratio = _env_float("BABELDOC_MIN_FALLBACK_RATIO", 0.32)
 
-    cpp = valid_chars / max(pages, 1)
+    cpp = valid_chars / max(range_pages, 1)
     para_signal = lt > 0 or ext_i > 0
 
     reasons: list[str] = []
 
     if valid_chars <= 0:
         reasons.append(f"valid_chars={valid_chars}")
-    elif pages == 1 and valid_chars < min_chars_total:
-        reasons.append(f"single_page valid_chars={valid_chars} < {min_chars_total}")
-    elif pages >= 2 and cpp < min_chars_per_page:
+    elif range_pages == 1 and valid_chars < min_chars_total:
         reasons.append(
-            f"chars_per_page={cpp:.1f} < {min_chars_per_page} (pages={pages}, valid_chars={valid_chars})"
+            f"single_selected_page valid_chars={valid_chars} < {min_chars_total}"
+        )
+    elif range_pages >= 2 and cpp < min_chars_per_page:
+        reasons.append(
+            f"chars_per_page={cpp:.1f} < {min_chars_per_page} "
+            f"(range_pages={range_pages}, valid_chars={valid_chars})"
         )
 
     if (
         stats_ready
         and para_signal
-        and pages >= 2
-        and ext_i < max(1.0, pages * min_extractable_per_page)
+        and range_pages >= 2
+        and ext_i < max(1.0, range_pages * min_extractable_per_page)
     ):
         reasons.append(
-            f"extractable_paras={ext_i} < pages*{min_extractable_per_page:.2f} ({pages * min_extractable_per_page:.1f})"
+            f"extractable_paras={ext_i} < range_pages*{min_extractable_per_page:.2f} "
+            f"({range_pages * min_extractable_per_page:.1f})"
+        )
+
+    # 只译 1 页（range_pages==1）但整份 PDF 多页：用 doc_pages 判断「相对全文」可译段落是否过稀（不误伤真·单页文件）
+    if (
+        stats_ready
+        and para_signal
+        and range_pages == 1
+        and doc_pages >= min_doc_pages_for_partial_sparse
+        and ext_i > 0
+        and ext_i < doc_pages * min_extractable_per_doc_page
+    ):
+        reasons.append(
+            f"partial_one_page_sparse: extractable_paras={ext_i} < "
+            f"doc_pages*{min_extractable_per_doc_page:.2f} "
+            f"(doc_pages={doc_pages}, range_pages={range_pages})"
         )
 
     if (
@@ -167,7 +207,44 @@ def enforce_text_layer_after_translate(
             f"llm_ok_ratio={lo}/{lt} < {min_llm_ok_ratio} (min_total={min_llm_total_for_ratio})"
         )
 
+    # 高 fallback（如 CID 段落译不动）：单页/多页范围均适用；阈值可调避免误杀偶发 fallback
+    if (
+        stats_ready
+        and para_signal
+        and lt >= min_llm_total_for_fallback
+        and lfb > 0
+        and (lfb / lt) >= min_fallback_ratio
+    ):
+        reasons.append(
+            f"llm_fallback_share={lfb}/{lt} >= {min_fallback_ratio} "
+            f"(min_batches={min_llm_total_for_fallback})"
+        )
+
     if reasons:
+        logger.warning(
+            "[babeldoc_fc] text_layer_gate reject doc_pages=%s range_pages=%s "
+            "valid_chars=%s ext=%s llm=%s/%s fb=%s reasons=%s",
+            doc_pages,
+            range_pages,
+            valid_chars,
+            ext_i,
+            lo,
+            lt,
+            lfb,
+            "; ".join(reasons),
+        )
         raise InsufficientTextLayerForTranslationError(
             "babeldoc_insufficient_text_layer: " + "; ".join(reasons)
         )
+
+    logger.info(
+        "[babeldoc_fc] text_layer_gate ok doc_pages=%s range_pages=%s valid_chars=%s "
+        "ext=%s llm_ok=%s/%s fb=%s",
+        doc_pages,
+        range_pages,
+        valid_chars,
+        ext_i,
+        lo,
+        lt,
+        lfb,
+    )
