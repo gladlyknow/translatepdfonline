@@ -337,15 +337,41 @@ export function OcrTranslatePageClient() {
     PREVIEW_PAGE_DEBOUNCE_MS
   );
 
-  const updateTaskInUrl = useCallback(
-    (tid: string | null) => {
+  const replaceOcrQuery = useCallback(
+    (patch: {
+      taskId?: string | null;
+      documentId?: string | null;
+      sourceLang?: UILang | '' | null;
+      targetLang?: UILang | '' | null;
+    }) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (tid) params.set(TASK_PARAM, tid);
-      else params.delete(TASK_PARAM);
+      if ('taskId' in patch && patch.taskId !== undefined) {
+        if (patch.taskId) params.set(TASK_PARAM, patch.taskId);
+        else params.delete(TASK_PARAM);
+      }
+      if ('documentId' in patch && patch.documentId !== undefined) {
+        if (patch.documentId) params.set(DOC_PARAM, patch.documentId);
+        else params.delete(DOC_PARAM);
+      }
+      if ('sourceLang' in patch && patch.sourceLang !== undefined) {
+        if (patch.sourceLang) params.set(SOURCE_LANG_PARAM, patch.sourceLang);
+        else params.delete(SOURCE_LANG_PARAM);
+      }
+      if ('targetLang' in patch && patch.targetLang !== undefined) {
+        if (patch.targetLang) params.set(TARGET_LANG_PARAM, patch.targetLang);
+        else params.delete(TARGET_LANG_PARAM);
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
     [searchParams, pathname, router]
+  );
+
+  const updateTaskInUrl = useCallback(
+    (tid: string | null) => {
+      replaceOcrQuery({ taskId: tid });
+    },
+    [replaceOcrQuery]
   );
 
   useEffect(() => {
@@ -395,8 +421,9 @@ export function OcrTranslatePageClient() {
     }
     const qSource = toLang(searchParams.get(SOURCE_LANG_PARAM));
     const qTarget = toLang(searchParams.get(TARGET_LANG_PARAM));
-    if (qSource && !sourceLang) setSourceLang(qSource);
     if (qTarget && !targetLang) setTargetLang(qTarget);
+    if (qSource && !sourceLang) setSourceLang(qSource);
+    else if (!qSource && qTarget && !sourceLang) setSourceLang('en');
   }, [searchParams, documentId, sourceLang, targetLang]);
 
   useEffect(() => {
@@ -696,13 +723,20 @@ export function OcrTranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [historyLogOpen, taskId, taskStatus, recentTaskPage, recentDocumentPage]);
+  }, [
+    historyLogOpen,
+    taskId,
+    taskStatus,
+    recentTaskPage,
+    recentDocumentPage,
+    documentId,
+  ]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
     setRecentTaskPage(0);
     setRecentDocumentPage(0);
-  }, [historyLogOpen]);
+  }, [historyLogOpen, documentId]);
 
   const handleRefreshResult = async () => {
     if (!taskId || refreshing) return;
@@ -740,7 +774,12 @@ export function OcrTranslatePageClient() {
     setTaskDetail(null);
     setTaskStatus(null);
     setSubmitError(null);
-    updateTaskInUrl(null);
+    replaceOcrQuery({
+      taskId: null,
+      documentId: docId,
+      sourceLang: sourceLang || null,
+      targetLang: targetLang || null,
+    });
   };
 
   const handleDeleteDocument = async () => {
@@ -758,7 +797,7 @@ export function OcrTranslatePageClient() {
       setTaskView(null);
       setTaskDetail(null);
       setTaskStatus(null);
-      updateTaskInUrl(null);
+      replaceOcrQuery({ taskId: null, documentId: null });
     } finally {
       setDeletingDocId(null);
     }
@@ -780,12 +819,12 @@ export function OcrTranslatePageClient() {
       setTaskView(null);
       setTaskDetail(null);
       setTaskStatus(null);
-      updateTaskInUrl(null);
+      replaceOcrQuery({ taskId: null, documentId: null });
     }
-  }, [documentId, updateTaskInUrl]);
+  }, [documentId, replaceOcrQuery]);
 
   const startOcrTask = async () => {
-    if (!documentId || !sourceLang || starting || startOcrLockRef.current) return;
+    if (!documentId || starting || startOcrLockRef.current) return;
     startOcrLockRef.current = true;
     setStarting(true);
     setSubmitError(null);
@@ -811,10 +850,12 @@ export function OcrTranslatePageClient() {
         }
         setDocumentPageCountFromDb(resolvedPageCount);
       }
+      const effectiveSource = sourceLang || 'en';
+      const effectiveTarget = targetLang || 'zh';
       const res = await translateApi.createOcrTask(
         documentId,
-        sourceLang,
-        targetLang
+        effectiveSource,
+        effectiveTarget
       );
       setTaskId(res.task_id);
       setTaskStatus('queued');
@@ -1153,7 +1194,12 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={startOcrTask}
-              disabled={starting || resolvingPageCount || taskAwaitingResult || !sourceLang}
+              disabled={
+                starting ||
+                resolvingPageCount ||
+                taskAwaitingResult ||
+                !targetLang
+              }
               className={cn(
                 'flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold',
                 TRANSLATE_PRIMARY_CTA_CLASSNAME

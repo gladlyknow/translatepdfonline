@@ -43,6 +43,7 @@ export function UploadPageClient() {
   }, [searchParams, pathname, router]);
 
   const canStartTask = Boolean(uploadedDocumentId && sourceLang && targetLang);
+  const canStartOcr = Boolean(uploadedDocumentId && targetLang);
 
   const resolveActiveDocumentId = useCallback(async (): Promise<string | null> => {
     if (!uploadedDocumentId) return null;
@@ -109,7 +110,7 @@ export function UploadPageClient() {
   ]);
 
   const goOcr = useCallback(async () => {
-    if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
+    if (!uploadedDocumentId || !targetLang || launchLockRef.current) return;
     launchLockRef.current = true;
     try {
       setLaunchError(null);
@@ -123,7 +124,6 @@ export function UploadPageClient() {
       }
       const qs = new URLSearchParams({
         document: resolvedDocumentId,
-        source_lang: sourceLang,
         target_lang: targetLang,
       });
       router.push(`/ocrtranslator?${qs.toString()}`);
@@ -136,7 +136,6 @@ export function UploadPageClient() {
   }, [
     resolveActiveDocumentId,
     router,
-    sourceLang,
     tHome,
     targetLang,
     toLaunchError,
@@ -177,7 +176,7 @@ export function UploadPageClient() {
               type="button"
               className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
               onClick={goOcr}
-              disabled={!canStartTask || launchingMode !== null}
+              disabled={!canStartOcr || launchingMode !== null}
             >
               {launchingMode === 'ocr' ? tHome('downloading') : tHome('uploadPdfOcrCta')}
             </button>

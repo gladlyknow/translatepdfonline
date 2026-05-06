@@ -27,7 +27,8 @@ import {
   type UILang,
 } from '@/shared/lib/translate-api';
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
-import { Loader2, Download, Trash2, RefreshCw } from 'lucide-react';
+import { Loader2, Download, Trash2, RefreshCw, Languages } from 'lucide-react';
+import { toSupportedUiLang } from '@/shared/lib/translate-langs';
 
 const PdfViewerPane = dynamic(
   () =>
@@ -39,6 +40,8 @@ const PdfViewerPane = dynamic(
 
 const TASK_PARAM = 'task';
 const DOCUMENT_PARAM = 'document';
+const SOURCE_LANG_PARAM = 'source_lang';
+const TARGET_LANG_PARAM = 'target_lang';
 const POLL_INTERVAL_MS_ACTIVE = 2000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
 const HISTORY_PAGE_SIZE = 3;
@@ -91,6 +94,16 @@ function isScanLikelyFailure(
   if (!message) return false;
   const m = message.toLowerCase();
   return m.includes('too many cid paragraphs') || m.includes('cid paragraphs');
+}
+
+function shouldOfferOcrRedirect(
+  code: string | null | undefined,
+  message: string | null | undefined
+): boolean {
+  return (
+    isNoParagraphsFailure(code, message) ||
+    isScanLikelyFailure(code, message)
+  );
 }
 
 function parsePageRange(range: string | null): [number, number] | null {
@@ -265,16 +278,49 @@ export function TranslatePageClient() {
     PREVIEW_PAGE_DEBOUNCE_MS
   );
 
-  const updateTaskInUrl = useCallback(
-    (tid: string | null) => {
+  const replaceTranslateQuery = useCallback(
+    (patch: {
+      taskId?: string | null;
+      documentId?: string | null;
+      sourceLang?: UILang | '' | null;
+      targetLang?: UILang | '' | null;
+    }) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (tid) params.set(TASK_PARAM, tid);
-      else params.delete(TASK_PARAM);
+      if ('taskId' in patch && patch.taskId !== undefined) {
+        if (patch.taskId) params.set(TASK_PARAM, patch.taskId);
+        else params.delete(TASK_PARAM);
+      }
+      if ('documentId' in patch && patch.documentId !== undefined) {
+        if (patch.documentId) params.set(DOCUMENT_PARAM, patch.documentId);
+        else params.delete(DOCUMENT_PARAM);
+      }
+      if ('sourceLang' in patch && patch.sourceLang !== undefined) {
+        if (patch.sourceLang) params.set(SOURCE_LANG_PARAM, patch.sourceLang);
+        else params.delete(SOURCE_LANG_PARAM);
+      }
+      if ('targetLang' in patch && patch.targetLang !== undefined) {
+        if (patch.targetLang) params.set(TARGET_LANG_PARAM, patch.targetLang);
+        else params.delete(TARGET_LANG_PARAM);
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
     [searchParams, pathname, router]
   );
+
+  const updateTaskInUrl = useCallback(
+    (tid: string | null) => {
+      replaceTranslateQuery({ taskId: tid });
+    },
+    [replaceTranslateQuery]
+  );
+
+  useEffect(() => {
+    const qSource = toSupportedUiLang(searchParams.get(SOURCE_LANG_PARAM));
+    const qTarget = toSupportedUiLang(searchParams.get(TARGET_LANG_PARAM));
+    if (qSource) setSourceLang(qSource);
+    if (qTarget) setTargetLang(qTarget);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!themeMounted) return;
@@ -673,13 +719,20 @@ export function TranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [historyLogOpen, recentDocumentPage, recentTaskPage, taskId, taskStatus]);
+  }, [
+    historyLogOpen,
+    recentDocumentPage,
+    recentTaskPage,
+    taskId,
+    taskStatus,
+    documentId,
+  ]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
     setRecentTaskPage(0);
     setRecentDocumentPage(0);
-  }, [historyLogOpen]);
+  }, [historyLogOpen, documentId]);
 
   const handleRefreshResult = async () => {
     if (!taskId || refreshInFlightRef.current) return;
@@ -714,7 +767,12 @@ export function TranslatePageClient() {
     setTaskView(null);
     setTaskDetail(null);
     setTaskStatus(null);
-    updateTaskInUrl(null);
+    replaceTranslateQuery({
+      taskId: null,
+      documentId: docId,
+      sourceLang: sourceLang || null,
+      targetLang: targetLang || null,
+    });
   };
 
   const handleDeleteDocument = async () => {
@@ -757,9 +815,9 @@ export function TranslatePageClient() {
       setTaskView(null);
       setTaskDetail(null);
       setTaskStatus(null);
-      updateTaskInUrl(null);
+      replaceTranslateQuery({ taskId: null, documentId: null });
     }
-  }, [documentId, updateTaskInUrl]);
+  }, [documentId, replaceTranslateQuery]);
 
   const handleTaskCreated = (tid: string, _?: TranslateTaskCreatedMeta) => {
     setTaskId(tid);
@@ -1197,79 +1255,93 @@ export function TranslatePageClient() {
             )}
             {taskStatus === 'failed' &&
               failedTaskInfo &&
-              (failedTaskInfo.error_message || failedTaskInfo.error_code) && (
-                <p
-                  className={
-                    isNoParagraphsFailure(
-                      failedTaskInfo.error_code,
-                      failedTaskInfo.error_message
-                    )
-                      ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
-                      : 'mt-2 text-xs text-red-600 dark:text-red-400'
-                  }
-                >
-                  {isNoParagraphsFailure(
-                    failedTaskInfo.error_code,
-                    failedTaskInfo.error_message
-                  )
-                    ? tErrors('no_paragraphs')
-                    : failedTaskInfo.error_code === 'scan_detected_use_ocr'
-                      ? tErrors('scan_detected_use_ocr')
-                    : failedTaskInfo.error_message ??
-                      (failedTaskInfo.error_code
-                        ? tErrors(
-                            failedTaskInfo.error_code as
-                              | 'pdf_font_unsupported'
-                              | 'tounicode_missing'
-                              | 'font_subset_corrupt'
-                              | 'no_paragraphs'
-                              | 'ocr_preprocess_failed'
-                              | 'scan_detected_use_ocr'
-                          )
-                        : '')}
-                </p>
-              )}
-            {taskStatus === 'failed' &&
-              failedTaskInfo &&
-              isScanLikelyFailure(
-                failedTaskInfo.error_code,
-                failedTaskInfo.error_message
-              ) &&
-              documentId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (ocrRedirecting || ocrNavLockRef.current) return;
-                    ocrNavLockRef.current = true;
-                    setOcrRedirecting(true);
-                    const qs = new URLSearchParams({
-                      document: documentId,
-                      source_lang:
-                        sourceLang ||
-                        (taskView?.task?.source_lang as UILang | undefined) ||
-                        'en',
-                      target_lang:
-                        targetLang ||
-                        (taskView?.task?.target_lang as UILang | undefined) ||
-                        'zh',
-                    });
-                    router.push(`/ocrtranslator?${qs.toString()}`);
-                    setTimeout(() => {
-                      setOcrRedirecting(false);
-                      ocrNavLockRef.current = false;
-                    }, 3000);
-                  }}
-                  disabled={ocrRedirecting}
-                  className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    {ocrRedirecting ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : null}
-                    {tTranslate('preprocessWithOcr')}
-                  </span>
-                </button>
-              )}
+              (failedTaskInfo.error_message || failedTaskInfo.error_code) &&
+              (() => {
+                const code = failedTaskInfo.error_code;
+                const msg = failedTaskInfo.error_message;
+                const ocrCta =
+                  documentId &&
+                  shouldOfferOcrRedirect(code, msg);
+                if (ocrCta) {
+                  const noPara = isNoParagraphsFailure(code, msg);
+                  const targetForOcr =
+                    toSupportedUiLang(
+                      targetLang ||
+                        (taskView?.task?.target_lang as string | undefined)
+                    ) || 'zh';
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (ocrRedirecting || ocrNavLockRef.current) return;
+                        ocrNavLockRef.current = true;
+                        setOcrRedirecting(true);
+                        const qs = new URLSearchParams({
+                          document: documentId,
+                          target_lang: targetForOcr,
+                        });
+                        router.push(`/ocrtranslator?${qs.toString()}`);
+                        setTimeout(() => {
+                          setOcrRedirecting(false);
+                          ocrNavLockRef.current = false;
+                        }, 3000);
+                      }}
+                      disabled={ocrRedirecting}
+                      className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-left text-xs font-medium text-amber-950 shadow-sm hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-950/60"
+                    >
+                      <span className="flex items-start gap-2.5">
+                        {ocrRedirecting ? (
+                          <Loader2
+                            size={18}
+                            className="mt-0.5 shrink-0 animate-spin text-amber-800 dark:text-amber-200"
+                          />
+                        ) : (
+                          <Languages
+                            size={18}
+                            className="mt-0.5 shrink-0 text-sky-700 dark:text-sky-300"
+                          />
+                        )}
+                        <span className="min-w-0 flex-1 leading-relaxed">
+                          <span className="block font-semibold">
+                            {noPara
+                              ? tErrors('no_paragraphs')
+                              : tErrors('scan_detected_use_ocr')}
+                          </span>
+                          <span className="mt-1 block text-[11px] font-normal text-amber-900/90 dark:text-amber-100/90">
+                            {tTranslate('preprocessWithOcr')} →
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+                  );
+                }
+                return (
+                  <p
+                    className={
+                      isNoParagraphsFailure(code, msg)
+                        ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
+                        : 'mt-2 text-xs text-red-600 dark:text-red-400'
+                    }
+                  >
+                    {isNoParagraphsFailure(code, msg)
+                      ? tErrors('no_paragraphs')
+                      : failedTaskInfo.error_code === 'scan_detected_use_ocr'
+                        ? tErrors('scan_detected_use_ocr')
+                        : failedTaskInfo.error_message ??
+                          (failedTaskInfo.error_code
+                            ? tErrors(
+                                failedTaskInfo.error_code as
+                                  | 'pdf_font_unsupported'
+                                  | 'tounicode_missing'
+                                  | 'font_subset_corrupt'
+                                  | 'no_paragraphs'
+                                  | 'ocr_preprocess_failed'
+                                  | 'scan_detected_use_ocr'
+                              )
+                            : '')}
+                  </p>
+                );
+              })()}
             {taskStatus === 'completed' &&
               !targetPdfUrl &&
               (taskView?.primary_file_url ?? taskView?.outputs?.length) && (

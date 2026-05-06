@@ -5,7 +5,17 @@ import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
 import { getTranslateAuth } from './auth';
 import { getAllConfigs } from '@/shared/models/config';
-import { createPresignedGet, isR2Configured } from '@/shared/lib/translate-r2';
+import {
+  createPresignedGet,
+  getObjectByteRange,
+  isR2Configured,
+} from '@/shared/lib/translate-r2';
+import {
+  decideScanIntercept,
+  normalizeScanBlockMode,
+  scanFromMetadata,
+  scanFromPdfHeadBytes,
+} from '@/shared/lib/translate-scan-precheck';
 import { isCloudflareWorker } from '@/shared/lib/env';
 import {
   getWorkerBindingMeta,
@@ -98,81 +108,6 @@ function summarizeFcEndpoint(fcUrl: string) {
   }
 }
 
-type ScanPrecheckResult = {
-  decision: 'high_confidence_scan' | 'suspected_scan' | 'normal_pdf';
-  reasonCodes: string[];
-  confidence: 'low' | 'medium' | 'high';
-};
-
-/**
- * 轻量扫描件预判（不调用外部 OCR / FC）：
- * - 主要依据单页平均体积（扫描图像页通常显著更大）
- * - 辅助依据文件名关键词
- * 仅在高置信场景阻断，避免误拦截普通文本 PDF。
- */
-function detectLikelyScannedPdf(params: {
-  filename: string | null | undefined;
-  sizeBytes: number | null | undefined;
-  pageCount: number | null | undefined;
-  pageRange: string | null;
-}): ScanPrecheckResult {
-  const filename = (params.filename || '').toLowerCase();
-  const sizeBytes = Number(params.sizeBytes || 0);
-  const pageCount = Number(params.pageCount || 0);
-  const range = params.pageRange?.trim() || '';
-
-  const hasScanHintInName =
-    /scan|scanned|ocr|image-only|图片|扫描|影印/.test(filename);
-
-  let effectivePages = pageCount > 0 ? pageCount : 0;
-  if (range) {
-    const hit = parseTranslatePageRange(range);
-    if (hit) {
-      effectivePages = Math.max(1, hit[1] - hit[0] + 1);
-    }
-  }
-  if (effectivePages <= 0) {
-    return {
-      decision: 'normal_pdf',
-      reasonCodes: ['page_count_unknown'],
-      confidence: 'low',
-    };
-  }
-
-  const avgBytesPerPage = sizeBytes / Math.max(1, effectivePages);
-  const hugeImagePages = avgBytesPerPage >= 900 * 1024;
-  const mediumImagePages = avgBytesPerPage >= 600 * 1024;
-  const veryLargeFile = sizeBytes >= 30 * 1024 * 1024;
-  const enoughPages = effectivePages >= 2;
-
-  const reasonCodes: string[] = [];
-  if (hasScanHintInName) reasonCodes.push('filename_scan_hint');
-  if (hugeImagePages) reasonCodes.push('avg_page_size_very_high');
-  if (mediumImagePages) reasonCodes.push('avg_page_size_high');
-  if (veryLargeFile) reasonCodes.push('file_size_very_large');
-  if (enoughPages) reasonCodes.push('multi_page');
-
-  if (hugeImagePages && veryLargeFile && enoughPages && hasScanHintInName) {
-    return {
-      decision: 'high_confidence_scan',
-      reasonCodes,
-      confidence: 'high',
-    };
-  }
-  if ((hugeImagePages && enoughPages) || (mediumImagePages && veryLargeFile)) {
-    return {
-      decision: 'suspected_scan',
-      reasonCodes,
-      confidence: 'medium',
-    };
-  }
-  return {
-    decision: 'normal_pdf',
-    reasonCodes: reasonCodes.length > 0 ? reasonCodes : ['not_enough_scan_signals'],
-    confidence: 'low',
-  };
-}
-
 export async function POST(req: Request) {
   try {
     const { userId, anonId } = await getTranslateAuth();
@@ -243,45 +178,101 @@ export async function POST(req: Request) {
       pageRangeAdjusted = hit.adjusted;
     }
 
-    const scanPrecheck = detectLikelyScannedPdf({
+    const scanMetadata = scanFromMetadata({
       filename: doc.filename,
       sizeBytes: doc.sizeBytes,
       pageCount: doc.pageCount,
       pageRange,
     });
-    const scanBlockMode = String(
-      getWorkerBindingString('SCAN_BLOCK_MODE') || process.env.SCAN_BLOCK_MODE || 'warn'
-    ).toLowerCase();
-    const shouldBlockScan =
-      scanBlockMode === 'strict' &&
-      scanPrecheck.decision === 'high_confidence_scan';
-    if (scanPrecheck.decision !== 'normal_pdf') {
+
+    const scanBlockMode = normalizeScanBlockMode(
+      getWorkerBindingString('SCAN_BLOCK_MODE') || process.env.SCAN_BLOCK_MODE
+    );
+
+    let binarySignals = null as ReturnType<typeof scanFromPdfHeadBytes> | null;
+    let pdfHeadFetch: 'ok' | 'skipped' | 'failed' = 'skipped';
+    if (!preprocessWithOcr && (await isR2Configured())) {
+      const rawHeadMax = Number(process.env.SCAN_PDF_HEAD_MAX_BYTES);
+      const parsedHeadMax =
+        Number.isFinite(rawHeadMax) && rawHeadMax >= 64 * 1024
+          ? rawHeadMax
+          : 1024 * 1024;
+      const headMax = Math.min(parsedHeadMax, 4 * 1024 * 1024);
+      const objectKey = (sourceSliceObjectKey || doc.objectKey || '').trim();
+      if (objectKey) {
+        try {
+          const head = await getObjectByteRange(objectKey, 0, headMax - 1);
+          const isPdfHeader =
+            head.length >= 5 &&
+            head[0] === 0x25 &&
+            head[1] === 0x50 &&
+            head[2] === 0x44 &&
+            head[3] === 0x46 &&
+            head[4] === 0x2d;
+          if (isPdfHeader) {
+            binarySignals = scanFromPdfHeadBytes(head);
+            pdfHeadFetch = 'ok';
+          } else {
+            pdfHeadFetch = 'failed';
+          }
+        } catch (e) {
+          pdfHeadFetch = 'failed';
+          console.warn(
+            '[translate] scan_pdf_head_fetch_failed',
+            JSON.stringify({
+              document_id: documentId,
+              object_key_hint: objectKey.length > 80 ? `${objectKey.slice(0, 80)}…` : objectKey,
+              error: e instanceof Error ? e.message : String(e),
+            })
+          );
+        }
+      }
+    }
+
+    const scanDecision = decideScanIntercept({
+      mode: scanBlockMode,
+      preprocessWithOcr,
+      metadata: scanMetadata,
+      binary: binarySignals,
+    });
+
+    if (
+      scanMetadata.decision !== 'normal_pdf' ||
+      binarySignals != null ||
+      scanBlockMode !== 'off'
+    ) {
       console.log(
-        '[translate] scan_precheck_detected',
+        '[translate] scan_precheck_v2',
         JSON.stringify({
           document_id: documentId,
           page_range: pageRange,
           page_count: doc.pageCount ?? null,
           file_size_bytes: doc.sizeBytes ?? null,
-          decision: scanPrecheck.decision,
+          metadata_decision: scanMetadata.decision,
           scan_block_mode: scanBlockMode,
-          should_block: shouldBlockScan,
-          reason_codes: scanPrecheck.reasonCodes,
-          confidence: scanPrecheck.confidence,
+          intercept: scanDecision.intercept,
+          reason_codes: scanDecision.reasonCodes,
+          confidence: scanMetadata.confidence,
+          pdf_head_fetch: pdfHeadFetch,
+          binary_sample_bytes: binarySignals?.sampleBytes ?? null,
+          strong_binary_count: scanDecision.signals?.strong_binary_count ?? null,
         })
       );
     }
-    if (shouldBlockScan) {
+
+    if (scanDecision.intercept) {
       return Response.json(
         {
           detail:
             'This PDF looks like a scanned/image document. Please use OCR Translator to avoid unnecessary BabelDOC FC retries.',
           code: 'scan_detected_use_ocr',
           document_id: documentId,
+          target_lang: targetLang,
           ocr_redirect_url: '/ocrtranslator',
-          decision: scanPrecheck.decision,
-          reason_codes: scanPrecheck.reasonCodes,
-          confidence: scanPrecheck.confidence,
+          decision: scanMetadata.decision,
+          reason_codes: scanDecision.reasonCodes,
+          confidence: scanMetadata.confidence,
+          signals: scanDecision.signals ?? undefined,
         },
         { status: 409 }
       );

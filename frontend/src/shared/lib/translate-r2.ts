@@ -328,6 +328,92 @@ export async function createPresignedGet(
   return (getSignedUrl as SignUrl)(client, command, { expiresIn: expiresInSeconds });
 }
 
+/**
+ * Fetch a byte range from R2 (Range GET). Used for scan precheck without downloading the full PDF.
+ * @param startInclusive first byte index
+ * @param endInclusive last byte index (HTTP Range inclusive)
+ */
+export async function getObjectByteRange(
+  key: string,
+  startInclusive: number,
+  endInclusive: number
+): Promise<Uint8Array> {
+  if (endInclusive < startInclusive || startInclusive < 0) {
+    throw new Error('Invalid byte range');
+  }
+  const range = `bytes=${startInclusive}-${endInclusive}`;
+  const creds = await resolveTranslateR2S3Env();
+
+  if (isCloudflareWorker) {
+    if (!creds) throw new Error('R2 not configured');
+    const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+    const client = new AwsClient({
+      service: 's3',
+      region: 'auto',
+      accessKeyId,
+      secretAccessKey,
+    });
+    const base = `${endpoint}/${bucket}/${key}`;
+    const u = new URL(base);
+    u.searchParams.set('X-Amz-Expires', '600');
+    const signed = await client.sign(
+      new Request(u.toString(), { method: 'GET', headers: { Range: range } }),
+      { aws: { signQuery: true } }
+    );
+    const res = await fetch(signed.url, { headers: { Range: range } });
+    if (!res.ok) {
+      throw new Error(`R2 range get failed: ${res.status}`);
+    }
+    const buf = await res.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  const publicBase = getR2PublicBaseUrl();
+  if (publicBase) {
+    const url = `${publicBase}/${encodeR2KeyForPublicUrl(key)}`;
+    const res = await fetch(url, {
+      headers: { Range: range },
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (!res.ok) {
+      throw new Error(`R2 range get failed: ${res.status}`);
+    }
+    const buf = await res.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  if (!creds) throw new Error('R2 not configured');
+  const { GetObjectCommand, S3Client } = await import('@aws-sdk/client-s3');
+  const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+  const client = new S3Client({
+    region: 'auto',
+    endpoint,
+    credentials: { accessKeyId, secretAccessKey },
+    forcePathStyle: true,
+  });
+  const out = await client.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Range: range,
+    })
+  );
+  const body = out.Body;
+  if (!body) throw new Error('Empty object body');
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of body as AsyncIterable<Uint8Array>) {
+    chunks.push(chunk);
+  }
+  const total = chunks.reduce((acc, c) => acc + c.length, 0);
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    merged.set(c, offset);
+    offset += c.length;
+  }
+  return merged;
+}
+
 /** Get object body from R2 (for server-side PDF slice extraction). */
 export async function getObjectBody(key: string): Promise<Uint8Array> {
   const creds = await resolveTranslateR2S3Env();

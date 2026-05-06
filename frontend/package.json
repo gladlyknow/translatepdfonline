@@ -45,7 +45,8 @@
     "cf:upload": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "brand:icons": "python scripts/export-brand-icons.py",
-    "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js"
+    "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js",
+    "test:scan-precheck": "tsx --test src/shared/lib/translate-scan-precheck.test.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",
