@@ -206,7 +206,16 @@ def _resolve_translated_page_count_for_callback(
 
 def _error_code_for_babeldoc_failure(exc: BaseException) -> str | None:
     """与 Next translate/errors 对齐的稳定 error_code。"""
+    exc_name = type(exc).__name__
+    if exc_name == "ScannedPDFError":
+        return "scan_detected_use_ocr"
     low = str(exc).lower()
+    if (
+        "scannedpdf" in low.replace(" ", "")
+        or "scanned pdf" in low
+        or "scanned pdf detected" in low
+    ):
+        return "scan_detected_use_ocr"
     if (
         "no paragraphs" in low
         or "contains no paragraphs" in low

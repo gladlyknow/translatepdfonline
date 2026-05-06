@@ -135,6 +135,30 @@ export function scanFromMetadata(params: {
       effectivePages,
     };
   }
+
+  /**
+   * 多页 + 整文件偏大 + 页均偏高：常见于嵌入大图/扫描页，但达不到旧版 600KB/页 门槛。
+   * 与「纯文本小 PDF」区分：总大小下限 + 页数下限 + 页均下限。
+   */
+  const softScanRisk =
+    documentPages >= 2 &&
+    sizeBytes >= 1.5 * 1024 * 1024 &&
+    avgBytesPerPage >= 350 * 1024;
+  if (softScanRisk) {
+    const rc = [
+      ...reasonCodes.filter((c) => c !== 'not_enough_scan_signals'),
+      'avg_page_elevated_soft_scan_risk',
+    ];
+    return {
+      decision: 'suspected_scan',
+      reasonCodes: rc.length > 0 ? rc : ['avg_page_elevated_soft_scan_risk'],
+      confidence: 'medium',
+      avgBytesPerPage,
+      pagesForAvgSize,
+      effectivePages,
+    };
+  }
+
   return {
     decision: 'normal_pdf',
     reasonCodes: reasonCodes.length > 0 ? reasonCodes : ['not_enough_scan_signals'],
@@ -326,12 +350,13 @@ export function decideScanIntercept(params: {
         signals: signalsBase,
       };
     }
-    if (meta.decision === 'suspected_scan' && strong >= 1) {
+    /** 元数据 suspected（含 softScanRisk）即 409，不依赖压缩流内二进制信号 */
+    if (meta.decision === 'suspected_scan') {
       return {
         intercept: true,
         reasonCodes: [
           ...meta.reasonCodes,
-          'block_mode_balanced_suspected_plus_binary',
+          'block_mode_balanced_suspected_metadata',
         ],
         signals: signalsBase,
       };

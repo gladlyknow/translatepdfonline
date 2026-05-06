@@ -15,6 +15,19 @@ from .config import get_deepseek_api_key, get_deepseek_base_url, get_deepseek_mo
 logger = logging.getLogger(__name__)
 
 
+def _skip_scanned_detection_from_env() -> bool:
+    """
+    When True, BabelDOC will not raise ScannedPDFError (legacy FC behavior).
+    Default False: run built-in scan detection. Set BABELDOC_SKIP_SCANNED_DETECTION=1 to disable.
+    """
+    raw = (os.getenv("BABELDOC_SKIP_SCANNED_DETECTION") or "").strip().lower()
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return False
+
+
 def _babeldoc_path() -> Path:
     raw = (os.getenv("BABELDOC_PATH") or "").strip()
     if raw:
@@ -197,6 +210,10 @@ def run_translate_local(
     target_only = _target_lang_only_instruction(target_lang_norm)
     custom_prompt = f"{target_only}\n\n{list_preserve_prompt}" if target_only else list_preserve_prompt
 
+    skip_scan = _skip_scanned_detection_from_env()
+    if skip_scan:
+        logger.info("run_translate_local: skip_scanned_detection=True (BABELDOC_SKIP_SCANNED_DETECTION)")
+
     config = TranslationConfig(
         translator=translator,
         input_file=str(local_pdf_path),
@@ -205,7 +222,7 @@ def run_translate_local(
         doc_layout_model=None,
         output_dir=str(output_dir),
         pages=page_range,
-        skip_scanned_detection=True,
+        skip_scanned_detection=skip_scan,
         use_rich_pbar=False,
         only_include_translated_page=True,
         no_dual=True,

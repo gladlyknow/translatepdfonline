@@ -52,7 +52,8 @@ describe('scanFromMetadata', () => {
     });
     assert.equal(r.pagesForAvgSize, 7);
     assert.ok(Math.abs(r.avgBytesPerPage - 2_936_805 / 7) < 1);
-    assert.equal(r.decision, 'normal_pdf');
+    assert.equal(r.decision, 'suspected_scan');
+    assert.ok(r.reasonCodes.includes('avg_page_elevated_soft_scan_risk'));
   });
 });
 
@@ -131,7 +132,7 @@ describe('decideScanIntercept', () => {
     assert.equal(d2.intercept, false);
   });
 
-  it('balanced blocks suspected + strong binary', () => {
+  it('balanced blocks any suspected metadata without binary', () => {
     const suspected = scanFromMetadata({
       filename: 'doc.pdf',
       sizeBytes: 40 * 1024 * 1024,
@@ -139,17 +140,28 @@ describe('decideScanIntercept', () => {
       pageRange: null,
     });
     assert.equal(suspected.decision, 'suspected_scan');
-    const body =
-      '/Subtype /Image\n'.repeat(15) +
-      ' 3 Tr\n'.repeat(6) +
-      '/MCID BDC\n'.repeat(15) +
-      '(cid:1)'.repeat(500);
-    const bin = scanFromPdfHeadBytes(pdfHeaderWithBody(body));
     const d = decideScanIntercept({
       mode: 'balanced',
       preprocessWithOcr: false,
       metadata: suspected,
-      binary: bin,
+      binary: null,
+    });
+    assert.equal(d.intercept, true);
+  });
+
+  it('balanced intercepts softScanRisk multi-page mid-size PDF', () => {
+    const m = scanFromMetadata({
+      filename: 'report.pdf',
+      sizeBytes: 2_936_805,
+      pageCount: 7,
+      pageRange: '1-2',
+    });
+    assert.equal(m.decision, 'suspected_scan');
+    const d = decideScanIntercept({
+      mode: 'balanced',
+      preprocessWithOcr: false,
+      metadata: m,
+      binary: null,
     });
     assert.equal(d.intercept, true);
   });
@@ -170,12 +182,12 @@ describe('decideScanIntercept', () => {
     assert.equal(d.intercept, false);
   });
 
-  it('balanced intercepts many raw (cid: tokens even when metadata is normal', () => {
+  it('balanced intercepts many raw (cid: tokens when metadata still normal', () => {
     const normal = scanFromMetadata({
       filename: 'paper.pdf',
-      sizeBytes: 2_936_805,
-      pageCount: 7,
-      pageRange: '1-2',
+      sizeBytes: 800 * 1024,
+      pageCount: 20,
+      pageRange: null,
     });
     assert.equal(normal.decision, 'normal_pdf');
     const body = '(cid:12)'.repeat(80);
