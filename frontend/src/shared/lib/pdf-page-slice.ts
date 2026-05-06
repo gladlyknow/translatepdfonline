@@ -8,7 +8,7 @@ import { parseTranslatePageRange } from '@/shared/lib/translate-billing-estimate
 export async function buildPdfSliceBytes(
   sourcePdfBytes: ArrayBuffer,
   pageRange: string
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const pr = parseTranslatePageRange(pageRange);
   if (!pr) {
     throw new Error('invalid_page_range');
@@ -25,5 +25,8 @@ export async function buildPdfSliceBytes(
   for (let i = start0; i <= end0; i += 1) indices.push(i);
   const copied = await out.copyPages(src, indices);
   copied.forEach((p) => out.addPage(p));
-  return out.save({ useObjectStreams: false });
+  const saved = await out.save({ useObjectStreams: false });
+  const buf = new ArrayBuffer(saved.byteLength);
+  new Uint8Array(buf).set(saved);
+  return new Uint8Array(buf);
 }
