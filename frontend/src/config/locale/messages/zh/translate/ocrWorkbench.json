@@ -91,5 +91,9 @@
   "retryAction": "重试",
   "cancelAction": "取消",
   "exportingStatus": "导出中…",
-  "removeExportTitle": "删除导出文件"
+  "removeExportTitle": "删除导出文件",
+  "sourceColumnShort": "S",
+  "targetColumnShort": "T",
+  "pageRangeColumnShort": "P",
+  "ocrPageRangePlaceholder": "页码范围（可选，如 1-10）"
 }

@@ -12,6 +12,7 @@ import {
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
@@ -37,6 +38,7 @@ import {
   type UILang,
 } from '@/shared/lib/translate-api';
 import { toSupportedUiLang } from '@/shared/lib/translate-langs';
+import { normalizePageRangeInput } from '@/shared/lib/translate-billing-estimate';
 import {
   Loader2,
   Trash2,
@@ -64,6 +66,7 @@ const TASK_PARAM = 'task';
 const DOC_PARAM = 'document';
 const SOURCE_LANG_PARAM = 'source_lang';
 const TARGET_LANG_PARAM = 'target_lang';
+const PAGE_RANGE_PARAM = 'page_range';
 const POLL_INTERVAL_MS_ACTIVE = 10_000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
 const OCR_TOOLBAR_ID = 'ocr-workbench-toolbar';
@@ -177,6 +180,7 @@ export function OcrTranslatePageClient() {
 
   const [sourceLang, setSourceLang] = useState<UILang | ''>('');
   const [targetLang, setTargetLang] = useState<UILang | ''>('');
+  const [pageRangeOcr, setPageRangeOcr] = useState('');
   const [pdfZoom, setPdfZoom] = useState(1);
   const [jsonCanvasScale, setJsonCanvasScale] = useState(100);
   const [activeFocusPanel, setActiveFocusPanel] = useState<OcrFocusPanel>('json');
@@ -425,6 +429,12 @@ export function OcrTranslatePageClient() {
     if (qSource && !sourceLang) setSourceLang(qSource);
     else if (!qSource && qTarget && !sourceLang) setSourceLang('en');
   }, [searchParams, documentId, sourceLang, targetLang]);
+
+  useEffect(() => {
+    const q = searchParams.get(PAGE_RANGE_PARAM)?.trim();
+    if (!q) return;
+    setPageRangeOcr((prev) => (prev === '' ? q : prev));
+  }, [searchParams]);
 
   useEffect(() => {
     if (taskView?.ocr_parse_result_url) {
@@ -863,11 +873,56 @@ export function OcrTranslatePageClient() {
       }
       const effectiveSource = sourceLang || 'en';
       const effectiveTarget = targetLang || 'zh';
+      const rangeNorm = normalizePageRangeInput(pageRangeOcr);
+      let sliceKey: string | null = null;
+      if (rangeNorm) {
+        const { buildPdfSliceBytes } = await import('@/shared/lib/pdf-page-slice');
+        const presign = await translateApi.getPresignedSlice(documentId, rangeNorm);
+        const preview = await translateApi.getDocumentPreviewUrl(documentId, 1);
+        const pdfRes = await fetch(preview.preview_url);
+        if (!pdfRes.ok) {
+          throw new Error(
+            `Failed to download source PDF for slicing (${pdfRes.status})`
+          );
+        }
+        const pdfBuf = await pdfRes.arrayBuffer();
+        const sliced = await buildPdfSliceBytes(pdfBuf, rangeNorm);
+        const put = await fetch(presign.upload_url, {
+          method: 'PUT',
+          body: sliced,
+          headers: { 'Content-Type': 'application/pdf' },
+        });
+        if (!put.ok) {
+          throw new Error(`Slice upload failed (${put.status})`);
+        }
+        sliceKey = presign.slice_object_key;
+      }
       const res = await translateApi.createOcrTask(
         documentId,
         effectiveSource,
-        effectiveTarget
+        effectiveTarget,
+        {
+          page_range: rangeNorm,
+          source_slice_object_key: sliceKey,
+        }
       );
+      if (
+        res.page_range_adjusted === true &&
+        res.page_range_user_input &&
+        res.page_range_effective != null
+      ) {
+        const docPages =
+          typeof res.document_page_count === 'number'
+            ? res.document_page_count
+            : documentPageCountFromDb;
+        toast.message(
+          tHome('pageRangeAdjustedNotice', {
+            userRange: res.page_range_user_input,
+            effectiveRange: res.page_range_effective,
+            docPages: docPages != null ? String(docPages) : '—',
+          })
+        );
+      }
       setTaskId(res.task_id);
       setTaskStatus('queued');
       setTaskDetail(null);
@@ -899,6 +954,27 @@ export function OcrTranslatePageClient() {
         err.body.code === 'document_pages_required_for_billing'
       ) {
         setSubmitError(tTranslate('documentPagesUnknown'));
+      } else if (
+        err.status === 400 &&
+        typeof err.body?.code === 'string' &&
+        err.body.code === 'invalid_page_range'
+      ) {
+        setSubmitError(
+          err.message ||
+            'Invalid page range. Use a single page (e.g. 5) or a range (e.g. 1-10).'
+        );
+      } else if (
+        err.status === 400 &&
+        typeof err.body?.code === 'string' &&
+        err.body.code === 'page_range_no_overlap'
+      ) {
+        const dpc = err.body?.document_page_count;
+        const dp = typeof dpc === 'number' ? dpc : null;
+        setSubmitError(
+          dp != null
+            ? tHome('pageRangeNoOverlap', { docPages: String(dp) })
+            : (err.message || tTranslate('createTaskFailed'))
+        );
       } else {
         setSubmitError(
           e instanceof Error ? e.message : tTranslate('createTaskFailed')
@@ -1190,19 +1266,45 @@ export function OcrTranslatePageClient() {
               )}
             </p>
           )}
-          <div className="mt-3 grid gap-2">
-            <LanguageSelector
-              value={sourceLang}
-              onChange={setSourceLang}
-              label={tTranslate('sourceLang')}
-              placeholderKey="selectSourceLang"
-            />
-            <LanguageSelector
-              value={targetLang}
-              onChange={setTargetLang}
-              label={tTranslate('targetLang')}
-              placeholderKey="selectTargetLang"
-            />
+          <div className="mt-3 flex flex-col gap-2">
+            <div className="grid grid-cols-2 items-end gap-x-2 gap-y-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)]">
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('sourceColumnShort')}
+                </span>
+                <LanguageSelector
+                  value={sourceLang}
+                  onChange={setSourceLang}
+                  placeholderKey="selectSourceLang"
+                  compact
+                />
+              </div>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('targetColumnShort')}
+                </span>
+                <LanguageSelector
+                  value={targetLang}
+                  onChange={setTargetLang}
+                  placeholderKey="selectTargetLang"
+                  compact
+                />
+              </div>
+              <div className="col-span-2 flex min-w-0 flex-col gap-0.5 sm:col-span-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('pageRangeColumnShort')}
+                </span>
+                <input
+                  type="text"
+                  value={pageRangeOcr}
+                  onChange={(e) => setPageRangeOcr(e.target.value)}
+                  placeholder={tOcrWb('ocrPageRangePlaceholder')}
+                  disabled={starting || resolvingPageCount || taskAwaitingResult}
+                  className="min-h-[36px] w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                  aria-label={tOcrWb('ocrPageRangePlaceholder')}
+                />
+              </div>
+            </div>
             <button
               type="button"
               onClick={startOcrTask}
@@ -1213,7 +1315,7 @@ export function OcrTranslatePageClient() {
                 !targetLang
               }
               className={cn(
-                'flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold',
+                'flex w-full min-h-[36px] items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold',
                 TRANSLATE_PRIMARY_CTA_CLASSNAME
               )}
             >

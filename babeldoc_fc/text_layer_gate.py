@@ -147,12 +147,14 @@ def enforce_text_layer_after_translate(
     min_doc_pages_for_partial_sparse = _env_int(
         "BABELDOC_MIN_DOC_PAGES_FOR_PARTIAL_SPARSE", 3
     )
-    min_llm_total_for_ratio = _env_int("BABELDOC_MIN_LLM_TOTAL_FOR_RATIO", 3)
-    min_llm_ok_ratio = _env_float("BABELDOC_MIN_LLM_OK_RATIO", 0.34)
     min_llm_total_for_fallback = _env_int(
         "BABELDOC_MIN_LLM_TOTAL_FOR_FALLBACK_RATIO", 3
     )
     min_fallback_ratio = _env_float("BABELDOC_MIN_FALLBACK_RATIO", 0.32)
+    # 可抽取字符已较多时，高 fallback 多为 LLM JSON 抖动/重试，不误判为扫描件
+    fallback_gate_max_valid_chars = _env_int(
+        "BABELDOC_FALLBACK_GATE_MAX_VALID_CHARS", 480
+    )
 
     cpp = valid_chars / max(range_pages, 1)
     para_signal = lt > 0 or ext_i > 0
@@ -197,20 +199,11 @@ def enforce_text_layer_after_translate(
             f"(doc_pages={doc_pages}, range_pages={range_pages})"
         )
 
+    # 高 fallback + 可抽取字符偏少：更像 CID/扫描；正常 PDF 常因 JSON 解析失败走 fallback 但 valid_chars 仍高，此处跳过
     if (
         stats_ready
         and para_signal
-        and lt >= min_llm_total_for_ratio
-        and lo < lt * min_llm_ok_ratio
-    ):
-        reasons.append(
-            f"llm_ok_ratio={lo}/{lt} < {min_llm_ok_ratio} (min_total={min_llm_total_for_ratio})"
-        )
-
-    # 高 fallback（如 CID 段落译不动）：单页/多页范围均适用；阈值可调避免误杀偶发 fallback
-    if (
-        stats_ready
-        and para_signal
+        and valid_chars < fallback_gate_max_valid_chars
         and lt >= min_llm_total_for_fallback
         and lfb > 0
         and (lfb / lt) >= min_fallback_ratio

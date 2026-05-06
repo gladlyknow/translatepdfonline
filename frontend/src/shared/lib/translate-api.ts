@@ -54,6 +54,8 @@ export interface TaskSummary {
   page_range_user_input?: string | null;
   document_page_count?: number | null;
   updated_at?: string | null;
+  /** 成功完成后的可选提示，如 suggest_try_ocr */
+  post_complete_hint?: string | null;
 }
 
 export interface TaskDetail {
@@ -73,9 +75,20 @@ export interface TaskDetail {
   progress_current?: number | null;
   progress_total?: number | null;
   preprocess_with_ocr?: boolean;
+  /** 成功完成后的可选提示，如 suggest_try_ocr */
+  post_complete_hint?: string | null;
+  document_page_count?: number | null;
 }
 
 export interface TranslateResponse {
+  task_id: string;
+  page_range_effective?: string | null;
+  page_range_adjusted?: boolean;
+  page_range_user_input?: string | null;
+  document_page_count?: number | null;
+}
+
+export interface OcrTaskCreatedResponse {
   task_id: string;
   page_range_effective?: string | null;
   page_range_adjusted?: boolean;
@@ -275,14 +288,20 @@ export const translateApi = {
   createOcrTask: (
     documentId: string,
     sourceLang: UILang,
-    targetLang: UILang | ''
+    targetLang: UILang | '',
+    options?: {
+      page_range?: string | null;
+      source_slice_object_key?: string | null;
+    }
   ) =>
-    fetchTranslateApi<{ task_id: string }>('/api/ocr/tasks', {
+    fetchTranslateApi<OcrTaskCreatedResponse>('/api/ocr/tasks', {
       method: 'POST',
       body: JSON.stringify({
         document_id: documentId,
         source_lang: sourceLang,
         target_lang: targetLang,
+        page_range: options?.page_range ?? null,
+        source_slice_object_key: options?.source_slice_object_key ?? null,
       }),
     }),
 

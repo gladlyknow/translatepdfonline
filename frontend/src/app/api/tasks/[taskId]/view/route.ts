@@ -103,6 +103,8 @@ export async function GET(
         updated_at: task.updatedAt?.toISOString?.() ?? task.updatedAt,
         error_code: task.errorCode,
         error_message: task.errorMessage,
+        post_complete_hint: task.postCompleteHint ?? null,
+        document_page_count: doc?.pageCount ?? null,
         progress_percent: task.progressPercent,
         progress_stage: task.progressStage,
         progress_current: task.progressCurrent,

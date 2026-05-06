@@ -501,12 +501,65 @@ async function deferTaskForConcurrency(
   );
 }
 
+type OcrQueueExecutionContext = {
+  waitUntil?: (promise: Promise<unknown>) => void;
+};
+
+function _ocrDeferRequeueDelayMs(): number {
+  return Math.max(
+    1_000,
+    Math.min(
+      120_000,
+      Number(process.env.OCR_DEFER_REQUEUE_DELAY_MS || '8000') || 8_000
+    )
+  );
+}
+
+/**
+ * 并发让路后：当前队列消息已 ack，若不再投递则任务会卡在 fcNextAttemptAt 之后仍无人拾取。
+ * 用 waitUntil 延迟重新 send 到 OCR 队列（与 defer 写入的 fcNextAttemptAt 对齐）。
+ */
+function scheduleOcrDeferredRequeue(
+  taskId: string,
+  executionCtx: OcrQueueExecutionContext | undefined
+): void {
+  const delayMs = _ocrDeferRequeueDelayMs();
+  const run = async () => {
+    await new Promise((r) => setTimeout(r, delayMs));
+    const res = await sendOcrPipelineQueueMessage(taskId);
+    console.log(
+      '[ocr/stage] deferred_requeue',
+      JSON.stringify({
+        task_id: taskId,
+        delay_ms: delayMs,
+        ok: res.ok,
+        reason: res.ok ? undefined : res.reason,
+      })
+    );
+  };
+  const p = run();
+  if (executionCtx?.waitUntil) {
+    executionCtx.waitUntil(p);
+  } else {
+    void p.catch((e) =>
+      console.error(
+        '[ocr/stage] deferred_requeue_no_waitUntil',
+        JSON.stringify({
+          task_id: taskId,
+          error: e instanceof Error ? e.message : String(e),
+        })
+      )
+    );
+  }
+}
+
 /**
  * Queues consumer 入口：与 OpenNext 默认 `fetch` 导出合并为 `export default { fetch, queue }` 时调用。
  * batch 建议 max_batch_size=1，避免长任务并行占满 CPU。
  */
 export async function handleOcrPipelineQueueBatch(batch: {
   messages: Array<{ body: OcrPipelineQueueBody }>;
+  executionCtx?: OcrQueueExecutionContext;
 }): Promise<void> {
   for (const msg of batch.messages) {
     const body = msg.body;
@@ -514,7 +567,9 @@ export async function handleOcrPipelineQueueBatch(batch: {
     if (body.type === 'ocr_pipeline' || !('type' in body)) {
       const taskId = (body as { taskId?: string }).taskId;
       if (!taskId || typeof taskId !== 'string') continue;
-      await invokeOcrPipelineForTask(taskId);
+      await invokeOcrPipelineForTask(taskId, {
+        executionCtx: batch.executionCtx,
+      });
       continue;
     }
     if (body.type === 'ocr_export_generate') {
@@ -538,7 +593,10 @@ export async function enqueueOcrTask(taskId: string): Promise<void> {
     .where(and(eq(translationTasks.id, taskId), eq(translationTasks.preprocessWithOcr, true)));
 }
 
-export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
+export async function invokeOcrPipelineForTask(
+  taskId: string,
+  options?: { executionCtx?: OcrQueueExecutionContext }
+): Promise<void> {
   const now = new Date();
   const leaseUntil = new Date(Date.now() + 180_000);
   const claimed = await db()
@@ -577,6 +635,7 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     .limit(OCR_ACCOUNT_MAX_CONCURRENCY);
   if (ownerProcessingRows.length >= OCR_ACCOUNT_MAX_CONCURRENCY) {
     await deferTaskForConcurrency(taskId, 'owner_concurrency_limit');
+    scheduleOcrDeferredRequeue(taskId, options?.executionCtx);
     return;
   }
   const stage = normalizeStage(row.progressStage);

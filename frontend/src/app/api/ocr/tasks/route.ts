@@ -12,8 +12,12 @@ import {
 import { isCloudflareWorker } from '@/shared/lib/env';
 import { isSupportedUiLang } from '@/shared/lib/translate-langs';
 import {
+  estimateTranslatedPages,
   getTranslateCreditsPerPage,
+  intersectPageRangeWithDocument,
   isTranslateCreditsEnabled,
+  normalizePageRangeInput,
+  parseTranslatePageRange,
 } from '@/shared/lib/translate-billing';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { ensureDocumentPageCount } from '@/shared/lib/document-page-count';
@@ -56,35 +60,81 @@ export async function POST(req: Request) {
     if (!doc) {
       return Response.json({ detail: 'Document not found' }, { status: 404 });
     }
-    let creditsEstimated: number | null = null;
-    if (isTranslateCreditsEnabled()) {
-      if (!userId) {
+
+    let pageRange: string | null = normalizePageRangeInput(body.page_range);
+    const sourceSliceObjectKey =
+      typeof body.source_slice_object_key === 'string'
+        ? body.source_slice_object_key.trim()
+        : null;
+
+    if (pageRange != null && !parseTranslatePageRange(pageRange)) {
+      return Response.json(
+        {
+          detail:
+            'Invalid page_range. Use a single page (e.g. 5) or a range (e.g. 1-10).',
+          code: 'invalid_page_range',
+        },
+        { status: 400 }
+      );
+    }
+    if (sourceSliceObjectKey && !pageRange) {
+      return Response.json(
+        {
+          detail: 'page_range is required when source_slice_object_key is set.',
+          code: 'page_range_required',
+        },
+        { status: 400 }
+      );
+    }
+    if (pageRange && !sourceSliceObjectKey) {
+      return Response.json(
+        {
+          detail:
+            'When page_range is set, upload a sliced PDF and pass source_slice_object_key.',
+          code: 'slice_required',
+        },
+        { status: 400 }
+      );
+    }
+    if (sourceSliceObjectKey) {
+      const expectedPrefix = `slices/${documentId}/`;
+      if (!sourceSliceObjectKey.startsWith(expectedPrefix)) {
         return Response.json(
-          {
-            detail: 'Sign in is required to start OCR when credits billing is enabled.',
-            code: 'translate_login_required',
-          },
-          { status: 401 }
+          { detail: 'Invalid source_slice_object_key', code: 'invalid_slice_key' },
+          { status: 400 }
         );
       }
+    }
+
+    let pageRangeUserInputDb: string | null = null;
+    let pageRangeAdjusted = false;
+
+    const billingOn = isTranslateCreditsEnabled();
+    const needResolvedPages = billingOn || Boolean(pageRange);
+
+    let resolvedPageCount: number | null = doc.pageCount ?? null;
+    let pageCountMeta: {
+      source: string;
+      latencyMs: number;
+      attempts: number;
+    } | null = null;
+
+    if (needResolvedPages && (resolvedPageCount == null || resolvedPageCount < 1)) {
       const pageCountResult = await ensureDocumentPageCount({
         documentId: doc.id,
         objectKey: doc.objectKey,
         knownPageCount: doc.pageCount ?? null,
-        reason: 'ocr_precheck',
+        reason: pageRange ? 'ocr_page_range' : 'ocr_precheck',
       });
-      const resolvedPageCount = pageCountResult.pageCount;
-      console.log(
-        '[ocr/precheck] page_count',
-        JSON.stringify({
-          document_id: doc.id,
-          page_count_value: resolvedPageCount,
-          page_count_ready: resolvedPageCount != null && resolvedPageCount > 0,
-          page_count_source: pageCountResult.source,
-          page_count_fill_latency_ms: pageCountResult.latencyMs,
-          page_count_attempts: pageCountResult.attempts,
-        })
-      );
+      resolvedPageCount = pageCountResult.pageCount;
+      pageCountMeta = {
+        source: pageCountResult.source,
+        latencyMs: pageCountResult.latencyMs,
+        attempts: pageCountResult.attempts,
+      };
+    }
+
+    if (pageRange) {
       if (resolvedPageCount == null || resolvedPageCount < 1) {
         return Response.json(
           {
@@ -95,7 +145,59 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
-      const estimatedPages = resolvedPageCount;
+      const hit = intersectPageRangeWithDocument(pageRange, resolvedPageCount);
+      if (!hit.ok) {
+        return Response.json(
+          {
+            detail: 'Page range does not overlap this document.',
+            code: 'page_range_no_overlap',
+            document_page_count: resolvedPageCount,
+          },
+          { status: 400 }
+        );
+      }
+      pageRange = hit.effectiveRange;
+      pageRangeUserInputDb = hit.userInputToStore;
+      pageRangeAdjusted = hit.adjusted;
+    }
+
+    console.log(
+      '[ocr/precheck] page_count',
+      JSON.stringify({
+        document_id: doc.id,
+        page_count_value: resolvedPageCount,
+        page_count_ready: resolvedPageCount != null && resolvedPageCount > 0,
+        page_count_source: pageCountMeta?.source ?? 'document_row',
+        page_count_fill_latency_ms: pageCountMeta?.latencyMs ?? 0,
+        page_count_attempts: pageCountMeta?.attempts ?? 0,
+        page_range: pageRange,
+      })
+    );
+
+    let creditsEstimated: number | null = null;
+    if (billingOn) {
+      if (!userId) {
+        return Response.json(
+          {
+            detail: 'Sign in is required to start OCR when credits billing is enabled.',
+            code: 'translate_login_required',
+          },
+          { status: 401 }
+        );
+      }
+      if (resolvedPageCount == null || resolvedPageCount < 1) {
+        return Response.json(
+          {
+            detail:
+              'Document page count is still being prepared. Please retry in a few seconds.',
+            code: 'document_pages_required_for_billing',
+          },
+          { status: 400 }
+        );
+      }
+      const estimatedPages = pageRange
+        ? estimateTranslatedPages(pageRange, resolvedPageCount)
+        : resolvedPageCount;
       const creditsPerPage = getTranslateCreditsPerPage();
       creditsEstimated = estimatedPages * creditsPerPage;
       const balance = await getRemainingCredits(userId);
@@ -132,6 +234,9 @@ export async function POST(req: Request) {
       documentId: doc.id,
       sourceLang,
       targetLang,
+      pageRange,
+      pageRangeUserInput: pageRangeUserInputDb,
+      sourceSliceObjectKey: sourceSliceObjectKey ?? undefined,
       status: 'queued',
       preprocessWithOcr: true,
       progressPercent: 5,
@@ -172,7 +277,13 @@ export async function POST(req: Request) {
       }
     }
 
-    return Response.json({ task_id: taskId });
+    return Response.json({
+      task_id: taskId,
+      page_range_effective: pageRange,
+      page_range_adjusted: pageRangeAdjusted,
+      page_range_user_input: pageRangeUserInputDb,
+      document_page_count: resolvedPageCount,
+    });
   } catch (e) {
     return Response.json(
       { detail: e instanceof Error ? e.message : 'Create OCR task failed' },

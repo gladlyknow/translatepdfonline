@@ -20,5 +20,8 @@
   "backgroundTaskHint": "The task is running in the background. You can close this page or do something else; come back when it's done.",
   "longTaskHint": "Long documents may take several minutes to translate. Thank you for your patience.",
   "queuedWaitHint": "Your task has been queued. Other tasks may be in progress; please wait a moment.",
-  "restoring": "Loading task…"
+  "restoring": "Loading task…",
+  "suggestOcrHintTitle": "Prueba la traducción con OCR",
+  "suggestOcrHintBody": "El PDF se tradujo, pero la capa de texto puede ser débil. El OCR reconstruye el texto desde las imágenes de página y suele funcionar mejor en escaneos o diseños difíciles.",
+  "suggestOcrHintCta": "Abrir traductor OCR"
 }

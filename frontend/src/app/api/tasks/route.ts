@@ -34,6 +34,7 @@ export async function GET(req: Request) {
         updatedAt: translationTasks.updatedAt,
         pageRange: translationTasks.pageRange,
         pageRangeUserInput: translationTasks.pageRangeUserInput,
+        postCompleteHint: translationTasks.postCompleteHint,
         documentPageCount: documents.pageCount,
         filename: documents.filename,
       })
@@ -57,6 +58,7 @@ export async function GET(req: Request) {
         page_range: r.pageRange,
         page_range_user_input: r.pageRangeUserInput ?? null,
         document_page_count: r.documentPageCount ?? null,
+        post_complete_hint: r.postCompleteHint ?? null,
       }));
     return Response.json(normalized);
   } catch (e) {

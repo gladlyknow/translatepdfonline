@@ -20,5 +20,8 @@
   "backgroundTaskHint": "L’attività è in esecuzione in background. Puoi chiudere la pagina o fare altro; torna quando è finita.",
   "longTaskHint": "I documenti lunghi possono richiedere diversi minuti. Grazie per la pazienza.",
   "queuedWaitHint": "La tua attività è in coda. Potrebbero esserci altre attività in corso; attendi un momento.",
-  "restoring": "Caricamento attività…"
+  "restoring": "Caricamento attività…",
+  "suggestOcrHintTitle": "Prova la traduzione OCR",
+  "suggestOcrHintBody": "Il PDF è stato tradotto, ma il livello di testo può essere debole. L’OCR ricostruisce il testo dalle immagini di pagina e spesso funziona meglio con scansioni o layout difficili.",
+  "suggestOcrHintCta": "Apri traduttore OCR"
 }

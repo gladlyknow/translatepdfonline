@@ -107,10 +107,10 @@ def run_translate_local(
     source_lang: str,
     target_lang: str,
     page_range: str | None = None,
-) -> tuple[list[str], int | None]:
+) -> tuple[list[str], int | None, bool]:
     """
     在 FC 内执行 BabelDOC 翻译，将结果写入 output_dir。
-    返回 (输出 PDF 路径列表, 可选的 BabelDOC 页数提示)；主文件一般为 *.mono.pdf 或第一个 pdf。
+    返回 (输出 PDF 路径列表, 可选的 BabelDOC 页数提示, suggest_try_ocr)；第三项为 True 表示译后语言层门闸建议用户尝试 OCR，但 PDF 仍已生成。
     """
     from pathlib import Path
 
@@ -236,7 +236,15 @@ def run_translate_local(
     )
 
     result = translate(config)
-    enforce_text_layer_after_translate(result, local_pdf_path, page_range)
+    suggest_try_ocr = False
+    try:
+        enforce_text_layer_after_translate(result, local_pdf_path, page_range)
+    except InsufficientTextLayerForTranslationError as e:
+        logger.warning(
+            "run_translate_local: text_layer_gate soft-pass suggest_try_ocr err=%s",
+            e,
+        )
+        suggest_try_ocr = True
     page_hint: int | None = None
     if result is not None:
         for attr in (
@@ -282,7 +290,7 @@ def run_translate_local(
                 out_list.append(str(path))
         # 保持 mono 在前，便于 main 里优先选 .mono.pdf
         if out_list:
-            return out_list, page_hint
+            return out_list, page_hint, suggest_try_ocr
     # 回退：output_dir 下 rglob 查找 PDF（含子目录），排除 glossary
     out_path = Path(output_dir)
     if out_path.exists():
@@ -290,8 +298,8 @@ def run_translate_local(
         pdfs = [p for p in pdfs if "gloss" not in p.name.lower()]
         if pdfs:
             logger.info("run_translate_local: using rglob fallback %s", [str(p) for p in pdfs])
-            return [str(p) for p in pdfs], page_hint
-    return [], page_hint
+            return [str(p) for p in pdfs], page_hint, suggest_try_ocr
+    return [], page_hint, suggest_try_ocr
 
 
 def _is_transient_translate_error(exc: BaseException) -> bool:
@@ -324,7 +332,7 @@ def run_translate_local_with_retries(
     source_lang: str,
     target_lang: str,
     page_range: str | None = None,
-) -> tuple[list[str], int | None]:
+) -> tuple[list[str], int | None, bool]:
     """包装 run_translate_local：对瞬时错误有限次重试（次数由 BABELDOC_TRANSLATE_MAX_ATTEMPTS 控制）。"""
     max_n = max(1, min(8, int(os.getenv("BABELDOC_TRANSLATE_MAX_ATTEMPTS", "3"))))
     last_exc: BaseException | None = None
@@ -348,8 +356,6 @@ def run_translate_local_with_retries(
             )
         except Exception as e:
             last_exc = e
-            if isinstance(e, InsufficientTextLayerForTranslationError):
-                raise
             transient = _is_transient_translate_error(e)
             logger.warning(
                 "run_translate_local attempt %s/%s failed transient=%s err=%s",

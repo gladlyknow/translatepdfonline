@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
-import { useRouter, usePathname } from '@/core/i18n/navigation';
+import { Link, useRouter, usePathname } from '@/core/i18n/navigation';
 import { useSession } from '@/core/auth/client';
 import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
@@ -104,6 +104,28 @@ function shouldOfferOcrRedirect(
     isNoParagraphsFailure(code, message) ||
     isScanLikelyFailure(code, message)
   );
+}
+
+/** Query string for OCR Translator (document, languages, optional page_range / doc_pages). */
+function buildOcrWorkbenchSearch(params: {
+  documentId: string;
+  sourceLang: string;
+  targetLang: string;
+  pageRange?: string | null;
+  docPages?: number | null;
+}): string {
+  const qs = new URLSearchParams();
+  qs.set('document', params.documentId);
+  qs.set('source_lang', params.sourceLang);
+  qs.set('target_lang', params.targetLang);
+  const pr = params.pageRange?.trim();
+  if (pr) {
+    qs.set('page_range', pr);
+    if (params.docPages != null && params.docPages > 0) {
+      qs.set('doc_pages', String(params.docPages));
+    }
+  }
+  return qs.toString();
 }
 
 function parsePageRange(range: string | null): [number, number] | null {
@@ -1253,6 +1275,38 @@ export function TranslatePageClient() {
                 {tHome('translationPatience')}
               </p>
             )}
+            {taskStatus === 'completed' &&
+              taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
+              documentId && (
+                <div className="mt-2.5 rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50">
+                  <p className="font-semibold text-sky-900 dark:text-sky-100">
+                    {t('suggestOcrHintTitle')}
+                  </p>
+                  <p className="mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88">
+                    {t('suggestOcrHintBody')}
+                  </p>
+                  <Link
+                    href={`/ocrtranslator?${buildOcrWorkbenchSearch({
+                      documentId,
+                      sourceLang:
+                        toSupportedUiLang(
+                          sourceLang ||
+                            (taskView?.task?.source_lang as string | undefined)
+                        ) || 'en',
+                      targetLang:
+                        toSupportedUiLang(
+                          targetLang ||
+                            (taskView?.task?.target_lang as string | undefined)
+                        ) || 'zh',
+                      pageRange: taskView?.task?.page_range ?? null,
+                      docPages: taskView?.task?.document_page_count ?? null,
+                    })}`}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500"
+                  >
+                    {t('suggestOcrHintCta')}
+                  </Link>
+                </div>
+              )}
             {taskStatus === 'failed' &&
               failedTaskInfo &&
               (failedTaskInfo.error_message || failedTaskInfo.error_code) &&
@@ -1269,6 +1323,11 @@ export function TranslatePageClient() {
                       targetLang ||
                         (taskView?.task?.target_lang as string | undefined)
                     ) || 'zh';
+                  const sourceForOcr =
+                    toSupportedUiLang(
+                      sourceLang ||
+                        (taskView?.task?.source_lang as string | undefined)
+                    ) || 'en';
                   return (
                     <button
                       type="button"
@@ -1276,11 +1335,14 @@ export function TranslatePageClient() {
                         if (ocrRedirecting || ocrNavLockRef.current) return;
                         ocrNavLockRef.current = true;
                         setOcrRedirecting(true);
-                        const qs = new URLSearchParams({
-                          document: documentId,
-                          target_lang: targetForOcr,
+                        const qs = buildOcrWorkbenchSearch({
+                          documentId,
+                          sourceLang: sourceForOcr,
+                          targetLang: targetForOcr,
+                          pageRange: taskView?.task?.page_range ?? null,
+                          docPages: taskView?.task?.document_page_count ?? null,
                         });
-                        router.push(`/ocrtranslator?${qs.toString()}`);
+                        router.push(`/ocrtranslator?${qs}`);
                         setTimeout(() => {
                           setOcrRedirecting(false);
                           ocrNavLockRef.current = false;

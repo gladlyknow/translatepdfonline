@@ -91,5 +91,9 @@
   "retryAction": "Retry",
   "cancelAction": "Cancel",
   "exportingStatus": "Exporting…",
-  "removeExportTitle": "Remove exported file"
+  "removeExportTitle": "Remove exported file",
+  "sourceColumnShort": "S",
+  "targetColumnShort": "T",
+  "pageRangeColumnShort": "P",
+  "ocrPageRangePlaceholder": "Page range (optional, e.g. 1-10)"
 }

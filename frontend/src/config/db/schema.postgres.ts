@@ -596,6 +596,8 @@ export const translationTasks = table(
     status: text('status').notNull().default('queued'),
     errorCode: text('error_code'),
     errorMessage: text('error_message'),
+    /** 任务已成功完成时的可选提示码，如 suggest_try_ocr */
+    postCompleteHint: text('post_complete_hint'),
     progressPercent: integer('progress_percent'),
     progressStage: text('progress_stage'),
     progressCurrent: integer('progress_current'),

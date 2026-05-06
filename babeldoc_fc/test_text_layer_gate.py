@@ -40,6 +40,7 @@ class TestEnforceGate(unittest.TestCase):
                 "BABELDOC_INSUFFICIENT_TEXT_CHECK",
                 "BABELDOC_MIN_VALID_CHARS_TOTAL",
                 "BABELDOC_MIN_VALID_CHARS_PER_PAGE",
+                "BABELDOC_FALLBACK_GATE_MAX_VALID_CHARS",
             )
         }
 
@@ -104,7 +105,8 @@ class TestEnforceGate(unittest.TestCase):
                     None,
                 )
 
-    def test_llm_ok_ratio_raises(self):
+    def test_llm_high_fallback_low_chars_raises(self):
+        """valid_chars 低于门闸上限且 fallback 占比高 → 拦截（不再用 ok_ratio 误杀 JSON 抖动）。"""
         os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
         pdf = MagicMock(spec=Path)
         with unittest.mock.patch(
@@ -113,7 +115,7 @@ class TestEnforceGate(unittest.TestCase):
             with self.assertRaises(InsufficientTextLayerForTranslationError):
                 enforce_text_layer_after_translate(
                     _FakeResult(
-                        total_valid_character_count=500,
+                        total_valid_character_count=200,
                         paragraph_extractable_total=5,
                         paragraph_llm_total=5,
                         paragraph_llm_ok=1,
@@ -124,7 +126,7 @@ class TestEnforceGate(unittest.TestCase):
                 )
 
     def test_fallback_share_raises_single_page_selection(self):
-        """range=1 页、与日志类似 3 批里 1 次 fallback → 应拦截。"""
+        """低 valid_chars + 高 fallback 占比（模拟扫描/CID）→ 拦截。"""
         os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
         pdf = MagicMock(spec=Path)
         with unittest.mock.patch(
@@ -133,7 +135,7 @@ class TestEnforceGate(unittest.TestCase):
             with self.assertRaises(InsufficientTextLayerForTranslationError):
                 enforce_text_layer_after_translate(
                     _FakeResult(
-                        total_valid_character_count=800,
+                        total_valid_character_count=220,
                         paragraph_extractable_total=3,
                         paragraph_llm_total=3,
                         paragraph_llm_ok=2,
@@ -142,6 +144,25 @@ class TestEnforceGate(unittest.TestCase):
                     pdf,
                     "1",
                 )
+
+    def test_high_valid_chars_many_fallback_passes(self):
+        """正常 PDF：LLM JSON 抖动导致多 fallback，但 valid_chars 高 → 不拦截。"""
+        os.environ["BABELDOC_INSUFFICIENT_TEXT_CHECK"] = "1"
+        pdf = MagicMock(spec=Path)
+        with unittest.mock.patch(
+            "babeldoc_fc.text_layer_gate._pdf_num_pages", return_value=1
+        ):
+            enforce_text_layer_after_translate(
+                _FakeResult(
+                    total_valid_character_count=1108,
+                    paragraph_extractable_total=5,
+                    paragraph_llm_total=4,
+                    paragraph_llm_ok=1,
+                    paragraph_llm_fallback=3,
+                ),
+                pdf,
+                "1",
+            )
 
     def test_partial_one_page_of_multi_page_sparse_raises(self):
         """用户只选 1 页翻译，但整份 PDF 多页且可译段落相对全文过稀。"""

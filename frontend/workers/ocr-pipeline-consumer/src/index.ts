@@ -25,16 +25,25 @@ type OcrQueueBatch = {
   readonly messages: readonly OcrQueueMessage[];
 };
 
+type QueueExecutionContext = {
+  waitUntil?: (promise: Promise<unknown>) => void;
+};
+
 export default {
   async fetch(): Promise<Response> {
     return new Response('queue consumer only', { status: 403 });
   },
-  async queue(batch: OcrQueueBatch, env: Record<string, unknown>): Promise<void> {
+  async queue(
+    batch: OcrQueueBatch,
+    env: Record<string, unknown>,
+    ctx?: QueueExecutionContext
+  ): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
       for (const msg of batch.messages) {
         try {
           await handleOcrPipelineQueueBatch({
             messages: [{ body: (msg.body ?? {}) as any }],
+            executionCtx: ctx,
           });
           msg.ack();
         } catch (e) {

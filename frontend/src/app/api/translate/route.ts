@@ -29,9 +29,11 @@ import {
   getTranslateCreditsPerPage,
   intersectPageRangeWithDocument,
   isTranslateCreditsEnabled,
+  normalizePageRangeInput,
   parseTranslatePageRange,
 } from '@/shared/lib/translate-billing';
 import { isSupportedUiLang } from '@/shared/lib/translate-langs';
+import { ensureDocumentPageCount } from '@/shared/lib/document-page-count';
 import { invokeTranslateFcForTask } from './invoke-fc';
 
 /** 日志用：不输出完整预签名 URL（含凭证 query）。 */
@@ -84,16 +86,6 @@ function isPgMissingColumnError(e: unknown): boolean {
           : undefined;
   }
   return false;
-}
-
-/** 统一页范围字符（减号、空白），避免复制粘贴的 Unicode 横线导致解析失败 */
-function normalizePageRangeInput(raw: unknown): string | null {
-  if (raw == null) return null;
-  const s = String(raw)
-    .trim()
-    .replace(/\u2013|\u2014|\u2212/g, '-')
-    .replace(/\s+/g, '');
-  return s === '' ? null : s;
 }
 
 function summarizeFcEndpoint(fcUrl: string) {
@@ -178,6 +170,9 @@ export async function POST(req: Request) {
       pageRangeUserInputDb = hit.userInputToStore;
       pageRangeAdjusted = hit.adjusted;
     }
+
+    /** 扣费预估用页数：全文翻译时会在下方 billing 分支尝试 ensureDocumentPageCount 填充 */
+    let docPageCountResolved = doc.pageCount ?? null;
 
     const scanMetadata = scanFromMetadata({
       filename: doc.filename,
@@ -324,7 +319,21 @@ export async function POST(req: Request) {
         pageRange != null && String(pageRange).trim() !== '';
       if (
         !hasPageRange &&
-        (doc.pageCount == null || doc.pageCount < 1)
+        (docPageCountResolved == null || docPageCountResolved < 1)
+      ) {
+        const fill = await ensureDocumentPageCount({
+          documentId: doc.id,
+          objectKey: doc.objectKey,
+          knownPageCount: doc.pageCount ?? null,
+          reason: 'translate_billing_precheck',
+        });
+        if (fill.pageCount != null && fill.pageCount > 0) {
+          docPageCountResolved = fill.pageCount;
+        }
+      }
+      if (
+        !hasPageRange &&
+        (docPageCountResolved == null || docPageCountResolved < 1)
       ) {
         return Response.json(
           {
@@ -338,7 +347,7 @@ export async function POST(req: Request) {
       const perPage = getTranslateCreditsPerPage();
       const estPages = estimateTranslatedPages(
         pageRange,
-        doc.pageCount ?? null
+        docPageCountResolved
       );
       const creditsNeeded = estPages * perPage;
       const balance = await getRemainingCredits(userId);
@@ -394,7 +403,7 @@ export async function POST(req: Request) {
       ? getTranslateCreditsPerPage()
       : null;
     const estPagesForRow = isTranslateCreditsEnabled()
-      ? estimateTranslatedPages(pageRange, doc.pageCount ?? null)
+      ? estimateTranslatedPages(pageRange, docPageCountResolved)
       : null;
     const creditsEstimated =
       perPageForRow != null && estPagesForRow != null

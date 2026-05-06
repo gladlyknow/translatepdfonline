@@ -20,5 +20,8 @@
   "backgroundTaskHint": "バックグラウンドで実行中です。このページを閉じても構いません。完了したら戻ってください。",
   "longTaskHint": "長い文書は数分かかることがあります。お待ちください。",
   "queuedWaitHint": "タスクはキューに入っています。他の処理が走っている可能性があるため、少しお待ちください。",
-  "restoring": "タスクを読み込み中…"
+  "restoring": "タスクを読み込み中…",
+  "suggestOcrHintTitle": "OCR 翻訳を試せます",
+  "suggestOcrHintBody": "PDF は翻訳済みですが、テキスト層が弱い可能性があります。OCR はページ画像からテキストを再構築し、スキャンや複雑なレイアウトで有効なことが多いです。",
+  "suggestOcrHintCta": "OCR 翻訳を開く"
 }
