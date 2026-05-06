@@ -14,8 +14,11 @@ export type ScanMetadataResult = {
   decision: ScanMetadataDecision;
   reasonCodes: string[];
   confidence: 'low' | 'medium' | 'high';
-  /** Bytes per page for selected range or full doc */
+  /** Whole-file bytes / document page count (not page_range span — avoids inflating when translating 1–2 pages of a 7-page PDF) */
   avgBytesPerPage: number;
+  /** Pages used for avgBytesPerPage denominator */
+  pagesForAvgSize: number;
+  /** Selected range span pages, else document pages (for logging / gates) */
   effectivePages: number;
 };
 
@@ -75,22 +78,27 @@ export function scanFromMetadata(params: {
   const hasScanHintInName =
     /scan|scanned|ocr|image-only|图片|扫描|影印/.test(filename);
 
-  let effectivePages = pageCount > 0 ? pageCount : 0;
-  if (range) {
-    const hit = parseTranslatePageRange(range);
-    if (hit) {
-      effectivePages = Math.max(1, hit[1] - hit[0] + 1);
-    }
-  }
-  const avgBytesPerPage =
-    effectivePages > 0 ? sizeBytes / Math.max(1, effectivePages) : 0;
+  const rangeHit = range ? parseTranslatePageRange(range) : null;
+  const rangePageSpan = rangeHit
+    ? Math.max(1, rangeHit[1] - rangeHit[0] + 1)
+    : 0;
+  const documentPages = pageCount > 0 ? pageCount : 0;
+  /** 页均体积：整文件 / 文档总页数；无总页数时才用选中范围页数（避免「只译 1–2 页」把分母变成 2 而虚高） */
+  const pagesForAvgSize =
+    documentPages > 0 ? documentPages : rangePageSpan > 0 ? rangePageSpan : 0;
+  const effectivePages =
+    documentPages > 0 ? documentPages : rangePageSpan > 0 ? rangePageSpan : 0;
 
-  if (effectivePages <= 0) {
+  const avgBytesPerPage =
+    pagesForAvgSize > 0 ? sizeBytes / Math.max(1, pagesForAvgSize) : 0;
+
+  if (pagesForAvgSize <= 0) {
     return {
       decision: 'normal_pdf',
       reasonCodes: ['page_count_unknown'],
       confidence: 'low',
       avgBytesPerPage: 0,
+      pagesForAvgSize: 0,
       effectivePages: 0,
     };
   }
@@ -113,6 +121,7 @@ export function scanFromMetadata(params: {
       reasonCodes,
       confidence: 'high',
       avgBytesPerPage,
+      pagesForAvgSize,
       effectivePages,
     };
   }
@@ -122,6 +131,7 @@ export function scanFromMetadata(params: {
       reasonCodes,
       confidence: 'medium',
       avgBytesPerPage,
+      pagesForAvgSize,
       effectivePages,
     };
   }
@@ -130,6 +140,7 @@ export function scanFromMetadata(params: {
     reasonCodes: reasonCodes.length > 0 ? reasonCodes : ['not_enough_scan_signals'],
     confidence: 'low',
     avgBytesPerPage,
+    pagesForAvgSize,
     effectivePages,
   };
 }
@@ -194,6 +205,21 @@ export function scanFromPdfHeadBytes(buf: Uint8Array): BinaryScanSignals {
   };
 }
 
+/** Merge head + tail byte scans (sum counts; sampleBytes totalled for density heuristics). */
+export function mergeBinaryScanSignals(
+  a: BinaryScanSignals,
+  b: BinaryScanSignals
+): BinaryScanSignals {
+  return {
+    sampleBytes: a.sampleBytes + b.sampleBytes,
+    imageSubtypeCount: a.imageSubtypeCount + b.imageSubtypeCount,
+    tjOperatorCount: a.tjOperatorCount + b.tjOperatorCount,
+    cidTokenCount: a.cidTokenCount + b.cidTokenCount,
+    textRenderMode3Hits: a.textRenderMode3Hits + b.textRenderMode3Hits,
+    mcidOrBdcHits: a.mcidOrBdcHits + b.mcidOrBdcHits,
+  };
+}
+
 function countStrongBinarySignals(
   bin: BinaryScanSignals | null | undefined
 ): number {
@@ -202,10 +228,10 @@ function countStrongBinarySignals(
   const mb = bin.sampleBytes / (1024 * 1024) || 1e-6;
   const cidPerMb = bin.cidTokenCount / mb;
 
-  if (bin.imageSubtypeCount >= 10 && bin.tjOperatorCount < 40) n += 1;
-  if (cidPerMb >= 400) n += 1;
-  if (bin.textRenderMode3Hits >= 5) n += 1;
-  if (bin.mcidOrBdcHits >= 12) n += 1;
+  if (bin.imageSubtypeCount >= 8 && bin.tjOperatorCount < 48) n += 1;
+  if (cidPerMb >= 120) n += 1;
+  if (bin.textRenderMode3Hits >= 4) n += 1;
+  if (bin.mcidOrBdcHits >= 8) n += 1;
 
   return n;
 }
@@ -300,7 +326,7 @@ export function decideScanIntercept(params: {
         signals: signalsBase,
       };
     }
-    if (meta.decision === 'suspected_scan' && strong >= 2) {
+    if (meta.decision === 'suspected_scan' && strong >= 1) {
       return {
         intercept: true,
         reasonCodes: [
@@ -317,6 +343,13 @@ export function decideScanIntercept(params: {
           'binary_image_heavy_low_text_ops',
           'block_mode_balanced_binary_only',
         ],
+        signals: signalsBase,
+      };
+    }
+    if (bin && bin.sampleBytes >= 512 && bin.cidTokenCount >= 18) {
+      return {
+        intercept: true,
+        reasonCodes: ['block_mode_balanced_cid_tokens_in_sample'],
         signals: signalsBase,
       };
     }

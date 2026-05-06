@@ -42,6 +42,18 @@ describe('scanFromMetadata', () => {
     });
     assert.equal(r.decision, 'normal_pdf');
   });
+
+  it('uses full document page count for avg (not page_range span)', () => {
+    const r = scanFromMetadata({
+      filename: 'paper.pdf',
+      sizeBytes: 2_936_805,
+      pageCount: 7,
+      pageRange: '1-2',
+    });
+    assert.equal(r.pagesForAvgSize, 7);
+    assert.ok(Math.abs(r.avgBytesPerPage - 2_936_805 / 7) < 1);
+    assert.equal(r.decision, 'normal_pdf');
+  });
 });
 
 function pdfHeaderWithBody(body: string): Uint8Array {
@@ -156,5 +168,25 @@ describe('decideScanIntercept', () => {
       binary: null,
     });
     assert.equal(d.intercept, false);
+  });
+
+  it('balanced intercepts many raw (cid: tokens even when metadata is normal', () => {
+    const normal = scanFromMetadata({
+      filename: 'paper.pdf',
+      sizeBytes: 2_936_805,
+      pageCount: 7,
+      pageRange: '1-2',
+    });
+    assert.equal(normal.decision, 'normal_pdf');
+    const body = '(cid:12)'.repeat(80);
+    const bin = scanFromPdfHeadBytes(pdfHeaderWithBody(body));
+    assert.ok(bin.cidTokenCount >= 18);
+    const d = decideScanIntercept({
+      mode: 'balanced',
+      preprocessWithOcr: false,
+      metadata: normal,
+      binary: bin,
+    });
+    assert.equal(d.intercept, true);
   });
 });

@@ -12,6 +12,7 @@ import {
 } from '@/shared/lib/translate-r2';
 import {
   decideScanIntercept,
+  mergeBinaryScanSignals,
   normalizeScanBlockMode,
   scanFromMetadata,
   scanFromPdfHeadBytes,
@@ -212,6 +213,35 @@ export async function POST(req: Request) {
           if (isPdfHeader) {
             binarySignals = scanFromPdfHeadBytes(head);
             pdfHeadFetch = 'ok';
+            const totalSize = Number(doc.sizeBytes || 0);
+            const tailMax = 512 * 1024;
+            if (totalSize > head.length && totalSize > tailMax) {
+              try {
+                const tailStart = Math.max(0, totalSize - tailMax);
+                const tail = await getObjectByteRange(
+                  objectKey,
+                  tailStart,
+                  totalSize - 1
+                );
+                if (tail.length > 0) {
+                  binarySignals = mergeBinaryScanSignals(
+                    binarySignals,
+                    scanFromPdfHeadBytes(tail)
+                  );
+                }
+              } catch (tailErr) {
+                console.warn(
+                  '[translate] scan_pdf_tail_fetch_failed',
+                  JSON.stringify({
+                    document_id: documentId,
+                    error:
+                      tailErr instanceof Error
+                        ? tailErr.message
+                        : String(tailErr),
+                  })
+                );
+              }
+            }
           } else {
             pdfHeadFetch = 'failed';
           }
@@ -247,6 +277,7 @@ export async function POST(req: Request) {
           document_id: documentId,
           page_range: pageRange,
           page_count: doc.pageCount ?? null,
+          pages_for_avg_size: scanMetadata.pagesForAvgSize,
           file_size_bytes: doc.sizeBytes ?? null,
           metadata_decision: scanMetadata.decision,
           scan_block_mode: scanBlockMode,
