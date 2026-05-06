@@ -56,6 +56,7 @@
   "stageOcrSubmitPoll": "OCR submit & poll",
   "stageOcrParsePersisted": "Parse persisted",
   "stageTranslateMarkdown": "Translate markdown",
+  "stageTranslateParseResult": "Translate layout JSON text",
   "stageExportOutputs": "Export outputs",
   "stageCompleted": "Completed",
   "statusInfo": "Info",

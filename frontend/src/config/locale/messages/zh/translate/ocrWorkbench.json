@@ -56,6 +56,7 @@
   "stageOcrSubmitPoll": "OCR 提交与轮询",
   "stageOcrParsePersisted": "解析结果已持久化",
   "stageTranslateMarkdown": "翻译 Markdown",
+  "stageTranslateParseResult": "翻译版面 JSON 文本",
   "stageExportOutputs": "导出输出文件",
   "stageCompleted": "完成",
   "statusInfo": "信息",

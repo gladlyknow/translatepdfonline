@@ -639,14 +639,25 @@ export function OcrTranslatePageClient() {
         ) {
           if (detail.status === 'completed') {
             let currentView = taskViewRef.current;
-            if (!currentView || !currentView.ocr_parse_result_url) {
+            let attemptedViewFetch = false;
+            // OCR 流水线完成后用同源 `/api/tasks/:id/parse-result` 拉 JSON，不一定有 presigned
+            // `ocr_parse_result_url`；仅依赖后者会导致无限轮询。
+            const parseHydrated = (v: TaskView | null) =>
+              Boolean(v?.ocr_parse_result_url) ||
+              Boolean(v?.task?.preprocess_with_ocr);
+            if (!currentView || !parseHydrated(currentView)) {
+              attemptedViewFetch = true;
               const view = await translateApi.getTaskView(taskId).catch(() => null);
               if (!cancelled && view) {
                 setTaskViewStable(view);
                 currentView = view;
               }
             }
-            shouldContinue = !Boolean(currentView?.ocr_parse_result_url);
+            const canLoadParseResult =
+              parseHydrated(currentView) ||
+              Boolean(detail.preprocess_with_ocr);
+            // 已具备解析入口（presigned、OCR 标记或 getTask 已带 preprocess）则停止
+            shouldContinue = !canLoadParseResult && !attemptedViewFetch;
           } else {
             if (!taskViewRef.current) {
               const view = await translateApi.getTaskView(taskId).catch(() => null);
@@ -927,6 +938,7 @@ export function OcrTranslatePageClient() {
         ocr_submit_poll: 'stageOcrSubmitPoll',
         ocr_parse_persisted: 'stageOcrParsePersisted',
         translate_markdown: 'stageTranslateMarkdown',
+        translate_parse_result: 'stageTranslateParseResult',
         export_outputs: 'stageExportOutputs',
         completed: 'stageCompleted',
         task_created: 'stageTaskCreated',
@@ -1061,7 +1073,7 @@ export function OcrTranslatePageClient() {
   );
   const ocrParseResultUrl =
     taskId && taskStatus === 'completed'
-      ? taskView?.task?.preprocess_with_ocr
+      ? taskView?.task?.preprocess_with_ocr || taskDetail?.preprocess_with_ocr
         ? `/api/tasks/${taskId}/parse-result`
         : stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null
       : null;
