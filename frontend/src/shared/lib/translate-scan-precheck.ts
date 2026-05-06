@@ -14,6 +14,11 @@ export type ScanMetadataResult = {
   decision: ScanMetadataDecision;
   reasonCodes: string[];
   confidence: 'low' | 'medium' | 'high';
+  /**
+   * 仅命中「页均 350KB+、总大小、多页」等软启发（未达 600/900KB 页均硬门槛）。
+   * balanced 模式下不单独 409，避免误伤嵌入大图/设计稿类正规 PDF；仍可走二进制/CID 规则。
+   */
+  softMetadataOnly: boolean;
   /** Whole-file bytes / document page count (not page_range span — avoids inflating when translating 1–2 pages of a 7-page PDF) */
   avgBytesPerPage: number;
   /** Pages used for avgBytesPerPage denominator */
@@ -56,8 +61,11 @@ export function normalizeScanBlockMode(raw: string | undefined | null): ScanBloc
   ) {
     return s;
   }
-  /** Default: balanced (metadata + PDF head byte heuristics) */
-  return 'balanced';
+  /**
+   * 默认 strict：Worker 仅拦元数据「高置信扫描」；其余交给 FC/BabelDOC。
+   * 需要 Worker 侧更强预检时显式设 SCAN_BLOCK_MODE=balanced 或 aggressive。
+   */
+  return 'strict';
 }
 
 /**
@@ -97,6 +105,7 @@ export function scanFromMetadata(params: {
       decision: 'normal_pdf',
       reasonCodes: ['page_count_unknown'],
       confidence: 'low',
+      softMetadataOnly: false,
       avgBytesPerPage: 0,
       pagesForAvgSize: 0,
       effectivePages: 0,
@@ -120,6 +129,7 @@ export function scanFromMetadata(params: {
       decision: 'high_confidence_scan',
       reasonCodes,
       confidence: 'high',
+      softMetadataOnly: false,
       avgBytesPerPage,
       pagesForAvgSize,
       effectivePages,
@@ -130,6 +140,7 @@ export function scanFromMetadata(params: {
       decision: 'suspected_scan',
       reasonCodes,
       confidence: 'medium',
+      softMetadataOnly: false,
       avgBytesPerPage,
       pagesForAvgSize,
       effectivePages,
@@ -153,6 +164,7 @@ export function scanFromMetadata(params: {
       decision: 'suspected_scan',
       reasonCodes: rc.length > 0 ? rc : ['avg_page_elevated_soft_scan_risk'],
       confidence: 'medium',
+      softMetadataOnly: true,
       avgBytesPerPage,
       pagesForAvgSize,
       effectivePages,
@@ -163,6 +175,7 @@ export function scanFromMetadata(params: {
     decision: 'normal_pdf',
     reasonCodes: reasonCodes.length > 0 ? reasonCodes : ['not_enough_scan_signals'],
     confidence: 'low',
+    softMetadataOnly: false,
     avgBytesPerPage,
     pagesForAvgSize,
     effectivePages,
@@ -350,8 +363,11 @@ export function decideScanIntercept(params: {
         signals: signalsBase,
       };
     }
-    /** 元数据 suspected（含 softScanRisk）即 409，不依赖压缩流内二进制信号 */
-    if (meta.decision === 'suspected_scan') {
+    /**
+     * 硬 suspected（页均 600KB+ 且大文件、或 900KB+ 多页等）仍直接 409。
+     * 仅 softMetadataOnly（350KB+ 页均等弱信号）不误伤正规大图 PDF，改由下方二进制/CID 规则兜底。
+     */
+    if (meta.decision === 'suspected_scan' && meta.softMetadataOnly !== true) {
       return {
         intercept: true,
         reasonCodes: [

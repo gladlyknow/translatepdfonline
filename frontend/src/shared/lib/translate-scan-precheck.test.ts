@@ -8,10 +8,10 @@ import {
 } from './translate-scan-precheck';
 
 describe('normalizeScanBlockMode', () => {
-  it('defaults unknown or empty to balanced', () => {
-    assert.equal(normalizeScanBlockMode(undefined), 'balanced');
-    assert.equal(normalizeScanBlockMode(''), 'balanced');
-    assert.equal(normalizeScanBlockMode('typo'), 'balanced');
+  it('defaults unknown or empty to strict', () => {
+    assert.equal(normalizeScanBlockMode(undefined), 'strict');
+    assert.equal(normalizeScanBlockMode(''), 'strict');
+    assert.equal(normalizeScanBlockMode('typo'), 'strict');
   });
 
   it('accepts known modes', () => {
@@ -30,6 +30,7 @@ describe('scanFromMetadata', () => {
       pageRange: null,
     });
     assert.equal(r.decision, 'high_confidence_scan');
+    assert.equal(r.softMetadataOnly, false);
     assert.ok(r.avgBytesPerPage >= 900 * 1024);
   });
 
@@ -41,6 +42,7 @@ describe('scanFromMetadata', () => {
       pageRange: null,
     });
     assert.equal(r.decision, 'normal_pdf');
+    assert.equal(r.softMetadataOnly, false);
   });
 
   it('uses full document page count for avg (not page_range span)', () => {
@@ -53,6 +55,7 @@ describe('scanFromMetadata', () => {
     assert.equal(r.pagesForAvgSize, 7);
     assert.ok(Math.abs(r.avgBytesPerPage - 2_936_805 / 7) < 1);
     assert.equal(r.decision, 'suspected_scan');
+    assert.equal(r.softMetadataOnly, true);
     assert.ok(r.reasonCodes.includes('avg_page_elevated_soft_scan_risk'));
   });
 });
@@ -132,7 +135,7 @@ describe('decideScanIntercept', () => {
     assert.equal(d2.intercept, false);
   });
 
-  it('balanced blocks any suspected metadata without binary', () => {
+  it('balanced blocks hard suspected metadata (high page avg) without binary', () => {
     const suspected = scanFromMetadata({
       filename: 'doc.pdf',
       sizeBytes: 40 * 1024 * 1024,
@@ -140,6 +143,7 @@ describe('decideScanIntercept', () => {
       pageRange: null,
     });
     assert.equal(suspected.decision, 'suspected_scan');
+    assert.equal(suspected.softMetadataOnly, false);
     const d = decideScanIntercept({
       mode: 'balanced',
       preprocessWithOcr: false,
@@ -149,7 +153,7 @@ describe('decideScanIntercept', () => {
     assert.equal(d.intercept, true);
   });
 
-  it('balanced intercepts softScanRisk multi-page mid-size PDF', () => {
+  it('balanced does not intercept soft-only metadata without binary signals', () => {
     const m = scanFromMetadata({
       filename: 'report.pdf',
       sizeBytes: 2_936_805,
@@ -157,11 +161,32 @@ describe('decideScanIntercept', () => {
       pageRange: '1-2',
     });
     assert.equal(m.decision, 'suspected_scan');
+    assert.equal(m.softMetadataOnly, true);
     const d = decideScanIntercept({
       mode: 'balanced',
       preprocessWithOcr: false,
       metadata: m,
       binary: null,
+    });
+    assert.equal(d.intercept, false);
+  });
+
+  it('balanced still intercepts soft-only metadata when CID sample is heavy', () => {
+    const m = scanFromMetadata({
+      filename: 'report.pdf',
+      sizeBytes: 2_936_805,
+      pageCount: 7,
+      pageRange: '1-2',
+    });
+    assert.equal(m.softMetadataOnly, true);
+    const body = '(cid:12)'.repeat(80);
+    const bin = scanFromPdfHeadBytes(pdfHeaderWithBody(body));
+    assert.ok(bin.cidTokenCount >= 18);
+    const d = decideScanIntercept({
+      mode: 'balanced',
+      preprocessWithOcr: false,
+      metadata: m,
+      binary: bin,
     });
     assert.equal(d.intercept, true);
   });
