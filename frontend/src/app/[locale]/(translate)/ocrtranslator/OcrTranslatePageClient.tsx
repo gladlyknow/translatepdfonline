@@ -889,7 +889,7 @@ export function OcrTranslatePageClient() {
         const sliced = await buildPdfSliceBytes(pdfBuf, rangeNorm);
         const put = await fetch(presign.upload_url, {
           method: 'PUT',
-          body: sliced,
+          body: new Blob([sliced], { type: 'application/pdf' }),
           headers: { 'Content-Type': 'application/pdf' },
         });
         if (!put.ok) {
