@@ -35,6 +35,11 @@ class SharedContextCrossSplitPart:
         # Statistics for valid characters/text across the whole file
         self.valid_char_count_total: int = 0
         self.total_valid_text_token_count: int = 0
+        # Paragraph / LLM batch stats (accumulated across split parts via add_paragraph_translation_stats)
+        self.paragraph_extractable_total: int = 0
+        self.paragraph_llm_total: int = 0
+        self.paragraph_llm_ok: int = 0
+        self.paragraph_llm_fallback: int = 0
 
     def initialize_glossaries(self, initial_glossaries: list[Glossary] | None):
         with self._lock:
@@ -51,6 +56,10 @@ class SharedContextCrossSplitPart:
             # reset statistics buffer when initializing
             self.valid_char_count_total = 0
             self.total_valid_text_token_count = 0
+            self.paragraph_extractable_total = 0
+            self.paragraph_llm_total = 0
+            self.paragraph_llm_ok = 0
+            self.paragraph_llm_fallback = 0
 
     def add_raw_extracted_term_pair(self, src: str, tgt: str):
         with self._lock:
@@ -131,6 +140,20 @@ class SharedContextCrossSplitPart:
                 self.valid_char_count_total += char_count
             if token_count > 0:
                 self.total_valid_text_token_count += token_count
+
+    def add_paragraph_translation_stats(
+        self,
+        extractable: int,
+        llm_total: int,
+        llm_ok: int,
+        llm_fallback: int,
+    ) -> None:
+        """Accumulate paragraph / LLM batch counters (split translation safe)."""
+        with self._lock:
+            self.paragraph_extractable_total += max(0, int(extractable))
+            self.paragraph_llm_total += max(0, int(llm_total))
+            self.paragraph_llm_ok += max(0, int(llm_ok))
+            self.paragraph_llm_fallback += max(0, int(llm_fallback))
 
 
 class TranslationConfig:
@@ -497,6 +520,10 @@ class TranslateResult:
     auto_extracted_glossary_path: Path | None
     total_valid_character_count: int | None
     total_valid_text_token_count: int | None
+    paragraph_extractable_total: int | None
+    paragraph_llm_total: int | None
+    paragraph_llm_ok: int | None
+    paragraph_llm_fallback: int | None
 
     def __init__(
         self,
@@ -515,6 +542,10 @@ class TranslateResult:
         self.auto_extracted_glossary_path = auto_extracted_glossary_path
         self.total_valid_character_count = None
         self.total_valid_text_token_count = None
+        self.paragraph_extractable_total = None
+        self.paragraph_llm_total = None
+        self.paragraph_llm_ok = None
+        self.paragraph_llm_fallback = None
 
     def __str__(self):
         """Return a human-readable string representation of the translation result."""

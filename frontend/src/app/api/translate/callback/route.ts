@@ -24,6 +24,9 @@ function deriveErrorCodeFromCallbackBody(body: {
   const msg =
     typeof body.error_message === 'string' ? body.error_message : '';
   const low = msg.toLowerCase();
+  if (low.includes('babeldoc_insufficient_text_layer')) {
+    return 'scan_detected_use_ocr';
+  }
   if (
     low.includes('too many cid paragraphs') ||
     low.includes('cid paragraphs')

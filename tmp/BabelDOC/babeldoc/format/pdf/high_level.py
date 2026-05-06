@@ -776,11 +776,25 @@ def do_translate(
             result.total_valid_text_token_count = (
                 token_total if isinstance(token_total, int) else 0
             )
+            result.paragraph_extractable_total = int(
+                getattr(sc, "paragraph_extractable_total", 0) or 0
+            )
+            result.paragraph_llm_total = int(
+                getattr(sc, "paragraph_llm_total", 0) or 0
+            )
+            result.paragraph_llm_ok = int(getattr(sc, "paragraph_llm_ok", 0) or 0)
+            result.paragraph_llm_fallback = int(
+                getattr(sc, "paragraph_llm_fallback", 0) or 0
+            )
         except Exception as e:
             logger.warning("Failed to populate valid text statistics: %s", e)
             try:
                 result.total_valid_character_count = 0
                 result.total_valid_text_token_count = 0
+                result.paragraph_extractable_total = 0
+                result.paragraph_llm_total = 0
+                result.paragraph_llm_ok = 0
+                result.paragraph_llm_fallback = 0
             except Exception:
                 pass
         result.original_pdf_path = translation_config.input_file

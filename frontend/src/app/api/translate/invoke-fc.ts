@@ -62,6 +62,9 @@ function fcSubmitMaxAttempts(): number {
 
 function errorCodeFromFcErrorBodySnippet(snippet: string): string | null {
   const low = snippet.toLowerCase();
+  if (low.includes('babeldoc_insufficient_text_layer')) {
+    return 'scan_detected_use_ocr';
+  }
   if (
     low.includes('too many cid paragraphs') ||
     low.includes('cid paragraphs')

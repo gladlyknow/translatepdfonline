@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 from .config import get_deepseek_api_key, get_deepseek_base_url, get_deepseek_model
+from .text_layer_gate import InsufficientTextLayerForTranslationError, enforce_text_layer_after_translate
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +236,7 @@ def run_translate_local(
     )
 
     result = translate(config)
+    enforce_text_layer_after_translate(result, local_pdf_path, page_range)
     page_hint: int | None = None
     if result is not None:
         for attr in (
@@ -346,6 +348,8 @@ def run_translate_local_with_retries(
             )
         except Exception as e:
             last_exc = e
+            if isinstance(e, InsufficientTextLayerForTranslationError):
+                raise
             transient = _is_transient_translate_error(e)
             logger.warning(
                 "run_translate_local attempt %s/%s failed transient=%s err=%s",
