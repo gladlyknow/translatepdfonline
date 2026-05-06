@@ -24,5 +24,7 @@
   "restoring": "Loading task…",
   "suggestOcrHintTitle": "You can try OCR translation",
   "suggestOcrHintBody": "This PDF was translated, but the text layer may be weak or uneven. OCR rebuilds text from page images and often works better for scans or difficult layouts.",
-  "suggestOcrHintCta": "Open OCR Translator"
+  "suggestOcrHintCta": "Open OCR Translator",
+  "completedOcrOfferTitle": "Optional: OCR preprocessing",
+  "completedOcrOfferBody": "Translation is ready. If you want to edit layout text or handle scanned pages, open the OCR translator with this document and languages."
 }

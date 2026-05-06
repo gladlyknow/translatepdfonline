@@ -23,5 +23,7 @@
   "restoring": "Aufgabe wird geladen…",
   "suggestOcrHintTitle": "OCR-Übersetzung ausprobieren",
   "suggestOcrHintBody": "Die PDF wurde übersetzt, aber die Textebene wirkt dünn oder unsicher. OCR erzeugt Text aus Seitenbildern und ist oft besser für Scans oder schwierige Layouts.",
-  "suggestOcrHintCta": "OCR-Übersetzer öffnen"
+  "suggestOcrHintCta": "OCR-Übersetzer öffnen",
+  "completedOcrOfferTitle": "Optional: OCR-Vorverarbeitung",
+  "completedOcrOfferBody": "Die Übersetzung ist fertig. Wenn Sie Layouttext bearbeiten oder gescannte Seiten erneut verarbeiten möchten, öffnen Sie den OCR-Übersetzer mit diesem Dokument und diesen Sprachen."
 }

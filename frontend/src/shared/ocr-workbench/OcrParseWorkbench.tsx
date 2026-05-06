@@ -1065,33 +1065,47 @@ export function OcrParseWorkbench({
     panel: ReactNode,
     tone: 'normal' | 'error' = 'normal'
   ) => (
-    <div
-      className={cn(
-        'min-h-0 min-w-0 flex-1',
-        showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
-      )}
-    >
-      {showLeftToolbar &&
-      !externalToolbarContainerId &&
-      !shouldUseExternalToolbar ? (
-        <aside
-          id={toolbarId}
-          className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
-        >
-          <ParseResultEditorToolbar disabled currentEditorStyle={{}} sectionIds={toolbarSectionIds} />
-        </aside>
-      ) : null}
+    <>
       <div
         className={cn(
-          'flex min-h-0 min-w-0 flex-1 items-center rounded-lg border p-3',
-          tone === 'error'
-            ? 'border-red-200 bg-red-50/90 text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
-            : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300'
+          'min-h-0 min-w-0 flex-1',
+          showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
         )}
       >
-        {panel}
+        {showLeftToolbar &&
+        !externalToolbarContainerId &&
+        !shouldUseExternalToolbar ? (
+          <aside
+            id={toolbarId}
+            className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
+          >
+            <ParseResultEditorToolbar
+              disabled
+              currentEditorStyle={{}}
+              sectionIds={toolbarSectionIds}
+            />
+          </aside>
+        ) : null}
+        <div
+          className={cn(
+            'flex min-h-0 min-w-0 flex-1 items-center rounded-lg border p-3',
+            tone === 'error'
+              ? 'border-red-200 bg-red-50/90 text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
+              : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300'
+          )}
+        >
+          {panel}
+        </div>
       </div>
-    </div>
+      {shouldUseExternalToolbar && externalToolbarHost
+        ? createPortal(
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50/95 p-1.5 dark:border-zinc-800 dark:bg-zinc-950">
+              {toolbarContent}
+            </div>,
+            externalToolbarHost
+          )
+        : null}
+    </>
   );
 
   if (!parseResultUrl) {

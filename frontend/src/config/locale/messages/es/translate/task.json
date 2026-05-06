@@ -23,5 +23,7 @@
   "restoring": "Loading task…",
   "suggestOcrHintTitle": "Prueba la traducción con OCR",
   "suggestOcrHintBody": "El PDF se tradujo, pero la capa de texto puede ser débil. El OCR reconstruye el texto desde las imágenes de página y suele funcionar mejor en escaneos o diseños difíciles.",
-  "suggestOcrHintCta": "Abrir traductor OCR"
+  "suggestOcrHintCta": "Abrir traductor OCR",
+  "completedOcrOfferTitle": "Opcional: preprocesar con OCR",
+  "completedOcrOfferBody": "La traducción está lista. Si quieres editar el texto del diseño o volver a procesar páginas escaneadas, abre el traductor OCR con este documento e idiomas."
 }

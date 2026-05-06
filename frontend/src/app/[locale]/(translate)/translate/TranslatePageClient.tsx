@@ -1276,14 +1276,36 @@ export function TranslatePageClient() {
               </p>
             )}
             {taskStatus === 'completed' &&
-              taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
-              documentId && (
-                <div className="mt-2.5 rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50">
-                  <p className="font-semibold text-sky-900 dark:text-sky-100">
-                    {t('suggestOcrHintTitle')}
+              documentId &&
+              !taskView?.task?.preprocess_with_ocr && (
+                <div
+                  className={
+                    taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                      ? 'mt-2.5 rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50'
+                      : 'mt-2.5 rounded-lg border border-zinc-200/90 bg-zinc-50/95 px-3 py-2.5 text-xs leading-relaxed text-zinc-800 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900/70 dark:text-zinc-100'
+                  }
+                >
+                  <p
+                    className={
+                      taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                        ? 'font-semibold text-sky-900 dark:text-sky-100'
+                        : 'font-semibold text-zinc-900 dark:text-zinc-100'
+                    }
+                  >
+                    {taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                      ? t('suggestOcrHintTitle')
+                      : t('completedOcrOfferTitle')}
                   </p>
-                  <p className="mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88">
-                    {t('suggestOcrHintBody')}
+                  <p
+                    className={
+                      taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                        ? 'mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88'
+                        : 'mt-1 text-[11px] text-zinc-600 dark:text-zinc-300'
+                    }
+                  >
+                    {taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                      ? t('suggestOcrHintBody')
+                      : t('completedOcrOfferBody')}
                   </p>
                   <Link
                     href={`/ocrtranslator?${buildOcrWorkbenchSearch({
@@ -1301,7 +1323,11 @@ export function TranslatePageClient() {
                       pageRange: taskView?.task?.page_range ?? null,
                       docPages: taskView?.task?.document_page_count ?? null,
                     })}`}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500"
+                    className={
+                      taskView?.task?.post_complete_hint === 'suggest_try_ocr'
+                        ? 'mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500'
+                        : 'mt-2 inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700'
+                    }
                   >
                     {t('suggestOcrHintCta')}
                   </Link>

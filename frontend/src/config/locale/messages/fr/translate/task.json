@@ -23,5 +23,7 @@
   "restoring": "Chargement de la tâche…",
   "suggestOcrHintTitle": "Essayer la traduction OCR",
   "suggestOcrHintBody": "Le PDF a été traduit, mais la couche texte peut être faible. L’OCR reconstruit le texte à partir des images de page et convient souvent mieux aux scans ou mises en page difficiles.",
-  "suggestOcrHintCta": "Ouvrir le traducteur OCR"
+  "suggestOcrHintCta": "Ouvrir le traducteur OCR",
+  "completedOcrOfferTitle": "Optionnel : prétraitement OCR",
+  "completedOcrOfferBody": "La traduction est prête. Pour ajuster le texte de mise en page ou traiter des pages numérisées, ouvrez le traducteur OCR avec ce document et ces langues."
 }

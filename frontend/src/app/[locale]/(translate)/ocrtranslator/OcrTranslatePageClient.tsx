@@ -153,7 +153,7 @@ const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
           scale={pdfZoom}
           onScaleChange={onScaleChange}
           showZoomControls={false}
-          showPageControls={false}
+          showPageControls
         />
       </div>
     </div>
@@ -302,12 +302,6 @@ export function OcrTranslatePageClient() {
   useEffect(() => {
     footerWorkbench?.setWorkbenchOpen(Boolean(documentId));
   }, [documentId, footerWorkbench?.setWorkbenchOpen]);
-
-  useEffect(() => {
-    if (!shellChrome?.setHeaderCollapsed) return;
-    shellChrome.setHeaderCollapsed(true);
-    return () => shellChrome.setHeaderCollapsed(false);
-  }, [shellChrome?.setHeaderCollapsed]);
 
   useEffect(() => {
     if (!sessionUserId && !user?.id) return;
