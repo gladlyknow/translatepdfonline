@@ -39,7 +39,8 @@ queue = "translatepdfonline"
 # 并先在 Dashboard 创建队列 translatepdfonline-dev（与生产队列名不同）。
 [env.develop]
 name = "translatepdfonline-dev"
-keep_vars = true
+# 注意：不要在 [env.develop] 下写 keep_vars。Wrangler / OpenNext 校验不接受该嵌套字段；
+# 顶层 keep_vars = true 已存在；部署请使用：wrangler deploy --env develop --keep-vars
 
 [env.develop.vars]
 # develop 变量建议在 Dashboard 的 translatepdfonline-dev 下单独维护；
