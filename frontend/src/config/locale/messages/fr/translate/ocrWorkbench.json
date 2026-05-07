@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Plage de pages (facultatif, ex. 1-10)"
+  "ocrPageRangePlaceholder": "Plage de pages (facultatif, ex. 1-10)",
+  "focusPanelJson": "Focus JSON",
+  "focusPanelSource": "Focus source"
 }

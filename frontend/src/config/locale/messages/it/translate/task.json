@@ -25,5 +25,10 @@
   "suggestOcrHintBody": "Il PDF è stato tradotto, ma il livello di testo può essere debole. L’OCR ricostruisce il testo dalle immagini di pagina e spesso funziona meglio con scansioni o layout difficili.",
   "suggestOcrHintCta": "Apri traduttore OCR",
   "completedOcrOfferTitle": "Opzionale: pre-elaborazione OCR",
-  "completedOcrOfferBody": "La traduzione è pronta. Per modificare il testo del layout o gestire pagine scansionate, apri il traduttore OCR con questo documento e le lingue selezionate."
+  "completedOcrOfferBody": "La traduzione è pronta. Per modificare il testo del layout o gestire pagine scansionate, apri il traduttore OCR con questo documento e le lingue selezionate.",
+  "ocrJumpHintTitle": "Scansione o layout complesso?",
+  "ocrJumpHintBody": "Ricostruisci il testo dalle immagini di pagina—stesso file e lingue.",
+  "ocrJumpCta": "Apri OCR",
+  "ocrJumpWhenPreprocessedTitle": "Raffina il layout",
+  "ocrJumpWhenPreprocessedBody": "OCR in traduzione attivo; apri la workbench per modifiche più profonde."
 }

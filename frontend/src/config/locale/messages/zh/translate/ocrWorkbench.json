@@ -85,6 +85,8 @@
   "pagesPrev": "上一页",
   "pagesNext": "下一页",
   "pagesSourcePage": "源页面 {current} / {total}",
+  "focusPanelJson": "JSON 焦点",
+  "focusPanelSource": "源稿焦点",
   "pagesExpandFooter": "展开页尾",
   "exportAction": "导出",
   "downloadAction": "下载",

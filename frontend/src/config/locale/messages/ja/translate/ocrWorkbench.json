@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "ページ範囲（任意、例: 1-10）"
+  "ocrPageRangePlaceholder": "ページ範囲（任意、例: 1-10）",
+  "focusPanelJson": "JSON フォーカス",
+  "focusPanelSource": "原稿フォーカス"
 }

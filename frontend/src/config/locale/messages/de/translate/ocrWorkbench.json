@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Seitenbereich (optional, z. B. 1-10)"
+  "ocrPageRangePlaceholder": "Seitenbereich (optional, z. B. 1-10)",
+  "focusPanelJson": "JSON-Fokus",
+  "focusPanelSource": "Quellenfokus"
 }

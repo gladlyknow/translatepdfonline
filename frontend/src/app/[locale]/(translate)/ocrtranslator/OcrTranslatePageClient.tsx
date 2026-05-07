@@ -1261,7 +1261,7 @@ export function OcrTranslatePageClient() {
             </p>
           )}
           <div className="mt-3 flex flex-col gap-2">
-            <div className="grid grid-cols-2 items-end gap-x-2 gap-y-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)]">
+            <div className="grid grid-cols-3 items-end gap-x-2 gap-y-0">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   {tOcrWb('sourceColumnShort')}
@@ -1284,7 +1284,7 @@ export function OcrTranslatePageClient() {
                   compact
                 />
               </div>
-              <div className="col-span-2 flex min-w-0 flex-col gap-0.5 sm:col-span-1">
+              <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   {tOcrWb('pageRangeColumnShort')}
                 </span>
@@ -1294,7 +1294,7 @@ export function OcrTranslatePageClient() {
                   onChange={(e) => setPageRangeOcr(e.target.value)}
                   placeholder={tOcrWb('ocrPageRangePlaceholder')}
                   disabled={starting || resolvingPageCount || taskAwaitingResult}
-                  className="min-h-[36px] w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                  className="min-h-[36px] w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs leading-tight dark:border-zinc-600 dark:bg-zinc-800 sm:text-sm"
                   aria-label={tOcrWb('ocrPageRangePlaceholder')}
                 />
               </div>
@@ -1370,7 +1370,9 @@ export function OcrTranslatePageClient() {
               })}
             </p>
             <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {activeFocusPanel === 'json' ? 'JSON focus' : 'Source focus'}
+              {activeFocusPanel === 'json'
+                ? tOcrWb('focusPanelJson')
+                : tOcrWb('focusPanelSource')}
             </p>
             <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
               <span>{tOcrWb('canvasScale')}</span>

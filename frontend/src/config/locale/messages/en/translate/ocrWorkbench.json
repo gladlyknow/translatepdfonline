@@ -85,6 +85,8 @@
   "pagesPrev": "Prev",
   "pagesNext": "Next",
   "pagesSourcePage": "Source Page {current} / {total}",
+  "focusPanelJson": "JSON focus",
+  "focusPanelSource": "Source focus",
   "pagesExpandFooter": "Expand footer",
   "exportAction": "Export",
   "downloadAction": "Download",

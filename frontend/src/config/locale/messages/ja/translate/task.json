@@ -25,5 +25,10 @@
   "suggestOcrHintBody": "PDF は翻訳済みですが、テキスト層が弱い可能性があります。OCR はページ画像からテキストを再構築し、スキャンや複雑なレイアウトで有効なことが多いです。",
   "suggestOcrHintCta": "OCR 翻訳を開く",
   "completedOcrOfferTitle": "任意：OCR 前処理",
-  "completedOcrOfferBody": "翻訳は完了しました。レイアウト上のテキストを調整したい場合やスキャンを再処理したい場合は、同じ文書と言語で OCR 翻訳を開いてください。"
+  "completedOcrOfferBody": "翻訳は完了しました。レイアウト上のテキストを調整したい場合やスキャンを再処理したい場合は、同じ文書と言語で OCR 翻訳を開いてください。",
+  "ocrJumpHintTitle": "スキャンや複雑なレイアウト？",
+  "ocrJumpHintBody": "ページ画像からテキストを再構築。同じファイルと言語で。",
+  "ocrJumpCta": "OCR を開く",
+  "ocrJumpWhenPreprocessedTitle": "レイアウトを微調整",
+  "ocrJumpWhenPreprocessedBody": "翻訳時 OCR 済み。さらに編集はワークベンチへ。"
 }

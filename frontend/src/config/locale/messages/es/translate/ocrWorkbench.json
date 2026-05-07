@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Rango de páginas (opcional, ej. 1-10)"
+  "ocrPageRangePlaceholder": "Rango de páginas (opcional, ej. 1-10)",
+  "focusPanelJson": "Foco JSON",
+  "focusPanelSource": "Foco origen"
 }

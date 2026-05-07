@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Диапазон страниц (необязательно, напр. 1-10)"
+  "ocrPageRangePlaceholder": "Диапазон страниц (необязательно, напр. 1-10)",
+  "focusPanelJson": "Фокус JSON",
+  "focusPanelSource": "Фокус исходника"
 }

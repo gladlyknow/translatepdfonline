@@ -26,5 +26,10 @@
   "suggestOcrHintBody": "PDF 已生成译文，但可抽取文字层可能偏薄或不稳定。OCR 会按页面图像重建文字，对扫描件或复杂版式通常更稳妥。",
   "suggestOcrHintCta": "前往 OCR 翻译",
   "completedOcrOfferTitle": "可选：OCR 预处理",
-  "completedOcrOfferBody": "译文已就绪。若要在版面中微调文字、或针对扫描件再处理，可用同一文档与语种打开 OCR 翻译。"
+  "completedOcrOfferBody": "译文已就绪。若要在版面中微调文字、或针对扫描件再处理，可用同一文档与语种打开 OCR 翻译。",
+  "ocrJumpHintTitle": "扫描件或复杂版式？",
+  "ocrJumpHintBody": "按页图像重建文字，沿用当前文档与语种。",
+  "ocrJumpCta": "打开 OCR",
+  "ocrJumpWhenPreprocessedTitle": "需要精调版面？",
+  "ocrJumpWhenPreprocessedBody": "本次翻译已启用译前 OCR，仍可在工作台继续编辑排版。"
 }

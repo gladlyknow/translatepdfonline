@@ -43,5 +43,7 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Intervallo pagine (opzionale, es. 1-10)"
+  "ocrPageRangePlaceholder": "Intervallo pagine (opzionale, es. 1-10)",
+  "focusPanelJson": "Focus JSON",
+  "focusPanelSource": "Focus sorgente"
 }
