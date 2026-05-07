@@ -29,10 +29,8 @@ type QueueExecutionContext = {
   waitUntil?: (promise: Promise<unknown>) => void;
 };
 
+/** Cloudflare Queues 要求 default export 上存在 `queue`；`queue` 置于首位，`keep_names` 见 wrangler.consumer*.jsonc。 */
 export default {
-  async fetch(): Promise<Response> {
-    return new Response('queue consumer only', { status: 403 });
-  },
   async queue(
     batch: OcrQueueBatch,
     env: Record<string, unknown>,
@@ -53,8 +51,7 @@ export default {
       }
     });
   },
-  async scheduled(_controller: unknown, _env: Record<string, unknown>): Promise<void> {
-    // Intentionally noop: OCR dispatch only via queue/API, no cron fallback.
-    return;
+  async fetch(): Promise<Response> {
+    return new Response('queue consumer only', { status: 403 });
   },
 };
