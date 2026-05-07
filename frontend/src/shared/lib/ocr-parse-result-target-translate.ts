@@ -117,10 +117,21 @@ export async function translateAndPersistParseResultTarget(params: {
   const slots: TextSlot[] = [];
   collectSlots(data, slots);
   const parts = slots.map((s) => s.read());
+  console.log(
+    '[ocr/parse_target_translate] start',
+    JSON.stringify({
+      task_id: params.taskId,
+      source_lang: params.sourceLang,
+      target_lang: params.targetLang,
+      text_slots: slots.length,
+    })
+  );
+  const stageStarted = Date.now();
   const translated = await translateStringListWithDeepSeek({
     parts,
     sourceLang: params.sourceLang,
     targetLang: params.targetLang,
+    logContext: { taskId: params.taskId },
   });
   if (translated.length !== slots.length) {
     throw new Error('parse-result target translate: slot length mismatch');
@@ -134,5 +145,14 @@ export async function translateAndPersistParseResultTarget(params: {
     ocrParseResultTargetKey(params.taskId),
     encoded,
     'application/json; charset=utf-8'
+  );
+  console.log(
+    '[ocr/parse_target_translate] done',
+    JSON.stringify({
+      task_id: params.taskId,
+      text_slots: slots.length,
+      elapsed_ms: Date.now() - stageStarted,
+      target_key: ocrParseResultTargetKey(params.taskId),
+    })
   );
 }

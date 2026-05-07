@@ -412,37 +412,13 @@ export async function translateMarkdownWithDeepSeek(params: {
   return content;
 }
 
-/**
- * 将字符串列表按批送给 DeepSeek，顺序与长度必须一致（用于版面 JSON 字段翻译）。
- */
-export async function translateStringListWithDeepSeek(params: {
-  parts: string[];
-  sourceLang: string;
-  targetLang: string;
-}): Promise<string[]> {
-  const { parts, sourceLang, targetLang } = params;
-  if (parts.length === 0) return [];
-  const cfg = await getAllConfigs();
-  const apiKey = String(
-    cfg.deepseek_api_key || process.env.DEEPSEEK_API_KEY || ''
-  ).trim();
-  if (!apiKey) {
-    throw new Error('DeepSeek API key missing');
-  }
-  const model = resolveOcrDeepSeekModel();
-  const reasoningEffort = resolveReasoningEffort();
-  const maxChunkItems = Math.max(
-    8,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '48') || 48
-  );
-  const maxChunkChars = Math.max(
-    2000,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '12000') || 12000
-  );
-
-  const out: string[] = new Array(parts.length);
+function estimateDeepSeekParseBatchCount(
+  parts: string[],
+  maxChunkItems: number,
+  maxChunkChars: number
+): number {
+  let batches = 0;
   let start = 0;
-  const RETRY_MAX = Math.max(1, Number(process.env.OCR_PARSE_TRANSLATE_RETRY_MAX || '3') || 3);
   while (start < parts.length) {
     let end = start;
     let charBudget = 0;
@@ -455,7 +431,84 @@ export async function translateStringListWithDeepSeek(params: {
       end += 1;
     }
     if (end === start) end = start + 1;
+    batches += 1;
+    start = end;
+  }
+  return batches;
+}
+
+/**
+ * 将字符串列表按批送给 DeepSeek，顺序与长度必须一致（用于版面 JSON 字段翻译）。
+ */
+export async function translateStringListWithDeepSeek(params: {
+  parts: string[];
+  sourceLang: string;
+  targetLang: string;
+  /** 传入后在 consumer 日志中输出每批进度，便于排查 translate_parse_result 长时间无输出 */
+  logContext?: { taskId?: string };
+}): Promise<string[]> {
+  const { parts, sourceLang, targetLang, logContext } = params;
+  if (parts.length === 0) return [];
+  const cfg = await getAllConfigs();
+  const apiKey = String(
+    cfg.deepseek_api_key || process.env.DEEPSEEK_API_KEY || ''
+  ).trim();
+  if (!apiKey) {
+    throw new Error('DeepSeek API key missing');
+  }
+  const model = resolveOcrDeepSeekModel();
+  const reasoningEffort = resolveReasoningEffort();
+  const maxChunkItems = Math.max(
+    8,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '64') || 64
+  );
+  const maxChunkChars = Math.max(
+    2000,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '16000') || 16000
+  );
+  const fetchTimeoutMs = Math.max(
+    30_000,
+    Number(process.env.OCR_PARSE_TRANSLATE_FETCH_TIMEOUT_MS || '180000') || 180_000
+  );
+
+  const out: string[] = new Array(parts.length);
+  let start = 0;
+  const RETRY_MAX = Math.max(1, Number(process.env.OCR_PARSE_TRANSLATE_RETRY_MAX || '3') || 3);
+  const totalBatches = estimateDeepSeekParseBatchCount(
+    parts,
+    maxChunkItems,
+    maxChunkChars
+  );
+  let batchIndex = 0;
+  while (start < parts.length) {
+    batchIndex += 1;
+    let end = start;
+    let charBudget = 0;
+    while (
+      end < parts.length &&
+      end - start < maxChunkItems &&
+      charBudget < maxChunkChars
+    ) {
+      charBudget += (parts[end]?.length ?? 0) + 8;
+      end += 1;
+    }
+    if (end === start) end = start + 1;
     const slice = parts.slice(start, end);
+    const batchChars = slice.reduce((a, s) => a + (s?.length ?? 0), 0);
+    const logBase = {
+      ...(logContext?.taskId ? { task_id: logContext.taskId } : {}),
+      batch: batchIndex,
+      batches_estimated: totalBatches,
+      slice_items: slice.length,
+      slice_chars: batchChars,
+      parts_total: parts.length,
+      parts_done_before: start,
+    };
+    console.log(
+      '[ocr/deepseek_parse_batch] start',
+      JSON.stringify(logBase)
+    );
+    const batchStarted = Date.now();
     const prompt = [
       `Translate each string in the JSON array below from ${sourceLang} to ${targetLang}.`,
       'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
@@ -466,19 +519,34 @@ export async function translateStringListWithDeepSeek(params: {
     let parsedArr: unknown = null;
     let lastError = '';
     for (let attempt = 1; attempt <= RETRY_MAX; attempt += 1) {
-      const res = await fetch(DEEPSEEK_URL, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          reasoning_effort: reasoningEffort,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
+      let res: Response;
+      try {
+        res = await fetch(DEEPSEEK_URL, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            temperature: 0.2,
+            reasoning_effort: reasoningEffort,
+            messages: [{ role: 'user', content: prompt }],
+          }),
+          signal: AbortSignal.timeout(fetchTimeoutMs),
+        });
+      } catch (e) {
+        const name = e instanceof Error ? e.name : '';
+        const msg = e instanceof Error ? e.message : String(e);
+        lastError =
+          name === 'TimeoutError' || msg.toLowerCase().includes('abort')
+            ? `DeepSeek fetch timeout after ${fetchTimeoutMs}ms (batch ${batchIndex}/${totalBatches})`
+            : `DeepSeek fetch failed: ${msg}`;
+        if (attempt < RETRY_MAX) {
+          await sleep(Math.min(700 * attempt, 2500));
+        }
+        continue;
+      }
       const json = (await res.json().catch(() => ({}))) as {
         choices?: Array<{ message?: { content?: string } }>;
         error?: { message?: string };
@@ -517,6 +585,13 @@ export async function translateStringListWithDeepSeek(params: {
       out[start + i] =
         typeof parsedArr[i] === 'string' ? parsedArr[i] : String(parsedArr[i] ?? '');
     }
+    console.log(
+      '[ocr/deepseek_parse_batch] done',
+      JSON.stringify({
+        ...logBase,
+        elapsed_ms: Date.now() - batchStarted,
+      })
+    );
     start = end;
   }
   return out;
