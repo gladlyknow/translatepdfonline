@@ -382,20 +382,24 @@ export function TranslatePageClient() {
         setTaskId(tid);
         setTaskStatus(detail.status);
         setTaskDetail(detail);
+        setTaskView(view ?? null);
+        const docId =
+          typeof detail.document_id === 'string' && detail.document_id.trim()
+            ? detail.document_id.trim()
+            : null;
         if (view) {
-          setTaskView(view);
           blockAutoDocumentLoadRef.current = false;
-          setDocumentId(detail.document_id);
+          setDocumentId(docId);
           setFilename(view.document_filename);
           setLastUploadedFile({
             name: view.document_filename,
             size: view.document_size_bytes ?? 0,
           });
-        } else if (detail.document_id) {
+        } else if (docId) {
           blockAutoDocumentLoadRef.current = false;
-          setDocumentId(detail.document_id);
+          setDocumentId(docId);
           try {
-            const d = await translateApi.getDocument(detail.document_id);
+            const d = await translateApi.getDocument(docId);
             if (cancelled) return;
             setFilename(d.filename);
             setLastUploadedFile({
@@ -408,6 +412,11 @@ export function TranslatePageClient() {
               setLastUploadedFile(null);
             }
           }
+        } else {
+          blockAutoDocumentLoadRef.current = false;
+          setDocumentId(null);
+          setFilename(null);
+          setLastUploadedFile(null);
         }
       } catch {
         if (!cancelled) {
@@ -1065,11 +1074,16 @@ export function TranslatePageClient() {
     t,
   ]);
 
-  /** 仅在 URL 指定 task/document 且尚未恢复时显示加载 */
-  const restoringFromUrl =
-    !documentId &&
-    (Boolean(searchParams.get(TASK_PARAM)?.trim()) ||
-      Boolean(searchParams.get(DOCUMENT_PARAM)?.trim()));
+  /**
+   * 从 URL 恢复：不要用「!documentId + 有 task」长期全屏阻塞（getTaskView 慢或失败时仍应出现工作台）。
+   * task：仅当 URL 中的 task 与当前 taskId 尚未对齐时 loading；document：仅 document= 且无 task 时等到 documentId 对齐。
+   */
+  const taskParam = searchParams.get(TASK_PARAM)?.trim() ?? '';
+  const docParam = searchParams.get(DOCUMENT_PARAM)?.trim() ?? '';
+  const restoringFromTaskUrl = Boolean(taskParam) && taskId !== taskParam;
+  const restoringFromDocUrl =
+    Boolean(docParam) && !taskParam && documentId !== docParam;
+  const restoringFromUrl = restoringFromTaskUrl || restoringFromDocUrl;
   const restoringRecent =
     isRecentRequested && !recentBootstrapDone && !taskId && !documentId;
   if (restoringFromUrl || restoringRecent) {

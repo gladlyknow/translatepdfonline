@@ -1261,6 +1261,7 @@ export function OcrTranslatePageClient() {
             </p>
           )}
           <div className="mt-3 flex flex-col gap-2">
+            {/* §3.1：S|T|P 单行三列落在侧栏上传卡内（与 fc 计划「顶栏」等效于工作台主控条，非主区全宽条） */}
             <div className="grid grid-cols-3 items-end gap-x-2 gap-y-0">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
