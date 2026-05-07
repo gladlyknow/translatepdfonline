@@ -5,6 +5,7 @@ import {
   startTransition,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -119,6 +120,7 @@ const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
   onPdfNumPages,
   onScaleChange,
   onFocusSource,
+  unifiedMainScroll = false,
 }: {
   sourceLabel: string;
   documentId: string | null;
@@ -130,31 +132,53 @@ const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
   onPdfNumPages: (n: number | null) => void;
   onScaleChange: (next: number) => void;
   onFocusSource: () => void;
+  /** 与右侧工作台共用主区一条纵向滚动条 */
+  unifiedMainScroll?: boolean;
 }) {
   return (
     <div
-      className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+      className={cn(
+        'flex min-w-0 flex-col rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900',
+        unifiedMainScroll
+          ? 'h-full min-h-0 overflow-x-hidden overflow-y-visible'
+          : 'min-h-0 overflow-hidden'
+      )}
       onClick={onFocusSource}
     >
       <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
         {sourceLabel}
       </p>
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable] p-2">
-        <PdfViewerPane
-          key={`source-ocr-${documentId}-${currentPage}`}
-          fileUrl={sourcePdfUrl ?? ''}
-          mode="source"
-          page={currentPage}
-          onPageChange={onSourcePageChange}
-          totalPages={
-            effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
+      <div
+        className={cn(
+          'p-2',
+          unifiedMainScroll
+            ? 'flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-visible'
+            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]'
+        )}
+      >
+        <div
+          className={
+            unifiedMainScroll
+              ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden'
+              : 'contents'
           }
-          onPdfNumPages={onPdfNumPages}
-          scale={pdfZoom}
-          onScaleChange={onScaleChange}
-          showZoomControls={false}
-          showPageControls
-        />
+        >
+          <PdfViewerPane
+            key={`source-ocr-${documentId}-${currentPage}`}
+            fileUrl={sourcePdfUrl ?? ''}
+            mode="source"
+            page={currentPage}
+            onPageChange={onSourcePageChange}
+            totalPages={
+              effectiveDocumentPageCount > 0 ? effectiveDocumentPageCount : undefined
+            }
+            onPdfNumPages={onPdfNumPages}
+            scale={pdfZoom}
+            onScaleChange={onScaleChange}
+            showZoomControls={false}
+            showPageControls={!unifiedMainScroll}
+          />
+        </div>
       </div>
     </div>
   );
@@ -175,6 +199,10 @@ export function OcrTranslatePageClient() {
   const { setAppearance } = useTranslateHeaderAppearance();
   const footerWorkbench = useTranslateFooterWorkbenchOptional();
   const shellChrome = useTranslateShellChromeOptional();
+  /** OCR 工作台默认收起站点顶栏，腾出纵向空间；离开本页后由其它翻译页自行控制 */
+  useLayoutEffect(() => {
+    shellChrome?.setHeaderCollapsed(true);
+  }, [shellChrome]);
   const { resolvedTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
 
@@ -1165,8 +1193,8 @@ export function OcrTranslatePageClient() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
-      <aside className="flex max-h-[min(72dvh,34rem)] min-h-0 w-full shrink-0 flex-col gap-3 overflow-hidden border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:h-[calc(100dvh-3.75rem)] md:max-h-none md:w-72 md:border-b-0 md:border-r md:p-4">
+    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
+      <aside className="flex max-h-[min(72dvh,34rem)] min-h-0 w-full shrink-0 flex-col gap-3 overflow-hidden border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:min-h-0 md:w-72 md:self-stretch md:border-b-0 md:border-r md:p-4">
         <div className={cn(sidebarCardClass, 'shrink-0')}>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -1418,96 +1446,105 @@ export function OcrTranslatePageClient() {
           className="shrink-0 border-t border-zinc-200 bg-white pt-2 dark:border-zinc-800 dark:bg-zinc-950"
         />
 
-        <div className={cn(sidebarCardClass, 'shrink-0')}>
-          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            {tOcrWb('pagesTitle')}
-          </p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? true));
-              }}
-              className={`col-span-2 ${sidebarBtnClass}`}
-            >
-              {shellChrome?.headerCollapsed ? 'Expand header' : 'Close header'}
-            </button>
-            <button
-              type="button"
-              onClick={handlePrevPage}
-              disabled={
-                activeFocusPanel === 'source'
-                  ? currentPage <= 1
-                  : jsonPage <= 1
-              }
-              className={`${sidebarBtnClass} disabled:opacity-50`}
-            >
-              {tOcrWb('pagesPrev')}
-            </button>
-            <button
-              type="button"
-              onClick={handleNextPage}
-              disabled={
-                (activeFocusPanel === 'source' ? currentPage : jsonPage) >=
-                Math.max(1, effectiveDocumentPageCount || 1)
-              }
-              className={`${sidebarBtnClass} disabled:opacity-50`}
-            >
-              {tOcrWb('pagesNext')}
-            </button>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {tOcrWb('pagesSourcePage', {
-                current: activeFocusPanel === 'source' ? currentPage : jsonPage,
-                total: Math.max(1, effectiveDocumentPageCount || 1),
-              })}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div
+            className={cn(
+              sidebarCardClass,
+              'flex min-h-0 flex-1 flex-col overflow-hidden'
+            )}
+          >
+            <p className="shrink-0 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+              {tOcrWb('pagesTitle')}
             </p>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {activeFocusPanel === 'json'
-                ? tOcrWb('focusPanelJson')
-                : tOcrWb('focusPanelSource')}
-            </p>
-            <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
-              <span>{tOcrWb('canvasScale')}</span>
-              <input
-                type="range"
-                min={30}
-                max={250}
-                value={
-                  activeFocusPanel === 'source'
-                    ? Math.round(pdfZoom * 100)
-                    : jsonCanvasScale
-                }
-                onChange={(e) => {
-                  const next = Number.parseInt(e.target.value, 10);
-                  if (activeFocusPanel === 'source') {
-                    const zoom = Math.max(0.5, Math.min(2.5, next / 100));
-                    setPdfZoom(zoom);
-                    return;
+            <div className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] pb-1">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    shellChrome?.setHeaderCollapsed(!(shellChrome?.headerCollapsed ?? true));
+                  }}
+                  className={`col-span-2 ${sidebarBtnClass}`}
+                >
+                  {shellChrome?.headerCollapsed ? 'Expand header' : 'Close header'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrevPage}
+                  disabled={
+                    activeFocusPanel === 'source'
+                      ? currentPage <= 1
+                      : jsonPage <= 1
                   }
-                  const clamped = Math.max(30, Math.min(160, next));
-                  startTransition(() => {
-                    setJsonCanvasScale(clamped);
-                  });
-                }}
-                className="flex-1"
-              />
-              <span className="w-10 text-right tabular-nums">
-                {activeFocusPanel === 'source'
-                  ? `${Math.round(pdfZoom * 100)}%`
-                  : `${jsonCanvasScale}%`}
-              </span>
-            </label>
-            <button
-              type="button"
-              onClick={() => {
-                footerWorkbench?.setFooterExpanded(
-                  !(footerWorkbench?.footerExpanded ?? false)
-                );
-              }}
-              className={`col-span-2 ${sidebarBtnClass}`}
-            >
-              {footerWorkbench?.footerExpanded ? 'Close footer' : 'Expand footer'}
-            </button>
+                  className={`${sidebarBtnClass} disabled:opacity-50`}
+                >
+                  {tOcrWb('pagesPrev')}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextPage}
+                  disabled={
+                    (activeFocusPanel === 'source' ? currentPage : jsonPage) >=
+                    Math.max(1, effectiveDocumentPageCount || 1)
+                  }
+                  className={`${sidebarBtnClass} disabled:opacity-50`}
+                >
+                  {tOcrWb('pagesNext')}
+                </button>
+                <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+                  {tOcrWb('pagesSourcePage', {
+                    current: activeFocusPanel === 'source' ? currentPage : jsonPage,
+                    total: Math.max(1, effectiveDocumentPageCount || 1),
+                  })}
+                </p>
+                <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
+                  {activeFocusPanel === 'json'
+                    ? tOcrWb('focusPanelJson')
+                    : tOcrWb('focusPanelSource')}
+                </p>
+                <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
+                  <span className="shrink-0">{tOcrWb('canvasScale')}</span>
+                  <input
+                    type="range"
+                    min={30}
+                    max={250}
+                    value={
+                      activeFocusPanel === 'source'
+                        ? Math.round(pdfZoom * 100)
+                        : jsonCanvasScale
+                    }
+                    onChange={(e) => {
+                      const next = Number.parseInt(e.target.value, 10);
+                      if (activeFocusPanel === 'source') {
+                        const zoom = Math.max(0.5, Math.min(2.5, next / 100));
+                        setPdfZoom(zoom);
+                        return;
+                      }
+                      const clamped = Math.max(30, Math.min(160, next));
+                      startTransition(() => {
+                        setJsonCanvasScale(clamped);
+                      });
+                    }}
+                    className="min-w-0 flex-1"
+                  />
+                  <span className="w-10 shrink-0 text-right tabular-nums">
+                    {activeFocusPanel === 'source'
+                      ? `${Math.round(pdfZoom * 100)}%`
+                      : `${jsonCanvasScale}%`}
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    footerWorkbench?.setFooterExpanded(
+                      !(footerWorkbench?.footerExpanded ?? false)
+                    );
+                  }}
+                  className={`col-span-2 ${sidebarBtnClass}`}
+                >
+                  {footerWorkbench?.footerExpanded ? 'Close footer' : 'Expand footer'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
@@ -1535,50 +1572,56 @@ export function OcrTranslatePageClient() {
           </div>
         )}
 
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-2 md:gap-4 md:p-4">
-          <OcrSourcePdfPanel
-            sourceLabel={tHome('sourceLabel')}
-            documentId={documentId}
-            currentPage={currentPage}
-            sourcePdfUrl={sourcePdfUrl}
-            effectiveDocumentPageCount={effectiveDocumentPageCount}
-            pdfZoom={pdfZoom}
-            onSourcePageChange={handleSourcePageChange}
-            onPdfNumPages={setSourceNumPagesFromViewer}
-            onScaleChange={setPdfZoom}
-            onFocusSource={() => setActiveFocusPanel('source')}
-          />
-          <div
-            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-            onClick={() => setActiveFocusPanel('json')}
-          >
-            <p className="mb-1 shrink-0 px-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-              {tOcrWb('tabWorkbench')}
-            </p>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <OcrParseWorkbench
-                taskId={taskId ?? 'pending'}
-                parseResultUrl={ocrParseResultUrl}
-                sourcePdfUrl={
-                  taskId
-                    ? taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
-                    : sourcePdfUrl || null
-                }
-                hideSourcePanel
-                pageIndex={Math.max(0, jsonPage - 1)}
-                onPageIndexChange={handleJsonPageIndexChange}
-                canvasScalePercent={jsonCanvasScale}
-                onCanvasScaleChange={setJsonCanvasScale}
-                onCanvasFocus={() => setActiveFocusPanel('json')}
-                toolbarPosition="left"
-                toolbarId={OCR_TOOLBAR_ID}
-                externalToolbarContainerId={OCR_TOOLBAR_HOST_ID}
-                toolbarSectionIds={{
-                  textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
-                  fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
-                  file: OCR_TOOLBAR_FILE_ID,
-                }}
-              />
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] p-3 md:p-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-stretch md:gap-4 md:[grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="flex min-h-0 h-full w-full min-w-0 flex-col">
+            <OcrSourcePdfPanel
+              sourceLabel={tHome('sourceLabel')}
+              documentId={documentId}
+              currentPage={currentPage}
+              sourcePdfUrl={sourcePdfUrl}
+              effectiveDocumentPageCount={effectiveDocumentPageCount}
+              pdfZoom={pdfZoom}
+              onSourcePageChange={handleSourcePageChange}
+              onPdfNumPages={setSourceNumPagesFromViewer}
+              onScaleChange={setPdfZoom}
+              onFocusSource={() => setActiveFocusPanel('source')}
+              unifiedMainScroll
+            />
+            </div>
+            <div
+              className="flex min-h-0 h-full min-w-0 w-full flex-col overflow-x-hidden overflow-y-visible rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+              onClick={() => setActiveFocusPanel('json')}
+            >
+              <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                {tOcrWb('tabWorkbench')}
+              </p>
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-visible p-2">
+                <OcrParseWorkbench
+                  taskId={taskId ?? 'pending'}
+                  parseResultUrl={ocrParseResultUrl}
+                  sourcePdfUrl={
+                    taskId
+                      ? taskView?.source_pdf_url || (sourcePdfUrl ? sourcePdfUrl : null)
+                      : sourcePdfUrl || null
+                  }
+                  hideSourcePanel
+                  unifiedMainScroll
+                  pageIndex={Math.max(0, jsonPage - 1)}
+                  onPageIndexChange={handleJsonPageIndexChange}
+                  canvasScalePercent={jsonCanvasScale}
+                  onCanvasScaleChange={setJsonCanvasScale}
+                  onCanvasFocus={() => setActiveFocusPanel('json')}
+                  toolbarPosition="left"
+                  toolbarId={OCR_TOOLBAR_ID}
+                  externalToolbarContainerId={OCR_TOOLBAR_HOST_ID}
+                  toolbarSectionIds={{
+                    textEdit: OCR_TOOLBAR_TEXT_EDIT_ID,
+                    fontSettings: OCR_TOOLBAR_FONT_SETTINGS_ID,
+                    file: OCR_TOOLBAR_FILE_ID,
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -84,6 +84,8 @@ export function OcrParseWorkbench({
   canvasScalePercent,
   onCanvasScaleChange,
   onCanvasFocus,
+  /** 与外侧 Source PDF 共用主区一条纵向滚动条（OCR 双栏页） */
+  unifiedMainScroll = false,
 }: {
   taskId: string | null;
   parseResultUrl: string | null;
@@ -107,6 +109,7 @@ export function OcrParseWorkbench({
   canvasScalePercent?: number;
   onCanvasScaleChange?: (next: number) => void;
   onCanvasFocus?: () => void;
+  unifiedMainScroll?: boolean;
 }) {
   const t = useTranslations('translate.ocrWorkbench');
   const {
@@ -1030,8 +1033,9 @@ export function OcrParseWorkbench({
       undo,
     ]
   );
-  /** OCR 并排（left + hideSourcePanel）时仍需顶栏翻页，否则解析页只能在侧栏底部找 */
-  const showTopPageControls = true;
+  /** 侧栏 Pages + portal 时翻页在侧栏，顶栏不再重复 Prev/Next */
+  const useOcrPortalLayout = hideSourcePanel && Boolean(externalToolbarContainerId);
+  const showTopPageControls = !useOcrPortalLayout;
   const showLeftToolbar = toolbarPosition === 'left' && hideSourcePanel;
   const showTopFileActions = !showLeftToolbar;
   const showWorkbenchTopBar = showTopPageControls || showTopFileActions;
@@ -1130,7 +1134,14 @@ export function OcrParseWorkbench({
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
+    <div
+      className={cn(
+        'flex min-w-0 flex-col gap-3',
+        unifiedMainScroll
+          ? 'min-h-0 w-full min-w-0 flex-1 overflow-x-hidden overflow-y-visible'
+          : 'min-h-0 flex-1 overflow-hidden'
+      )}
+    >
       {showWorkbenchTopBar ? (
       <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 pb-2 dark:border-zinc-800">
         {showTopPageControls ? (
@@ -1252,7 +1263,7 @@ export function OcrParseWorkbench({
         ) : null}
       </div>
       ) : null}
-      {!selectedLayoutId ? (
+      {!selectedLayoutId && !useOcrPortalLayout ? (
         <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
           {t('selectBlockHint')}
         </p>
@@ -1260,7 +1271,10 @@ export function OcrParseWorkbench({
 
       <div
         className={cn(
-          'min-h-0 min-w-0 flex-1',
+          'min-w-0',
+          unifiedMainScroll
+            ? 'flex min-h-0 w-full flex-1 overflow-x-hidden md:min-h-0'
+            : 'min-h-0 flex-1',
           toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
       >
@@ -1276,7 +1290,14 @@ export function OcrParseWorkbench({
         ) : null}
         <div
           className={cn(
-            'grid min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900',
+            'grid min-w-0 rounded-lg bg-white dark:bg-zinc-900',
+            /** 与 Source 同宽：外层卡片已有 border，内层再套 border 会吃掉内容区约 2×1px */
+            hideSourcePanel && unifiedMainScroll
+              ? 'border-0 dark:border-0'
+              : 'border border-zinc-200 dark:border-zinc-800',
+            unifiedMainScroll
+              ? 'flex min-h-0 w-full min-w-0 flex-1 overflow-x-hidden md:min-h-0'
+              : 'min-h-0 flex-1 overflow-hidden',
             hideSourcePanel
               ? 'grid-cols-1'
               : collapsed
@@ -1303,7 +1324,8 @@ export function OcrParseWorkbench({
           ) : null}
           <div
             className={cn(
-              'relative flex min-h-0 min-w-0 flex-col',
+              'relative flex min-w-0 flex-col',
+              unifiedMainScroll ? 'min-h-0 w-full min-w-0 md:min-h-0' : 'min-h-0',
               !hideSourcePanel && 'border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l'
             )}
           >
@@ -1313,6 +1335,7 @@ export function OcrParseWorkbench({
                 pageIndex={activePageIndex}
                 canvasScalePercent={jsonCanvasScale}
                 orientation="portrait"
+                scrollContainerMode={unifiedMainScroll ? 'parent' : 'panel'}
                 onActivate={() => onCanvasFocus?.()}
                 selectedLayoutId={selectedLayoutId}
                 onSelectLayout={setSelectedLayoutId}

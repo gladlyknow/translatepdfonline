@@ -79,6 +79,11 @@ type Props = {
   canvasScalePercent?: number;
   /** 纸张方向（影响预览与导出） */
   orientation?: 'portrait' | 'landscape';
+  /**
+   * `panel`：画布容器自带纵向滚动（默认）。
+   * `parent`：与 Source 等共用最外层滚动条，不在此节点上再嵌套滚动条。
+   */
+  scrollContainerMode?: 'panel' | 'parent';
 };
 
 function LayoutText({
@@ -565,6 +570,7 @@ export function ParseResultCanvas({
   onAutoFitFontSize,
   canvasScalePercent = 100,
   orientation = 'portrait',
+  scrollContainerMode = 'panel',
 }: Props) {
   const t = useTranslations('translate.ocrWorkbench');
   const page = doc.pages[pageIndex];
@@ -678,7 +684,7 @@ export function ParseResultCanvas({
       }
       ro.disconnect();
     };
-  }, [pageIndex, renderBox.w, renderBox.h]);
+  }, [pageIndex, renderBox.w, renderBox.h, scrollContainerMode]);
 
   const fitScale = useMemo(() => {
     const bw = renderBox.w;
@@ -686,6 +692,12 @@ export function ParseResultCanvas({
     if (bw <= 0 || bh <= 0) return FALLBACK_SCALE;
     const rawW = containerSize.w;
     const rawH = containerSize.h;
+    /** 与 Source 并排且外层统一滚动：列宽即画布宽度基准，避免 flex 子项 shrink 导致误用 fallback 视口比例 */
+    if (scrollContainerMode === 'parent' && rawW >= 16) {
+      const s = Math.min(Math.max(rawW / bw, MIN_CANVAS_SCALE), MAX_CANVAS_SCALE);
+      lastStableScaleRef.current = s;
+      return s;
+    }
     if (rawW < 16 || rawH < 16) {
       return lastStableScaleRef.current;
     }
@@ -724,7 +736,7 @@ export function ParseResultCanvas({
     );
     lastStableScaleRef.current = s;
     return s;
-  }, [renderBox.w, renderBox.h, containerSize.w, containerSize.h]);
+  }, [renderBox.w, renderBox.h, containerSize.w, containerSize.h, scrollContainerMode]);
 
   const scale = useMemo(() => {
     /** 与侧栏 / 工作台滑块一致：约 20%–160%，100% = 适配后的基准 fitScale */
@@ -739,18 +751,33 @@ export function ParseResultCanvas({
   const vw = renderBox.w * scale;
   const vh = renderBox.h * scale;
 
+  const scrollParent = scrollContainerMode === 'parent';
+
   return (
     <div
       ref={containerRef}
-      className="relative box-border flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-auto bg-[linear-gradient(180deg,rgba(255,251,235,0.72)_0%,rgba(254,243,199,0.48)_100%)] p-0 dark:bg-neutral-950"
-      style={{ opacity: sizeReady ? 1 : 0 }}
+      className={cn(
+        'relative box-border flex w-full min-w-0 max-w-full flex-col bg-[linear-gradient(180deg,rgba(255,251,235,0.72)_0%,rgba(254,243,199,0.48)_100%)] p-0 dark:bg-neutral-950',
+        scrollParent ? 'shrink-0 overflow-x-hidden overflow-y-visible' : 'min-h-0 flex-1 overflow-auto'
+      )}
+      style={{
+        ...(scrollParent
+          ? { aspectRatio: `${renderBox.w} / ${renderBox.h}` }
+          : {}),
+        opacity: sizeReady ? 1 : 0,
+      }}
       onMouseDown={(e) => {
         onActivate?.();
         if (e.target === e.currentTarget) onSelectLayout(null);
       }}
     >
       <div
-        className="box-border flex h-full min-h-full w-full min-w-full flex-col items-center justify-center overflow-visible"
+        className={cn(
+          'box-border flex h-full min-h-full w-full min-w-0 max-w-full flex-col overflow-visible',
+          scrollParent
+            ? 'items-start justify-start'
+            : 'min-w-full items-center justify-center'
+        )}
         onMouseDown={(e) => {
           if (e.target === e.currentTarget) onSelectLayout(null);
         }}
