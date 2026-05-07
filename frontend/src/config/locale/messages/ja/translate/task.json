@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "ページ画像からテキストを再構築。同じファイルと言語で。",
   "ocrJumpCta": "OCR を開く",
   "ocrJumpWhenPreprocessedTitle": "レイアウトを微調整",
-  "ocrJumpWhenPreprocessedBody": "翻訳時 OCR 済み。さらに編集はワークベンチへ。"
+  "ocrJumpWhenPreprocessedBody": "翻訳時 OCR 済み。さらに編集はワークベンチへ。",
+  "failedOcrOfferTitle": "翻訳が止まりました — OCR を試しますか？",
+  "failedOcrOfferBody": "スキャンや薄い文字層では、先にページ画像から OCR でテキストを再構築するとよいことがあります。同じ PDF と言語で続行できます。"
 }

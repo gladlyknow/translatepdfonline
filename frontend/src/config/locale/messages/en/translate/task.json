@@ -31,5 +31,7 @@
   "ocrJumpHintBody": "Rebuild text from page images—same file and languages.",
   "ocrJumpCta": "Open OCR",
   "ocrJumpWhenPreprocessedTitle": "Fine-tune layout",
-  "ocrJumpWhenPreprocessedBody": "Translate-time OCR is on; open the workbench for deeper edits."
+  "ocrJumpWhenPreprocessedBody": "Translate-time OCR is on; open the workbench for deeper edits.",
+  "failedOcrOfferTitle": "Translation stopped — try OCR?",
+  "failedOcrOfferBody": "For scans or weak text layers, OCR rebuilds text from page images first. You can continue with the same PDF and languages."
 }

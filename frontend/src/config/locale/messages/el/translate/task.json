@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "Ανακατασκευή κειμένου από εικόνες σελίδας—ίδιο αρχείο και γλώσσες.",
   "ocrJumpCta": "Άνοιγμα OCR",
   "ocrJumpWhenPreprocessedTitle": "Λεπτή ρύθμιση layout",
-  "ocrJumpWhenPreprocessedBody": "OCR κατά τη μετάφραση ενεργό· ανοίξτε το workbench για βαθύτερη επεξεργασία."
+  "ocrJumpWhenPreprocessedBody": "OCR κατά τη μετάφραση ενεργό· ανοίξτε το workbench για βαθύτερη επεξεργασία.",
+  "failedOcrOfferTitle": "Η μετάφραση σταμάτησε — δοκιμή OCR;",
+  "failedOcrOfferBody": "Για σαρώσεις ή αδύναμο επίπεδο κειμένου, πρώτα το OCR ανακατασκευάζει κείμενο από εικόνες σελίδας· ίδιο PDF και γλώσσες."
 }

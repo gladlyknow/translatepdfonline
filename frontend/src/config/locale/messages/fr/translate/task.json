@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "Reconstruire le texte à partir des images de page—même fichier et langues.",
   "ocrJumpCta": "Ouvrir l’OCR",
   "ocrJumpWhenPreprocessedTitle": "Affiner la mise en page",
-  "ocrJumpWhenPreprocessedBody": "OCR activé à la traduction ; ouvrez l’atelier pour aller plus loin."
+  "ocrJumpWhenPreprocessedBody": "OCR activé à la traduction ; ouvrez l’atelier pour aller plus loin.",
+  "failedOcrOfferTitle": "Traduction interrompue — essayer l’OCR ?",
+  "failedOcrOfferBody": "Pour les scans ou textes pauvres, l’OCR reconstruit d’abord le texte à partir des images de page ; même PDF et langues."
 }

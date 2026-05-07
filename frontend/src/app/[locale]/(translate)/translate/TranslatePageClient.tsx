@@ -1012,6 +1012,59 @@ export function TranslatePageClient() {
     taskView?.task ??
     (taskStatus === 'failed' && taskDetail ? taskDetail : null);
 
+  /** 侧栏「打开 OCR」卡：随任务状态切换文案，完成/失败均保留跳转 */
+  const ocrWorkbenchAside = useMemo(() => {
+    const preprocessed = Boolean(taskView?.task?.preprocess_with_ocr);
+    const suggestTry =
+      taskStatus === 'completed' &&
+      taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
+      !preprocessed;
+
+    if (preprocessed) {
+      return {
+        title: t('ocrJumpWhenPreprocessedTitle'),
+        body: t('ocrJumpWhenPreprocessedBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    if (suggestTry) {
+      return {
+        title: t('suggestOcrHintTitle'),
+        body: t('suggestOcrHintBody'),
+        cta: t('suggestOcrHintCta'),
+        suggestTry: true,
+      };
+    }
+    if (taskStatus === 'completed') {
+      return {
+        title: t('completedOcrOfferTitle'),
+        body: t('completedOcrOfferBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    if (taskStatus === 'failed') {
+      return {
+        title: t('failedOcrOfferTitle'),
+        body: t('failedOcrOfferBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    return {
+      title: t('ocrJumpHintTitle'),
+      body: t('ocrJumpHintBody'),
+      cta: t('ocrJumpCta'),
+      suggestTry: false,
+    };
+  }, [
+    taskStatus,
+    taskView?.task?.preprocess_with_ocr,
+    taskView?.task?.post_complete_hint,
+    t,
+  ]);
+
   /** 仅在 URL 指定 task/document 且尚未恢复时显示加载 */
   const restoringFromUrl =
     !documentId &&
@@ -1033,7 +1086,7 @@ export function TranslatePageClient() {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
       <aside
         id="translate-workbench-aside"
-        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
+        className="flex max-h-[min(72dvh,34rem)] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
       >
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
           <div className="grid grid-cols-2 gap-2">
@@ -1198,6 +1251,59 @@ export function TranslatePageClient() {
         </div>
 
         {documentId ? (
+          <div
+            className={
+              ocrWorkbenchAside.suggestTry
+                ? 'rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50'
+                : 'rounded-lg border border-zinc-200/90 bg-zinc-50/95 px-3 py-2.5 text-xs leading-relaxed text-zinc-800 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900/70 dark:text-zinc-100'
+            }
+          >
+            <p
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'font-semibold text-sky-900 dark:text-sky-100'
+                  : 'font-semibold text-zinc-900 dark:text-zinc-100'
+              }
+            >
+              {ocrWorkbenchAside.title}
+            </p>
+            <p
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88'
+                  : 'mt-1 text-[11px] text-zinc-600 dark:text-zinc-300'
+              }
+            >
+              {ocrWorkbenchAside.body}
+            </p>
+            <Link
+              href={`/ocrtranslator?${buildOcrWorkbenchSearch({
+                documentId,
+                sourceLang:
+                  toSupportedUiLang(
+                    sourceLang ||
+                      (taskView?.task?.source_lang as string | undefined)
+                  ) || 'en',
+                targetLang:
+                  toSupportedUiLang(
+                    targetLang ||
+                      (taskView?.task?.target_lang as string | undefined)
+                  ) || 'zh',
+                pageRange: taskView?.task?.page_range ?? null,
+                docPages: taskView?.task?.document_page_count ?? null,
+              })}`}
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500'
+                  : 'mt-2 inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700'
+              }
+            >
+              {ocrWorkbenchAside.cta}
+            </Link>
+          </div>
+        ) : null}
+
+        {documentId ? (
           <TranslationForm
             documentId={documentId}
             onTaskCreated={handleTaskCreated}
@@ -1219,78 +1325,6 @@ export function TranslatePageClient() {
             {tHome('uploadCardHint')}
           </p>
         )}
-
-        {documentId ? (
-          <div
-            className={
-              taskStatus === 'completed' &&
-              taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
-              !taskView?.task?.preprocess_with_ocr
-                ? 'rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50'
-                : 'rounded-lg border border-zinc-200/90 bg-zinc-50/95 px-3 py-2.5 text-xs leading-relaxed text-zinc-800 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900/70 dark:text-zinc-100'
-            }
-          >
-            <p
-              className={
-                taskStatus === 'completed' &&
-                taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
-                !taskView?.task?.preprocess_with_ocr
-                  ? 'font-semibold text-sky-900 dark:text-sky-100'
-                  : 'font-semibold text-zinc-900 dark:text-zinc-100'
-              }
-            >
-              {taskView?.task?.preprocess_with_ocr
-                ? t('ocrJumpWhenPreprocessedTitle')
-                : taskStatus === 'completed' &&
-                    taskView?.task?.post_complete_hint === 'suggest_try_ocr'
-                  ? t('suggestOcrHintTitle')
-                  : t('ocrJumpHintTitle')}
-            </p>
-            <p
-              className={
-                taskView?.task?.preprocess_with_ocr
-                  ? 'mt-1 text-[11px] text-zinc-600 dark:text-zinc-300'
-                  : taskStatus === 'completed' &&
-                      taskView?.task?.post_complete_hint === 'suggest_try_ocr'
-                    ? 'mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88'
-                    : 'mt-1 text-[11px] text-zinc-600 dark:text-zinc-300'
-              }
-            >
-              {taskView?.task?.preprocess_with_ocr
-                ? t('ocrJumpWhenPreprocessedBody')
-                : taskStatus === 'completed' &&
-                    taskView?.task?.post_complete_hint === 'suggest_try_ocr'
-                  ? t('suggestOcrHintBody')
-                  : t('ocrJumpHintBody')}
-            </p>
-            <Link
-              href={`/ocrtranslator?${buildOcrWorkbenchSearch({
-                documentId,
-                sourceLang:
-                  toSupportedUiLang(
-                    sourceLang ||
-                      (taskView?.task?.source_lang as string | undefined)
-                  ) || 'en',
-                targetLang:
-                  toSupportedUiLang(
-                    targetLang ||
-                      (taskView?.task?.target_lang as string | undefined)
-                  ) || 'zh',
-                pageRange: taskView?.task?.page_range ?? null,
-                docPages: taskView?.task?.document_page_count ?? null,
-              })}`}
-              className={
-                taskStatus === 'completed' &&
-                taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
-                !taskView?.task?.preprocess_with_ocr
-                  ? 'mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500'
-                  : 'mt-2 inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700'
-              }
-            >
-              {t('ocrJumpCta')}
-            </Link>
-          </div>
-        ) : null}
 
         {taskStatus === 'completed' && targetPdfUrl && downloadUrl && (
           <button
@@ -1418,30 +1452,54 @@ export function TranslatePageClient() {
                   );
                 }
                 return (
-                  <p
-                    className={
-                      isNoParagraphsFailure(code, msg)
-                        ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
-                        : 'mt-2 text-xs text-red-600 dark:text-red-400'
-                    }
-                  >
-                    {isNoParagraphsFailure(code, msg)
-                      ? tErrors('no_paragraphs')
-                      : failedTaskInfo.error_code === 'scan_detected_use_ocr'
-                        ? tErrors('scan_detected_use_ocr')
-                        : failedTaskInfo.error_message ??
-                          (failedTaskInfo.error_code
-                            ? tErrors(
-                                failedTaskInfo.error_code as
-                                  | 'pdf_font_unsupported'
-                                  | 'tounicode_missing'
-                                  | 'font_subset_corrupt'
-                                  | 'no_paragraphs'
-                                  | 'ocr_preprocess_failed'
-                                  | 'scan_detected_use_ocr'
-                              )
-                            : '')}
-                  </p>
+                  <>
+                    <p
+                      className={
+                        isNoParagraphsFailure(code, msg)
+                          ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
+                          : 'mt-2 text-xs text-red-600 dark:text-red-400'
+                      }
+                    >
+                      {isNoParagraphsFailure(code, msg)
+                        ? tErrors('no_paragraphs')
+                        : failedTaskInfo.error_code === 'scan_detected_use_ocr'
+                          ? tErrors('scan_detected_use_ocr')
+                          : failedTaskInfo.error_message ??
+                            (failedTaskInfo.error_code
+                              ? tErrors(
+                                  failedTaskInfo.error_code as
+                                    | 'pdf_font_unsupported'
+                                    | 'tounicode_missing'
+                                    | 'font_subset_corrupt'
+                                    | 'no_paragraphs'
+                                    | 'ocr_preprocess_failed'
+                                    | 'scan_detected_use_ocr'
+                                )
+                              : '')}
+                    </p>
+                    {documentId ? (
+                      <Link
+                        href={`/ocrtranslator?${buildOcrWorkbenchSearch({
+                          documentId,
+                          sourceLang:
+                            toSupportedUiLang(
+                              sourceLang ||
+                                (taskView?.task?.source_lang as string | undefined)
+                            ) || 'en',
+                          targetLang:
+                            toSupportedUiLang(
+                              targetLang ||
+                                (taskView?.task?.target_lang as string | undefined)
+                            ) || 'zh',
+                          pageRange: taskView?.task?.page_range ?? null,
+                          docPages: taskView?.task?.document_page_count ?? null,
+                        })}`}
+                        className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700"
+                      >
+                        {t('ocrJumpCta')}
+                      </Link>
+                    ) : null}
+                  </>
                 );
               })()}
             {taskStatus === 'completed' &&

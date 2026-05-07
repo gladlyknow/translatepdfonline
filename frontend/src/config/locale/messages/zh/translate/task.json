@@ -31,5 +31,7 @@
   "ocrJumpHintBody": "按页图像重建文字，沿用当前文档与语种。",
   "ocrJumpCta": "打开 OCR",
   "ocrJumpWhenPreprocessedTitle": "需要精调版面？",
-  "ocrJumpWhenPreprocessedBody": "本次翻译已启用译前 OCR，仍可在工作台继续编辑排版。"
+  "ocrJumpWhenPreprocessedBody": "本次翻译已启用译前 OCR，仍可在工作台继续编辑排版。",
+  "failedOcrOfferTitle": "翻译未完成，试试 OCR？",
+  "failedOcrOfferBody": "扫描件或文字层较薄时，建议先用 OCR 从页面图像重建文字，再用同一文档与语种继续。"
 }

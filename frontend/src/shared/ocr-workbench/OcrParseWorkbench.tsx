@@ -1036,7 +1036,8 @@ export function OcrParseWorkbench({
       undo,
     ]
   );
-  const showTopPageControls = !(toolbarPosition === 'left' && hideSourcePanel);
+  /** OCR 并排（left + hideSourcePanel）时仍需顶栏翻页，否则解析页只能在侧栏底部找 */
+  const showTopPageControls = true;
   const showLeftToolbar = toolbarPosition === 'left' && hideSourcePanel;
   const showTopFileActions = !showLeftToolbar;
   const showWorkbenchTopBar = showTopPageControls || showTopFileActions;

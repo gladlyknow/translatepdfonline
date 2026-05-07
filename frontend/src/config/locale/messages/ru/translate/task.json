@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "Восстановить текст по изображениям страниц — тот же файл и языки.",
   "ocrJumpCta": "Открыть OCR",
   "ocrJumpWhenPreprocessedTitle": "Точная правка вёрстки",
-  "ocrJumpWhenPreprocessedBody": "OCR при переводе уже включён; для глубоких правок — в workbench."
+  "ocrJumpWhenPreprocessedBody": "OCR при переводе уже включён; для глубоких правок — в workbench.",
+  "failedOcrOfferTitle": "Перевод остановился — попробовать OCR?",
+  "failedOcrOfferBody": "Для сканов или слабого текстового слоя сначала восстановите текст по изображениям страниц через OCR, затем продолжите с тем же PDF и языками."
 }

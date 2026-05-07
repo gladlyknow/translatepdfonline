@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "페이지 이미지에서 텍스트를 재구성—같은 파일과 언어.",
   "ocrJumpCta": "OCR 열기",
   "ocrJumpWhenPreprocessedTitle": "레이아웃 미세 조정",
-  "ocrJumpWhenPreprocessedBody": "번역 시 OCR 사용 중—워크벤치에서 더 깊게 편집."
+  "ocrJumpWhenPreprocessedBody": "번역 시 OCR 사용 중—워크벤치에서 더 깊게 편집.",
+  "failedOcrOfferTitle": "번역이 중단됨 — OCR을 시도할까요?",
+  "failedOcrOfferBody": "스캔이나 약한 텍스트 레이어는 먼저 페이지 이미지에서 OCR로 텍스트를 복원하는 편이 좋습니다. 동일한 PDF와 언어로 이어갈 수 있습니다."
 }

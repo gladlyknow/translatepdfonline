@@ -30,5 +30,7 @@
   "ocrJumpHintBody": "Text aus Seitenbildern neu aufbauen – gleiche Datei und Sprachen.",
   "ocrJumpCta": "OCR öffnen",
   "ocrJumpWhenPreprocessedTitle": "Layout feinjustieren",
-  "ocrJumpWhenPreprocessedBody": "OCR bei der Übersetzung ist aktiv; Workbench für tiefere Bearbeitung öffnen."
+  "ocrJumpWhenPreprocessedBody": "OCR bei der Übersetzung ist aktiv; Workbench für tiefere Bearbeitung öffnen.",
+  "failedOcrOfferTitle": "Übersetzung abgebrochen – OCR versuchen?",
+  "failedOcrOfferBody": "Bei Scans oder schwacher Textebene OCR zuerst: Text aus Seitenbildern neu aufbauen, dann mit derselben Datei und Sprachen weitermachen."
 }

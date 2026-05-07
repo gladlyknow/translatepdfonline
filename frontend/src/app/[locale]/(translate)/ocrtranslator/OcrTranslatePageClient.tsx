@@ -1166,7 +1166,7 @@ export function OcrTranslatePageClient() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
-      <aside className="flex max-h-[45vh] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:overflow-y-visible md:border-b-0 md:border-r md:p-4">
+      <aside className="flex max-h-[min(72dvh,34rem)] w-full shrink-0 flex-col gap-3 overflow-y-auto border-b border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:overflow-y-visible md:border-b-0 md:border-r md:p-4">
         <div className={sidebarCardClass}>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -1328,12 +1328,7 @@ export function OcrTranslatePageClient() {
           </div>
         </div>
 
-        <div
-          id={OCR_TOOLBAR_HOST_ID}
-          className="space-y-2 md:sticky md:top-4 md:z-20 md:max-h-[calc(100vh-10rem)] md:overflow-y-auto"
-        />
-
-        <div className={`order-last ${sidebarCardClass}`}>
+        <div className={sidebarCardClass}>
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {tOcrWb('pagesTitle')}
           </p>
@@ -1350,7 +1345,11 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={handlePrevPage}
-              disabled={currentPage <= 1}
+              disabled={
+                activeFocusPanel === 'source'
+                  ? currentPage <= 1
+                  : jsonPage <= 1
+              }
               className={`${sidebarBtnClass} disabled:opacity-50`}
             >
               {tOcrWb('pagesPrev')}
@@ -1358,7 +1357,10 @@ export function OcrTranslatePageClient() {
             <button
               type="button"
               onClick={handleNextPage}
-              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
+              disabled={
+                (activeFocusPanel === 'source' ? currentPage : jsonPage) >=
+                Math.max(1, effectiveDocumentPageCount || 1)
+              }
               className={`${sidebarBtnClass} disabled:opacity-50`}
             >
               {tOcrWb('pagesNext')}
@@ -1418,6 +1420,11 @@ export function OcrTranslatePageClient() {
             </button>
           </div>
         </div>
+
+        <div
+          id={OCR_TOOLBAR_HOST_ID}
+          className="space-y-2 md:sticky md:top-4 md:z-20 md:max-h-[calc(100vh-10rem)] md:overflow-y-auto"
+        />
 
         {taskId && (
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/80">
