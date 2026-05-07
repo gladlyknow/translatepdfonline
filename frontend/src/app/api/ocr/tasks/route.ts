@@ -248,7 +248,19 @@ export async function POST(req: Request) {
     await enqueueOcrTask(taskId);
     console.log(
       '[ocr] submit_and_enqueue_ok',
-      JSON.stringify({ task_id: taskId, document_id: doc.id, source_lang: sourceLang, target_lang: targetLang })
+      JSON.stringify({
+        task_id: taskId,
+        document_id: doc.id,
+        source_lang: sourceLang,
+        target_lang: targetLang,
+        document_page_count: resolvedPageCount,
+        page_range: pageRange,
+        page_range_user_input: pageRangeUserInputDb,
+        page_range_adjusted: pageRangeAdjusted,
+        has_slice: Boolean(sourceSliceObjectKey),
+        source_slice_object_key: sourceSliceObjectKey ?? null,
+        credits_estimated: creditsEstimated,
+      })
     );
 
     const queuedOnCf = await sendOcrPipelineQueueMessage(taskId);
