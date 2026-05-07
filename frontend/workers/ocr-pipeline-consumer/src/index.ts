@@ -29,7 +29,10 @@ type QueueExecutionContext = {
   waitUntil?: (promise: Promise<unknown>) => void;
 };
 
-/** Cloudflare Queues 要求 default export 上存在 `queue`；`queue` 置于首位，`keep_names` 见 wrangler.consumer*.jsonc。 */
+/**
+ * Queues consumer：须 `export default` 上存在 `queue`（见 Cloudflare Queues 文档）。
+ * wrangler.consumer*.jsonc 中已设 `preserve_file_names: true`，避免产物中方法名被过度改写。
+ */
 export default {
   async queue(
     batch: OcrQueueBatch,

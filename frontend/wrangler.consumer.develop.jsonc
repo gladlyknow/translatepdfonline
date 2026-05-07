@@ -1,8 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  // 若部署报 11001 Queue handler is missing：多为队列仍绑定旧 consumer。可先执行
+  // `npx wrangler queues consumer remove translatepdfonline-dev translatepdfonline-quenues-dev`
+  // 再重新 deploy；或 Dashboard → Queues → 断开 consumer 后重绑。
   "name": "translatepdfonline-quenues-dev",
   "main": "workers/ocr-pipeline-consumer/src/index.ts",
-  "keep_names": true,
+  "preserve_file_names": true,
   "compatibility_date": "2025-03-01",
   "compatibility_flags": [
     "nodejs_compat",
