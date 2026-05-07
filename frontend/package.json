@@ -41,6 +41,7 @@
     "cf:deploy": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare deploy -- --keep-vars",
     "cf:deploy:workers:prod": "wrangler deploy --keep-vars && wrangler deploy -c wrangler.consumer.jsonc --keep-vars",
     "cf:deploy:workers:dev": "wrangler deploy --env develop --keep-vars && wrangler deploy -c wrangler.consumer.develop.jsonc --keep-vars",
+    "cf:versions:consumer:dev": "wrangler versions upload -c wrangler.consumer.develop.jsonc",
     "cf:queues:consumer:remove:dev": "wrangler queues consumer remove translatepdfonline-dev translatepdfonline-quenues-dev",
     "cf:queues:consumer:remove:prod": "wrangler queues consumer remove translatepdfonline translatepdfonline-quenues",
     "cf:deploy:no-keep": "node -e \"console.error('Blocked: deploy without --keep-vars is disabled. Use cf:deploy or explicit wrangler deploy --keep-vars.'); process.exit(1)\"",

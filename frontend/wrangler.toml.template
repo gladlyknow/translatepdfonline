@@ -10,7 +10,7 @@ compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 keep_names = false
 # 控制台里维护的「变量」默认会在 deploy 时被 wrangler 用本地配置覆盖；设为 true 与 CLI --keep-vars 一致，避免每次部署清空 Dashboard 变量。
-# 注意：wrangler versions upload 仍可能清空变量，预览流水线请勿用 versions upload 替代 deploy。
+# 注意：`wrangler versions upload` 不接受 `--keep-vars`；且仍可能覆盖/清空与版本绑定的 vars。Consumer/主站请优先 `wrangler deploy ... --keep-vars`；若必须用 versions upload，勿加无效参数，变量请在 Dashboard 或后续版本里单独维护。
 keep_vars = true
 
 [assets]

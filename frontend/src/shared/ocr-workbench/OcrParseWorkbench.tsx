@@ -803,52 +803,50 @@ export function OcrParseWorkbench({
             {t('parseDemoSaveNow')}
           </Button>
         </div>
-        <div className="space-y-2">
-          <div className="rounded-md border border-fuchsia-200/80 bg-fuchsia-50/60 p-2 dark:border-fuchsia-900/50 dark:bg-fuchsia-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-fuchsia-800 dark:text-fuchsia-300">
+        <div className="grid grid-cols-3 gap-1">
+          <div className="min-w-0 rounded-md border border-fuchsia-200/80 bg-fuchsia-50/60 p-1.5 dark:border-fuchsia-900/50 dark:bg-fuchsia-950/25">
+            <div className="mb-1 truncate text-center text-[9px] font-semibold uppercase leading-tight text-fuchsia-800 dark:text-fuchsia-300">
               HTML
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.html.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-fuchsia-400 bg-fuchsia-600 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-fuchsia-400 bg-fuchsia-600 px-1 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('html')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('html')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.html.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-fuchsia-700 dark:text-fuchsia-400" />
-                  <span className="text-[11px] text-fuchsia-900 dark:text-fuchsia-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-fuchsia-700 dark:text-fuchsia-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('html')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -856,17 +854,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('html')}
-                    className="border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
                   >
                     {exportState.html.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <img src="/brand/local/html.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                      <img src="/brand/local/html.png" alt="" className="mx-auto mb-0.5 h-3.5 w-3.5" />
                     )}
                     {exportState.html.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.html.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.html.error}
                     </span>
                   ) : null}
@@ -874,51 +872,49 @@ export function OcrParseWorkbench({
               )}
             </div>
           </div>
-          <div className="rounded-md border border-emerald-200/80 bg-emerald-50/60 p-2 dark:border-emerald-900/50 dark:bg-emerald-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+          <div className="min-w-0 rounded-md border border-emerald-200/80 bg-emerald-50/60 p-1.5 dark:border-emerald-900/50 dark:bg-emerald-950/25">
+            <div className="mb-1 hyphens-auto break-words text-center text-[8px] font-semibold uppercase leading-tight text-emerald-800 dark:text-emerald-300">
               Markdown
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.md.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-emerald-400 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-emerald-400 bg-emerald-600 px-1 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('md')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('md')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.md.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-emerald-700 dark:text-emerald-400" />
-                  <span className="text-[11px] text-emerald-900 dark:text-emerald-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-emerald-700 dark:text-emerald-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('md')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -926,17 +922,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('md')}
-                    className="border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
                   >
                     {exportState.md.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <FileText className="mr-1 size-3.5" />
+                      <FileText className="mx-auto mb-0.5 size-3.5" />
                     )}
                     {exportState.md.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.md.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.md.error}
                     </span>
                   ) : null}
@@ -944,51 +940,49 @@ export function OcrParseWorkbench({
               )}
             </div>
           </div>
-          <div className="rounded-md border border-blue-200/80 bg-blue-50/60 p-2 dark:border-blue-900/50 dark:bg-blue-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+          <div className="min-w-0 rounded-md border border-blue-200/80 bg-blue-50/60 p-1.5 dark:border-blue-900/50 dark:bg-blue-950/25">
+            <div className="mb-1 truncate text-center text-[9px] font-semibold uppercase leading-tight text-blue-800 dark:text-blue-300">
               PDF
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.pdf.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-blue-400 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-blue-400 bg-blue-600 px-1 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('pdf')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('pdf')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.pdf.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-blue-700 dark:text-blue-400" />
-                  <span className="text-[11px] text-blue-900 dark:text-blue-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-blue-700 dark:text-blue-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('pdf')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -996,17 +990,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('pdf')}
-                    className="border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
                   >
                     {exportState.pdf.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                      <img src="/brand/local/pdf.png" alt="" className="mx-auto mb-0.5 h-3.5 w-3.5" />
                     )}
                     {exportState.pdf.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.pdf.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.pdf.error}
                     </span>
                   ) : null}

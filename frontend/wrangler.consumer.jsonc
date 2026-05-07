@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "translatepdfonline-quenues",
+  "keep_vars": true,
   "main": "workers/ocr-pipeline-consumer/src/index.ts",
   "preserve_file_names": true,
   "compatibility_date": "2025-03-01",
