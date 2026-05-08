@@ -122,7 +122,7 @@ export function Footer({ footer }: { footer: FooterType }) {
               PDF Translate
             </Link>
             <Link
-              href="/ocrtranslator?recent=1"
+              href="/ocrtranslator"
               className="hover:text-foreground transition-colors duration-150"
             >
               PDF OCR

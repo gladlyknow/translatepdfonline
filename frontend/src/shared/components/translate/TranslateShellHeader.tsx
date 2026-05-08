@@ -97,7 +97,7 @@ export function TranslateShellHeader({
           {t('navPdfTranslate')}
         </Link>
         <Link
-          href="/ocrtranslator?recent=1"
+          href="/ocrtranslator"
           title={t('navPdfOcr')}
           className={
             onDark

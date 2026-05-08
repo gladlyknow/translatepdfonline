@@ -268,17 +268,8 @@ export function OcrTranslatePageClient() {
   >([]);
   const [recentTaskPage, setRecentTaskPage] = useState(0);
   const [recentDocumentPage, setRecentDocumentPage] = useState(0);
-  const isRecentRequested = searchParams.get('recent') === '1';
-  const [recentBootstrapDone, setRecentBootstrapDone] = useState(
-    !isRecentRequested
-  );
-
-  useEffect(() => {
-    setRecentBootstrapDone(!isRecentRequested);
-  }, [isRecentRequested]);
 
   const blockAutoDocumentLoadRef = useRef(false);
-  const blockAutoRecentTaskRestoreRef = useRef(false);
   const startOcrLockRef = useRef(false);
   const taskViewRef = useRef<TaskView | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -467,77 +458,6 @@ export function OcrTranslatePageClient() {
   useEffect(() => {
     setStableParseResultUrl(null);
   }, [taskId]);
-
-  useEffect(() => {
-    if (searchParams.get(TASK_PARAM)) return;
-    if (searchParams.get(DOC_PARAM)) return;
-    if (taskId) return;
-    if (documentId) return;
-    if (blockAutoRecentTaskRestoreRef.current) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const recent = await translateApi.listTasks({
-          limit: 30,
-          offset: 0,
-          ocrOnly: true,
-        });
-        if (cancelled || recent.length === 0) return;
-        let latest: { id: string } | null = null;
-        for (const one of recent) {
-          const detail = await translateApi.getTask(one.id).catch(() => null);
-          if (cancelled || !detail) continue;
-          // OCR 页面只允许加载 OCR 任务
-          if (detail.preprocess_with_ocr !== true) continue;
-          latest = one;
-          break;
-        }
-        if (!latest) {
-          const docs = await translateApi.listDocuments({ limit: 1, offset: 0 });
-          if (!cancelled && docs.length === 0 && isRecentRequested) {
-            router.replace('/upload');
-          }
-          return;
-        }
-        const [detail, view] = await Promise.all([
-          translateApi.getTask(latest.id),
-          translateApi.getTaskView(latest.id).catch(() => null),
-        ]);
-        if (cancelled) return;
-        setTaskId(latest.id);
-        setTaskStatus(detail.status);
-        setTaskDetail(detail);
-        updateTaskInUrl(latest.id);
-        if (view) {
-          setTaskViewStable(view);
-          setDocumentId(detail.document_id);
-          setFilename(view.document_filename);
-          setLastUploadedFile({
-            name: view.document_filename,
-            size: view.document_size_bytes ?? 0,
-          });
-        }
-      } catch {
-        if (!cancelled && isRecentRequested) {
-          router.replace('/upload');
-        }
-      } finally {
-        if (!cancelled && isRecentRequested) {
-          setRecentBootstrapDone(true);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    isRecentRequested,
-    searchParams,
-    taskId,
-    documentId,
-    updateTaskInUrl,
-    setTaskViewStable,
-  ]);
 
   useEffect(() => {
     if (documentId) return;
@@ -808,7 +728,6 @@ export function OcrTranslatePageClient() {
     _file?: File
   ) => {
     blockAutoDocumentLoadRef.current = false;
-    blockAutoRecentTaskRestoreRef.current = true;
     setDocumentId(docId);
     setFilename(name);
     setLastUploadedFile({ name, size: sizeBytes });
@@ -1180,10 +1099,8 @@ export function OcrTranslatePageClient() {
   const sidebarCardClass =
     'rounded-xl border border-zinc-200 bg-zinc-50/90 p-3 shadow-[0_1px_0_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900/60';
   const restoringFromUrl = Boolean(searchParams.get(TASK_PARAM)?.trim()) && !taskId;
-  const restoringRecent =
-    isRecentRequested && !recentBootstrapDone && !taskId && !documentId;
 
-  if (restoringFromUrl || restoringRecent) {
+  if (restoringFromUrl) {
     return (
       <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 p-8 text-zinc-600 dark:text-zinc-400">
         <Loader2 className="h-10 w-10 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
