@@ -758,7 +758,9 @@ export function ParseResultCanvas({
       ref={containerRef}
       className={cn(
         'relative box-border flex w-full min-w-0 max-w-full flex-col bg-[linear-gradient(180deg,rgba(255,251,235,0.72)_0%,rgba(254,243,199,0.48)_100%)] p-0 dark:bg-neutral-950',
-        scrollParent ? 'shrink-0 overflow-x-hidden overflow-y-visible' : 'min-h-0 flex-1 overflow-auto'
+        scrollParent
+          ? 'shrink-0 min-w-0 max-w-full w-full'
+          : 'min-h-0 flex-1 overflow-auto'
       )}
       style={{
         ...(scrollParent

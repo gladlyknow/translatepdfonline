@@ -140,7 +140,7 @@ const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
       className={cn(
         'flex min-w-0 flex-col rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900',
         unifiedMainScroll
-          ? 'h-full min-h-0 overflow-x-hidden overflow-y-visible'
+          ? 'h-full min-h-0 min-w-0 max-w-full'
           : 'min-h-0 overflow-hidden'
       )}
       onClick={onFocusSource}
@@ -152,14 +152,14 @@ const OcrSourcePdfPanel = memo(function OcrSourcePdfPanel({
         className={cn(
           'p-2',
           unifiedMainScroll
-            ? 'flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-visible'
+            ? 'flex min-h-0 flex-1 flex-col min-w-0 max-w-full'
             : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]'
         )}
       >
         <div
           className={
             unifiedMainScroll
-              ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden'
+              ? 'flex min-h-0 min-w-0 max-w-full flex-1 flex-col'
               : 'contents'
           }
         >
@@ -1508,13 +1508,13 @@ export function OcrTranslatePageClient() {
             />
             </div>
             <div
-              className="flex min-h-0 min-w-0 w-full flex-col overflow-x-hidden overflow-y-visible rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="flex min-h-0 min-w-0 max-w-full w-full flex-col rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
               onClick={() => setActiveFocusPanel('json')}
             >
               <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                 {tOcrWb('tabWorkbench')}
               </p>
-              <div className="flex min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-visible p-2">
+              <div className="flex min-h-0 min-w-0 max-w-full flex-col p-2">
                 <OcrParseWorkbench
                   taskId={taskId ?? 'pending'}
                   parseResultUrl={ocrParseResultUrl}
