@@ -27,25 +27,27 @@ export async function POST(req: Request) {
     const { userId, anonId } = await getTranslateAuth();
     const body = await req.json();
     const documentId = String(body.document_id || '').trim();
-    const sourceLang = String(body.source_lang || 'en')
+    const sourceLang = String(body.source_lang || '')
       .trim()
       .toLowerCase();
-    const rawTargetLang = String(body.target_lang || '')
+    const targetLang = String(body.target_lang || '')
       .trim()
       .toLowerCase();
-    const targetLang = rawTargetLang || sourceLang;
     if (!documentId) {
       return Response.json({ detail: 'document_id required' }, { status: 400 });
     }
-    if (!isSupportedUiLang(sourceLang)) {
+    if (!targetLang) {
+      return Response.json({ detail: 'target_lang required' }, { status: 400 });
+    }
+    if (!isSupportedUiLang(targetLang)) {
       return Response.json(
-        { detail: 'Unsupported source_lang' },
+        { detail: 'Unsupported target_lang' },
         { status: 400 }
       );
     }
-    if (rawTargetLang && !isSupportedUiLang(rawTargetLang)) {
+    if (sourceLang && !isSupportedUiLang(sourceLang)) {
       return Response.json(
-        { detail: 'Unsupported target_lang' },
+        { detail: 'Unsupported source_lang' },
         { status: 400 }
       );
     }

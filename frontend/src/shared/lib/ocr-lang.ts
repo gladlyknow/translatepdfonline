@@ -13,9 +13,11 @@ export function canonicalLangCode(raw: string): string {
   return base || s;
 }
 
-export function languagesNeedTranslation(sourceLang: string, targetLang: string): boolean {
-  const src = canonicalLangCode(sourceLang);
-  const tgt = canonicalLangCode(targetLang);
-  if (!src || !tgt) return false;
-  return src !== tgt;
+/**
+ * 仅当用户主动选了 target_lang 才进入 DeepSeek 翻译。
+ * 不再比较 source vs target：source 在 OCR 任务中可能未选（空串），
+ * 或被默认成与 target 相同的值（旧逻辑会误跳过翻译，见 task=9uVc8JKu0KuKuqdnlKHXX）。
+ */
+export function languagesNeedTranslation(_sourceLang: string, targetLang: string): boolean {
+  return Boolean(canonicalLangCode(targetLang));
 }

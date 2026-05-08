@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { History, Trash2 } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export function TranslateHistoryDrawerPanel({
   const t = useTranslations('translate.historyDrawer');
   const tUpload = useTranslations('translate.upload');
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [documents, setDocuments] = useState<DocumentSummary[]>([]);
   const [tasks, setTasks] = useState<TaskSummary[]>([]);
@@ -140,9 +142,12 @@ export function TranslateHistoryDrawerPanel({
 
   const goOcr = useCallback(() => {
     if (!selectedDocumentId) return;
-    router.push(`/ocrtranslator?document=${encodeURIComponent(selectedDocumentId)}`);
+    const qs = new URLSearchParams({ document: selectedDocumentId });
+    const tgt = searchParams?.get('target_lang')?.trim();
+    if (tgt) qs.set('target_lang', tgt);
+    router.push(`/ocrtranslator?${qs.toString()}`);
     onOpenChange(false);
-  }, [router, selectedDocumentId, onOpenChange]);
+  }, [router, selectedDocumentId, searchParams, onOpenChange]);
 
   const handleDeleteTask = useCallback(
     async (taskId: string) => {

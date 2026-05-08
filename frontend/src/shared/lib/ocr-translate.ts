@@ -374,8 +374,9 @@ export async function translateMarkdownWithDeepSeek(params: {
   if (!apiKey) {
     throw new Error('DeepSeek API key missing');
   }
+  const fromClause = params.sourceLang ? `from ${params.sourceLang} ` : '';
   const prompt = [
-    `Translate the following markdown from ${params.sourceLang} to ${params.targetLang}.`,
+    `Translate the following markdown ${fromClause}to ${params.targetLang}.`,
     'Keep markdown structure, formulas, URLs, and code blocks unchanged.',
     'Return translated markdown only.',
     '',
@@ -540,8 +541,10 @@ export async function translateStringListWithDeepSeek(params: {
 
   // 同一任务内 system 完全一致 → DeepSeek prompt cache 跨批命中（首批 miss，第二批起命中）。
   // 不要在这里嵌入随 batch 变化的字段（如 slice.length），否则前缀被破坏 → 全部 cache miss。
+  // sourceLang 在同一任务内是固定的（非空或全空），不会破坏 cache 稳定性。
+  const fromClause = sourceLang ? `from ${sourceLang} ` : '';
   const systemPrompt = [
-    `Translate each string in the JSON array sent by the user from ${sourceLang} to ${targetLang}.`,
+    `Translate each string in the JSON array sent by the user ${fromClause}to ${targetLang}.`,
     'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
     "Return ONLY a JSON array of strings whose length equals the input array's length, in the same order.",
   ].join('\n');

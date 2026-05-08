@@ -287,8 +287,8 @@ export const translateApi = {
 
   createOcrTask: (
     documentId: string,
-    sourceLang: UILang,
-    targetLang: UILang | '',
+    sourceLang: UILang | '',
+    targetLang: UILang,
     options?: {
       page_range?: string | null;
       source_slice_object_key?: string | null;

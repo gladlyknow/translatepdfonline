@@ -787,6 +787,7 @@ export function OcrTranslatePageClient() {
 
   const startOcrTask = async () => {
     if (!documentId || starting || startOcrLockRef.current) return;
+    if (!targetLang) return;
     startOcrLockRef.current = true;
     setStarting(true);
     setSubmitError(null);
@@ -812,8 +813,8 @@ export function OcrTranslatePageClient() {
         }
         setDocumentPageCountFromDb(resolvedPageCount);
       }
-      const effectiveSource = sourceLang || 'en';
-      const effectiveTarget = targetLang || 'zh';
+      const effectiveSource = sourceLang || '';
+      const effectiveTarget = targetLang;
       const rangeNorm = normalizePageRangeInput(pageRangeOcr);
       let sliceKey: string | null = null;
       if (rangeNorm) {
