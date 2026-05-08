@@ -1138,7 +1138,7 @@ export function OcrParseWorkbench({
       className={cn(
         'flex min-w-0 flex-col gap-3',
         unifiedMainScroll
-          ? 'min-h-0 w-full min-w-0 flex-1 overflow-x-hidden overflow-y-visible'
+          ? 'min-h-0 w-full min-w-0 overflow-x-hidden overflow-y-visible'
           : 'min-h-0 flex-1 overflow-hidden'
       )}
     >
@@ -1273,7 +1273,7 @@ export function OcrParseWorkbench({
         className={cn(
           'min-w-0',
           unifiedMainScroll
-            ? 'flex min-h-0 w-full flex-1 overflow-x-hidden md:min-h-0'
+            ? 'flex min-h-0 w-full overflow-x-hidden md:min-h-0'
             : 'min-h-0 flex-1',
           toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
@@ -1296,7 +1296,7 @@ export function OcrParseWorkbench({
               ? 'border-0 dark:border-0'
               : 'border border-zinc-200 dark:border-zinc-800',
             unifiedMainScroll
-              ? 'flex min-h-0 w-full min-w-0 flex-1 overflow-x-hidden md:min-h-0'
+              ? 'flex min-h-0 w-full min-w-0 overflow-x-hidden md:min-h-0'
               : 'min-h-0 flex-1 overflow-hidden',
             hideSourcePanel
               ? 'grid-cols-1'

@@ -1491,8 +1491,8 @@ export function OcrTranslatePageClient() {
         )}
 
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] p-3 md:p-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-stretch md:gap-4 md:[grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="flex min-h-0 h-full w-full min-w-0 flex-col">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-start md:gap-4 md:[grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="flex min-h-0 w-full min-w-0 flex-col">
             <OcrSourcePdfPanel
               sourceLabel={tHome('sourceLabel')}
               documentId={documentId}
@@ -1508,13 +1508,13 @@ export function OcrTranslatePageClient() {
             />
             </div>
             <div
-              className="flex min-h-0 h-full min-w-0 w-full flex-col overflow-x-hidden overflow-y-visible rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="flex min-h-0 min-w-0 w-full flex-col overflow-x-hidden overflow-y-visible rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
               onClick={() => setActiveFocusPanel('json')}
             >
               <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
                 {tOcrWb('tabWorkbench')}
               </p>
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-visible p-2">
+              <div className="flex min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-visible p-2">
                 <OcrParseWorkbench
                   taskId={taskId ?? 'pending'}
                   parseResultUrl={ocrParseResultUrl}
