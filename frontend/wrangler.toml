@@ -28,6 +28,9 @@ enabled = true
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "1f0a3251f43343c3872e5f882ff3d879"
+# OpenNext `deploy` / Wrangler 在 CI 里会走 `getPlatformProxy`，仍要求可解析的本地串；占位即可（不上线真实库）。
+# 本地开发请用 `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` 覆盖，勿依赖此占位连库。
+localConnectionString = "postgres://_build:_build@127.0.0.1:5432/_build_placeholder"
 
 # OCR 管线专用队列（与 BabelDOC / translate FC 队列勿共用）。Producer 见 POST /api/ocr/tasks。
 [[queues.producers]]
@@ -49,6 +52,7 @@ name = "translatepdfonline-dev"
 [[env.develop.hyperdrive]]
 binding = "HYPERDRIVE"
 id = "1f0a3251f43343c3872e5f882ff3d879"
+localConnectionString = "postgres://_build:_build@127.0.0.1:5432/_build_placeholder"
 
 [[env.develop.queues.producers]]
 binding = "OCR_PIPELINE_QUEUE"
