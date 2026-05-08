@@ -412,13 +412,22 @@ export async function translateMarkdownWithDeepSeek(params: {
   return content;
 }
 
-function estimateDeepSeekParseBatchCount(
+type DeepSeekBatchPlan = {
+  index: number;
+  start: number;
+  end: number;
+  slice: string[];
+  chars: number;
+};
+
+function planDeepSeekParseBatches(
   parts: string[],
   maxChunkItems: number,
   maxChunkChars: number
-): number {
-  let batches = 0;
+): DeepSeekBatchPlan[] {
+  const plans: DeepSeekBatchPlan[] = [];
   let start = 0;
+  let index = 0;
   while (start < parts.length) {
     let end = start;
     let charBudget = 0;
@@ -431,14 +440,44 @@ function estimateDeepSeekParseBatchCount(
       end += 1;
     }
     if (end === start) end = start + 1;
-    batches += 1;
+    const slice = parts.slice(start, end);
+    index += 1;
+    plans.push({
+      index,
+      start,
+      end,
+      slice,
+      chars: slice.reduce((a, s) => a + (s?.length ?? 0), 0),
+    });
     start = end;
   }
-  return batches;
+  return plans;
+}
+
+function isRetryableDeepSeekStatus(status: number): boolean {
+  return status === 429 || (status >= 500 && status <= 599);
+}
+
+function resolveParseTranslateTemperature(): number {
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_TEMPERATURE);
+  if (Number.isFinite(raw) && raw >= 0 && raw <= 2) return raw;
+  return 1.3;
+}
+
+function resolveParseTranslateConcurrency(): number {
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '6') || 6;
+  return Math.min(16, Math.max(1, Math.trunc(raw)));
 }
 
 /**
  * 将字符串列表按批送给 DeepSeek，顺序与长度必须一致（用于版面 JSON 字段翻译）。
+ *
+ * 设计要点（DeepSeek V4 Production Playbook）：
+ * - V4 默认开启 Thinking，本函数显式 `extra_body.thinking.type = "disabled"` 关掉，避免每批跑思考链；
+ *   `reasoning_effort` 在 thinking-disabled 模式下被忽略，因此不再传以免误导。
+ * - `system` 放固定指令（缓存友好），`user` 仅放该批 JSON 数组，提升 Context Cache 命中。
+ * - 批次按 `OCR_PARSE_TRANSLATE_CONCURRENCY` 并行发送（默认 6，clamp [1,16]）。
+ * - 429/5xx/timeout 才进退避：`min(8000, 600 * 2^(attempt-1)) + random(0..600)` ms。
  */
 export async function translateStringListWithDeepSeek(params: {
   parts: string[];
@@ -457,67 +496,58 @@ export async function translateStringListWithDeepSeek(params: {
     throw new Error('DeepSeek API key missing');
   }
   const model = resolveOcrDeepSeekModel();
-  const reasoningEffort = resolveReasoningEffort();
+  const temperature = resolveParseTranslateTemperature();
+  const concurrency = resolveParseTranslateConcurrency();
   const maxChunkItems = Math.max(
     8,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '64') || 64
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '24') || 24
   );
   const maxChunkChars = Math.max(
     2000,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '16000') || 16000
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '6000') || 6000
   );
   const fetchTimeoutMs = Math.max(
     30_000,
     Number(process.env.OCR_PARSE_TRANSLATE_FETCH_TIMEOUT_MS || '180000') || 180_000
   );
-
-  const out: string[] = new Array(parts.length);
-  let start = 0;
-  const RETRY_MAX = Math.max(1, Number(process.env.OCR_PARSE_TRANSLATE_RETRY_MAX || '3') || 3);
-  const totalBatches = estimateDeepSeekParseBatchCount(
-    parts,
-    maxChunkItems,
-    maxChunkChars
+  const RETRY_MAX = Math.max(
+    1,
+    Number(process.env.OCR_PARSE_TRANSLATE_RETRY_MAX || '3') || 3
   );
-  let batchIndex = 0;
-  while (start < parts.length) {
-    batchIndex += 1;
-    let end = start;
-    let charBudget = 0;
-    while (
-      end < parts.length &&
-      end - start < maxChunkItems &&
-      charBudget < maxChunkChars
-    ) {
-      charBudget += (parts[end]?.length ?? 0) + 8;
-      end += 1;
-    }
-    if (end === start) end = start + 1;
-    const slice = parts.slice(start, end);
-    const batchChars = slice.reduce((a, s) => a + (s?.length ?? 0), 0);
+
+  const plans = planDeepSeekParseBatches(parts, maxChunkItems, maxChunkChars);
+  const totalBatches = plans.length;
+  const out: string[] = new Array(parts.length);
+
+  const taskIdField = logContext?.taskId ? { task_id: logContext.taskId } : {};
+
+  const runOneBatch = async (plan: DeepSeekBatchPlan): Promise<void> => {
     const logBase = {
-      ...(logContext?.taskId ? { task_id: logContext.taskId } : {}),
-      batch: batchIndex,
-      batches_estimated: totalBatches,
-      slice_items: slice.length,
-      slice_chars: batchChars,
+      ...taskIdField,
+      batch: plan.index,
+      batches_total: totalBatches,
+      slice_items: plan.slice.length,
+      slice_chars: plan.chars,
       parts_total: parts.length,
-      parts_done_before: start,
+      concurrency,
+      thinking_disabled: true,
+      chunk_items_max: maxChunkItems,
+      chunk_chars_max: maxChunkChars,
     };
-    console.log(
-      '[ocr/deepseek_parse_batch] start',
-      JSON.stringify(logBase)
-    );
+    console.log('[ocr/deepseek_parse_batch] start', JSON.stringify(logBase));
     const batchStarted = Date.now();
-    const prompt = [
+
+    const systemPrompt = [
       `Translate each string in the JSON array below from ${sourceLang} to ${targetLang}.`,
       'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
-      `Return ONLY a JSON array of strings with exactly ${slice.length} elements, same order.`,
-      '',
-      JSON.stringify(slice),
+      `Return ONLY a JSON array of strings with exactly ${plan.slice.length} elements, same order.`,
     ].join('\n');
+    const userPayload = JSON.stringify(plan.slice);
+
     let parsedArr: unknown = null;
     let lastError = '';
+    let usageInfo: Record<string, unknown> | null = null;
+
     for (let attempt = 1; attempt <= RETRY_MAX; attempt += 1) {
       let res: Response;
       try {
@@ -529,70 +559,160 @@ export async function translateStringListWithDeepSeek(params: {
           },
           body: JSON.stringify({
             model,
-            temperature: 0.2,
-            reasoning_effort: reasoningEffort,
-            messages: [{ role: 'user', content: prompt }],
+            temperature,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPayload },
+            ],
+            extra_body: { thinking: { type: 'disabled' } },
           }),
           signal: AbortSignal.timeout(fetchTimeoutMs),
         });
       } catch (e) {
         const name = e instanceof Error ? e.name : '';
         const msg = e instanceof Error ? e.message : String(e);
-        lastError =
-          name === 'TimeoutError' || msg.toLowerCase().includes('abort')
-            ? `DeepSeek fetch timeout after ${fetchTimeoutMs}ms (batch ${batchIndex}/${totalBatches})`
-            : `DeepSeek fetch failed: ${msg}`;
+        const isTimeout =
+          name === 'TimeoutError' || msg.toLowerCase().includes('abort');
+        lastError = isTimeout
+          ? `DeepSeek fetch timeout after ${fetchTimeoutMs}ms (batch ${plan.index}/${totalBatches})`
+          : `DeepSeek fetch failed: ${msg}`;
         if (attempt < RETRY_MAX) {
-          await sleep(Math.min(700 * attempt, 2500));
+          const base = 600;
+          const expo = Math.min(8000, base * 2 ** (attempt - 1));
+          await sleep(expo + Math.floor(Math.random() * base));
         }
         continue;
       }
+
       const json = (await res.json().catch(() => ({}))) as {
         choices?: Array<{ message?: { content?: string } }>;
+        usage?: Record<string, unknown>;
         error?: { message?: string };
         message?: string;
       };
-      const rawContent = json.choices?.[0]?.message?.content?.trim();
-      if (!res.ok || !rawContent) {
+      if (json.usage) usageInfo = json.usage;
+
+      if (!res.ok) {
         lastError =
-          json.error?.message || json.message || `DeepSeek batch translate failed (${res.status})`;
+          json.error?.message ||
+          json.message ||
+          `DeepSeek batch translate failed (${res.status})`;
+        if (isRetryableDeepSeekStatus(res.status) && attempt < RETRY_MAX) {
+          const base = 600;
+          const expo = Math.min(8000, base * 2 ** (attempt - 1));
+          await sleep(expo + Math.floor(Math.random() * base));
+          continue;
+        }
+        if (!isRetryableDeepSeekStatus(res.status)) break;
+        continue;
+      }
+
+      const rawContent = json.choices?.[0]?.message?.content?.trim();
+      if (!rawContent) {
+        lastError =
+          json.error?.message ||
+          json.message ||
+          `DeepSeek batch translate: empty content (${res.status})`;
       } else {
         try {
           parsedArr = JSON.parse(rawContent);
         } catch {
           const fence = rawContent.match(/\[[\s\S]*\]/);
           if (fence) {
-            parsedArr = JSON.parse(fence[0]);
+            try {
+              parsedArr = JSON.parse(fence[0]);
+            } catch {
+              lastError = 'DeepSeek batch translate: invalid JSON array';
+            }
           } else {
             lastError = 'DeepSeek batch translate: invalid JSON array';
           }
         }
-        if (Array.isArray(parsedArr) && parsedArr.length === slice.length) {
+        if (
+          Array.isArray(parsedArr) &&
+          parsedArr.length === plan.slice.length
+        ) {
           break;
         }
-        lastError = `DeepSeek batch translate: expected ${slice.length} strings, got ${
+        lastError = `DeepSeek batch translate: expected ${plan.slice.length} strings, got ${
           Array.isArray(parsedArr) ? parsedArr.length : 'non-array'
         }`;
+        parsedArr = null;
       }
       if (attempt < RETRY_MAX) {
-        await sleep(Math.min(700 * attempt, 2500));
+        const base = 600;
+        const expo = Math.min(8000, base * 2 ** (attempt - 1));
+        await sleep(expo + Math.floor(Math.random() * base));
       }
     }
-    if (!Array.isArray(parsedArr) || parsedArr.length !== slice.length) {
+
+    if (!Array.isArray(parsedArr) || parsedArr.length !== plan.slice.length) {
       throw new Error(lastError || 'DeepSeek batch translate failed');
     }
-    for (let i = 0; i < slice.length; i++) {
-      out[start + i] =
-        typeof parsedArr[i] === 'string' ? parsedArr[i] : String(parsedArr[i] ?? '');
+    for (let i = 0; i < plan.slice.length; i++) {
+      out[plan.start + i] =
+        typeof parsedArr[i] === 'string'
+          ? parsedArr[i]
+          : String(parsedArr[i] ?? '');
     }
+
     console.log(
       '[ocr/deepseek_parse_batch] done',
       JSON.stringify({
         ...logBase,
         elapsed_ms: Date.now() - batchStarted,
+        ...(usageInfo
+          ? {
+              prompt_tokens: usageInfo.prompt_tokens ?? null,
+              completion_tokens: usageInfo.completion_tokens ?? null,
+              prompt_cache_hit_tokens:
+                usageInfo.prompt_cache_hit_tokens ?? null,
+              prompt_cache_miss_tokens:
+                usageInfo.prompt_cache_miss_tokens ?? null,
+            }
+          : {}),
       })
     );
-    start = end;
+  };
+
+  console.log(
+    '[ocr/deepseek_parse_batches] plan',
+    JSON.stringify({
+      ...taskIdField,
+      parts_total: parts.length,
+      batches_total: totalBatches,
+      concurrency,
+      chunk_items_max: maxChunkItems,
+      chunk_chars_max: maxChunkChars,
+      thinking_disabled: true,
+      temperature,
+      model,
+    })
+  );
+
+  let cursor = 0;
+  let firstError: unknown = null;
+  const next = async (): Promise<void> => {
+    while (firstError == null) {
+      const idx = cursor++;
+      if (idx >= plans.length) return;
+      try {
+        await runOneBatch(plans[idx]);
+      } catch (e) {
+        if (firstError == null) firstError = e;
+        return;
+      }
+    }
+  };
+  const workers = Array.from(
+    { length: Math.min(concurrency, plans.length) },
+    () => next()
+  );
+  await Promise.all(workers);
+  if (firstError) {
+    throw firstError instanceof Error
+      ? firstError
+      : new Error(String(firstError));
   }
   return out;
 }
