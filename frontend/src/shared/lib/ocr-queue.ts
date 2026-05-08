@@ -344,6 +344,13 @@ async function runOneStage(params: {
 
   if (params.stage === 'translate_markdown') {
     const markdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
+    console.log(
+      '[ocr/stage] translate_markdown_start',
+      JSON.stringify({
+        task_id: params.taskId,
+        markdown_chars: markdown.length,
+      })
+    );
     const translated = await translateMarkdownWithDeepSeek({
       markdown,
       sourceLang: params.sourceLang,

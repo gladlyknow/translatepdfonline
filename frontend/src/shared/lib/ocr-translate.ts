@@ -383,34 +383,79 @@ export async function translateMarkdownWithDeepSeek(params: {
     params.markdown,
   ].join('\n');
   const model = resolveOcrDeepSeekModel();
-  const reasoningEffort = resolveReasoningEffort();
-  const res = await fetch(DEEPSEEK_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      reasoning_effort: reasoningEffort,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-  const json = (await res.json().catch(() => ({}))) as {
-    choices?: Array<{ message?: { content?: string } }>;
-    error?: { message?: string };
-    message?: string;
-  };
-  const content = json.choices?.[0]?.message?.content?.trim();
-  if (!res.ok || !content) {
-    throw new Error(
-      json.error?.message ||
+  /** 整篇 OCR Markdown 单次请求；默认比 parse 批更长，避免大文档无意义超时 */
+  const fetchTimeoutMs = Math.max(
+    60_000,
+    Number(
+      process.env.OCR_MARKDOWN_TRANSLATE_FETCH_TIMEOUT_MS || '180000'
+    ) || 180_000
+  );
+  const RETRY_MAX = Math.max(
+    1,
+    Number(process.env.OCR_MARKDOWN_TRANSLATE_RETRY_MAX || '3') || 3
+  );
+  const mdChars = params.markdown.length;
+  const maxTokens = resolveBatchMaxTokens(mdChars);
+
+  let lastError = '';
+  for (let attempt = 1; attempt <= RETRY_MAX; attempt += 1) {
+    let res: Response;
+    try {
+      res = await fetch(DEEPSEEK_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          max_tokens: maxTokens,
+          messages: [{ role: 'user', content: prompt }],
+          // 与 translateStringListWithDeepSeek 对齐：关闭 Thinking，避免 translate_markdown 长时间无响应
+          extra_body: { thinking: { type: 'disabled' } },
+        }),
+        signal: AbortSignal.timeout(fetchTimeoutMs),
+      });
+    } catch (e) {
+      const name = e instanceof Error ? e.name : '';
+      const msg = e instanceof Error ? e.message : String(e);
+      const isTimeout =
+        name === 'TimeoutError' || msg.toLowerCase().includes('abort');
+      lastError = isTimeout
+        ? `DeepSeek markdown translate timeout after ${fetchTimeoutMs}ms`
+        : `DeepSeek markdown translate fetch failed: ${msg}`;
+      if (attempt < RETRY_MAX) {
+        const base = 600;
+        const expo = Math.min(8000, base * 2 ** (attempt - 1));
+        await sleep(expo + Math.floor(Math.random() * base));
+      }
+      continue;
+    }
+
+    const json = (await res.json().catch(() => ({}))) as {
+      choices?: Array<{ message?: { content?: string } }>;
+      error?: { message?: string };
+      message?: string;
+    };
+    const content = json.choices?.[0]?.message?.content?.trim();
+    if (!res.ok || !content) {
+      lastError =
+        json.error?.message ||
         json.message ||
-        `DeepSeek translate failed (${res.status})`
-    );
+        `DeepSeek translate failed (${res.status})`;
+      if (isRetryableDeepSeekStatus(res.status) && attempt < RETRY_MAX) {
+        const base = 600;
+        const expo = Math.min(8000, base * 2 ** (attempt - 1));
+        await sleep(expo + Math.floor(Math.random() * base));
+        continue;
+      }
+      if (!isRetryableDeepSeekStatus(res.status)) break;
+      continue;
+    }
+    return content;
   }
-  return content;
+  throw new Error(lastError || 'DeepSeek markdown translate failed');
 }
 
 type DeepSeekBatchPlan = {
@@ -466,7 +511,8 @@ function resolveParseTranslateTemperature(): number {
 }
 
 function resolveParseTranslateConcurrency(): number {
-  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '10') || 10;
+  /** 默认 16：在 CF Queues 单次 ~15min 墙上限下，尽量缩短 translate_parse_result 多批并行总时长 */
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '16') || 16;
   return Math.min(16, Math.max(1, Math.trunc(raw)));
 }
 
@@ -494,7 +540,7 @@ function resolveBatchMaxTokens(sliceChars: number): number {
  * - V4 默认开启 Thinking，本函数显式 `extra_body.thinking.type = "disabled"` 关掉，避免每批跑思考链；
  *   `reasoning_effort` 在 thinking-disabled 模式下被忽略，因此不再传以免误导。
  * - `system` 放固定指令（缓存友好），`user` 仅放该批 JSON 数组，提升 Context Cache 命中。
- * - 批次按 `OCR_PARSE_TRANSLATE_CONCURRENCY` 并行发送（默认 6，clamp [1,16]）。
+ * - 批次按 `OCR_PARSE_TRANSLATE_CONCURRENCY` 并行发送（默认 16，clamp [1,16]）。
  * - 429/5xx/timeout 才进退避：`min(8000, 600 * 2^(attempt-1)) + random(0..600)` ms。
  */
 export async function translateStringListWithDeepSeek(params: {
@@ -703,12 +749,16 @@ export async function translateStringListWithDeepSeek(params: {
     );
   };
 
+  const wavesEstimate = Math.ceil(
+    totalBatches / Math.min(concurrency, Math.max(1, totalBatches))
+  );
   console.log(
     '[ocr/deepseek_parse_batches] plan',
     JSON.stringify({
       ...taskIdField,
       parts_total: parts.length,
       batches_total: totalBatches,
+      waves_estimate: wavesEstimate,
       concurrency,
       chunk_items_max: maxChunkItems,
       chunk_chars_max: maxChunkChars,
@@ -719,6 +769,21 @@ export async function translateStringListWithDeepSeek(params: {
       model,
     })
   );
+  /** CF Queue consumer 单次 invocation 墙上限约 15min；批次数多时每波若接近 fetch 超时易触发 exceededCpu */
+  if (wavesEstimate * fetchTimeoutMs > 10 * 60 * 1000) {
+    console.warn(
+      '[ocr/deepseek_parse_batches] wall_risk',
+      JSON.stringify({
+        ...taskIdField,
+        batches_total: totalBatches,
+        waves_estimate: wavesEstimate,
+        concurrency,
+        fetch_timeout_ms: fetchTimeoutMs,
+        pessimistic_serial_ms: wavesEstimate * fetchTimeoutMs,
+        hint: 'raise_OCR_PARSE_TRANSLATE_CHUNK_*_or_concurrency;_or_split_stage',
+      })
+    );
+  }
 
   let cursor = 0;
   let firstError: unknown = null;
