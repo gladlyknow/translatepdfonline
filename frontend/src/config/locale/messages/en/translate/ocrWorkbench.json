@@ -54,6 +54,7 @@
   "resumedFromStage": "Resumed from stage {stage}",
   "stageTaskCreated": "Task created",
   "stageOcrSubmitPoll": "OCR submit & poll",
+  "stageMirrorBaiduImages": "Mirror images to R2",
   "stageOcrParsePersisted": "Parse persisted",
   "stageTranslateMarkdown": "Translate markdown",
   "stageTranslateParseResult": "Translate layout JSON text",

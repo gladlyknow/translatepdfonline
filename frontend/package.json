@@ -33,6 +33,7 @@
     "auth:generate": "tsx scripts/with-env.ts npx @better-auth/cli generate --config=src/core/auth/index.ts",
     "rbac:init": "tsx scripts/with-env.ts npx tsx scripts/init-rbac.ts",
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",
+    "ocr:mirror-images": "tsx scripts/with-env.ts npx tsx scripts/ocr-mirror-baidu-images.ts",
     "postinstall": "fumadocs-mdx",
     "generate-wrangler": "node scripts/generate-wrangler.js",
     "build:opennext": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js",

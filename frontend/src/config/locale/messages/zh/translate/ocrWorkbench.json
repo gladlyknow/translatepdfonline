@@ -54,6 +54,7 @@
   "resumedFromStage": "已从阶段 {stage} 继续执行",
   "stageTaskCreated": "任务创建",
   "stageOcrSubmitPoll": "OCR 提交与轮询",
+  "stageMirrorBaiduImages": "镜像图片到 R2",
   "stageOcrParsePersisted": "解析结果已持久化",
   "stageTranslateMarkdown": "翻译 Markdown",
   "stageTranslateParseResult": "翻译版面 JSON 文本",

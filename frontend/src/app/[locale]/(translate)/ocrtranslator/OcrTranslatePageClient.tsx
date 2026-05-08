@@ -953,6 +953,7 @@ export function OcrTranslatePageClient() {
     (stage: string) => {
       const keyMap: Record<string, string> = {
         ocr_submit_poll: 'stageOcrSubmitPoll',
+        mirror_baidu_images: 'stageMirrorBaiduImages',
         ocr_parse_persisted: 'stageOcrParsePersisted',
         translate_markdown: 'stageTranslateMarkdown',
         translate_parse_result: 'stageTranslateParseResult',

@@ -14,6 +14,7 @@ import {
 import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
+import { mirrorBaiduImagesIntoParseResult } from '@/shared/lib/ocr-parse-result-image-proxy';
 import { ocrParseResultSourceKey } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import { runOcrStage } from '@/shared/lib/ocr-step-runner';
@@ -42,6 +43,7 @@ export type OcrPipelineQueueBody =
     };
 type OcrStage =
   | 'ocr_submit_poll'
+  | 'mirror_baidu_images'
   | 'ocr_parse_persisted'
   | 'translate_markdown'
   | 'translate_parse_result'
@@ -62,12 +64,71 @@ const DEFAULT_MAX_ATTEMPTS = Math.max(
   Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS || '3') || 3
 );
 
+/**
+ * `mirror_baidu_images` 阶段配置：异步队列中下载百度签名图片到 R2，并改写 source ParseResult JSON。
+ * 单图下载并发与每次重试细节由 `rewriteExternalImagesToR2` 内部处理。
+ */
+function clampInt(
+  v: number,
+  min: number,
+  max: number,
+  fallback: number
+): number {
+  const n = Math.floor(Number(v));
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
+const OCR_IMAGE_MIRROR_CONCURRENCY = clampInt(
+  Number(process.env.OCR_IMAGE_MIRROR_CONCURRENCY || '5'),
+  1,
+  16,
+  5
+);
+const OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS = clampInt(
+  Number(process.env.OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS || '480000'),
+  30_000,
+  3_600_000,
+  480_000
+);
+const OCR_IMAGE_MIRROR_FAIL_RATIO_MAX = (() => {
+  const raw = Number(process.env.OCR_IMAGE_MIRROR_FAIL_RATIO_MAX || '0.5');
+  if (!Number.isFinite(raw)) return 0.5;
+  return Math.max(0, Math.min(1, raw));
+})();
+
 function nowIso() {
   return new Date().toISOString();
 }
 
+/**
+ * 阶段级 wall-clock 超时：仅给 `mirror_baidu_images` 用，单图 fetch 内部已有 90s 超时。
+ * 超时后抛错让队列重试整阶段，不会回滚上一个阶段（source JSON 已落 R2）。
+ */
+function withMirrorStageTimeout<T>(
+  fn: () => Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(
+        new Error(`ocr stage timeout (mirror_baidu_images) after ${timeoutMs}ms`)
+      );
+    }, timeoutMs);
+    fn()
+      .then((v) => {
+        clearTimeout(timer);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+  });
+}
+
 function stagePercent(stage: OcrStage): number {
   if (stage === 'ocr_submit_poll') return 20;
+  if (stage === 'mirror_baidu_images') return 35;
   if (stage === 'ocr_parse_persisted') return 45;
   if (stage === 'translate_markdown') return 65;
   if (stage === 'translate_parse_result') return 80;
@@ -78,6 +139,7 @@ function stagePercent(stage: OcrStage): number {
 function normalizeStage(raw: string | null | undefined): OcrStage {
   const s = String(raw || '').trim().toLowerCase();
   if (s === 'ocr_submit_poll') return 'ocr_submit_poll';
+  if (s === 'mirror_baidu_images') return 'mirror_baidu_images';
   if (s === 'ocr_parse_persisted') return 'ocr_parse_persisted';
   if (s === 'translate_markdown') return 'translate_markdown';
   if (s === 'translate_parse_result') return 'translate_parse_result';
@@ -223,6 +285,54 @@ async function runOneStage(params: {
       outputParseResultObjectKey: keys.outputParseResultObjectKey,
       outputMarkdownObjectKey: keys.sourceMarkdownObjectKey,
     });
+    return 'mirror_baidu_images';
+  }
+
+  if (params.stage === 'mirror_baidu_images') {
+    const startedAt = Date.now();
+    console.log(
+      '[ocr/stage] start',
+      JSON.stringify({
+        stage: 'mirror_baidu_images',
+        task_id: params.taskId,
+        concurrency: OCR_IMAGE_MIRROR_CONCURRENCY,
+        timeout_ms: OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS,
+        fail_ratio_max: OCR_IMAGE_MIRROR_FAIL_RATIO_MAX,
+      })
+    );
+    const result = await withMirrorStageTimeout(
+      () =>
+        mirrorBaiduImagesIntoParseResult({
+          taskId: params.taskId,
+          parseResultKey: keys.outputParseResultObjectKey,
+          maxConcurrent: OCR_IMAGE_MIRROR_CONCURRENCY,
+        }),
+      OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS
+    );
+    const failRatio = result.total === 0 ? 0 : result.failed / result.total;
+    const partial = result.failed > 0;
+    console.log(
+      '[ocr/parse_image_mirror] done',
+      JSON.stringify({
+        task_id: params.taskId,
+        replaced: result.replaced,
+        failed: result.failed,
+        total: result.total,
+        written: result.written,
+        fail_ratio: Number(failRatio.toFixed(3)),
+        mirror_partial: partial,
+        elapsed_ms: Date.now() - startedAt,
+      })
+    );
+    if (
+      result.total > 0 &&
+      result.failed > 0 &&
+      failRatio > OCR_IMAGE_MIRROR_FAIL_RATIO_MAX
+    ) {
+      throw new Error(
+        `mirror_baidu_images failure ratio ${failRatio.toFixed(3)} > ${OCR_IMAGE_MIRROR_FAIL_RATIO_MAX} (failed=${result.failed}/${result.total})`
+      );
+    }
     return 'ocr_parse_persisted';
   }
 
