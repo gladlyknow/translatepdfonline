@@ -465,8 +465,25 @@ function resolveParseTranslateTemperature(): number {
 }
 
 function resolveParseTranslateConcurrency(): number {
-  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '6') || 6;
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '10') || 10;
   return Math.min(16, Math.max(1, Math.trunc(raw)));
+}
+
+const MAX_TOKENS_HARD_CAP = 8000;
+const MAX_TOKENS_FLOOR = 1024;
+
+/**
+ * 按 batch 字符量给输出 max_tokens 一个动态上界，避免「跑飞」吃 384K 默认预算。
+ * 中文输出比原文 chars 略多 token，4× chars + 256 头比较稳；硬顶 8000。
+ * `OCR_PARSE_TRANSLATE_MAX_TOKENS_BUDGET` 可手动覆盖（env 优先，仍受硬顶 clamp）。
+ */
+function resolveBatchMaxTokens(sliceChars: number): number {
+  const envOverride = Number(process.env.OCR_PARSE_TRANSLATE_MAX_TOKENS_BUDGET);
+  if (Number.isFinite(envOverride) && envOverride > 0) {
+    return Math.min(MAX_TOKENS_HARD_CAP, Math.max(256, Math.trunc(envOverride)));
+  }
+  const dynamic = Math.round(sliceChars * 4) + 256;
+  return Math.min(MAX_TOKENS_HARD_CAP, Math.max(MAX_TOKENS_FLOOR, dynamic));
 }
 
 /**
@@ -499,16 +516,16 @@ export async function translateStringListWithDeepSeek(params: {
   const temperature = resolveParseTranslateTemperature();
   const concurrency = resolveParseTranslateConcurrency();
   const maxChunkItems = Math.max(
-    8,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '24') || 24
+    4,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '12') || 12
   );
   const maxChunkChars = Math.max(
-    2000,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '6000') || 6000
+    1000,
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '3000') || 3000
   );
   const fetchTimeoutMs = Math.max(
     30_000,
-    Number(process.env.OCR_PARSE_TRANSLATE_FETCH_TIMEOUT_MS || '180000') || 180_000
+    Number(process.env.OCR_PARSE_TRANSLATE_FETCH_TIMEOUT_MS || '90000') || 90_000
   );
   const RETRY_MAX = Math.max(
     1,
@@ -521,7 +538,16 @@ export async function translateStringListWithDeepSeek(params: {
 
   const taskIdField = logContext?.taskId ? { task_id: logContext.taskId } : {};
 
+  // 同一任务内 system 完全一致 → DeepSeek prompt cache 跨批命中（首批 miss，第二批起命中）。
+  // 不要在这里嵌入随 batch 变化的字段（如 slice.length），否则前缀被破坏 → 全部 cache miss。
+  const systemPrompt = [
+    `Translate each string in the JSON array sent by the user from ${sourceLang} to ${targetLang}.`,
+    'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
+    "Return ONLY a JSON array of strings whose length equals the input array's length, in the same order.",
+  ].join('\n');
+
   const runOneBatch = async (plan: DeepSeekBatchPlan): Promise<void> => {
+    const batchMaxTokens = resolveBatchMaxTokens(plan.chars);
     const logBase = {
       ...taskIdField,
       batch: plan.index,
@@ -531,17 +557,15 @@ export async function translateStringListWithDeepSeek(params: {
       parts_total: parts.length,
       concurrency,
       thinking_disabled: true,
+      cache_stable_system: true,
       chunk_items_max: maxChunkItems,
       chunk_chars_max: maxChunkChars,
+      fetch_timeout_ms: fetchTimeoutMs,
+      max_tokens: batchMaxTokens,
     };
     console.log('[ocr/deepseek_parse_batch] start', JSON.stringify(logBase));
     const batchStarted = Date.now();
 
-    const systemPrompt = [
-      `Translate each string in the JSON array below from ${sourceLang} to ${targetLang}.`,
-      'Preserve markdown/HTML/LaTeX tags, numbers, URLs, and code. Do not add explanations.',
-      `Return ONLY a JSON array of strings with exactly ${plan.slice.length} elements, same order.`,
-    ].join('\n');
     const userPayload = JSON.stringify(plan.slice);
 
     let parsedArr: unknown = null;
@@ -560,6 +584,7 @@ export async function translateStringListWithDeepSeek(params: {
           body: JSON.stringify({
             model,
             temperature,
+            max_tokens: batchMaxTokens,
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userPayload },
@@ -684,7 +709,9 @@ export async function translateStringListWithDeepSeek(params: {
       concurrency,
       chunk_items_max: maxChunkItems,
       chunk_chars_max: maxChunkChars,
+      fetch_timeout_ms: fetchTimeoutMs,
       thinking_disabled: true,
+      cache_stable_system: true,
       temperature,
       model,
     })
