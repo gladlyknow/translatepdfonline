@@ -94,7 +94,7 @@ async function loadTaskIds(args: Args): Promise<string[]> {
     1,
     Math.min(2000, Math.floor(Number(args.allRecent ?? 200) || 200))
   );
-  const rows = await db()
+  const rows: { id: string }[] = await db()
     .select({ id: translationTasks.id })
     .from(translationTasks)
     .where(eq(translationTasks.preprocessWithOcr, true))
