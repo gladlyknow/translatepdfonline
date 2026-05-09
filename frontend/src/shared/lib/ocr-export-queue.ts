@@ -620,7 +620,13 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       const targetLang = langRow?.targetLang ?? '';
       const markdown = await withStageTimeout(
         'load_markdown',
-        () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
+        async () => {
+          try {
+            return await loadMarkdownFromR2(row.sourceMarkdownObjectKey);
+          } catch {
+            return '';
+          }
+        },
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       const markdownWithR2Urls = await withStageTimeout(

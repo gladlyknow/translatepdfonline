@@ -336,6 +336,8 @@ export const translateApi = {
     fetchTranslateApi<{
       markdown: string;
       object_key: string;
+      /** `parse_result_rebuild`：从 R2 parse JSON 实时生成，不再依赖 ocr-translated.md */
+      source?: string;
       updated_at?: string;
     }>(`/api/tasks/${taskId}/markdown`),
 

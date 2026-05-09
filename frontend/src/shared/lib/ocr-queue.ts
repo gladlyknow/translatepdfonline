@@ -3,11 +3,7 @@ import { and, asc, eq, isNull, lte, ne, or } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
-import {
-  loadMarkdownFromR2,
-  runOcrAndPersistParse,
-  translateMarkdownWithDeepSeek,
-} from '@/shared/lib/ocr-translate';
+import { runOcrAndPersistParse } from '@/shared/lib/ocr-translate';
 import {
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
@@ -45,7 +41,6 @@ type OcrStage =
   | 'ocr_submit_poll'
   | 'mirror_baidu_images'
   | 'ocr_parse_persisted'
-  | 'translate_markdown'
   | 'translate_parse_result'
   | 'export_outputs'
   | 'completed';
@@ -130,8 +125,7 @@ function stagePercent(stage: OcrStage): number {
   if (stage === 'ocr_submit_poll') return 20;
   if (stage === 'mirror_baidu_images') return 35;
   if (stage === 'ocr_parse_persisted') return 45;
-  if (stage === 'translate_markdown') return 65;
-  if (stage === 'translate_parse_result') return 80;
+  if (stage === 'translate_parse_result') return 65;
   if (stage === 'export_outputs') return 90;
   return 100;
 }
@@ -141,7 +135,8 @@ function normalizeStage(raw: string | null | undefined): OcrStage {
   if (s === 'ocr_submit_poll') return 'ocr_submit_poll';
   if (s === 'mirror_baidu_images') return 'mirror_baidu_images';
   if (s === 'ocr_parse_persisted') return 'ocr_parse_persisted';
-  if (s === 'translate_markdown') return 'translate_markdown';
+  /** 旧队列/DB 可能仍存 translate_markdown，归并到 translate_parse_result */
+  if (s === 'translate_markdown') return 'translate_parse_result';
   if (s === 'translate_parse_result') return 'translate_parse_result';
   if (s === 'export_outputs') return 'export_outputs';
   if (s === 'completed') return 'completed';
@@ -338,30 +333,8 @@ async function runOneStage(params: {
 
   if (params.stage === 'ocr_parse_persisted') {
     return needTranslateForTask(params.sourceLang, params.targetLang)
-      ? 'translate_markdown'
+      ? 'translate_parse_result'
       : 'export_outputs';
-  }
-
-  if (params.stage === 'translate_markdown') {
-    const markdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
-    console.log(
-      '[ocr/stage] translate_markdown_start',
-      JSON.stringify({
-        task_id: params.taskId,
-        markdown_chars: markdown.length,
-      })
-    );
-    const translated = await translateMarkdownWithDeepSeek({
-      markdown,
-      sourceLang: params.sourceLang,
-      targetLang: params.targetLang,
-    });
-    await putObject(
-      keys.translatedMarkdownObjectKey,
-      new TextEncoder().encode(translated),
-      'text/markdown; charset=utf-8'
-    );
-    return 'translate_parse_result';
   }
 
   if (params.stage === 'translate_parse_result') {
