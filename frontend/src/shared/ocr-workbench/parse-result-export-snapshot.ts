@@ -1,3 +1,4 @@
+import { buildLayoutFitInlineScript } from '@/shared/ocr-workbench/parse-result-export-layout-fit-script';
 import { resolveImageDataUrl } from '@/shared/ocr-workbench/parse-result-image-data';
 
 const BLANK_PIXEL_DATA_URL =
@@ -43,6 +44,25 @@ function allElements(root: Element): Element[] {
   return [root, ...Array.from(root.querySelectorAll('*'))];
 }
 
+/** 打印快照里避免 scrollport（overflow:auto）被 Chromium PDF 裁切 */
+function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
+  const candidates = clone.querySelectorAll<HTMLElement>(
+    '[data-layout-id], .parse-result-rich-host'
+  );
+  for (const el of candidates) {
+    const raw = el.getAttribute('style');
+    if (!raw) continue;
+    let next = raw;
+    next = next.replace(/overflow-y\s*:\s*auto\b/gi, 'overflow-y:hidden');
+    next = next.replace(/overflow-y\s*:\s*scroll\b/gi, 'overflow-y:hidden');
+    next = next.replace(/overflow-x\s*:\s*auto\b/gi, 'overflow-x:hidden');
+    next = next.replace(/overflow-x\s*:\s*scroll\b/gi, 'overflow-x:hidden');
+    next = next.replace(/overflow\s*:\s*auto\b/gi, 'overflow:hidden');
+    next = next.replace(/overflow\s*:\s*scroll\b/gi, 'overflow:hidden');
+    if (next !== raw) el.setAttribute('style', next);
+  }
+}
+
 export async function snapshotPageElement(
   pageEl: HTMLElement,
   cache: Map<string, string>,
@@ -69,6 +89,8 @@ export async function snapshotPageElement(
       dst.removeAttribute('tabindex');
     }
   }
+
+  normalizeSnapshotOverflowForPrint(clone);
 
   let imageWarnings = 0;
   const imageIssues: SnapshotImageIssue[] = [];
@@ -453,5 +475,5 @@ export function buildSnapshotHtmlDocument(
         transform:scale(var(--print-scale));
       }
     }
-  </style></head><body>${pageSections.join('')}</body></html>`;
+  </style></head><body>${pageSections.join('')}${buildLayoutFitInlineScript('[data-layout-id]')}</body></html>`;
 }

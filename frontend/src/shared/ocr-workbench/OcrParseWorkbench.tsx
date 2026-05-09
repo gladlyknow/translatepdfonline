@@ -459,9 +459,14 @@ export function OcrParseWorkbench({
       throw new Error('No page available for export');
     }
     const beforePageIndex = activePageIndex;
+    const prevSelected = selectedLayoutId;
     const sections: string[] = [];
     const cache = new Map<string, string>();
     try {
+      flushSync(() => {
+        setSelectedLayoutId(null);
+      });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       for (let i = 0; i < pages.length; i += 1) {
         flushSync(() => {
           setActivePageIndex(i);
@@ -484,6 +489,16 @@ export function OcrParseWorkbench({
       flushSync(() => {
         setActivePageIndex(beforePageIndex);
       });
+      const snap = docRef.current;
+      const restorePage = snap?.pages[beforePageIndex];
+      if (
+        prevSelected &&
+        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
+      ) {
+        flushSync(() => {
+          setSelectedLayoutId(prevSelected);
+        });
+      }
     }
     return {
       htmlDocument: buildSnapshotHtmlDocument(
@@ -493,7 +508,7 @@ export function OcrParseWorkbench({
       ),
       orientation: 'portrait' as const,
     };
-  }, [activePageIndex, setActivePageIndex]);
+  }, [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]);
 
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (

@@ -221,6 +221,7 @@ function LayoutText({
   return (
     <div
       data-layout-id={layoutId}
+      data-layout-type={ly.type || 'text'}
       style={frameStyle}
       className={cn(
         'bg-white/90 relative',
@@ -405,6 +406,7 @@ function LayoutTable({
   return (
     <div
       data-layout-id={layoutId}
+      data-layout-type="table"
       role="presentation"
       style={{ ...frameStyle, resize: isSel ? 'both' : undefined }}
       className="touch-none bg-white leading-snug select-none dark:bg-neutral-900 relative"
@@ -535,6 +537,7 @@ function LayoutReadOnlyText({
   return (
     <div
       data-layout-id={ly.layout_id}
+      data-layout-type={ly.type || 'text'}
       role="presentation"
       style={{ ...frameStyle, ...editorStyle, overflow: 'hidden' }}
       className="bg-white/90 leading-snug dark:bg-neutral-900"
@@ -866,6 +869,7 @@ export function ParseResultCanvas({
               <div
                 key={ly.layout_id}
                 data-layout-id={ly.layout_id}
+                data-layout-type="image"
                 role="presentation"
                 style={imageStyle}
                 className="touch-none bg-white p-0 select-none dark:bg-neutral-900 relative"
