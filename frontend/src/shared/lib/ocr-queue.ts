@@ -338,6 +338,14 @@ async function runOneStage(params: {
   }
 
   if (params.stage === 'translate_parse_result') {
+    console.log(
+      '[ocr/stage] translate_parse_result_enter',
+      JSON.stringify({
+        task_id: params.taskId,
+        source_lang: params.sourceLang,
+        target_lang: params.targetLang,
+      })
+    );
     await translateAndPersistParseResultTarget({
       taskId: params.taskId,
       sourceLang: params.sourceLang,
@@ -705,7 +713,38 @@ export async function invokeOcrPipelineForTask(
       )
     )
     .returning();
-  if (!claimed.length) return;
+  if (!claimed.length) {
+    const peek = await db()
+      .select({
+        status: translationTasks.status,
+        progressStage: translationTasks.progressStage,
+        fcNextAttemptAt: translationTasks.fcNextAttemptAt,
+        fcInvokeLeaseUntil: translationTasks.fcInvokeLeaseUntil,
+        preprocessWithOcr: translationTasks.preprocessWithOcr,
+      })
+      .from(translationTasks)
+      .where(eq(translationTasks.id, taskId))
+      .limit(1);
+    const r = peek[0];
+    console.warn(
+      '[ocr/pipeline] claim_skipped',
+      JSON.stringify({
+        task_id: taskId,
+        row: r
+          ? {
+              status: r.status,
+              progress_stage: r.progressStage,
+              fc_next_attempt_at: r.fcNextAttemptAt?.toISOString?.() ?? r.fcNextAttemptAt,
+              fc_invoke_lease_until:
+                r.fcInvokeLeaseUntil?.toISOString?.() ?? r.fcInvokeLeaseUntil,
+              preprocess_with_ocr: r.preprocessWithOcr,
+            }
+          : null,
+        at: nowIso(),
+      })
+    );
+    return;
+  }
 
   const row = claimed[0];
   const ownerWhere = row.userId
@@ -724,6 +763,14 @@ export async function invokeOcrPipelineForTask(
     )
     .limit(OCR_ACCOUNT_MAX_CONCURRENCY);
   if (ownerProcessingRows.length >= OCR_ACCOUNT_MAX_CONCURRENCY) {
+    console.warn(
+      '[ocr/pipeline] deferred_owner_concurrency',
+      JSON.stringify({
+        task_id: taskId,
+        limit: OCR_ACCOUNT_MAX_CONCURRENCY,
+        processing_peer_count: ownerProcessingRows.length,
+      })
+    );
     await deferTaskForConcurrency(taskId, 'owner_concurrency_limit');
     scheduleOcrDeferredRequeue(taskId, options?.executionCtx);
     return;

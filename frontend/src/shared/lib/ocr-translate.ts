@@ -510,10 +510,19 @@ function resolveParseTranslateTemperature(): number {
   return 1.3;
 }
 
+function resolveParseTranslateConcurrencyMax(): number {
+  /** 与 DeepSeek Rate Limit（429 动态限流）配合：上限可配，避免误设过大占满 Worker */
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY_MAX || '32') || 32;
+  const n = Math.trunc(raw);
+  if (!Number.isFinite(n) || n < 1) return 32;
+  return Math.min(64, Math.max(1, n));
+}
+
 function resolveParseTranslateConcurrency(): number {
-  /** 默认 16：在 CF Queues 单次 ~15min 墙上限下，尽量缩短 translate_parse_result 多批并行总时长 */
-  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '16') || 16;
-  return Math.min(16, Math.max(1, Math.trunc(raw)));
+  /** 默认 24：更小单批 + 略高并行，缩短 translate_parse_result 墙钟；遇 429 走现有退避 */
+  const max = resolveParseTranslateConcurrencyMax();
+  const raw = Number(process.env.OCR_PARSE_TRANSLATE_CONCURRENCY || '24') || 24;
+  return Math.min(max, Math.max(1, Math.trunc(raw)));
 }
 
 const MAX_TOKENS_HARD_CAP = 8000;
@@ -540,7 +549,7 @@ function resolveBatchMaxTokens(sliceChars: number): number {
  * - V4 默认开启 Thinking，本函数显式 `extra_body.thinking.type = "disabled"` 关掉，避免每批跑思考链；
  *   `reasoning_effort` 在 thinking-disabled 模式下被忽略，因此不再传以免误导。
  * - `system` 放固定指令（缓存友好），`user` 仅放该批 JSON 数组，提升 Context Cache 命中。
- * - 批次按 `OCR_PARSE_TRANSLATE_CONCURRENCY` 并行发送（默认 16，clamp [1,16]）。
+ * - 批次按 `OCR_PARSE_TRANSLATE_CONCURRENCY` 并行发送（默认 24，clamp [1, OCR_PARSE_TRANSLATE_CONCURRENCY_MAX]，默认 max=32）。
  * - 429/5xx/timeout 才进退避：`min(8000, 600 * 2^(attempt-1)) + random(0..600)` ms。
  */
 export async function translateStringListWithDeepSeek(params: {
@@ -561,14 +570,15 @@ export async function translateStringListWithDeepSeek(params: {
   }
   const model = resolveOcrDeepSeekModel();
   const temperature = resolveParseTranslateTemperature();
+  const concurrencyMax = resolveParseTranslateConcurrencyMax();
   const concurrency = resolveParseTranslateConcurrency();
   const maxChunkItems = Math.max(
     4,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '12') || 12
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_ITEMS || '8') || 8
   );
   const maxChunkChars = Math.max(
     1000,
-    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '3000') || 3000
+    Number(process.env.OCR_PARSE_TRANSLATE_CHUNK_CHARS || '2000') || 2000
   );
   const fetchTimeoutMs = Math.max(
     30_000,
@@ -605,6 +615,7 @@ export async function translateStringListWithDeepSeek(params: {
       slice_chars: plan.chars,
       parts_total: parts.length,
       concurrency,
+      concurrency_max: concurrencyMax,
       thinking_disabled: true,
       cache_stable_system: true,
       chunk_items_max: maxChunkItems,
@@ -760,6 +771,7 @@ export async function translateStringListWithDeepSeek(params: {
       batches_total: totalBatches,
       waves_estimate: wavesEstimate,
       concurrency,
+      concurrency_max: concurrencyMax,
       chunk_items_max: maxChunkItems,
       chunk_chars_max: maxChunkChars,
       fetch_timeout_ms: fetchTimeoutMs,
@@ -778,6 +790,7 @@ export async function translateStringListWithDeepSeek(params: {
         batches_total: totalBatches,
         waves_estimate: wavesEstimate,
         concurrency,
+        concurrency_max: concurrencyMax,
         fetch_timeout_ms: fetchTimeoutMs,
         pessimistic_serial_ms: wavesEstimate * fetchTimeoutMs,
         hint: 'raise_OCR_PARSE_TRANSLATE_CHUNK_*_or_concurrency;_or_split_stage',
