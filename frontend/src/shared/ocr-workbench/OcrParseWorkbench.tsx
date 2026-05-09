@@ -486,6 +486,7 @@ export function OcrParseWorkbench({
         }
         const snapshot = await snapshotPageElement(pageEl, cache, {
           orientation: 'portrait',
+          forRaster: Boolean(opts?.rasterPdf),
         });
         if (opts?.rasterPdf) {
           const dataUrl = await snapshotPageHtmlToJpegDataUrlForPdf(

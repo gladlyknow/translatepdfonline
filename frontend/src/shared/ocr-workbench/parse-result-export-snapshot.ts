@@ -63,10 +63,41 @@ function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
   }
 }
 
+/**
+ * SVG foreignObject 内字体度量与主文档略有差异时，`overflow:hidden` 易把最后一行 descender 横切。
+ * 光栅 PDF 前对文本块放宽裁切（表格/插图块保持原样）。
+ */
+function relaxSnapshotClipForRasterExport(clone: HTMLElement): void {
+  const roots = clone.querySelectorAll<HTMLElement>('[data-layout-id]');
+  for (const root of roots) {
+    const kind = (root.dataset.layoutType || '').toLowerCase();
+    if (kind === 'image' || kind === 'table') continue;
+    stripLayoutOverflowClip(root);
+    for (const host of root.querySelectorAll<HTMLElement>('.parse-result-rich-host')) {
+      stripLayoutOverflowClip(host);
+    }
+  }
+}
+
+function stripLayoutOverflowClip(el: HTMLElement): void {
+  const raw = el.getAttribute('style');
+  if (!raw) return;
+  let next = raw
+    .replace(/overflow\s*:\s*hidden\b/gi, 'overflow:visible')
+    .replace(/overflow-y\s*:\s*hidden\b/gi, 'overflow-y:visible')
+    .replace(/overflow-x\s*:\s*hidden\b/gi, 'overflow-x:visible')
+    .replace(/overflow\s*:\s*clip\b/gi, 'overflow:visible');
+  if (next !== raw) el.setAttribute('style', next);
+}
+
 export async function snapshotPageElement(
   pageEl: HTMLElement,
   cache: Map<string, string>,
-  options?: { orientation?: 'portrait' | 'landscape' }
+  options?: {
+    orientation?: 'portrait' | 'landscape';
+    /** 光栅 PDF：放宽块级 overflow，避免 foreignObject 与主文档度量差导致最后一行被切 */
+    forRaster?: boolean;
+  }
 ): Promise<{
   sectionHtml: string;
   pageHtml: string;
@@ -91,6 +122,9 @@ export async function snapshotPageElement(
   }
 
   normalizeSnapshotOverflowForPrint(clone);
+  if (options?.forRaster) {
+    relaxSnapshotClipForRasterExport(clone);
+  }
 
   let imageWarnings = 0;
   const imageIssues: SnapshotImageIssue[] = [];
@@ -129,8 +163,8 @@ export async function snapshotPageElement(
   }
 
   const rect = pageEl.getBoundingClientRect();
-  const pageW = Math.max(1, Math.round(rect.width));
-  const pageH = Math.max(1, Math.round(rect.height));
+  const pageW = Math.max(1, Math.ceil(rect.width));
+  const pageH = Math.max(1, Math.ceil(rect.height));
   // 96dpi 下 A4 约 794x1123；打印时把编辑页等比压入一张纸内，避免一页拆成两页
   const orientation = options?.orientation === 'landscape' ? 'landscape' : 'portrait';
   const printLimitW = orientation === 'landscape' ? 1123 : 794;
@@ -340,7 +374,7 @@ async function renderSvgHtmlToPngDataUrl(
 ): Promise<string> {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pageW}" height="${pageH}">
   <foreignObject x="0" y="0" width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml" style="width:${pageW}px;height:${pageH}px;overflow:hidden;background:#fff;">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="width:${pageW}px;height:${pageH}px;overflow:visible;background:#fff;">
       ${html}
     </div>
   </foreignObject>
