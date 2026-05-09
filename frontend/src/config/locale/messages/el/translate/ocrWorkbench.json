@@ -44,6 +44,9 @@
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
   "ocrPageRangePlaceholder": "Εύρος σελίδων (προαιρετικό, π.χ. 1-10)",
+  "pagesSourcePageLabel": "Σελίδα πηγής",
+  "pagesJsonPageLabel": "Σελίδα JSON",
+  "pagesPageInputAria": "Αριθμός σελίδας",
   "focusPanelJson": "Εστίαση JSON",
   "focusPanelSource": "Εστίαση πηγής"
 }

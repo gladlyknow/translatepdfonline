@@ -77,6 +77,7 @@ export function OcrParseWorkbench({
   pageIndex: controlledPageIndex,
   onPageIndexChange,
   onWorkbenchPageJson,
+  onParseResultPageCount,
   toolbarPosition = 'bottom',
   toolbarId,
   toolbarSectionIds,
@@ -98,6 +99,8 @@ export function OcrParseWorkbench({
   onPageIndexChange?: (index: number) => void;
   /** 当前解析页序列化 JSON（供外侧只读预览） */
   onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
+  /** 解析结果页数（与源 PDF 可能不一致）；无 URL 或未加载成功时不回调或由 URL 清空回调 0 */
+  onParseResultPageCount?: (count: number) => void;
   toolbarPosition?: 'bottom' | 'left';
   toolbarId?: string;
   toolbarSectionIds?: {
@@ -250,6 +253,16 @@ export function OcrParseWorkbench({
       cancelled = true;
     };
   }, [parseResultUrl, reset, onPageIndexChange]);
+
+  useEffect(() => {
+    if (!parseResultUrl) {
+      onParseResultPageCount?.(0);
+      return;
+    }
+    if (loadState === 'ok' && doc?.pages) {
+      onParseResultPageCount?.(doc.pages.length);
+    }
+  }, [parseResultUrl, loadState, doc?.pages.length, onParseResultPageCount]);
 
   useEffect(() => {
     if (!doc || !page) return;

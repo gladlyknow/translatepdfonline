@@ -225,6 +225,11 @@ export function OcrTranslatePageClient() {
   const [taskView, setTaskView] = useState<TaskView | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [jsonPage, setJsonPage] = useState(1);
+  /** 解析结果 JSON 实际页数；未加载前为 null，侧栏 JSON 页码上限回退为源 PDF 页数 */
+  const [parseResultPageCount, setParseResultPageCount] = useState<number | null>(
+    null
+  );
+  const [sidebarPageField, setSidebarPageField] = useState('');
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [documentCreatedAt, setDocumentCreatedAt] = useState<string | null>(
     null
@@ -347,6 +352,15 @@ export function OcrTranslatePageClient() {
           : 0
       ),
     [sourceTotalPages, sourceNumPagesFromViewer, documentPageCountFromDb]
+  );
+
+  const sourceNavTotal = Math.max(1, effectiveDocumentPageCount || 1);
+  const jsonNavTotal = useMemo(
+    () =>
+      parseResultPageCount != null && parseResultPageCount > 0
+        ? parseResultPageCount
+        : sourceNavTotal,
+    [parseResultPageCount, sourceNavTotal]
   );
 
   const debouncedSourcePage = useDebouncedValue(
@@ -1069,33 +1083,67 @@ export function OcrTranslatePageClient() {
   }, [activeFocusPanel, currentPage, jsonPage]);
 
   const handleNextPage = useCallback(() => {
-    const total = Math.max(1, effectiveDocumentPageCount || 1);
     if (activeFocusPanel === 'source') {
-      const next = Math.min(total, currentPage + 1);
+      const next = Math.min(sourceNavTotal, currentPage + 1);
       setCurrentPage(next);
       return;
     }
-    const next = Math.min(total, jsonPage + 1);
+    const next = Math.min(jsonNavTotal, jsonPage + 1);
     setJsonPage(next);
-  }, [
-    activeFocusPanel,
-    currentPage,
-    effectiveDocumentPageCount,
-    jsonPage,
-  ]);
+  }, [activeFocusPanel, currentPage, jsonPage, sourceNavTotal, jsonNavTotal]);
   const handleJsonPageIndexChange = useCallback(
     (idx: number) => {
-      const maxP = Math.max(1, effectiveDocumentPageCount || 1);
-      setJsonPage(Math.min(maxP, Math.max(1, idx + 1)));
+      setJsonPage(Math.min(jsonNavTotal, Math.max(1, idx + 1)));
     },
-    [effectiveDocumentPageCount]
+    [jsonNavTotal]
   );
+  const onWorkbenchParseResultPageCount = useCallback((n: number) => {
+    setParseResultPageCount(n > 0 ? n : null);
+  }, []);
   const ocrParseResultUrl =
     taskId && taskStatus === 'completed'
       ? taskView?.task?.preprocess_with_ocr || taskDetail?.preprocess_with_ocr
         ? `/api/tasks/${taskId}/parse-result`
         : stableParseResultUrl ?? taskView?.ocr_parse_result_url ?? null
       : null;
+
+  useEffect(() => {
+    setParseResultPageCount(null);
+  }, [ocrParseResultUrl]);
+
+  useEffect(() => {
+    setJsonPage((p) => Math.min(jsonNavTotal, Math.max(1, p)));
+  }, [jsonNavTotal]);
+
+  useEffect(() => {
+    setSidebarPageField(
+      String(activeFocusPanel === 'source' ? currentPage : jsonPage)
+    );
+  }, [activeFocusPanel, currentPage, jsonPage]);
+
+  const commitSidebarPageField = useCallback(() => {
+    const total = activeFocusPanel === 'source' ? sourceNavTotal : jsonNavTotal;
+    const raw = sidebarPageField.trim();
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n)) {
+      setSidebarPageField(
+        String(activeFocusPanel === 'source' ? currentPage : jsonPage)
+      );
+      return;
+    }
+    const clamped = Math.min(total, Math.max(1, n));
+    if (activeFocusPanel === 'source') setCurrentPage(clamped);
+    else setJsonPage(clamped);
+    setSidebarPageField(String(clamped));
+  }, [
+    activeFocusPanel,
+    sidebarPageField,
+    sourceNavTotal,
+    jsonNavTotal,
+    currentPage,
+    jsonPage,
+  ]);
+
   const sidebarBtnClass =
     'inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition-all duration-150 hover:-translate-y-[1px] hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800';
   const sidebarCardClass =
@@ -1403,18 +1451,40 @@ export function OcrTranslatePageClient() {
                   onClick={handleNextPage}
                   disabled={
                     (activeFocusPanel === 'source' ? currentPage : jsonPage) >=
-                    Math.max(1, effectiveDocumentPageCount || 1)
+                    (activeFocusPanel === 'source' ? sourceNavTotal : jsonNavTotal)
                   }
                   className={`${sidebarBtnClass} disabled:opacity-50`}
                 >
                   {tOcrWb('pagesNext')}
                 </button>
-                <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-                  {tOcrWb('pagesSourcePage', {
-                    current: activeFocusPanel === 'source' ? currentPage : jsonPage,
-                    total: Math.max(1, effectiveDocumentPageCount || 1),
-                  })}
-                </p>
+                <div className="col-span-2 flex flex-wrap items-center justify-center gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+                  <span className="shrink-0">
+                    {activeFocusPanel === 'source'
+                      ? tOcrWb('pagesSourcePageLabel')
+                      : tOcrWb('pagesJsonPageLabel')}
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    aria-label={tOcrWb('pagesPageInputAria')}
+                    value={sidebarPageField}
+                    onChange={(e) => setSidebarPageField(e.target.value)}
+                    onBlur={commitSidebarPageField}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        commitSidebarPageField();
+                        (e.target as HTMLInputElement).blur();
+                      }
+                    }}
+                    className="w-11 rounded border border-zinc-300 bg-white px-1 py-0.5 text-center tabular-nums text-zinc-800 outline-none focus:border-sky-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-sky-400"
+                  />
+                  <span className="shrink-0 tabular-nums text-zinc-500 dark:text-zinc-400">
+                    /{' '}
+                    {activeFocusPanel === 'source' ? sourceNavTotal : jsonNavTotal}
+                  </span>
+                </div>
                 <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
                   {activeFocusPanel === 'json'
                     ? tOcrWb('focusPanelJson')
@@ -1526,6 +1596,7 @@ export function OcrTranslatePageClient() {
                   }
                   hideSourcePanel
                   unifiedMainScroll
+                  onParseResultPageCount={onWorkbenchParseResultPageCount}
                   pageIndex={Math.max(0, jsonPage - 1)}
                   onPageIndexChange={handleJsonPageIndexChange}
                   canvasScalePercent={jsonCanvasScale}

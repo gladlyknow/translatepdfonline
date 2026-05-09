@@ -44,6 +44,9 @@
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
   "ocrPageRangePlaceholder": "Seitenbereich (optional, z. B. 1-10)",
+  "pagesSourcePageLabel": "Quellseite",
+  "pagesJsonPageLabel": "JSON-Seite",
+  "pagesPageInputAria": "Seitennummer",
   "focusPanelJson": "JSON-Fokus",
   "focusPanelSource": "Quellenfokus"
 }

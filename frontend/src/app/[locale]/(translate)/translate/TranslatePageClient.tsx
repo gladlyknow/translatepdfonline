@@ -183,6 +183,7 @@ export function TranslatePageClient() {
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
   const [taskView, setTaskView] = useState<TaskView | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarSourcePageField, setSidebarSourcePageField] = useState('');
   const [targetPage, setTargetPage] = useState(1);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [documentCreatedAt, setDocumentCreatedAt] = useState<string | null>(
@@ -290,6 +291,8 @@ export function TranslatePageClient() {
     () => Math.max(targetTotalPages, targetNumPagesFromViewer ?? 0),
     [targetTotalPages, targetNumPagesFromViewer]
   );
+
+  const sourceNavTotal = Math.max(1, effectiveDocumentPageCount || 1);
 
   const debouncedSourcePage = useDebouncedValue(
     currentPage,
@@ -958,13 +961,37 @@ export function TranslatePageClient() {
   }, [currentPage, effectiveTargetTotalPages, taskStatus]);
 
   const handleNextPage = useCallback(() => {
-    const total = Math.max(1, effectiveDocumentPageCount || 1);
-    const next = Math.min(total, currentPage + 1);
+    const next = Math.min(sourceNavTotal, currentPage + 1);
     setCurrentPage(next);
     if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
       setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
     }
-  }, [currentPage, effectiveDocumentPageCount, effectiveTargetTotalPages, taskStatus]);
+  }, [currentPage, sourceNavTotal, effectiveTargetTotalPages, taskStatus]);
+
+  useEffect(() => {
+    setSidebarSourcePageField(String(currentPage));
+  }, [currentPage]);
+
+  const commitSidebarSourcePageField = useCallback(() => {
+    const raw = sidebarSourcePageField.trim();
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n)) {
+      setSidebarSourcePageField(String(currentPage));
+      return;
+    }
+    const clamped = Math.min(sourceNavTotal, Math.max(1, n));
+    setCurrentPage(clamped);
+    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+      setTargetPage(Math.min(Math.max(1, clamped), effectiveTargetTotalPages));
+    }
+    setSidebarSourcePageField(String(clamped));
+  }, [
+    sidebarSourcePageField,
+    sourceNavTotal,
+    currentPage,
+    taskStatus,
+    effectiveTargetTotalPages,
+  ]);
 
   const uiLogs: TranslateUiLog[] = useMemo(() => {
     if (!taskId) return [];
@@ -1181,17 +1208,34 @@ export function TranslatePageClient() {
             <button
               type="button"
               onClick={handleNextPage}
-              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
+              disabled={currentPage >= sourceNavTotal}
               className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesNext')}
             </button>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {tOcrWb('pagesSourcePage', {
-                current: currentPage,
-                total: Math.max(1, effectiveDocumentPageCount || 1),
-              })}
-            </p>
+            <div className="col-span-2 flex flex-wrap items-center justify-center gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span className="shrink-0">{tOcrWb('pagesSourcePageLabel')}</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={tOcrWb('pagesPageInputAria')}
+                value={sidebarSourcePageField}
+                onChange={(e) => setSidebarSourcePageField(e.target.value)}
+                onBlur={commitSidebarSourcePageField}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitSidebarSourcePageField();
+                    (e.target as HTMLInputElement).blur();
+                  }
+                }}
+                className="w-11 rounded border border-zinc-300 bg-white px-1 py-0.5 text-center tabular-nums text-zinc-800 outline-none focus:border-sky-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-sky-400"
+              />
+              <span className="shrink-0 tabular-nums text-zinc-500 dark:text-zinc-400">
+                / {sourceNavTotal}
+              </span>
+            </div>
             <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
               <span>{tOcrWb('canvasScale')}</span>
               <input

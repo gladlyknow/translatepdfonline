@@ -44,6 +44,9 @@
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
   "ocrPageRangePlaceholder": "페이지 범위(선택, 예: 1-10)",
+  "pagesSourcePageLabel": "원본 페이지",
+  "pagesJsonPageLabel": "JSON 페이지",
+  "pagesPageInputAria": "페이지 번호",
   "focusPanelJson": "JSON 초점",
   "focusPanelSource": "원문 초점"
 }
