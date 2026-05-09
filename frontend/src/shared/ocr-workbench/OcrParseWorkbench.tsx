@@ -37,7 +37,9 @@ import {
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
 import {
   buildSnapshotHtmlDocument,
+  buildSnapshotRasterPdfDocument,
   snapshotPageElement,
+  snapshotPageHtmlToJpegDataUrlForPdf,
 } from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
@@ -450,7 +452,8 @@ export function OcrParseWorkbench({
     [clearExportPollTimer, setSingleExportState, taskId]
   );
 
-  const collectWorkbenchSnapshotHtml = useCallback(async () => {
+  const collectWorkbenchSnapshotHtml = useCallback(
+    async (opts?: { rasterPdf?: boolean }) => {
     if (!docRef.current) {
       throw new Error('Parse result not loaded');
     }
@@ -461,6 +464,7 @@ export function OcrParseWorkbench({
     const beforePageIndex = activePageIndex;
     const prevSelected = selectedLayoutId;
     const sections: string[] = [];
+    const rasterPages: { dataUrl: string; w: number; h: number }[] = [];
     const cache = new Map<string, string>();
     try {
       flushSync(() => {
@@ -483,7 +487,20 @@ export function OcrParseWorkbench({
         const snapshot = await snapshotPageElement(pageEl, cache, {
           orientation: 'portrait',
         });
-        sections.push(snapshot.sectionHtml);
+        if (opts?.rasterPdf) {
+          const dataUrl = await snapshotPageHtmlToJpegDataUrlForPdf(
+            snapshot.pageHtml,
+            snapshot.pageW,
+            snapshot.pageH
+          );
+          rasterPages.push({
+            dataUrl,
+            w: snapshot.pageW,
+            h: snapshot.pageH,
+          });
+        } else {
+          sections.push(snapshot.sectionHtml);
+        }
       }
     } finally {
       flushSync(() => {
@@ -500,15 +517,24 @@ export function OcrParseWorkbench({
         });
       }
     }
+    const fileName = docRef.current.file_name || 'document';
+    if (opts?.rasterPdf) {
+      return {
+        htmlDocument: buildSnapshotRasterPdfDocument(rasterPages, fileName, {
+          orientation: 'portrait',
+        }),
+        orientation: 'portrait' as const,
+      };
+    }
     return {
-      htmlDocument: buildSnapshotHtmlDocument(
-        sections,
-        docRef.current.file_name || 'document',
-        { orientation: 'portrait' }
-      ),
+      htmlDocument: buildSnapshotHtmlDocument(sections, fileName, {
+        orientation: 'portrait',
+      }),
       orientation: 'portrait' as const,
     };
-  }, [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]);
+  },
+  [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]
+);
 
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (
@@ -532,7 +558,7 @@ export function OcrParseWorkbench({
       }
       const snapshotPayload =
         format === 'pdf' || format === 'html'
-          ? await collectWorkbenchSnapshotHtml()
+          ? await collectWorkbenchSnapshotHtml({ rasterPdf: format === 'pdf' })
           : undefined;
       await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);

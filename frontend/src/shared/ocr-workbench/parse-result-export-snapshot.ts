@@ -161,6 +161,123 @@ export async function snapshotPageHtmlToPngDataUrl(
   return dataUrl;
 }
 
+/** 将 DOM 快照栅格化为 JPEG，减小随 PDF 上传的 HTML 体积。 */
+export async function snapshotPageHtmlToJpegDataUrlForPdf(
+  pageHtml: string,
+  pageW: number,
+  pageH: number,
+  quality = 0.88
+): Promise<string> {
+  const png = await snapshotPageHtmlToPngDataUrl(pageHtml, pageW, pageH);
+  return encodePngDataUrlAsJpeg(png, quality);
+}
+
+function encodePngDataUrlAsJpeg(pngDataUrl: string, quality: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) {
+          resolve(pngDataUrl);
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(pngDataUrl);
+          return;
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      } catch {
+        resolve(pngDataUrl);
+      }
+    };
+    img.onerror = () => reject(new Error('raster jpeg encode failed'));
+    img.src = pngDataUrl;
+  });
+}
+
+export type SnapshotRasterPdfPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
+/**
+ * PDF 专用：每页为一张与 Workbench 同像素栅格图，打印时 `object-fit: contain` 放入 A4，
+ * 避免 HTML→PDF 二次排版、transform 与块级 overflow 导致的裁切。
+ */
+export function buildSnapshotRasterPdfDocument(
+  pages: SnapshotRasterPdfPage[],
+  title: string,
+  options?: { orientation?: 'portrait' | 'landscape' }
+): string {
+  const safeTitle = escapeHtml(title || 'document');
+  const orientation = options?.orientation === 'landscape' ? 'landscape' : 'portrait';
+  const pageWmm = orientation === 'landscape' ? '297mm' : '210mm';
+  const pageHmm = orientation === 'landscape' ? '210mm' : '297mm';
+
+  const sectionsWithImages = pages
+    .map((p, i) => {
+      const esc = p.dataUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+      return `<section class="snapshot-raster-page" aria-label="page ${i + 1}"><img src="${esc}" alt="" width="${p.w}" height="${p.h}"/></section>`;
+    })
+    .join('');
+
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${safeTitle}</title><style>
+    :root{color-scheme:light;}
+    html,body{margin:0;padding:0;}
+    body{
+      padding:12px;
+      background:#f3f4f6;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    .snapshot-raster-page{
+      box-sizing:border-box;
+      width:${pageWmm};
+      min-height:${pageHmm};
+      margin:0 auto 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+    }
+    .snapshot-raster-page img{
+      display:block;
+      max-width:100%;
+      max-height:${pageHmm};
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    @page{margin:0;size:A4 ${orientation};}
+    @media print{
+      body{padding:0;background:#fff;}
+      .snapshot-raster-page{
+        margin:0 auto;
+        break-after:page;
+        page-break-after:always;
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      .snapshot-raster-page:last-child{
+        break-after:auto;
+        page-break-after:auto;
+      }
+    }
+  </style></head><body>${sectionsWithImages}<script>window.__prLayoutFitDone=true;</script></body></html>`;
+}
+
 export async function snapshotPageHtmlToPngDataUrlWithDiagnostics(
   pageHtml: string,
   pageW: number,
