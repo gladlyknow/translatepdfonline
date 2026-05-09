@@ -7,11 +7,11 @@ import {
   createPresignedGet,
   encodeR2KeyForPublicUrl,
   getObjectBody,
-  getR2PublicBaseUrl,
   isR2Configured,
   putObject,
   r2HeadObject,
   r2ObjectExists,
+  resolveR2PublicReadBaseUrl,
 } from '@/shared/lib/translate-r2';
 import { isCloudflareWorker } from '@/shared/lib/env';
 
@@ -81,20 +81,21 @@ export async function GET(
     }
     const outputSize = outHead.contentLength ?? 0;
 
-    const publicBase = getR2PublicBaseUrl();
+    const publicBase = await resolveR2PublicReadBaseUrl();
 
     // 第 1 页：公网直链或预签名，避免大译稿仅因缺 publicBase 命中 413
     if (page === 1 && task.outputObjectKey) {
       if (publicBase) {
+        const pubUrl = `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(task.outputObjectKey)}`;
         if (totalFromSource != null) {
           return Response.json({
-            preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(task.outputObjectKey)}`,
+            preview_url: pubUrl,
             total_pages: totalFromSource,
           });
         }
         if (outputSize > maxBytes) {
           return Response.json({
-            preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(task.outputObjectKey)}`,
+            preview_url: pubUrl,
             total_pages: 0,
           });
         }
@@ -145,7 +146,7 @@ export async function GET(
     if (page === 1 && task.outputObjectKey) {
       if (publicBase) {
         return Response.json({
-          preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(task.outputObjectKey)}`,
+          preview_url: `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(task.outputObjectKey)}`,
           total_pages: totalPages,
         });
       }

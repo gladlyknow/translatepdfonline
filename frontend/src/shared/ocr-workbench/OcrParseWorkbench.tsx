@@ -1136,7 +1136,8 @@ export function OcrParseWorkbench({
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-col gap-3',
+        'flex min-w-0 flex-col',
+        hideSourcePanel && unifiedMainScroll ? 'gap-0' : 'gap-3',
         unifiedMainScroll
           ? 'min-h-0 w-full min-w-0 max-w-full'
           : 'min-h-0 flex-1 overflow-hidden'

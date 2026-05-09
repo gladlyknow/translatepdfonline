@@ -7,10 +7,10 @@ import {
   createPresignedGet,
   encodeR2KeyForPublicUrl,
   getObjectBody,
-  getR2PublicBaseUrl,
   isR2Configured,
   putObject,
   r2ObjectExists,
+  resolveR2PublicReadBaseUrl,
 } from '@/shared/lib/translate-r2';
 import { isCloudflareWorker } from '@/shared/lib/env';
 
@@ -57,20 +57,21 @@ export async function GET(
     const totalFromDoc =
       doc.pageCount != null && doc.pageCount > 0 ? doc.pageCount : null;
 
-    const publicBase = getR2PublicBaseUrl();
+    const publicBase = await resolveR2PublicReadBaseUrl();
 
     // 第 1 页：公网直链（有 R2_PUBLIC_URL）或预签名（无公网 base），避免大文件仅因缺 publicBase 命中 413
     if (page === 1 && doc.objectKey) {
       if (publicBase) {
+        const pubUrl = `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(doc.objectKey)}`;
         if (totalFromDoc != null) {
           return Response.json({
-            preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(doc.objectKey)}`,
+            preview_url: pubUrl,
             total_pages: totalFromDoc,
           });
         }
         if (doc.sizeBytes > maxBytes) {
           return Response.json({
-            preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(doc.objectKey)}`,
+            preview_url: pubUrl,
             total_pages: 0,
           });
         }
@@ -85,7 +86,7 @@ export async function GET(
             .catch(() => {});
         }
         return Response.json({
-          preview_url: `${publicBase}/${encodeR2KeyForPublicUrl(doc.objectKey)}`,
+          preview_url: `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(doc.objectKey)}`,
           total_pages: totalPages,
         });
       }

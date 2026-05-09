@@ -95,7 +95,22 @@ export const parseTableSchema = z
   })
   .passthrough();
 
-export const parseImageSchema = z
+/** 百度等可能把可展示地址放在 `url` / `image_url` 等字段，Workbench 画布只读 `data_url`。 */
+function normalizeParseImageRoot(v: unknown): unknown {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return v;
+  const o = v as Record<string, unknown>;
+  const d = o.data_url;
+  if (typeof d === 'string' && d.trim()) return v;
+  for (const k of ['url', 'image_url', 'src', 'image'] as const) {
+    const x = o[k];
+    if (typeof x === 'string' && x.trim()) {
+      return { ...o, data_url: x.trim() };
+    }
+  }
+  return v;
+}
+
+const parseImageFieldsSchema = z
   .object({
     layout_id: nullishToString(),
     position: optionalPositionTuple(),
@@ -106,6 +121,11 @@ export const parseImageSchema = z
     ),
   })
   .passthrough();
+
+export const parseImageSchema = z.preprocess(
+  normalizeParseImageRoot,
+  parseImageFieldsSchema
+);
 
 export const parsePageMetaSchema = z
   .object({

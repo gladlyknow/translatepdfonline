@@ -6,9 +6,7 @@
  */
 import {
   createPresignedGet,
-  encodeR2KeyForPublicUrl,
   getObjectBody,
-  getR2PublicBaseUrl,
   putObject,
   r2ObjectExists,
 } from '@/shared/lib/translate-r2';
@@ -122,10 +120,6 @@ async function shortHash(s: string): Promise<string> {
 }
 
 async function publicUrlForAssetKey(key: string): Promise<string> {
-  const base = getR2PublicBaseUrl();
-  if (base) {
-    return `${base.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(key)}`;
-  }
   return createPresignedGet(key, 7 * 24 * 3600);
 }
 

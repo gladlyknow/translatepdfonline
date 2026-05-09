@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { translationTasks, documents } from '@/config/db/schema';
 import { getTranslateAuth } from '../../../translate/auth';
+import { resolveOcrParseResultReadKey } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { createPresignedGet, isR2Configured } from '@/shared/lib/translate-r2';
 import { listExportsForTask, OcrTaskExportStatus } from '@/shared/models/ocr_task_export';
 
@@ -77,14 +78,22 @@ export async function GET(
         } catch (_) {}
       }
       if (task.preprocessWithOcr && task.status === 'completed') {
-        const parseKey = `translations/${taskId}/ocr-parse-result.json`;
         try {
-          const jsonDisp = 'attachment; filename="ocr-parse-result.json"';
+          const { key: parseKey, variant } = await resolveOcrParseResultReadKey(
+            taskId,
+            task.sourceLang,
+            task.targetLang
+          );
+          const parseFilename =
+            variant === 'target'
+              ? 'ocr-parse-result-target.json'
+              : 'ocr-parse-result.json';
+          const jsonDisp = `attachment; filename="${parseFilename}"`;
           ocrParseResultUrl = await createPresignedGet(parseKey, 3600, {
             responseContentDisposition: jsonDisp,
           });
           outputs.push({
-            filename: 'ocr-parse-result.json',
+            filename: parseFilename,
             download_url: ocrParseResultUrl,
           });
         } catch (_) {}
