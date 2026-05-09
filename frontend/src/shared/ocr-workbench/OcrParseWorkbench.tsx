@@ -35,12 +35,6 @@ import {
   getLayoutEditor,
   setLayoutEditor,
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
-import {
-  buildSnapshotHtmlDocument,
-  buildSnapshotRasterPdfDocument,
-  snapshotPageElement,
-  snapshotPageHtmlToJpegDataUrlForPdf,
-} from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
 import { ParseResultEditorToolbar } from '@/shared/ocr-workbench/parse-result-editor-toolbar';
@@ -452,91 +446,6 @@ export function OcrParseWorkbench({
     [clearExportPollTimer, setSingleExportState, taskId]
   );
 
-  const collectWorkbenchSnapshotHtml = useCallback(
-    async (opts?: { rasterPdf?: boolean }) => {
-    if (!docRef.current) {
-      throw new Error('Parse result not loaded');
-    }
-    const pages = docRef.current.pages || [];
-    if (pages.length === 0) {
-      throw new Error('No page available for export');
-    }
-    const beforePageIndex = activePageIndex;
-    const prevSelected = selectedLayoutId;
-    const sections: string[] = [];
-    const rasterPages: { dataUrl: string; w: number; h: number }[] = [];
-    const cache = new Map<string, string>();
-    try {
-      flushSync(() => {
-        setSelectedLayoutId(null);
-      });
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      for (let i = 0; i < pages.length; i += 1) {
-        flushSync(() => {
-          setActivePageIndex(i);
-        });
-        await new Promise<void>((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-        );
-        const pageEl = document.querySelector<HTMLElement>(
-          `[data-export-page="true"][data-export-page-index="${i}"]`
-        );
-        if (!pageEl) {
-          throw new Error(`Export page ${i + 1} is not rendered`);
-        }
-        const snapshot = await snapshotPageElement(pageEl, cache, {
-          orientation: 'portrait',
-          forRaster: Boolean(opts?.rasterPdf),
-        });
-        if (opts?.rasterPdf) {
-          const dataUrl = await snapshotPageHtmlToJpegDataUrlForPdf(
-            snapshot.pageHtml,
-            snapshot.pageW,
-            snapshot.pageH
-          );
-          rasterPages.push({
-            dataUrl,
-            w: snapshot.pageW,
-            h: snapshot.pageH,
-          });
-        } else {
-          sections.push(snapshot.sectionHtml);
-        }
-      }
-    } finally {
-      flushSync(() => {
-        setActivePageIndex(beforePageIndex);
-      });
-      const snap = docRef.current;
-      const restorePage = snap?.pages[beforePageIndex];
-      if (
-        prevSelected &&
-        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
-      ) {
-        flushSync(() => {
-          setSelectedLayoutId(prevSelected);
-        });
-      }
-    }
-    const fileName = docRef.current.file_name || 'document';
-    if (opts?.rasterPdf) {
-      return {
-        htmlDocument: buildSnapshotRasterPdfDocument(rasterPages, fileName, {
-          orientation: 'portrait',
-        }),
-        orientation: 'portrait' as const,
-      };
-    }
-    return {
-      htmlDocument: buildSnapshotHtmlDocument(sections, fileName, {
-        orientation: 'portrait',
-      }),
-      orientation: 'portrait' as const,
-    };
-  },
-  [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]
-);
-
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (
       !taskId ||
@@ -557,11 +466,7 @@ export function OcrParseWorkbench({
         const payload = cloneParseResult(docRef.current) as unknown;
         await translateApi.patchOcrParseResult(taskId, payload);
       }
-      const snapshotPayload =
-        format === 'pdf' || format === 'html'
-          ? await collectWorkbenchSnapshotHtml({ rasterPdf: format === 'pdf' })
-          : undefined;
-      await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
+      await translateApi.retryOcrTaskExport(taskId, format);
       await pollExportReady(format, 0);
     } catch (e) {
       exportPendingRef.current[format] = false;
@@ -575,7 +480,6 @@ export function OcrParseWorkbench({
     }
   }, [
     clearExportPollTimer,
-    collectWorkbenchSnapshotHtml,
     exportState,
     flushEditableText,
     pollExportReady,

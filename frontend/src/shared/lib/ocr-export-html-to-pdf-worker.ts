@@ -1,8 +1,11 @@
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 
 /**
- * Queues consumer 专用：`env.BROWSER` + `@cloudflare/puppeteer`。
- * 不把 `playwright` 放进依赖图，否则 Wrangler 打包会解析 playwright-core 并失败。
+ * **仅 OCR 队列 Consumer Worker 使用**（见 `wrangler.consumer.jsonc` / `wrangler.consumer.develop.jsonc` 的
+ * `browser.binding: BROWSER`）。Next.js Pages / 用户浏览器 **没有** 该绑定，也不会在这里打 PDF。
+ *
+ * Queues consumer：`env.BROWSER` + `@cloudflare/puppeteer`。不把 `playwright` 放进依赖图，
+ * 否则 Wrangler 打包会解析 playwright-core 并失败。
  */
 export async function renderWorkbenchHtmlToPdfBytes(html: string): Promise<Uint8Array> {
   const browserBinding = tryGetAlsCfEnv()?.BROWSER;

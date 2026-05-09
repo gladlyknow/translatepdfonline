@@ -109,7 +109,8 @@ export async function htmlToPdfBytesCloudflareWithDiagnostics(
     const output = await page.pdf({
       printBackground: true,
       preferCSSPageSize: true,
-      margin: { top: '0', bottom: '0', left: '0', right: '0' },
+      // 与 onlinepdftranslator `export-pdf-cloudflare.ts` 一致（A4 内边距）
+      margin: { top: '8mm', bottom: '8mm', left: '8mm', right: '8mm' },
     });
     return {
       bytes: toUint8Array(output),
