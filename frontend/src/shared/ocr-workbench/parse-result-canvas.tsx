@@ -799,8 +799,11 @@ export function ParseResultCanvas({
           const [x, y, w, h] = toRenderRect(ly.position);
           const isSel = ly.layout_id === selectedLayoutId;
           const ed = getLayoutEditor(ly);
-          const overflowForBlock =
-            ly.type === 'image' ? 'hidden' : 'auto';
+          /** 百度等常把插图块标为 chart，但 `page.images` 里同 layout_id 带 data_url；仅 type===image 会漏渲染 */
+          const linkedImage = findImageForLayout(page, ly.layout_id);
+          const rasterUrl = linkedImage?.data_url?.trim() ?? '';
+          const showRasterSlot = ly.type === 'image' || Boolean(rasterUrl);
+          const overflowForBlock = showRasterSlot ? 'hidden' : 'auto';
           const editorCss = editorStyleToCss(ed);
           const boxFrame: CSSProperties = {
             position: 'absolute',
@@ -818,7 +821,7 @@ export function ParseResultCanvas({
             ...editorCss,
             overflow: overflowForBlock,
             touchAction:
-              ly.type === 'image' || ly.type === 'table' ? 'none' : undefined,
+              showRasterSlot || ly.type === 'table' ? 'none' : undefined,
           };
 
           if (ly.type === 'table') {
@@ -854,8 +857,7 @@ export function ParseResultCanvas({
             );
           }
 
-          if (ly.type === 'image') {
-            const im = findImageForLayout(page, ly.layout_id);
+          if (showRasterSlot) {
             const imageStyle: CSSProperties = {
               ...baseStyle,
               resize: isSel ? 'both' : undefined,
@@ -885,10 +887,10 @@ export function ParseResultCanvas({
                   );
                 }}
               >
-                {im?.data_url ? (
+                {rasterUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={im.data_url}
+                    src={rasterUrl}
                     alt=""
                     className="pointer-events-none h-full w-full object-contain"
                     referrerPolicy="no-referrer"

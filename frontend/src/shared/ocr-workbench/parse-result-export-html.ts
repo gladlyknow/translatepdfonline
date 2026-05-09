@@ -141,31 +141,33 @@ export async function buildSelfContainedHtml(
         inner = `<div class="parse-result-rich-host pr-table-host">${mdIt.render(
           stripUrlsFromText(tb?.markdown ?? '')
         )}</div>`;
-      } else if (ly.type === 'image') {
+      } else {
         const im = findImageForLayout(page, ly.layout_id);
         const raw = im?.data_url?.trim() ?? '';
-        const inlined = raw
-          ? await resolveImageDataUrl(raw, cache, {
-              appOrigin: options?.appOrigin,
-              forwardCookie: options?.forwardCookie,
-            })
-          : '';
-        const src = inlined || raw || '';
-        if (!src) {
-          imageWarnings += 1;
-        }
-        const safeAttr = src.replace(/"/g, '&quot;');
-        inner = src
-          ? `<img src="${safeAttr}" alt="" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;" />`
-          : '';
-      } else {
-        const rawText = ly.text || '';
-        if (looksLikeHtml(rawText)) {
-          inner = `<div class="pr-text parse-result-rich-host">${stripScriptTags(rawText)}</div>`;
+        if (ly.type === 'image' || raw) {
+          const inlined = raw
+            ? await resolveImageDataUrl(raw, cache, {
+                appOrigin: options?.appOrigin,
+                forwardCookie: options?.forwardCookie,
+              })
+            : '';
+          const src = inlined || raw || '';
+          if (!src) {
+            imageWarnings += 1;
+          }
+          const safeAttr = src.replace(/"/g, '&quot;');
+          inner = src
+            ? `<img src="${safeAttr}" alt="" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;" />`
+            : '';
         } else {
-          inner = `<div class="pr-text parse-result-rich-host">${mdIt.render(
-            stripUrlsFromText(rawText)
-          )}</div>`;
+          const rawText = ly.text || '';
+          if (looksLikeHtml(rawText)) {
+            inner = `<div class="pr-text parse-result-rich-host">${stripScriptTags(rawText)}</div>`;
+          } else {
+            inner = `<div class="pr-text parse-result-rich-host">${mdIt.render(
+              stripUrlsFromText(rawText)
+            )}</div>`;
+          }
         }
       }
       body += `<div class="pr-layout" data-layout-id="${escapeHtml(ly.layout_id)}" data-layout-type="${escapeHtml(ly.type || 'text')}" style="position:absolute;left:${x}px;top:${y}px;width:${pw}px;height:${ph}px;overflow:hidden;box-sizing:border-box;${ed}">${inner}</div>`;
