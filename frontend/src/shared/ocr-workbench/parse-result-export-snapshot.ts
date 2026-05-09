@@ -431,6 +431,8 @@ export function buildSnapshotHtmlDocument(
       margin:0;
       size:A4 ${orientation};
     }
+    /* Print / PDF: keep the same pixel layout as Workbench screen capture (no A4 shrink).
+       Previous transform:scale(--print-scale) matched old “fit one sheet” print but diverged from on-screen HTML + canvas. */
     @media print{
       body{padding:0;background:#fff;}
       .snapshot-page-wrap{
@@ -439,18 +441,15 @@ export function buildSnapshotHtmlDocument(
         page-break-after:always;
         break-inside:avoid;
         page-break-inside:avoid;
-        width:calc(var(--page-w) * var(--print-scale));
-        height:calc(var(--page-h) * var(--print-scale));
-        overflow:hidden;
+        width:max-content;
+        max-width:none;
       }
       .snapshot-page-wrap:last-child{
         break-after:auto;
         page-break-after:auto;
       }
       .snapshot-page-scale{
-        width:var(--page-w);
-        height:var(--page-h);
-        transform:scale(var(--print-scale));
+        transform:none;
       }
     }
   </style></head><body>${pageSections.join('')}</body></html>`;
