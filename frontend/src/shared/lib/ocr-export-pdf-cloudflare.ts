@@ -108,8 +108,7 @@ export async function htmlToPdfBytesCloudflareWithDiagnostics(
 
     const output = await page.pdf({
       printBackground: true,
-      // Snapshot @page has no fixed size; false avoids engine “fit to CSS page box” fighting intrinsic capture width.
-      preferCSSPageSize: false,
+      preferCSSPageSize: true,
       margin: { top: '0', bottom: '0', left: '0', right: '0' },
     });
     return {

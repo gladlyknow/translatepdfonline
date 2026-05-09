@@ -405,11 +405,11 @@ async function optimizeDataUrlForSnapshot(
 export function buildSnapshotHtmlDocument(
   pageSections: string[],
   title: string,
-  /** Reserved for future @page sizing; snapshot PDF uses intrinsic page size from capture. */
-  _options?: { orientation?: 'portrait' | 'landscape' }
+  options?: { orientation?: 'portrait' | 'landscape' }
 ): string {
   const safeTitle = escapeHtml(title || 'document');
-  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=4096"/><title>${safeTitle}</title><style>
+  const orientation = options?.orientation === 'landscape' ? 'landscape' : 'portrait';
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${safeTitle}</title><style>
     :root{color-scheme:light;}
     html,body{margin:0;padding:0;}
     body{
@@ -419,32 +419,39 @@ export function buildSnapshotHtmlDocument(
       -webkit-print-color-adjust:exact;
       print-color-adjust:exact;
     }
-    /* max-width:100% + narrow viewport (e.g. headless PDF) was shrinking pages vs Workbench wide layout */
     .snapshot-page-wrap{
       margin:0 auto 18px;
       width:max-content;
-      max-width:none;
-      break-after:page;
-      page-break-after:always;
-      break-inside:avoid;
-      page-break-inside:avoid;
-    }
-    .snapshot-page-wrap:last-child{
-      break-after:auto;
-      page-break-after:auto;
+      max-width:100%;
     }
     .snapshot-page-scale{
       transform-origin:top left;
     }
-    /* No fixed paper size: avoids Chromium shrinking wide snapshot pages into A4 vs Workbench pixel layout. */
     @page{
       margin:0;
+      size:A4 ${orientation};
     }
-    /* PDF/print: white canvas; layout + breaks come from base rules (no A4 transform shrink). */
     @media print{
-      body{padding:0;background:#fff;overflow:visible;}
-      html{overflow:visible;}
-      .snapshot-page-wrap{margin:0 auto;}
+      body{padding:0;background:#fff;}
+      .snapshot-page-wrap{
+        margin:0 auto;
+        break-after:page;
+        page-break-after:always;
+        break-inside:avoid;
+        page-break-inside:avoid;
+        width:calc(var(--page-w) * var(--print-scale));
+        height:calc(var(--page-h) * var(--print-scale));
+        overflow:hidden;
+      }
+      .snapshot-page-wrap:last-child{
+        break-after:auto;
+        page-break-after:auto;
+      }
+      .snapshot-page-scale{
+        width:var(--page-w);
+        height:var(--page-h);
+        transform:scale(var(--print-scale));
+      }
     }
   </style></head><body>${pageSections.join('')}</body></html>`;
 }
