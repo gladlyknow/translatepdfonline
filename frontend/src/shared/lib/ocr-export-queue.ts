@@ -21,6 +21,14 @@ import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-p
 import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
+
+/**
+ * Export consumer tuning (deploy on the queue Worker that runs `processOcrTaskExport`):
+ * - OCR_EXPORT_STAGE_TIMEOUT_MS: per-stage ceiling for load_staging_html, materialize_html_images_to_r2,
+ *   and render_pdf_from_staging_html (each `withStageTimeout` call uses this). Default 180s; raise for
+ *   very large HTML / many images if logs show `export stage timeout (…)`.
+ * - OCR_EXPORT_UPLOAD_RETRY_MAX: R2 putObject retries for final output and staging assets.
+ */
 const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
@@ -522,6 +530,16 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         throw new Error('staging html missing for pdf export');
       }
       const html = new TextDecoder('utf-8').decode(htmlBytes);
+      console.log(
+        '[ocr/export] pdf_staging_loaded',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          staging_bytes: htmlBytes.byteLength,
+          approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
+          stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+        })
+      );
       const normalized = await withStageTimeout(
         'materialize_html_images_to_r2',
         () =>
@@ -581,6 +599,16 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         throw new Error('staging html missing for html export');
       }
       const html = new TextDecoder('utf-8').decode(htmlBytes);
+      console.log(
+        '[ocr/export] html_staging_loaded',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          staging_bytes: htmlBytes.byteLength,
+          approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
+          stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+        })
+      );
       const normalized = await withStageTimeout(
         'materialize_html_images_to_r2',
         () =>
