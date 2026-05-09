@@ -500,6 +500,39 @@ function planDeepSeekParseBatches(
   return plans;
 }
 
+/**
+ * DeepSeek 偶发多返回 1 条（尾部 ""、或末两项相同）；与输入条数对齐，避免整阶段失败。
+ * 仍过长时取前 N 条并打日志（顺序与 batch 一致，优于任务失败）。
+ */
+function normalizeDeepSeekBatchArrayOutput(
+  parsed: unknown[],
+  expectedLen: number
+): string[] | null {
+  const toStr = (x: unknown) =>
+    typeof x === 'string' ? x : x == null ? '' : String(x);
+  let arr = parsed.map(toStr);
+  while (arr.length > expectedLen && arr[arr.length - 1].trim() === '') {
+    arr = arr.slice(0, -1);
+  }
+  while (arr.length > expectedLen && arr[0].trim() === '') {
+    arr = arr.slice(1);
+  }
+  if (arr.length === expectedLen) return arr;
+  if (arr.length === expectedLen + 1) {
+    const a = arr[arr.length - 2];
+    const b = arr[arr.length - 1];
+    if (a === b) return arr.slice(0, -1);
+  }
+  if (arr.length > expectedLen) {
+    console.warn(
+      '[ocr/deepseek_parse_batch] output_length_mismatch_trim',
+      JSON.stringify({ expectedLen, got: arr.length, action: 'slice_head' })
+    );
+    return arr.slice(0, expectedLen);
+  }
+  return null;
+}
+
 function isRetryableDeepSeekStatus(status: number): boolean {
   return status === 429 || (status >= 500 && status <= 599);
 }
@@ -713,11 +746,15 @@ export async function translateStringListWithDeepSeek(params: {
             lastError = 'DeepSeek batch translate: invalid JSON array';
           }
         }
-        if (
-          Array.isArray(parsedArr) &&
-          parsedArr.length === plan.slice.length
-        ) {
-          break;
+        if (Array.isArray(parsedArr)) {
+          const normalized = normalizeDeepSeekBatchArrayOutput(
+            parsedArr,
+            plan.slice.length
+          );
+          if (normalized) {
+            parsedArr = normalized;
+            break;
+          }
         }
         lastError = `DeepSeek batch translate: expected ${plan.slice.length} strings, got ${
           Array.isArray(parsedArr) ? parsedArr.length : 'non-array'
@@ -734,11 +771,9 @@ export async function translateStringListWithDeepSeek(params: {
     if (!Array.isArray(parsedArr) || parsedArr.length !== plan.slice.length) {
       throw new Error(lastError || 'DeepSeek batch translate failed');
     }
+    const filled = parsedArr as string[];
     for (let i = 0; i < plan.slice.length; i++) {
-      out[plan.start + i] =
-        typeof parsedArr[i] === 'string'
-          ? parsedArr[i]
-          : String(parsedArr[i] ?? '');
+      out[plan.start + i] = filled[i];
     }
 
     console.log(
