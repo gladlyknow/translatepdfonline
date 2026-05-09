@@ -1,20 +1,29 @@
 /**
- * 打印/PDF 前在静态 HTML 上收缩根节点字号，避免 Chromium 对 scrollport 裁切导致与画布不一致。
+ * 打印/PDF 前收缩字号，避免 Chromium 对 scrollport / overflow:hidden 裁切与画布不一致。
  * `rootCssSelector` 使用 `.pr-layout`（自建 HTML）或 `[data-layout-id]`（Workbench 快照）。
+ *
+ * Workbench 的 `fitReadOnlyText` 作用在 **子级 `.parse-result-rich-host`**；快照会把该层的
+ * `font-size` 等写成内联样式，若只改外层 `[data-layout-id]`，内联字号不继承，溢出仍被裁切。
+ * 因此优先对 `:scope > .parse-result-rich-host` 做 fit，无则回退到布局根（与 `.pr-layout` 单根结构兼容）。
  */
 export function buildLayoutFitInlineScript(rootCssSelector: string): string {
   const rootSelJson = JSON.stringify(rootCssSelector);
   return `<script>
 (() => {
   const ROOT_SEL = ${rootSelJson};
-  const MIN_FONT = 7;
-  const MAX_STEPS = 30;
+  const MIN_FONT = 8;
+  const MAX_STEPS = 40;
   function isOverflow(el) {
-    return el.scrollHeight > el.clientHeight + 0.8 || el.scrollWidth > el.clientWidth + 0.8;
+    return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
   }
-  function fitTextLayout(el) {
-    const kind = (el.getAttribute('data-layout-type') || '').toLowerCase();
+  function resolveFitTarget(layoutRoot) {
+    const host = layoutRoot.querySelector(':scope > .parse-result-rich-host');
+    return host instanceof HTMLElement ? host : layoutRoot;
+  }
+  function fitTextLayout(layoutRoot) {
+    const kind = (layoutRoot.getAttribute('data-layout-type') || '').toLowerCase();
     if (kind === 'image' || kind === 'table') return;
+    const el = resolveFitTarget(layoutRoot);
     if (!isOverflow(el)) return;
     const cs = window.getComputedStyle(el);
     let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
@@ -30,9 +39,8 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
   }
   function runFit() {
     const layouts = Array.from(document.querySelectorAll(ROOT_SEL));
-    for (const one of layouts) {
-      fitTextLayout(one);
-    }
+    for (const one of layouts) fitTextLayout(one);
+    for (const one of layouts) fitTextLayout(one);
     window.__prLayoutFitDone = true;
   }
   window.__prLayoutFitDone = false;
