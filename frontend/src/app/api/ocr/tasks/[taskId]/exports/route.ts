@@ -23,6 +23,7 @@ import {
   createPresignedGet,
   deleteObject,
   isR2Configured,
+  putObject,
   r2ObjectExists,
 } from '@/shared/lib/translate-r2';
 import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
@@ -341,6 +342,25 @@ export async function POST(
     const exportId = await retryOcrTaskExport(taskId, format);
     if (!exportId) {
       return Response.json({ detail: 'Task not found' }, { status: 404 });
+    }
+    if (format === 'pdf' || format === 'html') {
+      const htmlDocument = String(body.htmlDocument || '');
+      if (!htmlDocument.trim()) {
+        return Response.json(
+          { detail: 'htmlDocument is required for pdf/html export' },
+          { status: 400 }
+        );
+      }
+      const stagingKey = exportStagingHtmlKey(taskId, exportId);
+      await putObject(
+        stagingKey,
+        new TextEncoder().encode(htmlDocument),
+        'text/html; charset=utf-8'
+      );
+      await appendExportLog(
+        exportId,
+        `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
+      );
     }
     const queued = await sendOcrExportQueueMessage({
       taskId,

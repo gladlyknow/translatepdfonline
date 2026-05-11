@@ -375,24 +375,24 @@ export const translateApi = {
   retryOcrTaskExport: (
     taskId: string,
     format: 'pdf' | 'md' | 'html',
-    opts?: { htmlDocument?: string; orientation?: 'portrait' | 'landscape' }
-  ) => {
-    const body: Record<string, unknown> = { format };
-    if (opts?.orientation === 'portrait' || opts?.orientation === 'landscape') {
-      body.orientation = opts.orientation;
+    snapshot?: {
+      htmlDocument?: string;
+      orientation?: 'portrait' | 'landscape';
     }
-    const doc = opts?.htmlDocument?.trim();
-    if (doc) body.htmlDocument = doc;
-    return fetchTranslateApi<{
+  ) =>
+    fetchTranslateApi<{
       ok: boolean;
       export_id: string;
       format: 'pdf' | 'md' | 'html';
       status: 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
     }>(`/api/ocr/tasks/${taskId}/exports`, {
       method: 'POST',
-      body: JSON.stringify(body),
-    });
-  },
+      body: JSON.stringify({
+        format,
+        htmlDocument: snapshot?.htmlDocument,
+        orientation: snapshot?.orientation,
+      }),
+    }),
 
   getOcrTaskExportDownloadUrl: (taskId: string, format: 'pdf' | 'md' | 'html') =>
     fetchTranslateApi<{

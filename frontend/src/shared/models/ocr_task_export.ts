@@ -4,6 +4,16 @@ import { nanoid } from 'nanoid';
 import { translationTaskExport } from '@/config/db/schema';
 import { db } from '@/core/db';
 
+/**
+ * OCR 任务导出行（`translation_task_export`）与 onlinepdftranslator `translator_job_export` 概念对齐说明：
+ *
+ * - **状态机**：pending → processing → ready | failed | cancelled；`replaceWithPendingExport` 用于重试时换新行。
+ * - **最终产物**：`r2Key` 指向可下载的 PDF / HTML / MD 对象。
+ * - **Staging HTML**：参考项目用 DB 列 `stagingR2Key`；本仓库不设该列，约定键由 `exportStagingHtmlKey(taskId, exportId)` 生成（`translations/{taskId}/staging/ocr-export-{exportId}.html`），由 API 在入队前写入、Consumer 在读 staging 时按同一键读取。
+ * - **日志**：`appendExportLog` 写入 `log` 并做尾部截断，语义类似 `appendExportJobLog`。
+ * - **PDF/HTML 主路径**：须依赖浏览器快照 staging；Consumer 不得把「仅 JSON 自拼 HTML」当作与 Workbench 一致的主路径（对齐参考 `process-job-export.ts` 的 `staging_html` 分支）。
+ */
+
 export const OcrTaskExportStatus = {
   pending: 'pending',
   processing: 'processing',

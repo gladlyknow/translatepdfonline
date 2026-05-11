@@ -637,7 +637,7 @@ export const translationTasks = table(
   ]
 );
 
-/** OCR 异步导出产物（PDF/MD）：与主 OCR 流水线解耦，避免内联导出占满 CPU。 */
+/** OCR 异步导出产物（PDF/HTML/MD）：与主 OCR 流水线解耦，避免内联导出占满 CPU。 */
 export const translationTaskExport = table(
   'translation_task_export',
   {
@@ -647,7 +647,7 @@ export const translationTaskExport = table(
       .references(() => translationTasks.id, { onDelete: 'cascade' }),
     userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
     anonId: text('anon_id'),
-    format: text('format').notNull(), // pdf | md
+    format: text('format').notNull(), // pdf | html | md
     status: text('status').notNull().default('pending'),
     sourceMarkdownObjectKey: text('source_markdown_object_key').notNull(),
     r2Key: text('r2_key'),

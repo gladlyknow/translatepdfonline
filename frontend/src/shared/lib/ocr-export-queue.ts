@@ -16,8 +16,7 @@ import {
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { loadMarkdownFromR2 } from '@/shared/lib/ocr-translate';
 import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-result-export-md';
-import { buildSelfContainedHtml } from '@/shared/ocr-workbench/parse-result-export-html';
-import { parseParseResultJson, type ParseResult } from '@/shared/ocr-workbench/translator-parse-result';
+import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
 import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-pdf-worker';
 import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
@@ -25,9 +24,8 @@ import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
 
 /**
  * Export consumer tuning (deploy on the queue Worker that runs `processOcrTaskExport`):
- * - OCR_EXPORT_STAGE_TIMEOUT_MS: per-stage ceiling for load_parse_result_json, build_workbench_like_html,
- *   materialize_html_images_to_r2, and render_pdf_from_workbench_like_html (each `withStageTimeout`).
- *   Default 180s; raise for
+ * - OCR_EXPORT_STAGE_TIMEOUT_MS: per-stage ceiling for load_staging_html, materialize_html_images_to_r2,
+ *   and render_pdf_from_staging_html (each `withStageTimeout` call uses this). Default 180s; raise for
  *   very large HTML / many images if logs show `export stage timeout (…)`.
  * - OCR_EXPORT_UPLOAD_RETRY_MAX: R2 putObject retries for final output and staging assets.
  */
@@ -152,20 +150,6 @@ function decodeDataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType
 
 function getExportAppOrigin(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '').trim().replace(/\/$/, '');
-}
-
-async function loadOcrParseResultDocumentForExport(
-  taskId: string,
-  sourceLang: string,
-  targetLang: string
-): Promise<ParseResult> {
-  const parseBytes = await getOcrParseResultBodyForRead(taskId, sourceLang, targetLang);
-  const parseJson = JSON.parse(new TextDecoder('utf-8').decode(parseBytes));
-  const parsed = parseParseResultJson(parseJson);
-  if (!parsed.ok) {
-    throw new Error(`parse result invalid: ${parsed.error}`);
-  }
-  return parsed.data;
 }
 
 /** 从任意 HTTP(S) URL 中提取以 translations/ 开头的对象键（R2 / 签名 GET 常见）。 */
@@ -523,7 +507,12 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
     if (row.format === 'pdf') {
       await appendExportLog(
         exportId,
-        'pdf: strict parse JSON → workbench_like HTML → Chromium (Browser Rendering)'
+        'pdf: staging_html (R2) → Chromium via BROWSER binding on Consumer Worker'
+      );
+    } else if (row.format === 'html') {
+      await appendExportLog(
+        exportId,
+        'html: staging_html (R2) → materialize images → final HTML on R2'
       );
     }
     if (await isTaskCancelled(row.taskId)) {
@@ -535,53 +524,27 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       await appendExportLog(exportId, 'stopped (task cancelled)');
       return;
     }
-    if (row.format === 'pdf' || row.format === 'html') {
-      const [langRow] = await db()
-        .select({
-          sourceLang: translationTasks.sourceLang,
-          targetLang: translationTasks.targetLang,
-        })
-        .from(translationTasks)
-        .where(eq(translationTasks.id, row.taskId))
-        .limit(1);
-      const sourceLang = langRow?.sourceLang ?? '';
-      const targetLang = langRow?.targetLang ?? '';
-
-      const doc = await withStageTimeout(
-        'load_parse_result_json',
-        () => loadOcrParseResultDocumentForExport(row.taskId, sourceLang, targetLang),
+    if (row.format === 'pdf') {
+      const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
+      const htmlBytes = await withStageTimeout(
+        'load_staging_html',
+        () => getObjectBody(stagingHtmlKey),
         OCR_EXPORT_STAGE_TIMEOUT_MS
-      );
-
-      const forPrint = row.format === 'pdf';
-      const { html, imageWarnings } = await withStageTimeout(
-        'build_workbench_like_html',
-        () =>
-          buildSelfContainedHtml(doc, {
-            forPrint,
-            appOrigin: getExportAppOrigin() || undefined,
-            renderMode: 'workbench_like',
-            orientation: 'portrait',
-          }),
-        OCR_EXPORT_STAGE_TIMEOUT_MS
-      );
-
-      await appendExportLog(
-        exportId,
-        `strict ${row.format}: html_chars=${html.length} image_warnings=${imageWarnings}`
-      );
+      ).catch(() => null);
+      if (!htmlBytes) {
+        throw new Error('staging html missing for pdf export');
+      }
+      const html = new TextDecoder('utf-8').decode(htmlBytes);
       console.log(
-        `[ocr/export] ${row.format}_strict_html_built`,
+        '[ocr/export] pdf_staging_loaded',
         JSON.stringify({
           task_id: row.taskId,
           export_id: exportId,
-          html_length: html.length,
+          staging_bytes: htmlBytes.byteLength,
           approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
-          image_warnings: imageWarnings,
           stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
         })
       );
-
       const normalized = await withStageTimeout(
         'materialize_html_images_to_r2',
         () =>
@@ -593,61 +556,90 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       console.log(
-        `[ocr/export] ${row.format}_render_context`,
+        '[ocr/export] pdf_render_context',
         JSON.stringify({
           task_id: row.taskId,
           export_id: exportId,
-          render_mode: 'strict_parse_json_workbench_like',
+          render_mode: 'dom_snapshot_staging',
+          staging_html_key: stagingHtmlKey,
           html_length: normalized.html.length,
           image_r2_urls: normalized.count,
         })
       );
 
-      if (row.format === 'pdf') {
-        const pdfBytes = await withStageTimeout(
-          'render_pdf_from_workbench_like_html',
-          () => renderWorkbenchHtmlToPdfBytes(normalized.html),
-          OCR_EXPORT_STAGE_TIMEOUT_MS
-        );
-        console.log(
-          '[ocr/export] pdf_render_done',
-          JSON.stringify({
-            task_id: row.taskId,
-            export_id: exportId,
-            pdf_bytes: pdfBytes.byteLength,
-          })
-        );
+      const pdfBytes = await withStageTimeout(
+        'render_pdf_from_staging_html',
+        () => renderWorkbenchHtmlToPdfBytes(normalized.html),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+      console.log(
+        '[ocr/export] pdf_render_done',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          pdf_bytes: pdfBytes.byteLength,
+        })
+      );
 
-        const key = outputKeyForFormat(row.taskId, 'pdf');
-        await uploadWithRetry(key, pdfBytes, 'application/pdf');
-        await updateExportRow(exportId, {
-          status: OcrTaskExportStatus.ready,
-          r2Key: key,
-          errorMessage: null,
-          readyAt: new Date(),
-        });
-        await appendExportLog(
-          exportId,
-          `ready pdf_bytes=${pdfBytes.byteLength} strict_html image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
-        );
-      } else {
-        const key = outputKeyForFormat(row.taskId, 'html');
-        await uploadWithRetry(
-          key,
-          new TextEncoder().encode(normalized.html),
-          'text/html; charset=utf-8'
-        );
-        await updateExportRow(exportId, {
-          status: OcrTaskExportStatus.ready,
-          r2Key: key,
-          errorMessage: null,
-          readyAt: new Date(),
-        });
-        await appendExportLog(
-          exportId,
-          `ready html_bytes=${normalized.html.length} strict_html image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
-        );
+      const key = outputKeyForFormat(row.taskId, 'pdf');
+      await uploadWithRetry(key, pdfBytes, 'application/pdf');
+      await updateExportRow(exportId, {
+        status: OcrTaskExportStatus.ready,
+        r2Key: key,
+        errorMessage: null,
+        readyAt: new Date(),
+      });
+      await appendExportLog(
+        exportId,
+        `ready pdf_bytes=${pdfBytes.byteLength} staging_html image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
+      );
+    } else if (row.format === 'html') {
+      const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
+      const htmlBytes = await withStageTimeout(
+        'load_staging_html',
+        () => getObjectBody(stagingHtmlKey),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      ).catch(() => null);
+      if (!htmlBytes) {
+        throw new Error('staging html missing for html export');
       }
+      const html = new TextDecoder('utf-8').decode(htmlBytes);
+      console.log(
+        '[ocr/export] html_staging_loaded',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          staging_bytes: htmlBytes.byteLength,
+          approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
+          stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+        })
+      );
+      const normalized = await withStageTimeout(
+        'materialize_html_images_to_r2',
+        () =>
+          materializeHtmlImagesToR2({
+            taskId: row.taskId,
+            exportId,
+            html,
+          }),
+        OCR_EXPORT_STAGE_TIMEOUT_MS
+      );
+      const key = outputKeyForFormat(row.taskId, 'html');
+      await uploadWithRetry(
+        key,
+        new TextEncoder().encode(normalized.html),
+        'text/html; charset=utf-8'
+      );
+      await updateExportRow(exportId, {
+        status: OcrTaskExportStatus.ready,
+        r2Key: key,
+        errorMessage: null,
+        readyAt: new Date(),
+      });
+      await appendExportLog(
+        exportId,
+        `ready html_bytes=${normalized.html.length} image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
+      );
     } else {
       const [langRow] = await db()
         .select({

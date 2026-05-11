@@ -35,6 +35,10 @@ import {
   getLayoutEditor,
   setLayoutEditor,
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
+import {
+  buildSnapshotHtmlDocument,
+  snapshotPageElement,
+} from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
 import { ParseResultEditorToolbar } from '@/shared/ocr-workbench/parse-result-editor-toolbar';
@@ -446,6 +450,65 @@ export function OcrParseWorkbench({
     [clearExportPollTimer, setSingleExportState, taskId]
   );
 
+  const collectWorkbenchSnapshotHtml = useCallback(async () => {
+    if (!docRef.current) {
+      throw new Error('Parse result not loaded');
+    }
+    const pages = docRef.current.pages || [];
+    if (pages.length === 0) {
+      throw new Error('No page available for export');
+    }
+    const beforePageIndex = activePageIndex;
+    const prevSelected = selectedLayoutId;
+    const sections: string[] = [];
+    const cache = new Map<string, string>();
+    try {
+      flushSync(() => {
+        setSelectedLayoutId(null);
+      });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      for (let i = 0; i < pages.length; i += 1) {
+        flushSync(() => {
+          setActivePageIndex(i);
+        });
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        );
+        const pageEl = document.querySelector<HTMLElement>(
+          `[data-export-page="true"][data-export-page-index="${i}"]`
+        );
+        if (!pageEl) {
+          throw new Error(`Export page ${i + 1} is not rendered`);
+        }
+        const snapshot = await snapshotPageElement(pageEl, cache, {
+          orientation: 'portrait',
+        });
+        sections.push(snapshot.sectionHtml);
+      }
+    } finally {
+      flushSync(() => {
+        setActivePageIndex(beforePageIndex);
+      });
+      const snap = docRef.current;
+      const restorePage = snap?.pages[beforePageIndex];
+      if (
+        prevSelected &&
+        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
+      ) {
+        flushSync(() => {
+          setSelectedLayoutId(prevSelected);
+        });
+      }
+    }
+    const fileName = docRef.current.file_name || 'document';
+    return {
+      htmlDocument: buildSnapshotHtmlDocument(sections, fileName, {
+        orientation: 'portrait',
+      }),
+      orientation: 'portrait' as const,
+    };
+  }, [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]);
+
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (
       !taskId ||
@@ -466,7 +529,11 @@ export function OcrParseWorkbench({
         const payload = cloneParseResult(docRef.current) as unknown;
         await translateApi.patchOcrParseResult(taskId, payload);
       }
-      await translateApi.retryOcrTaskExport(taskId, format);
+      const snapshotPayload =
+        format === 'pdf' || format === 'html'
+          ? await collectWorkbenchSnapshotHtml()
+          : undefined;
+      await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
     } catch (e) {
       exportPendingRef.current[format] = false;
@@ -480,6 +547,7 @@ export function OcrParseWorkbench({
     }
   }, [
     clearExportPollTimer,
+    collectWorkbenchSnapshotHtml,
     exportState,
     flushEditableText,
     pollExportReady,
