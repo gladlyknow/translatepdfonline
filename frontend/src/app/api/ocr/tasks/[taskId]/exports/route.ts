@@ -63,6 +63,12 @@ function resolvePdfExportMode(): OcrPdfExportMode {
     : 'vector_shrink_only';
 }
 
+function parsePdfExportMode(v: unknown): OcrPdfExportMode | null {
+  if (v === 'raster_snapshot') return 'raster_snapshot';
+  if (v === 'vector_shrink_only') return 'vector_shrink_only';
+  return null;
+}
+
 function isDataImageUrl(v: string): boolean {
   return /^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(v);
 }
@@ -363,6 +369,8 @@ export async function POST(
       return Response.json({ detail: 'Task not found' }, { status: 404 });
     }
     const serverPdfMode = resolvePdfExportMode();
+    const requestedPdfMode = parsePdfExportMode(body.pdfMode);
+    let pdfModeForQueue: OcrPdfExportMode | undefined;
     if (format === 'html') {
       const htmlDocument = String(body.htmlDocument || '');
       if (!htmlDocument.trim()) {
@@ -383,7 +391,18 @@ export async function POST(
       );
     } else if (format === 'pdf') {
       const stagingKey = exportStagingHtmlKey(taskId, exportId);
-      if (serverPdfMode === 'raster_snapshot') {
+      const hasRasterPages = Array.isArray(body.rasterPages) && body.rasterPages.length > 0;
+      const hasHtmlDocument = Boolean(String(body.htmlDocument || '').trim());
+      const effectivePdfMode =
+        requestedPdfMode ??
+        (hasRasterPages
+          ? ('raster_snapshot' as const)
+          : hasHtmlDocument
+            ? ('vector_shrink_only' as const)
+            : serverPdfMode);
+      pdfModeForQueue = effectivePdfMode;
+
+      if (effectivePdfMode === 'raster_snapshot') {
         const rasterPages = Array.isArray(body.rasterPages) ? body.rasterPages : [];
         if (rasterPages.length === 0) {
           return Response.json(
@@ -441,7 +460,7 @@ export async function POST(
       taskId,
       exportId,
       format,
-      pdfMode: format === 'pdf' ? serverPdfMode : undefined,
+      pdfMode: format === 'pdf' ? pdfModeForQueue : undefined,
     });
     if (!queued.ok) {
       await updateExportRow(exportId, {
