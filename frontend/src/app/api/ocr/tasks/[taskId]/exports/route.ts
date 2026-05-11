@@ -393,6 +393,15 @@ export async function POST(
       const stagingKey = exportStagingHtmlKey(taskId, exportId);
       const hasRasterPages = Array.isArray(body.rasterPages) && body.rasterPages.length > 0;
       const hasHtmlDocument = Boolean(String(body.htmlDocument || '').trim());
+      if (serverPdfMode === 'raster_snapshot' && !hasRasterPages) {
+        return Response.json(
+          {
+            detail:
+              'OCR_PDF_EXPORT_MODE=raster_snapshot requires rasterPages for pdf export; vector fallback is disabled',
+          },
+          { status: 400 }
+        );
+      }
       const effectivePdfMode =
         requestedPdfMode ??
         (hasRasterPages
