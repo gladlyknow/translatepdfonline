@@ -299,6 +299,7 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ taskId: string }> }
 ) {
+  let createdExportId: string | null = null;
   try {
     const { taskId } = await params;
     const { userId, anonId } = await getTranslateAuth();
@@ -364,12 +365,11 @@ export async function POST(
     ) {
       return Response.json({ detail: 'export already in progress' }, { status: 409 });
     }
-    const exportId = await retryOcrTaskExport(taskId, format);
-    if (!exportId) {
-      return Response.json({ detail: 'Task not found' }, { status: 404 });
-    }
     const serverPdfMode = resolvePdfExportMode();
     const requestedPdfMode = parsePdfExportMode(body.pdfMode);
+    let stagedBodyBytes: Uint8Array | null = null;
+    let stagedContentType: string | null = null;
+    let stagedLogLine: string | null = null;
     let pdfModeForQueue: OcrPdfExportMode | undefined;
     if (format === 'html') {
       const htmlDocument = String(body.htmlDocument || '');
@@ -379,18 +379,10 @@ export async function POST(
           { status: 400 }
         );
       }
-      const stagingKey = exportStagingHtmlKey(taskId, exportId);
-      await putObject(
-        stagingKey,
-        new TextEncoder().encode(htmlDocument),
-        'text/html; charset=utf-8'
-      );
-      await appendExportLog(
-        exportId,
-        `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
-      );
+      stagedBodyBytes = new TextEncoder().encode(htmlDocument);
+      stagedContentType = 'text/html; charset=utf-8';
+      stagedLogLine = `staged html uploaded bytes=${htmlDocument.length}`;
     } else if (format === 'pdf') {
-      const stagingKey = exportStagingHtmlKey(taskId, exportId);
       const hasRasterPages = Array.isArray(body.rasterPages) && body.rasterPages.length > 0;
       const hasHtmlDocument = Boolean(String(body.htmlDocument || '').trim());
       if (serverPdfMode === 'raster_snapshot' && !hasRasterPages) {
@@ -437,15 +429,9 @@ export async function POST(
             h: Math.max(1, Number(p.h) || 1),
           })),
         });
-        await putObject(
-          stagingKey,
-          new TextEncoder().encode(payload),
-          'application/json; charset=utf-8'
-        );
-        await appendExportLog(
-          exportId,
-          `staged raster uploaded key=${stagingKey} pages=${rasterPages.length} bytes=${payload.length}`
-        );
+        stagedBodyBytes = new TextEncoder().encode(payload);
+        stagedContentType = 'application/json; charset=utf-8';
+        stagedLogLine = `staged raster uploaded pages=${rasterPages.length} bytes=${payload.length}`;
       } else {
         const htmlDocument = String(body.htmlDocument || '');
         if (!htmlDocument.trim()) {
@@ -454,16 +440,23 @@ export async function POST(
             { status: 400 }
           );
         }
-        await putObject(
-          stagingKey,
-          new TextEncoder().encode(htmlDocument),
-          'text/html; charset=utf-8'
-        );
-        await appendExportLog(
-          exportId,
-          `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
-        );
+        stagedBodyBytes = new TextEncoder().encode(htmlDocument);
+        stagedContentType = 'text/html; charset=utf-8';
+        stagedLogLine = `staged html uploaded bytes=${htmlDocument.length}`;
       }
+    }
+    const exportId = await retryOcrTaskExport(taskId, format);
+    if (!exportId) {
+      return Response.json({ detail: 'Task not found' }, { status: 404 });
+    }
+    createdExportId = exportId;
+    if (stagedBodyBytes && stagedContentType) {
+      const stagingKey = exportStagingHtmlKey(taskId, exportId);
+      await putObject(stagingKey, stagedBodyBytes, stagedContentType);
+      await appendExportLog(
+        exportId,
+        `${stagedLogLine ?? 'staged source uploaded'} key=${stagingKey}`
+      );
     }
     const queued = await sendOcrExportQueueMessage({
       taskId,
@@ -489,6 +482,16 @@ export async function POST(
     });
   } catch (e) {
     console.error('[ocr/exports POST]', e);
+    if (createdExportId) {
+      const raw = e instanceof Error ? e.message : String(e);
+      await appendExportLog(createdExportId, `failed before enqueue: ${raw.slice(0, 240)}`);
+      await updateExportRow(createdExportId, {
+        status: OcrTaskExportStatus.failed,
+        r2Key: null,
+        readyAt: null,
+        errorMessage: toPublicErrorMessage(raw),
+      });
+    }
     return Response.json(
       { detail: e instanceof Error ? e.message : 'Failed to start export' },
       { status: 500 }
