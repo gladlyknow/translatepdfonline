@@ -36,6 +36,7 @@ export type OcrPipelineQueueBody =
       taskId: string;
       exportId: string;
       format: 'pdf' | 'md' | 'html';
+      pdfMode?: 'vector_shrink_only' | 'raster_snapshot';
     };
 type OcrStage =
   | 'ocr_submit_poll'
@@ -526,6 +527,7 @@ export async function sendOcrExportQueueMessage(params: {
   taskId: string;
   exportId: string;
   format: 'pdf' | 'md' | 'html';
+  pdfMode?: 'vector_shrink_only' | 'raster_snapshot';
 }): Promise<QueueSendResult> {
   try {
     const q = getQueueBindingFromContext();
@@ -537,6 +539,7 @@ export async function sendOcrExportQueueMessage(params: {
       taskId: params.taskId,
       exportId: params.exportId,
       format: params.format,
+      pdfMode: params.pdfMode,
     });
     console.log(
       '[ocr/export-queue] enqueued',
@@ -544,6 +547,7 @@ export async function sendOcrExportQueueMessage(params: {
         task_id: params.taskId,
         export_id: params.exportId,
         format: params.format,
+        pdf_mode: params.pdfMode,
         at: nowIso(),
       })
     );
@@ -557,6 +561,7 @@ export async function sendOcrExportQueueMessage(params: {
         task_id: params.taskId,
         export_id: params.exportId,
         format: params.format,
+        pdf_mode: params.pdfMode,
         reason,
         ...sanitized,
       })
@@ -672,7 +677,9 @@ export async function handleOcrPipelineQueueBatch(batch: {
     }
     if (body.type === 'ocr_export_generate') {
       if (!body.exportId || typeof body.exportId !== 'string') continue;
-      await processOcrTaskExport(body.exportId);
+      await processOcrTaskExport(body.exportId, {
+        pdfMode: body.pdfMode,
+      });
     }
   }
 }

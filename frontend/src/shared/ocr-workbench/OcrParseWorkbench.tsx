@@ -37,7 +37,9 @@ import {
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
 import {
   buildSnapshotHtmlDocument,
+  type SnapshotRasterPage,
   snapshotPageElement,
+  snapshotPageHtmlToRasterDataUrl,
 } from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
@@ -114,6 +116,16 @@ export function OcrParseWorkbench({
   onCanvasFocus?: () => void;
   unifiedMainScroll?: boolean;
 }) {
+  const pdfExportMode =
+    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+      ? 'raster_snapshot'
+      : 'vector_shrink_only';
+  const rasterScale = Math.max(
+    1,
+    Math.min(4, Number(process.env.NEXT_PUBLIC_OCR_PDF_RASTER_SCALE || '2') || 2)
+  );
+  const rasterImageType =
+    process.env.NEXT_PUBLIC_OCR_PDF_RASTER_IMAGE_TYPE === 'jpeg' ? 'jpeg' : 'png';
   const t = useTranslations('translate.ocrWorkbench');
   const {
     doc,
@@ -525,12 +537,91 @@ export function OcrParseWorkbench({
     }
     const fileName = docRef.current.file_name || 'document';
     return {
+      pdfMode: 'vector_shrink_only' as const,
       htmlDocument: buildSnapshotHtmlDocument(sections, fileName, {
         orientation: 'portrait',
       }),
       orientation: 'portrait' as const,
     };
   }, [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]);
+
+  const collectWorkbenchSnapshotRaster = useCallback(async () => {
+    if (!docRef.current) {
+      throw new Error('Parse result not loaded');
+    }
+    const pages = docRef.current.pages || [];
+    if (pages.length === 0) {
+      throw new Error('No page available for export');
+    }
+    const beforePageIndex = activePageIndex;
+    const prevSelected = selectedLayoutId;
+    const cache = new Map<string, string>();
+    const rasterPages: SnapshotRasterPage[] = [];
+    try {
+      flushSync(() => {
+        setSelectedLayoutId(null);
+      });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      for (let i = 0; i < pages.length; i += 1) {
+        flushSync(() => {
+          setActivePageIndex(i);
+        });
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        );
+        const pageEl = document.querySelector<HTMLElement>(
+          `[data-export-page="true"][data-export-page-index="${i}"]`
+        );
+        if (!pageEl) {
+          throw new Error(`Export page ${i + 1} is not rendered`);
+        }
+        const snapshot = await snapshotPageElement(pageEl, cache, {
+          orientation: 'portrait',
+          preserveUnresolvedImageUrl: false,
+        });
+        const dataUrl = await snapshotPageHtmlToRasterDataUrl(
+          snapshot.pageHtml,
+          snapshot.pageW,
+          snapshot.pageH,
+          {
+            scale: rasterScale,
+            imageType: rasterImageType,
+          }
+        );
+        rasterPages.push({
+          dataUrl,
+          w: snapshot.pageW,
+          h: snapshot.pageH,
+        });
+      }
+    } finally {
+      flushSync(() => {
+        setActivePageIndex(beforePageIndex);
+      });
+      const snap = docRef.current;
+      const restorePage = snap?.pages[beforePageIndex];
+      if (
+        prevSelected &&
+        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
+      ) {
+        flushSync(() => {
+          setSelectedLayoutId(prevSelected);
+        });
+      }
+    }
+    return {
+      pdfMode: 'raster_snapshot' as const,
+      rasterPages,
+      orientation: 'portrait' as const,
+    };
+  }, [
+    activePageIndex,
+    selectedLayoutId,
+    rasterScale,
+    rasterImageType,
+    setActivePageIndex,
+    setSelectedLayoutId,
+  ]);
 
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (
@@ -553,8 +644,12 @@ export function OcrParseWorkbench({
         await translateApi.patchOcrParseResult(taskId, payload);
       }
       const snapshotPayload =
-        format === 'pdf' || format === 'html'
-          ? await collectWorkbenchSnapshotHtml()
+        format === 'pdf'
+          ? pdfExportMode === 'raster_snapshot'
+            ? await collectWorkbenchSnapshotRaster()
+            : await collectWorkbenchSnapshotHtml()
+          : format === 'html'
+            ? await collectWorkbenchSnapshotHtml()
           : undefined;
       await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
@@ -571,8 +666,10 @@ export function OcrParseWorkbench({
   }, [
     clearExportPollTimer,
     collectWorkbenchSnapshotHtml,
+    collectWorkbenchSnapshotRaster,
     exportState,
     flushEditableText,
+    pdfExportMode,
     pollExportReady,
     setSingleExportState,
     taskId,

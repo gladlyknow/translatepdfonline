@@ -8,13 +8,16 @@
  */
 export function buildLayoutFitInlineScript(rootCssSelector: string): string {
   const rootSelJson = JSON.stringify(rootCssSelector);
+  const overflowSlackPx = Math.max(
+    0,
+    Number(process.env.NEXT_PUBLIC_OCR_PDF_VECTOR_OVERFLOW_SLACK_PX || '1') || 1
+  );
   return `<script>
 (() => {
   const ROOT_SEL = ${rootSelJson};
   const MIN_FONT = 8;
   const MAX_STEPS = 40;
-  /** 与快照 min-height slack 对齐，缓冲 Chromium PDF 与屏幕子像素/行高差 */
-  const OVERFLOW_SLACK_PX = 6;
+  const OVERFLOW_SLACK_PX = ${JSON.stringify(overflowSlackPx)};
   function isOverflow(el) {
     return (
       el.scrollHeight > el.clientHeight + OVERFLOW_SLACK_PX ||
@@ -33,7 +36,6 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
     const isTable = kind === 'table';
     const minFont = isTable ? 7.5 : MIN_FONT;
     const shrinkStep = isTable ? 0.25 : 0.5;
-    const growStep = isTable ? 0.25 : 0.5;
     let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
     let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.35;
     if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
@@ -55,24 +57,6 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
       steps += 1;
     }
 
-    // Phase 2: grow back to the largest non-overflow size.
-    let bestFont = fontSize;
-    let bestLine = lineHeight;
-    let growSteps = 0;
-    while (growSteps < MAX_STEPS) {
-      const nextFont = fontSize + growStep;
-      const nextLine = Math.max(nextFont * 1.12, lineHeight + growStep * 0.35);
-      applyTypography(nextFont, nextLine);
-      if (isOverflow(el)) {
-        applyTypography(bestFont, bestLine);
-        break;
-      }
-      fontSize = nextFont;
-      lineHeight = nextLine;
-      bestFont = nextFont;
-      bestLine = nextLine;
-      growSteps += 1;
-    }
   }
   function runFitOnce() {
     const layouts = Array.from(document.querySelectorAll(ROOT_SEL));

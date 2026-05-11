@@ -144,6 +144,13 @@ export interface OcrTaskExportItem {
   logs: string[];
 }
 
+export type OcrPdfExportMode = 'vector_shrink_only' | 'raster_snapshot';
+export type OcrExportRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
 export interface TaskView {
   task: TaskDetail;
   document_filename: string;
@@ -376,7 +383,9 @@ export const translateApi = {
     taskId: string,
     format: 'pdf' | 'md' | 'html',
     snapshot?: {
+      pdfMode?: OcrPdfExportMode;
       htmlDocument?: string;
+      rasterPages?: OcrExportRasterPage[];
       orientation?: 'portrait' | 'landscape';
     }
   ) =>
@@ -389,7 +398,9 @@ export const translateApi = {
       method: 'POST',
       body: JSON.stringify({
         format,
+        pdfMode: snapshot?.pdfMode,
         htmlDocument: snapshot?.htmlDocument,
+        rasterPages: snapshot?.rasterPages,
         orientation: snapshot?.orientation,
       }),
     }),

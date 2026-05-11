@@ -30,6 +30,13 @@ import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
 
 export const maxDuration = 300;
 
+type OcrPdfExportMode = 'vector_shrink_only' | 'raster_snapshot';
+type OcrExportRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
 const OCR_EXPORT_STALE_MS = Number.parseInt(
   process.env.OCR_EXPORT_STALE_MS || '300000',
   10
@@ -49,6 +56,16 @@ const OCR_EXPORT_SIGNED_URL_TTL_SECONDS = Math.max(
     Number.parseInt(process.env.OCR_EXPORT_SIGNED_URL_TTL_SECONDS || '900', 10)
   )
 );
+
+function resolvePdfExportMode(): OcrPdfExportMode {
+  return process.env.OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+    ? 'raster_snapshot'
+    : 'vector_shrink_only';
+}
+
+function isDataImageUrl(v: string): boolean {
+  return /^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(v);
+}
 
 function dispositionFilename(base: string, ext: string) {
   const safe = `${base}.${ext}`.replace(/[^\w.\-]+/g, '_');
@@ -299,7 +316,9 @@ export async function POST(
     const body = (await req.json()) as {
       format?: string;
       action?: string;
+      pdfMode?: string;
       htmlDocument?: string;
+      rasterPages?: OcrExportRasterPage[];
       orientation?: 'portrait' | 'landscape';
     };
     const format = String(body.format || '').trim().toLowerCase();
@@ -343,11 +362,12 @@ export async function POST(
     if (!exportId) {
       return Response.json({ detail: 'Task not found' }, { status: 404 });
     }
-    if (format === 'pdf' || format === 'html') {
+    const serverPdfMode = resolvePdfExportMode();
+    if (format === 'html') {
       const htmlDocument = String(body.htmlDocument || '');
       if (!htmlDocument.trim()) {
         return Response.json(
-          { detail: 'htmlDocument is required for pdf/html export' },
+          { detail: 'htmlDocument is required for html export' },
           { status: 400 }
         );
       }
@@ -361,11 +381,67 @@ export async function POST(
         exportId,
         `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
       );
+    } else if (format === 'pdf') {
+      const stagingKey = exportStagingHtmlKey(taskId, exportId);
+      if (serverPdfMode === 'raster_snapshot') {
+        const rasterPages = Array.isArray(body.rasterPages) ? body.rasterPages : [];
+        if (rasterPages.length === 0) {
+          return Response.json(
+            { detail: 'rasterPages is required for pdf export in raster_snapshot mode' },
+            { status: 400 }
+          );
+        }
+        for (const [index, page] of rasterPages.entries()) {
+          const url = String(page?.dataUrl || '');
+          if (!isDataImageUrl(url)) {
+            return Response.json(
+              { detail: `rasterPages[${index}].dataUrl must be image data URL` },
+              { status: 400 }
+            );
+          }
+        }
+        const payload = JSON.stringify({
+          pdfMode: 'raster_snapshot',
+          orientation: body.orientation === 'landscape' ? 'landscape' : 'portrait',
+          pages: rasterPages.map((p) => ({
+            dataUrl: String(p.dataUrl),
+            w: Math.max(1, Number(p.w) || 1),
+            h: Math.max(1, Number(p.h) || 1),
+          })),
+        });
+        await putObject(
+          stagingKey,
+          new TextEncoder().encode(payload),
+          'application/json; charset=utf-8'
+        );
+        await appendExportLog(
+          exportId,
+          `staged raster uploaded key=${stagingKey} pages=${rasterPages.length} bytes=${payload.length}`
+        );
+      } else {
+        const htmlDocument = String(body.htmlDocument || '');
+        if (!htmlDocument.trim()) {
+          return Response.json(
+            { detail: 'htmlDocument is required for pdf export in vector mode' },
+            { status: 400 }
+          );
+        }
+        await putObject(
+          stagingKey,
+          new TextEncoder().encode(htmlDocument),
+          'text/html; charset=utf-8'
+        );
+        await appendExportLog(
+          exportId,
+          `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
+        );
+      }
     }
     const queued = await sendOcrExportQueueMessage({
       taskId,
       exportId,
       format,
+      pdfMode: format === 'pdf' ? serverPdfMode : undefined,
     });
     if (!queued.ok) {
       await updateExportRow(exportId, {

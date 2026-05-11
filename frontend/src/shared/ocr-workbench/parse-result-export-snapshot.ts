@@ -10,6 +10,12 @@ export type SnapshotImageIssue = {
   reason: 'missing-src' | 'resolve-failed';
 };
 
+export type SnapshotRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -54,7 +60,10 @@ function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
 export async function snapshotPageElement(
   pageEl: HTMLElement,
   cache: Map<string, string>,
-  options?: { orientation?: 'portrait' | 'landscape' }
+  options?: {
+    orientation?: 'portrait' | 'landscape';
+    preserveUnresolvedImageUrl?: boolean;
+  }
 ): Promise<{
   sectionHtml: string;
   pageHtml: string;
@@ -107,9 +116,10 @@ export async function snapshotPageElement(
       );
       dst.setAttribute('src', optimized || inlined);
     } else {
-      // Keep original URL for backend staging download/rewrite.
-      // Do not blank it here, otherwise export loses recoverable images.
-      dst.setAttribute('src', raw);
+      const preserveUnresolvedImageUrl = options?.preserveUnresolvedImageUrl !== false;
+      // Vector HTML export preserves unresolved URL for backend materialization.
+      // Raster snapshot must avoid cross-origin tainted canvas, so fallback to blank pixel.
+      dst.setAttribute('src', preserveUnresolvedImageUrl ? raw : BLANK_PIXEL_DATA_URL);
       imageWarnings += 1;
       imageIssues.push({ layoutId, src: raw, reason: 'resolve-failed' });
     }
@@ -134,6 +144,56 @@ export async function snapshotPageElement(
     imageWarnings,
     imageIssues,
   };
+}
+
+export async function snapshotPageHtmlToRasterDataUrl(
+  pageHtml: string,
+  pageW: number,
+  pageH: number,
+  options?: { scale?: number; imageType?: 'png' | 'jpeg'; jpegQuality?: number }
+): Promise<string> {
+  if (typeof document === 'undefined') {
+    throw new Error('raster snapshot requires browser runtime');
+  }
+  const scale = Math.max(1, Math.min(4, options?.scale ?? 2));
+  const imageType = options?.imageType === 'jpeg' ? 'jpeg' : 'png';
+  const jpegQuality = Math.max(0.6, Math.min(0.98, options?.jpegQuality ?? 0.92));
+  const targetW = Math.max(1, Math.round(pageW * scale));
+  const targetH = Math.max(1, Math.round(pageH * scale));
+  const xhtml = pageHtml
+    .replace(/&(?!#?[a-z0-9]+;)/gi, '&amp;')
+    .replace(/\u0000/g, '');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${targetW}" height="${targetH}" viewBox="0 0 ${pageW} ${pageH}">
+<foreignObject x="0" y="0" width="${pageW}" height="${pageH}">
+  <div xmlns="http://www.w3.org/1999/xhtml" style="width:${pageW}px;height:${pageH}px;overflow:hidden;background:#fff;">
+    ${xhtml}
+  </div>
+</foreignObject>
+</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const objectUrl = URL.createObjectURL(blob);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('raster snapshot svg render failed'));
+      el.src = objectUrl;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('raster snapshot canvas context missing');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, targetW, targetH);
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+    if (imageType === 'jpeg') {
+      return canvas.toDataURL('image/jpeg', jpegQuality);
+    }
+    return canvas.toDataURL('image/png');
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 async function optimizeDataUrlForSnapshot(
