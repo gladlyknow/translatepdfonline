@@ -27,19 +27,51 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
   }
   function fitTextLayout(layoutRoot) {
     const kind = (layoutRoot.getAttribute('data-layout-type') || '').toLowerCase();
-    if (kind === 'image' || kind === 'table') return;
+    if (kind === 'image') return;
     const el = resolveFitTarget(layoutRoot);
-    if (!isOverflow(el)) return;
     const cs = window.getComputedStyle(el);
+    const isTable = kind === 'table';
+    const minFont = isTable ? 7.5 : MIN_FONT;
+    const shrinkStep = isTable ? 0.25 : 0.5;
+    const growStep = isTable ? 0.25 : 0.5;
     let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
-    let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.4;
+    let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.35;
+    if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+      lineHeight = fontSize * 1.35;
+    }
+    const applyTypography = (nextFont, nextLine) => {
+      el.style.fontSize = nextFont.toFixed(2) + 'px';
+      el.style.lineHeight = nextLine.toFixed(2) + 'px';
+    };
+
     let steps = 0;
-    while (steps < MAX_STEPS && isOverflow(el) && fontSize > MIN_FONT) {
-      fontSize -= 0.5;
-      lineHeight = Math.max(fontSize * 1.15, lineHeight - 0.35);
-      el.style.fontSize = fontSize.toFixed(2) + 'px';
-      el.style.lineHeight = lineHeight.toFixed(2) + 'px';
+    // Phase 1: shrink until it fits into the fixed box.
+    while (steps < MAX_STEPS && isOverflow(el) && fontSize > minFont) {
+      const nextFont = Math.max(minFont, fontSize - shrinkStep);
+      const nextLine = Math.max(nextFont * 1.12, lineHeight - shrinkStep * 0.7);
+      fontSize = nextFont;
+      lineHeight = nextLine;
+      applyTypography(fontSize, lineHeight);
       steps += 1;
+    }
+
+    // Phase 2: grow back to the largest non-overflow size.
+    let bestFont = fontSize;
+    let bestLine = lineHeight;
+    let growSteps = 0;
+    while (growSteps < MAX_STEPS) {
+      const nextFont = fontSize + growStep;
+      const nextLine = Math.max(nextFont * 1.12, lineHeight + growStep * 0.35);
+      applyTypography(nextFont, nextLine);
+      if (isOverflow(el)) {
+        applyTypography(bestFont, bestLine);
+        break;
+      }
+      fontSize = nextFont;
+      lineHeight = nextLine;
+      bestFont = nextFont;
+      bestLine = nextLine;
+      growSteps += 1;
     }
   }
   function runFitOnce() {

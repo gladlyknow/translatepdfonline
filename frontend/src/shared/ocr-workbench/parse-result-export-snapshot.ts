@@ -32,49 +32,6 @@ function allElements(root: Element): Element[] {
   return [root, ...Array.from(root.querySelectorAll('*'))];
 }
 
-/** PDF 与屏幕度量差几像素时避免底行被裁切；与 layout-fit 容差对齐 */
-const SNAPSHOT_LAYOUT_HEIGHT_SLACK_PX = 6;
-
-/**
- * 按源画布上 `[data-layout-id]` 的真实 scrollHeight 给克隆根加 min-height（跳过 image），
- * 避免固定 height + overflow:hidden 在 Chromium PDF 里吃掉末行。
- */
-function applySnapshotLayoutMinHeightsFromSource(
-  sourceRoot: HTMLElement,
-  cloneRoot: HTMLElement
-): void {
-  const layouts = sourceRoot.querySelectorAll<HTMLElement>('[data-layout-id]');
-  for (const src of layouts) {
-    const layoutId = src.dataset.layoutId;
-    if (!layoutId) continue;
-    const kind = (src.dataset.layoutType || '').toLowerCase();
-    if (kind === 'image') continue;
-
-    let dst: HTMLElement | null = null;
-    try {
-      dst = cloneRoot.querySelector(`[data-layout-id="${CSS.escape(layoutId)}"]`);
-    } catch {
-      continue;
-    }
-    if (!dst) continue;
-
-    const host = src.querySelector<HTMLElement>(':scope > .parse-result-rich-host');
-    const outerH = src.clientHeight;
-    const outerScrollH = src.scrollHeight;
-    const innerScrollH = host?.scrollHeight ?? 0;
-    const innerClientH = host?.clientHeight ?? 0;
-    const rectH = Math.ceil(src.getBoundingClientRect().height);
-
-    const contentH = Math.max(outerScrollH, outerH, innerScrollH, innerClientH, rectH);
-    const targetMin = Math.ceil(contentH + SNAPSHOT_LAYOUT_HEIGHT_SLACK_PX);
-
-    let prev = dst.getAttribute('style') || '';
-    prev = prev.replace(/min-height\s*:\s*[^;]+;?/gi, '').replace(/;+;/g, ';').replace(/^;|;$/g, '').trim();
-    const minDecl = `min-height:${targetMin}px`;
-    dst.setAttribute('style', prev ? `${prev};${minDecl}` : minDecl);
-  }
-}
-
 /** 打印快照里避免 scrollport（overflow:auto）被 Chromium PDF 裁切 */
 function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
   const candidates = clone.querySelectorAll<HTMLElement>(
@@ -158,8 +115,6 @@ export async function snapshotPageElement(
     }
     dst.removeAttribute('srcset');
   }
-
-  applySnapshotLayoutMinHeightsFromSource(pageEl, clone);
 
   const rect = pageEl.getBoundingClientRect();
   const pageW = Math.max(1, Math.ceil(rect.width));
@@ -259,8 +214,8 @@ export function buildSnapshotHtmlDocument(
         break-inside:avoid;
         page-break-inside:avoid;
         width:calc(var(--page-w) * var(--print-scale));
-        min-height:calc(var(--page-h) * var(--print-scale));
-        overflow:visible;
+        height:calc(var(--page-h) * var(--print-scale));
+        overflow:hidden;
       }
       .snapshot-page-wrap:last-child{
         break-after:auto;
@@ -270,15 +225,6 @@ export function buildSnapshotHtmlDocument(
         width:var(--page-w);
         height:var(--page-h);
         transform:scale(var(--print-scale));
-      }
-      [data-layout-id] .parse-result-rich-host,
-      .parse-result-rich-host{
-        padding-bottom:0.2em;
-      }
-      pre,code{
-        white-space:pre-wrap;
-        overflow-wrap:anywhere;
-        word-break:break-word;
       }
     }
   </style></head><body>${pageSections.join('')}${buildLayoutFitInlineScript('[data-layout-id]')}</body></html>`;
