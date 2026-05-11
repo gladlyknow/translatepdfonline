@@ -392,60 +392,83 @@ export function OcrParseWorkbench({
   const pollExportReady = useCallback(
     async (format: 'pdf' | 'md' | 'html', attempt = 0) => {
       if (!taskId) return;
-      const exportsState = await translateApi.listOcrTaskExports(taskId);
-      const target = exportsState.exports.find((one) => one.format === format);
-      if (!target) {
-        if (attempt >= 30) {
+      const delayMs = 4000;
+      const maxAttempts = 30;
+      try {
+        const exportsState = await translateApi.listOcrTaskExports(taskId);
+        const list = exportsState.exports ?? [];
+        const target = list.find((one) => one.format === format);
+        if (!target) {
+          if (attempt >= maxAttempts) {
+            exportPendingRef.current[format] = false;
+            setSingleExportState(format, {
+              status: 'failed',
+              error: `${format.toUpperCase()} export not found`,
+            });
+            clearExportPollTimer();
+            return;
+          }
+          setSingleExportState(format, { status: 'processing', error: null });
+          clearExportPollTimer();
+          await new Promise<void>((r) => {
+            exportPollTimerRef.current = setTimeout(() => {
+              exportPollTimerRef.current = null;
+              r();
+            }, delayMs);
+          });
+          if (!exportPendingRef.current[format]) return;
+          await pollExportReady(format, attempt + 1);
+          return;
+        }
+        const st = (target.status ?? '').toLowerCase();
+        if (st === 'ready') {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, { status: 'ready', error: null });
+          clearExportPollTimer();
+          return;
+        }
+        if (st === 'cancelled') {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, { status: 'idle', error: null });
+          clearExportPollTimer();
+          return;
+        }
+        if (st === 'failed') {
           exportPendingRef.current[format] = false;
           setSingleExportState(format, {
             status: 'failed',
-            error: `${format.toUpperCase()} export not found`,
+            error: target.error_message ?? `${format.toUpperCase()} export failed`,
+          });
+          clearExportPollTimer();
+          return;
+        }
+        if (attempt >= maxAttempts) {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, {
+            status: 'failed',
+            error: `${format.toUpperCase()} export timed out`,
           });
           clearExportPollTimer();
           return;
         }
         setSingleExportState(format, { status: 'processing', error: null });
         clearExportPollTimer();
-        exportPollTimerRef.current = setTimeout(() => {
-          void pollExportReady(format, attempt + 1);
-        }, 4000);
-        return;
-      }
-      if (target.status === 'ready') {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, { status: 'ready', error: null });
-        clearExportPollTimer();
-        return;
-      }
-      if (target.status === 'cancelled') {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, { status: 'idle', error: null });
-        clearExportPollTimer();
-        return;
-      }
-      if (target.status === 'failed') {
+        await new Promise<void>((r) => {
+          exportPollTimerRef.current = setTimeout(() => {
+            exportPollTimerRef.current = null;
+            r();
+          }, delayMs);
+        });
+        if (!exportPendingRef.current[format]) return;
+        await pollExportReady(format, attempt + 1);
+      } catch (e) {
         exportPendingRef.current[format] = false;
         setSingleExportState(format, {
           status: 'failed',
-          error: target.error_message ?? `${format.toUpperCase()} export failed`,
+          error: e instanceof Error ? e.message : 'Export status poll failed',
         });
         clearExportPollTimer();
-        return;
       }
-      if (attempt >= 30) {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, {
-          status: 'failed',
-          error: `${format.toUpperCase()} export timed out`,
-        });
-        clearExportPollTimer();
-        return;
-      }
-      setSingleExportState(format, { status: 'processing', error: null });
-      clearExportPollTimer();
-      exportPollTimerRef.current = setTimeout(() => {
-        void pollExportReady(format, attempt + 1);
-      }, 4000);
     },
     [clearExportPollTimer, setSingleExportState, taskId]
   );
@@ -577,6 +600,7 @@ export function OcrParseWorkbench({
     async (format: 'pdf' | 'md' | 'html') => {
       if (!taskId) return;
       try {
+        exportPendingRef.current[format] = false;
         await translateApi.cancelOcrTaskExport(taskId, format);
         clearExportPollTimer();
         setSingleExportState(format, { status: 'idle', error: null });
@@ -627,78 +651,82 @@ export function OcrParseWorkbench({
           md: { status: 'idle', error: null },
           html: { status: 'idle', error: null },
         };
-        const pdf = exportsState.exports.find((one) => one.format === 'pdf');
-        const md = exportsState.exports.find((one) => one.format === 'md');
-        const html = exportsState.exports.find((one) => one.format === 'html');
+        const list = exportsState.exports ?? [];
+        const pdf = list.find((one) => one.format === 'pdf');
+        const md = list.find((one) => one.format === 'md');
+        const html = list.find((one) => one.format === 'html');
         if (pdf) {
+          const ps = (pdf.status ?? '').toLowerCase();
           const nextPdfStatus =
-            pdf.status === 'ready'
+            ps === 'ready'
               ? 'ready'
-              : pdf.status === 'cancelled'
+              : ps === 'cancelled'
                 ? 'idle'
-              : pdf.status === 'failed'
+              : ps === 'failed'
                 ? 'failed'
-                : pdf.status === 'pending' ||
-                    pdf.status === 'processing' ||
+                : ps === 'pending' ||
+                    ps === 'processing' ||
                     exportState.pdf.status === 'processing'
                   ? 'processing'
                   : 'idle';
           next.pdf = {
             status: nextPdfStatus,
             error:
-              pdf.status === 'cancelled'
+              ps === 'cancelled'
                 ? null
                 : (pdf.error_message ?? null),
           };
-          if (pdf.status === 'ready' || pdf.status === 'failed' || pdf.status === 'cancelled') {
+          if (ps === 'ready' || ps === 'failed' || ps === 'cancelled') {
             exportPendingRef.current.pdf = false;
           }
         }
         if (md) {
+          const ms = (md.status ?? '').toLowerCase();
           const nextMdStatus =
-            md.status === 'ready'
+            ms === 'ready'
               ? 'ready'
-              : md.status === 'cancelled'
+              : ms === 'cancelled'
                 ? 'idle'
-              : md.status === 'failed'
+              : ms === 'failed'
                 ? 'failed'
-                : md.status === 'pending' ||
-                    md.status === 'processing' ||
+                : ms === 'pending' ||
+                    ms === 'processing' ||
                     exportState.md.status === 'processing'
                   ? 'processing'
                   : 'idle';
           next.md = {
             status: nextMdStatus,
             error:
-              md.status === 'cancelled'
+              ms === 'cancelled'
                 ? null
                 : (md.error_message ?? null),
           };
-          if (md.status === 'ready' || md.status === 'failed' || md.status === 'cancelled') {
+          if (ms === 'ready' || ms === 'failed' || ms === 'cancelled') {
             exportPendingRef.current.md = false;
           }
         }
         if (html) {
+          const hs = (html.status ?? '').toLowerCase();
           const nextHtmlStatus =
-            html.status === 'ready'
+            hs === 'ready'
               ? 'ready'
-              : html.status === 'cancelled'
+              : hs === 'cancelled'
                 ? 'idle'
-                : html.status === 'failed'
+                : hs === 'failed'
                   ? 'failed'
-                  : html.status === 'pending' ||
-                      html.status === 'processing' ||
+                  : hs === 'pending' ||
+                      hs === 'processing' ||
                       exportState.html.status === 'processing'
                     ? 'processing'
                     : 'idle';
           next.html = {
             status: nextHtmlStatus,
             error:
-              html.status === 'cancelled'
+              hs === 'cancelled'
                 ? null
                 : (html.error_message ?? null),
           };
-          if (html.status === 'ready' || html.status === 'failed' || html.status === 'cancelled') {
+          if (hs === 'ready' || hs === 'failed' || hs === 'cancelled') {
             exportPendingRef.current.html = false;
           }
         }

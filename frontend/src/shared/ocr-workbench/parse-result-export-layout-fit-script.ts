@@ -13,8 +13,13 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
   const ROOT_SEL = ${rootSelJson};
   const MIN_FONT = 8;
   const MAX_STEPS = 40;
+  /** 与快照 min-height slack 对齐，缓冲 Chromium PDF 与屏幕子像素/行高差 */
+  const OVERFLOW_SLACK_PX = 6;
   function isOverflow(el) {
-    return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+    return (
+      el.scrollHeight > el.clientHeight + OVERFLOW_SLACK_PX ||
+      el.scrollWidth > el.clientWidth + OVERFLOW_SLACK_PX
+    );
   }
   function resolveFitTarget(layoutRoot) {
     const host = layoutRoot.querySelector(':scope > .parse-result-rich-host');
@@ -37,11 +42,17 @@ export function buildLayoutFitInlineScript(rootCssSelector: string): string {
       steps += 1;
     }
   }
-  function runFit() {
+  function runFitOnce() {
     const layouts = Array.from(document.querySelectorAll(ROOT_SEL));
     for (const one of layouts) fitTextLayout(one);
     for (const one of layouts) fitTextLayout(one);
-    window.__prLayoutFitDone = true;
+  }
+  function runFit() {
+    runFitOnce();
+    requestAnimationFrame(() => {
+      runFitOnce();
+      window.__prLayoutFitDone = true;
+    });
   }
   window.__prLayoutFitDone = false;
   if (document.readyState === 'loading') {
