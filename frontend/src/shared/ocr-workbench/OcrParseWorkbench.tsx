@@ -117,9 +117,9 @@ export function OcrParseWorkbench({
   unifiedMainScroll?: boolean;
 }) {
   const pdfExportMode =
-    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'raster_snapshot'
-      ? 'raster_snapshot'
-      : 'vector_shrink_only';
+    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'vector_shrink_only'
+      ? 'vector_shrink_only'
+      : 'raster_snapshot';
   const rasterScale = Math.max(
     1,
     Math.min(4, Number(process.env.NEXT_PUBLIC_OCR_PDF_RASTER_SCALE || '2') || 2)
@@ -627,6 +627,7 @@ export function OcrParseWorkbench({
     if (
       !taskId ||
       exportState[format].status === 'processing' ||
+      exportPendingRef.current[format] ||
       exportStartLockRef.current.has(format)
     ) {
       return;
@@ -651,6 +652,17 @@ export function OcrParseWorkbench({
           : format === 'html'
             ? await collectWorkbenchSnapshotHtml()
           : undefined;
+      if (format === 'pdf') {
+        const payloadShape =
+          snapshotPayload && 'rasterPages' in snapshotPayload
+            ? { kind: 'raster_snapshot', pages: snapshotPayload.rasterPages.length }
+            : { kind: 'vector_shrink_only', htmlBytes: snapshotPayload?.htmlDocument?.length ?? 0 };
+        console.info('[ocr/export] submit_pdf', {
+          taskId,
+          mode: pdfExportMode,
+          payload: payloadShape,
+        });
+      }
       await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
     } catch (e) {
@@ -762,8 +774,7 @@ export function OcrParseWorkbench({
               : ps === 'failed'
                 ? 'failed'
                 : ps === 'pending' ||
-                    ps === 'processing' ||
-                    exportState.pdf.status === 'processing'
+                    ps === 'processing'
                   ? 'processing'
                   : 'idle';
           next.pdf = {
@@ -787,8 +798,7 @@ export function OcrParseWorkbench({
               : ms === 'failed'
                 ? 'failed'
                 : ms === 'pending' ||
-                    ms === 'processing' ||
-                    exportState.md.status === 'processing'
+                    ms === 'processing'
                   ? 'processing'
                   : 'idle';
           next.md = {
@@ -812,8 +822,7 @@ export function OcrParseWorkbench({
                 : hs === 'failed'
                   ? 'failed'
                   : hs === 'pending' ||
-                      hs === 'processing' ||
-                      exportState.html.status === 'processing'
+                      hs === 'processing'
                     ? 'processing'
                     : 'idle';
           next.html = {
