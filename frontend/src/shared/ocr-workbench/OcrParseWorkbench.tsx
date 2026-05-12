@@ -116,10 +116,11 @@ export function OcrParseWorkbench({
   onCanvasFocus?: () => void;
   unifiedMainScroll?: boolean;
 }) {
+  /** 与 `OCR_PDF_EXPORT_MODE` / `resolvePdfExportMode()` 一致：未配置时默认矢量导出，避免误走栅格路径 */
   const pdfExportMode =
-    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'vector_shrink_only'
-      ? 'vector_shrink_only'
-      : 'raster_snapshot';
+    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+      ? 'raster_snapshot'
+      : 'vector_shrink_only';
   const rasterScale = Math.max(
     1,
     Math.min(4, Number(process.env.NEXT_PUBLIC_OCR_PDF_RASTER_SCALE || '2') || 2)

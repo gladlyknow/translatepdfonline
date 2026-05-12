@@ -38,6 +38,28 @@ function allElements(root: Element): Element[] {
   return [root, ...Array.from(root.querySelectorAll('*'))];
 }
 
+/**
+ * SVG foreignObject → canvas 时，样式里若含跨域 `url(...)`（如 background-image），会污染画布，
+ * `toDataURL` 抛 Tainted canvases。栅格导出只保留 `data:` 内联资源 URL，其余抹成 `none`。
+ */
+function stripNonDataCssUrlsFromStyle(style: string): string {
+  if (!style.includes('url(')) return style;
+  return style.replace(/url\(\s*([^)]+)\s*\)/gi, (full, inner: string) => {
+    const t = String(inner).replace(/^['"]|['"]$/g, '').trim();
+    if (/^data:/i.test(t)) return full;
+    return 'none';
+  });
+}
+
+function sanitizeRasterSnapshotStyles(clone: HTMLElement): void {
+  for (const el of allElements(clone)) {
+    if (!(el instanceof HTMLElement)) continue;
+    const raw = el.getAttribute('style');
+    if (!raw?.includes('url(')) continue;
+    el.setAttribute('style', stripNonDataCssUrlsFromStyle(raw));
+  }
+}
+
 /** 打印快照里避免 scrollport（overflow:auto）被 Chromium PDF 裁切 */
 function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
   const candidates = clone.querySelectorAll<HTMLElement>(
@@ -124,6 +146,10 @@ export async function snapshotPageElement(
       imageIssues.push({ layoutId, src: raw, reason: 'resolve-failed' });
     }
     dst.removeAttribute('srcset');
+  }
+
+  if (options?.preserveUnresolvedImageUrl === false) {
+    sanitizeRasterSnapshotStyles(clone);
   }
 
   const rect = pageEl.getBoundingClientRect();
