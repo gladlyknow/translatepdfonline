@@ -3,17 +3,14 @@ import { and, asc, eq, isNull, lte, ne, or } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
-import {
-  loadMarkdownFromR2,
-  runOcrAndPersistParse,
-  translateMarkdownWithDeepSeek,
-} from '@/shared/lib/ocr-translate';
+import { runOcrAndPersistParse } from '@/shared/lib/ocr-translate';
 import {
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
 import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
+import { mirrorBaiduImagesIntoParseResult } from '@/shared/lib/ocr-parse-result-image-proxy';
 import { ocrParseResultSourceKey } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import { runOcrStage } from '@/shared/lib/ocr-step-runner';
@@ -39,11 +36,12 @@ export type OcrPipelineQueueBody =
       taskId: string;
       exportId: string;
       format: 'pdf' | 'md' | 'html';
+      pdfMode?: 'vector_shrink_only' | 'raster_snapshot';
     };
 type OcrStage =
   | 'ocr_submit_poll'
+  | 'mirror_baidu_images'
   | 'ocr_parse_persisted'
-  | 'translate_markdown'
   | 'translate_parse_result'
   | 'export_outputs'
   | 'completed';
@@ -62,15 +60,73 @@ const DEFAULT_MAX_ATTEMPTS = Math.max(
   Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS || '3') || 3
 );
 
+/**
+ * `mirror_baidu_images` 阶段配置：异步队列中下载百度签名图片到 R2，并改写 source ParseResult JSON。
+ * 单图下载并发与每次重试细节由 `rewriteExternalImagesToR2` 内部处理。
+ */
+function clampInt(
+  v: number,
+  min: number,
+  max: number,
+  fallback: number
+): number {
+  const n = Math.floor(Number(v));
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
+const OCR_IMAGE_MIRROR_CONCURRENCY = clampInt(
+  Number(process.env.OCR_IMAGE_MIRROR_CONCURRENCY || '5'),
+  1,
+  16,
+  5
+);
+const OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS = clampInt(
+  Number(process.env.OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS || '480000'),
+  30_000,
+  3_600_000,
+  480_000
+);
+const OCR_IMAGE_MIRROR_FAIL_RATIO_MAX = (() => {
+  const raw = Number(process.env.OCR_IMAGE_MIRROR_FAIL_RATIO_MAX || '0.5');
+  if (!Number.isFinite(raw)) return 0.5;
+  return Math.max(0, Math.min(1, raw));
+})();
+
 function nowIso() {
   return new Date().toISOString();
 }
 
+/**
+ * 阶段级 wall-clock 超时：仅给 `mirror_baidu_images` 用，单图 fetch 内部已有 90s 超时。
+ * 超时后抛错让队列重试整阶段，不会回滚上一个阶段（source JSON 已落 R2）。
+ */
+function withMirrorStageTimeout<T>(
+  fn: () => Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(
+        new Error(`ocr stage timeout (mirror_baidu_images) after ${timeoutMs}ms`)
+      );
+    }, timeoutMs);
+    fn()
+      .then((v) => {
+        clearTimeout(timer);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+  });
+}
+
 function stagePercent(stage: OcrStage): number {
   if (stage === 'ocr_submit_poll') return 20;
+  if (stage === 'mirror_baidu_images') return 35;
   if (stage === 'ocr_parse_persisted') return 45;
-  if (stage === 'translate_markdown') return 65;
-  if (stage === 'translate_parse_result') return 80;
+  if (stage === 'translate_parse_result') return 65;
   if (stage === 'export_outputs') return 90;
   return 100;
 }
@@ -78,8 +134,10 @@ function stagePercent(stage: OcrStage): number {
 function normalizeStage(raw: string | null | undefined): OcrStage {
   const s = String(raw || '').trim().toLowerCase();
   if (s === 'ocr_submit_poll') return 'ocr_submit_poll';
+  if (s === 'mirror_baidu_images') return 'mirror_baidu_images';
   if (s === 'ocr_parse_persisted') return 'ocr_parse_persisted';
-  if (s === 'translate_markdown') return 'translate_markdown';
+  /** 旧队列/DB 可能仍存 translate_markdown，归并到 translate_parse_result */
+  if (s === 'translate_markdown') return 'translate_parse_result';
   if (s === 'translate_parse_result') return 'translate_parse_result';
   if (s === 'export_outputs') return 'export_outputs';
   if (s === 'completed') return 'completed';
@@ -223,31 +281,72 @@ async function runOneStage(params: {
       outputParseResultObjectKey: keys.outputParseResultObjectKey,
       outputMarkdownObjectKey: keys.sourceMarkdownObjectKey,
     });
+    return 'mirror_baidu_images';
+  }
+
+  if (params.stage === 'mirror_baidu_images') {
+    const startedAt = Date.now();
+    console.log(
+      '[ocr/stage] start',
+      JSON.stringify({
+        stage: 'mirror_baidu_images',
+        task_id: params.taskId,
+        concurrency: OCR_IMAGE_MIRROR_CONCURRENCY,
+        timeout_ms: OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS,
+        fail_ratio_max: OCR_IMAGE_MIRROR_FAIL_RATIO_MAX,
+      })
+    );
+    const result = await withMirrorStageTimeout(
+      () =>
+        mirrorBaiduImagesIntoParseResult({
+          taskId: params.taskId,
+          parseResultKey: keys.outputParseResultObjectKey,
+          maxConcurrent: OCR_IMAGE_MIRROR_CONCURRENCY,
+        }),
+      OCR_IMAGE_MIRROR_STAGE_TIMEOUT_MS
+    );
+    const failRatio = result.total === 0 ? 0 : result.failed / result.total;
+    const partial = result.failed > 0;
+    console.log(
+      '[ocr/parse_image_mirror] done',
+      JSON.stringify({
+        task_id: params.taskId,
+        replaced: result.replaced,
+        failed: result.failed,
+        total: result.total,
+        written: result.written,
+        fail_ratio: Number(failRatio.toFixed(3)),
+        mirror_partial: partial,
+        elapsed_ms: Date.now() - startedAt,
+      })
+    );
+    if (
+      result.total > 0 &&
+      result.failed > 0 &&
+      failRatio > OCR_IMAGE_MIRROR_FAIL_RATIO_MAX
+    ) {
+      throw new Error(
+        `mirror_baidu_images failure ratio ${failRatio.toFixed(3)} > ${OCR_IMAGE_MIRROR_FAIL_RATIO_MAX} (failed=${result.failed}/${result.total})`
+      );
+    }
     return 'ocr_parse_persisted';
   }
 
   if (params.stage === 'ocr_parse_persisted') {
     return needTranslateForTask(params.sourceLang, params.targetLang)
-      ? 'translate_markdown'
+      ? 'translate_parse_result'
       : 'export_outputs';
   }
 
-  if (params.stage === 'translate_markdown') {
-    const markdown = await loadMarkdownFromR2(keys.sourceMarkdownObjectKey);
-    const translated = await translateMarkdownWithDeepSeek({
-      markdown,
-      sourceLang: params.sourceLang,
-      targetLang: params.targetLang,
-    });
-    await putObject(
-      keys.translatedMarkdownObjectKey,
-      new TextEncoder().encode(translated),
-      'text/markdown; charset=utf-8'
-    );
-    return 'translate_parse_result';
-  }
-
   if (params.stage === 'translate_parse_result') {
+    console.log(
+      '[ocr/stage] translate_parse_result_enter',
+      JSON.stringify({
+        task_id: params.taskId,
+        source_lang: params.sourceLang,
+        target_lang: params.targetLang,
+      })
+    );
     await translateAndPersistParseResultTarget({
       taskId: params.taskId,
       sourceLang: params.sourceLang,
@@ -428,6 +527,7 @@ export async function sendOcrExportQueueMessage(params: {
   taskId: string;
   exportId: string;
   format: 'pdf' | 'md' | 'html';
+  pdfMode?: 'vector_shrink_only' | 'raster_snapshot';
 }): Promise<QueueSendResult> {
   try {
     const q = getQueueBindingFromContext();
@@ -439,6 +539,7 @@ export async function sendOcrExportQueueMessage(params: {
       taskId: params.taskId,
       exportId: params.exportId,
       format: params.format,
+      pdfMode: params.pdfMode,
     });
     console.log(
       '[ocr/export-queue] enqueued',
@@ -446,6 +547,7 @@ export async function sendOcrExportQueueMessage(params: {
         task_id: params.taskId,
         export_id: params.exportId,
         format: params.format,
+        pdf_mode: params.pdfMode,
         at: nowIso(),
       })
     );
@@ -459,6 +561,7 @@ export async function sendOcrExportQueueMessage(params: {
         task_id: params.taskId,
         export_id: params.exportId,
         format: params.format,
+        pdf_mode: params.pdfMode,
         reason,
         ...sanitized,
       })
@@ -501,12 +604,65 @@ async function deferTaskForConcurrency(
   );
 }
 
+type OcrQueueExecutionContext = {
+  waitUntil?: (promise: Promise<unknown>) => void;
+};
+
+function _ocrDeferRequeueDelayMs(): number {
+  return Math.max(
+    1_000,
+    Math.min(
+      120_000,
+      Number(process.env.OCR_DEFER_REQUEUE_DELAY_MS || '8000') || 8_000
+    )
+  );
+}
+
+/**
+ * 并发让路后：当前队列消息已 ack，若不再投递则任务会卡在 fcNextAttemptAt 之后仍无人拾取。
+ * 用 waitUntil 延迟重新 send 到 OCR 队列（与 defer 写入的 fcNextAttemptAt 对齐）。
+ */
+function scheduleOcrDeferredRequeue(
+  taskId: string,
+  executionCtx: OcrQueueExecutionContext | undefined
+): void {
+  const delayMs = _ocrDeferRequeueDelayMs();
+  const run = async () => {
+    await new Promise((r) => setTimeout(r, delayMs));
+    const res = await sendOcrPipelineQueueMessage(taskId);
+    console.log(
+      '[ocr/stage] deferred_requeue',
+      JSON.stringify({
+        task_id: taskId,
+        delay_ms: delayMs,
+        ok: res.ok,
+        reason: res.ok ? undefined : res.reason,
+      })
+    );
+  };
+  const p = run();
+  if (executionCtx?.waitUntil) {
+    executionCtx.waitUntil(p);
+  } else {
+    void p.catch((e) =>
+      console.error(
+        '[ocr/stage] deferred_requeue_no_waitUntil',
+        JSON.stringify({
+          task_id: taskId,
+          error: e instanceof Error ? e.message : String(e),
+        })
+      )
+    );
+  }
+}
+
 /**
  * Queues consumer 入口：与 OpenNext 默认 `fetch` 导出合并为 `export default { fetch, queue }` 时调用。
  * batch 建议 max_batch_size=1，避免长任务并行占满 CPU。
  */
 export async function handleOcrPipelineQueueBatch(batch: {
   messages: Array<{ body: OcrPipelineQueueBody }>;
+  executionCtx?: OcrQueueExecutionContext;
 }): Promise<void> {
   for (const msg of batch.messages) {
     const body = msg.body;
@@ -514,12 +670,16 @@ export async function handleOcrPipelineQueueBatch(batch: {
     if (body.type === 'ocr_pipeline' || !('type' in body)) {
       const taskId = (body as { taskId?: string }).taskId;
       if (!taskId || typeof taskId !== 'string') continue;
-      await invokeOcrPipelineForTask(taskId);
+      await invokeOcrPipelineForTask(taskId, {
+        executionCtx: batch.executionCtx,
+      });
       continue;
     }
     if (body.type === 'ocr_export_generate') {
       if (!body.exportId || typeof body.exportId !== 'string') continue;
-      await processOcrTaskExport(body.exportId);
+      await processOcrTaskExport(body.exportId, {
+        pdfMode: body.pdfMode,
+      });
     }
   }
 }
@@ -538,7 +698,10 @@ export async function enqueueOcrTask(taskId: string): Promise<void> {
     .where(and(eq(translationTasks.id, taskId), eq(translationTasks.preprocessWithOcr, true)));
 }
 
-export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
+export async function invokeOcrPipelineForTask(
+  taskId: string,
+  options?: { executionCtx?: OcrQueueExecutionContext }
+): Promise<void> {
   const now = new Date();
   const leaseUntil = new Date(Date.now() + 180_000);
   const claimed = await db()
@@ -557,7 +720,38 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
       )
     )
     .returning();
-  if (!claimed.length) return;
+  if (!claimed.length) {
+    const peek = await db()
+      .select({
+        status: translationTasks.status,
+        progressStage: translationTasks.progressStage,
+        fcNextAttemptAt: translationTasks.fcNextAttemptAt,
+        fcInvokeLeaseUntil: translationTasks.fcInvokeLeaseUntil,
+        preprocessWithOcr: translationTasks.preprocessWithOcr,
+      })
+      .from(translationTasks)
+      .where(eq(translationTasks.id, taskId))
+      .limit(1);
+    const r = peek[0];
+    console.warn(
+      '[ocr/pipeline] claim_skipped',
+      JSON.stringify({
+        task_id: taskId,
+        row: r
+          ? {
+              status: r.status,
+              progress_stage: r.progressStage,
+              fc_next_attempt_at: r.fcNextAttemptAt?.toISOString?.() ?? r.fcNextAttemptAt,
+              fc_invoke_lease_until:
+                r.fcInvokeLeaseUntil?.toISOString?.() ?? r.fcInvokeLeaseUntil,
+              preprocess_with_ocr: r.preprocessWithOcr,
+            }
+          : null,
+        at: nowIso(),
+      })
+    );
+    return;
+  }
 
   const row = claimed[0];
   const ownerWhere = row.userId
@@ -576,7 +770,16 @@ export async function invokeOcrPipelineForTask(taskId: string): Promise<void> {
     )
     .limit(OCR_ACCOUNT_MAX_CONCURRENCY);
   if (ownerProcessingRows.length >= OCR_ACCOUNT_MAX_CONCURRENCY) {
+    console.warn(
+      '[ocr/pipeline] deferred_owner_concurrency',
+      JSON.stringify({
+        task_id: taskId,
+        limit: OCR_ACCOUNT_MAX_CONCURRENCY,
+        processing_peer_count: ownerProcessingRows.length,
+      })
+    );
     await deferTaskForConcurrency(taskId, 'owner_concurrency_limit');
+    scheduleOcrDeferredRequeue(taskId, options?.executionCtx);
     return;
   }
   const stage = normalizeStage(row.progressStage);

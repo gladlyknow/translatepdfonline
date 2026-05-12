@@ -20,5 +20,17 @@
   "backgroundTaskHint": "L’attività è in esecuzione in background. Puoi chiudere la pagina o fare altro; torna quando è finita.",
   "longTaskHint": "I documenti lunghi possono richiedere diversi minuti. Grazie per la pazienza.",
   "queuedWaitHint": "La tua attività è in coda. Potrebbero esserci altre attività in corso; attendi un momento.",
-  "restoring": "Caricamento attività…"
+  "restoring": "Caricamento attività…",
+  "suggestOcrHintTitle": "Prova la traduzione OCR",
+  "suggestOcrHintBody": "Il PDF è stato tradotto, ma il livello di testo può essere debole. L’OCR ricostruisce il testo dalle immagini di pagina e spesso funziona meglio con scansioni o layout difficili.",
+  "suggestOcrHintCta": "Apri traduttore OCR",
+  "completedOcrOfferTitle": "Opzionale: pre-elaborazione OCR",
+  "completedOcrOfferBody": "La traduzione è pronta. Per modificare il testo del layout o gestire pagine scansionate, apri il traduttore OCR con questo documento e le lingue selezionate.",
+  "ocrJumpHintTitle": "Scansione o layout complesso?",
+  "ocrJumpHintBody": "Ricostruisci il testo dalle immagini di pagina—stesso file e lingue.",
+  "ocrJumpCta": "Apri OCR",
+  "ocrJumpWhenPreprocessedTitle": "Raffina il layout",
+  "ocrJumpWhenPreprocessedBody": "OCR in traduzione attivo; apri la workbench per modifiche più profonde.",
+  "failedOcrOfferTitle": "Traduzione interrotta — provare l’OCR?",
+  "failedOcrOfferBody": "Per scansioni o livelli di testo deboli, prima l’OCR ricostruisce il testo dalle immagini di pagina; stesso PDF e lingue."
 }

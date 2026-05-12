@@ -20,5 +20,17 @@
   "backgroundTaskHint": "La tâche s’exécute en arrière-plan. Vous pouvez fermer cette page ; revenez lorsqu’elle est terminée.",
   "longTaskHint": "Les documents longs peuvent prendre plusieurs minutes. Merci de votre patience.",
   "queuedWaitHint": "Votre tâche est en file d’attente. D’autres tâches peuvent être en cours ; veuillez patienter un instant.",
-  "restoring": "Chargement de la tâche…"
+  "restoring": "Chargement de la tâche…",
+  "suggestOcrHintTitle": "Essayer la traduction OCR",
+  "suggestOcrHintBody": "Le PDF a été traduit, mais la couche texte peut être faible. L’OCR reconstruit le texte à partir des images de page et convient souvent mieux aux scans ou mises en page difficiles.",
+  "suggestOcrHintCta": "Ouvrir le traducteur OCR",
+  "completedOcrOfferTitle": "Optionnel : prétraitement OCR",
+  "completedOcrOfferBody": "La traduction est prête. Pour ajuster le texte de mise en page ou traiter des pages numérisées, ouvrez le traducteur OCR avec ce document et ces langues.",
+  "ocrJumpHintTitle": "Scan ou mise en page difficile ?",
+  "ocrJumpHintBody": "Reconstruire le texte à partir des images de page—même fichier et langues.",
+  "ocrJumpCta": "Ouvrir l’OCR",
+  "ocrJumpWhenPreprocessedTitle": "Affiner la mise en page",
+  "ocrJumpWhenPreprocessedBody": "OCR activé à la traduction ; ouvrez l’atelier pour aller plus loin.",
+  "failedOcrOfferTitle": "Traduction interrompue — essayer l’OCR ?",
+  "failedOcrOfferBody": "Pour les scans ou textes pauvres, l’OCR reconstruit d’abord le texte à partir des images de page ; même PDF et langues."
 }

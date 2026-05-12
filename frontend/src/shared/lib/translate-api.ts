@@ -54,6 +54,8 @@ export interface TaskSummary {
   page_range_user_input?: string | null;
   document_page_count?: number | null;
   updated_at?: string | null;
+  /** 成功完成后的可选提示，如 suggest_try_ocr */
+  post_complete_hint?: string | null;
 }
 
 export interface TaskDetail {
@@ -73,9 +75,20 @@ export interface TaskDetail {
   progress_current?: number | null;
   progress_total?: number | null;
   preprocess_with_ocr?: boolean;
+  /** 成功完成后的可选提示，如 suggest_try_ocr */
+  post_complete_hint?: string | null;
+  document_page_count?: number | null;
 }
 
 export interface TranslateResponse {
+  task_id: string;
+  page_range_effective?: string | null;
+  page_range_adjusted?: boolean;
+  page_range_user_input?: string | null;
+  document_page_count?: number | null;
+}
+
+export interface OcrTaskCreatedResponse {
   task_id: string;
   page_range_effective?: string | null;
   page_range_adjusted?: boolean;
@@ -130,6 +143,13 @@ export interface OcrTaskExportItem {
   ready_at?: string | null;
   logs: string[];
 }
+
+export type OcrPdfExportMode = 'vector_shrink_only' | 'raster_snapshot';
+export type OcrExportRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
 
 export interface TaskView {
   task: TaskDetail;
@@ -274,15 +294,21 @@ export const translateApi = {
 
   createOcrTask: (
     documentId: string,
-    sourceLang: UILang,
-    targetLang: UILang | ''
+    sourceLang: UILang | '',
+    targetLang: UILang,
+    options?: {
+      page_range?: string | null;
+      source_slice_object_key?: string | null;
+    }
   ) =>
-    fetchTranslateApi<{ task_id: string }>('/api/ocr/tasks', {
+    fetchTranslateApi<OcrTaskCreatedResponse>('/api/ocr/tasks', {
       method: 'POST',
       body: JSON.stringify({
         document_id: documentId,
         source_lang: sourceLang,
         target_lang: targetLang,
+        page_range: options?.page_range ?? null,
+        source_slice_object_key: options?.source_slice_object_key ?? null,
       }),
     }),
 
@@ -317,6 +343,8 @@ export const translateApi = {
     fetchTranslateApi<{
       markdown: string;
       object_key: string;
+      /** `parse_result_rebuild`：从 R2 parse JSON 实时生成，不再依赖 ocr-translated.md */
+      source?: string;
       updated_at?: string;
     }>(`/api/tasks/${taskId}/markdown`),
 
@@ -355,7 +383,9 @@ export const translateApi = {
     taskId: string,
     format: 'pdf' | 'md' | 'html',
     snapshot?: {
+      pdfMode?: OcrPdfExportMode;
       htmlDocument?: string;
+      rasterPages?: OcrExportRasterPage[];
       orientation?: 'portrait' | 'landscape';
     }
   ) =>
@@ -368,7 +398,9 @@ export const translateApi = {
       method: 'POST',
       body: JSON.stringify({
         format,
+        pdfMode: snapshot?.pdfMode,
         htmlDocument: snapshot?.htmlDocument,
+        rasterPages: snapshot?.rasterPages,
         orientation: snapshot?.orientation,
       }),
     }),

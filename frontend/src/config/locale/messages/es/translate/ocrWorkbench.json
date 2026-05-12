@@ -39,5 +39,14 @@
   "toolbarFontYaheiShort": "YaHei",
   "toolbarFontSimsunShort": "Song",
   "toolbarFontKaitiShort": "Kai",
-  "toolbarFontNotoShort": "Noto"
+  "toolbarFontNotoShort": "Noto",
+  "sourceColumnShort": "S",
+  "targetColumnShort": "T",
+  "pageRangeColumnShort": "P",
+  "ocrPageRangePlaceholder": "Rango de páginas (opcional, ej. 1-10)",
+  "pagesSourcePageLabel": "Página de origen",
+  "pagesJsonPageLabel": "Página JSON",
+  "pagesPageInputAria": "Número de página",
+  "focusPanelJson": "Foco JSON",
+  "focusPanelSource": "Foco origen"
 }

@@ -21,5 +21,17 @@
   "backgroundTaskHint": "任务在后台运行，可关闭本页或做其他操作，完成后回来查看即可。",
   "longTaskHint": "长文档翻译可能需要数分钟，请耐心等待。",
   "queuedWaitHint": "任务已排队，可能正在处理其他任务，请稍候。",
-  "restoring": "正在加载任务…"
+  "restoring": "正在加载任务…",
+  "suggestOcrHintTitle": "可尝试使用 OCR 翻译",
+  "suggestOcrHintBody": "PDF 已生成译文，但可抽取文字层可能偏薄或不稳定。OCR 会按页面图像重建文字，对扫描件或复杂版式通常更稳妥。",
+  "suggestOcrHintCta": "前往 OCR 翻译",
+  "completedOcrOfferTitle": "可选：OCR 预处理",
+  "completedOcrOfferBody": "译文已就绪。若要在版面中微调文字、或针对扫描件再处理，可用同一文档与语种打开 OCR 翻译。",
+  "ocrJumpHintTitle": "扫描件或复杂版式？",
+  "ocrJumpHintBody": "按页图像重建文字，沿用当前文档与语种。",
+  "ocrJumpCta": "打开 OCR",
+  "ocrJumpWhenPreprocessedTitle": "需要精调版面？",
+  "ocrJumpWhenPreprocessedBody": "本次翻译已启用译前 OCR，仍可在工作台继续编辑排版。",
+  "failedOcrOfferTitle": "翻译未完成，试试 OCR？",
+  "failedOcrOfferBody": "扫描件或文字层较薄时，建议先用 OCR 从页面图像重建文字，再用同一文档与语种继续。"
 }

@@ -39,5 +39,14 @@
   "toolbarFontYaheiShort": "YaHei",
   "toolbarFontSimsunShort": "Song",
   "toolbarFontKaitiShort": "Kai",
-  "toolbarFontNotoShort": "Noto"
+  "toolbarFontNotoShort": "Noto",
+  "sourceColumnShort": "S",
+  "targetColumnShort": "T",
+  "pageRangeColumnShort": "P",
+  "ocrPageRangePlaceholder": "ページ範囲（任意、例: 1-10）",
+  "pagesSourcePageLabel": "原稿ページ",
+  "pagesJsonPageLabel": "JSONページ",
+  "pagesPageInputAria": "ページ番号",
+  "focusPanelJson": "JSON フォーカス",
+  "focusPanelSource": "原稿フォーカス"
 }

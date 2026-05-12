@@ -25,16 +25,26 @@ type OcrQueueBatch = {
   readonly messages: readonly OcrQueueMessage[];
 };
 
+type QueueExecutionContext = {
+  waitUntil?: (promise: Promise<unknown>) => void;
+};
+
+/**
+ * Queues consumer：须 `export default` 上存在 `queue`（见 Cloudflare Queues 文档）。
+ * wrangler.consumer*.jsonc 中已设 `preserve_file_names: true`，避免产物中方法名被过度改写。
+ */
 export default {
-  async fetch(): Promise<Response> {
-    return new Response('queue consumer only', { status: 403 });
-  },
-  async queue(batch: OcrQueueBatch, env: Record<string, unknown>): Promise<void> {
+  async queue(
+    batch: OcrQueueBatch,
+    env: Record<string, unknown>,
+    ctx?: QueueExecutionContext
+  ): Promise<void> {
     await runWithCloudflareEnv(env, async () => {
       for (const msg of batch.messages) {
         try {
           await handleOcrPipelineQueueBatch({
             messages: [{ body: (msg.body ?? {}) as any }],
+            executionCtx: ctx,
           });
           msg.ack();
         } catch (e) {
@@ -44,8 +54,7 @@ export default {
       }
     });
   },
-  async scheduled(_controller: unknown, _env: Record<string, unknown>): Promise<void> {
-    // Intentionally noop: OCR dispatch only via queue/API, no cron fallback.
-    return;
+  async fetch(): Promise<Response> {
+    return new Response('queue consumer only', { status: 403 });
   },
 };

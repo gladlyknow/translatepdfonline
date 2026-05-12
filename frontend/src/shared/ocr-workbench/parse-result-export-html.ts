@@ -7,6 +7,7 @@ import {
   sortLayoutsByReadingOrder,
 } from '@/shared/ocr-workbench/parse-result-document';
 import { resolveImageDataUrl } from '@/shared/ocr-workbench/parse-result-image-data';
+import { buildLayoutFitInlineScript } from '@/shared/ocr-workbench/parse-result-export-layout-fit-script';
 import { stripUrlsFromText } from '@/shared/ocr-workbench/strip-urls';
 import type { ParseLayout, ParseResult } from '@/shared/ocr-workbench/translator-parse-result';
 const mdIt = new MarkdownIt({ html: false, linkify: false });
@@ -141,31 +142,33 @@ export async function buildSelfContainedHtml(
         inner = `<div class="parse-result-rich-host pr-table-host">${mdIt.render(
           stripUrlsFromText(tb?.markdown ?? '')
         )}</div>`;
-      } else if (ly.type === 'image') {
+      } else {
         const im = findImageForLayout(page, ly.layout_id);
         const raw = im?.data_url?.trim() ?? '';
-        const inlined = raw
-          ? await resolveImageDataUrl(raw, cache, {
-              appOrigin: options?.appOrigin,
-              forwardCookie: options?.forwardCookie,
-            })
-          : '';
-        const src = inlined || raw || '';
-        if (!src) {
-          imageWarnings += 1;
-        }
-        const safeAttr = src.replace(/"/g, '&quot;');
-        inner = src
-          ? `<img src="${safeAttr}" alt="" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;" />`
-          : '';
-      } else {
-        const rawText = ly.text || '';
-        if (looksLikeHtml(rawText)) {
-          inner = `<div class="pr-text parse-result-rich-host">${stripScriptTags(rawText)}</div>`;
+        if (ly.type === 'image' || raw) {
+          const inlined = raw
+            ? await resolveImageDataUrl(raw, cache, {
+                appOrigin: options?.appOrigin,
+                forwardCookie: options?.forwardCookie,
+              })
+            : '';
+          const src = inlined || raw || '';
+          if (!src) {
+            imageWarnings += 1;
+          }
+          const safeAttr = src.replace(/"/g, '&quot;');
+          inner = src
+            ? `<img src="${safeAttr}" alt="" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;" />`
+            : '';
         } else {
-          inner = `<div class="pr-text parse-result-rich-host">${mdIt.render(
-            stripUrlsFromText(rawText)
-          )}</div>`;
+          const rawText = ly.text || '';
+          if (looksLikeHtml(rawText)) {
+            inner = `<div class="pr-text parse-result-rich-host">${stripScriptTags(rawText)}</div>`;
+          } else {
+            inner = `<div class="pr-text parse-result-rich-host">${mdIt.render(
+              stripUrlsFromText(rawText)
+            )}</div>`;
+          }
         }
       }
       body += `<div class="pr-layout" data-layout-id="${escapeHtml(ly.layout_id)}" data-layout-type="${escapeHtml(ly.type || 'text')}" style="position:absolute;left:${x}px;top:${y}px;width:${pw}px;height:${ph}px;overflow:hidden;box-sizing:border-box;${ed}">${inner}</div>`;
@@ -180,44 +183,7 @@ export async function buildSelfContainedHtml(
   const rawLocale = (options?.locale || 'zh-CN').trim().slice(0, 24);
   const lang = /^[\w-]+$/.test(rawLocale) ? escapeHtml(rawLocale) : 'zh-CN';
   const title = escapeHtml(doc.file_name || 'document');
-  const workbenchLayoutFitScript = `<script>
-    (() => {
-      const MIN_FONT = 7;
-      const MAX_STEPS = 30;
-      function isOverflow(el) {
-        return el.scrollHeight > el.clientHeight + 0.8 || el.scrollWidth > el.clientWidth + 0.8;
-      }
-      function fitTextLayout(el) {
-        const kind = (el.getAttribute('data-layout-type') || '').toLowerCase();
-        if (kind === 'image' || kind === 'table') return;
-        if (!isOverflow(el)) return;
-        const cs = window.getComputedStyle(el);
-        let fontSize = Number.parseFloat(cs.fontSize || '') || 12;
-        let lineHeight = Number.parseFloat(cs.lineHeight || '') || fontSize * 1.4;
-        let steps = 0;
-        while (steps < MAX_STEPS && isOverflow(el) && fontSize > MIN_FONT) {
-          fontSize -= 0.5;
-          lineHeight = Math.max(fontSize * 1.15, lineHeight - 0.35);
-          el.style.fontSize = fontSize.toFixed(2) + 'px';
-          el.style.lineHeight = lineHeight.toFixed(2) + 'px';
-          steps += 1;
-        }
-      }
-      function runFit() {
-        const layouts = Array.from(document.querySelectorAll('.pr-layout'));
-        for (const one of layouts) {
-          fitTextLayout(one);
-        }
-        window.__prLayoutFitDone = true;
-      }
-      window.__prLayoutFitDone = false;
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', runFit, { once: true });
-      } else {
-        runFit();
-      }
-    })();
-  </script>`;
+  const workbenchLayoutFitScript = buildLayoutFitInlineScript('.pr-layout');
   const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>
     :root{color-scheme:light;}
     html,body{margin:0;padding:0;}

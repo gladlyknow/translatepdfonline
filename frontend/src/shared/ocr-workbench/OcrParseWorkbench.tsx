@@ -37,7 +37,9 @@ import {
 } from '@/shared/ocr-workbench/parse-result-editor-styles';
 import {
   buildSnapshotHtmlDocument,
+  type SnapshotRasterPage,
   snapshotPageElement,
+  snapshotPageHtmlToRasterDataUrl,
 } from '@/shared/ocr-workbench/parse-result-export-snapshot';
 import { tryNormalizeToParseResult } from '@/shared/ocr-workbench/normalize-ocr-parse-json';
 import { ParseResultCanvas } from '@/shared/ocr-workbench/parse-result-canvas';
@@ -77,6 +79,7 @@ export function OcrParseWorkbench({
   pageIndex: controlledPageIndex,
   onPageIndexChange,
   onWorkbenchPageJson,
+  onParseResultPageCount,
   toolbarPosition = 'bottom',
   toolbarId,
   toolbarSectionIds,
@@ -84,6 +87,8 @@ export function OcrParseWorkbench({
   canvasScalePercent,
   onCanvasScaleChange,
   onCanvasFocus,
+  /** 与外侧 Source PDF 共用主区一条纵向滚动条（OCR 双栏页） */
+  unifiedMainScroll = false,
 }: {
   taskId: string | null;
   parseResultUrl: string | null;
@@ -96,6 +101,8 @@ export function OcrParseWorkbench({
   onPageIndexChange?: (index: number) => void;
   /** 当前解析页序列化 JSON（供外侧只读预览） */
   onWorkbenchPageJson?: (payload: { pageIndex: number; json: string }) => void;
+  /** 解析结果页数（与源 PDF 可能不一致）；无 URL 或未加载成功时不回调或由 URL 清空回调 0 */
+  onParseResultPageCount?: (count: number) => void;
   toolbarPosition?: 'bottom' | 'left';
   toolbarId?: string;
   toolbarSectionIds?: {
@@ -107,7 +114,19 @@ export function OcrParseWorkbench({
   canvasScalePercent?: number;
   onCanvasScaleChange?: (next: number) => void;
   onCanvasFocus?: () => void;
+  unifiedMainScroll?: boolean;
 }) {
+  /** 与 `OCR_PDF_EXPORT_MODE` / `resolvePdfExportMode()` 一致：未配置时默认矢量导出，避免误走栅格路径 */
+  const pdfExportMode =
+    process.env.NEXT_PUBLIC_OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+      ? 'raster_snapshot'
+      : 'vector_shrink_only';
+  const rasterScale = Math.max(
+    1,
+    Math.min(4, Number(process.env.NEXT_PUBLIC_OCR_PDF_RASTER_SCALE || '2') || 2)
+  );
+  const rasterImageType =
+    process.env.NEXT_PUBLIC_OCR_PDF_RASTER_IMAGE_TYPE === 'jpeg' ? 'jpeg' : 'png';
   const t = useTranslations('translate.ocrWorkbench');
   const {
     doc,
@@ -249,6 +268,16 @@ export function OcrParseWorkbench({
   }, [parseResultUrl, reset, onPageIndexChange]);
 
   useEffect(() => {
+    if (!parseResultUrl) {
+      onParseResultPageCount?.(0);
+      return;
+    }
+    if (loadState === 'ok' && doc?.pages) {
+      onParseResultPageCount?.(doc.pages.length);
+    }
+  }, [parseResultUrl, loadState, doc?.pages.length, onParseResultPageCount]);
+
+  useEffect(() => {
     if (!doc || !page) return;
     const exists = selectedLayoutId
       ? page.layouts.some((ly) => ly.layout_id === selectedLayoutId)
@@ -376,60 +405,83 @@ export function OcrParseWorkbench({
   const pollExportReady = useCallback(
     async (format: 'pdf' | 'md' | 'html', attempt = 0) => {
       if (!taskId) return;
-      const exportsState = await translateApi.listOcrTaskExports(taskId);
-      const target = exportsState.exports.find((one) => one.format === format);
-      if (!target) {
-        if (attempt >= 30) {
+      const delayMs = 4000;
+      const maxAttempts = 30;
+      try {
+        const exportsState = await translateApi.listOcrTaskExports(taskId);
+        const list = exportsState.exports ?? [];
+        const target = list.find((one) => one.format === format);
+        if (!target) {
+          if (attempt >= maxAttempts) {
+            exportPendingRef.current[format] = false;
+            setSingleExportState(format, {
+              status: 'failed',
+              error: `${format.toUpperCase()} export not found`,
+            });
+            clearExportPollTimer();
+            return;
+          }
+          setSingleExportState(format, { status: 'processing', error: null });
+          clearExportPollTimer();
+          await new Promise<void>((r) => {
+            exportPollTimerRef.current = setTimeout(() => {
+              exportPollTimerRef.current = null;
+              r();
+            }, delayMs);
+          });
+          if (!exportPendingRef.current[format]) return;
+          await pollExportReady(format, attempt + 1);
+          return;
+        }
+        const st = (target.status ?? '').toLowerCase();
+        if (st === 'ready') {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, { status: 'ready', error: null });
+          clearExportPollTimer();
+          return;
+        }
+        if (st === 'cancelled') {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, { status: 'idle', error: null });
+          clearExportPollTimer();
+          return;
+        }
+        if (st === 'failed') {
           exportPendingRef.current[format] = false;
           setSingleExportState(format, {
             status: 'failed',
-            error: `${format.toUpperCase()} export not found`,
+            error: target.error_message ?? `${format.toUpperCase()} export failed`,
+          });
+          clearExportPollTimer();
+          return;
+        }
+        if (attempt >= maxAttempts) {
+          exportPendingRef.current[format] = false;
+          setSingleExportState(format, {
+            status: 'failed',
+            error: `${format.toUpperCase()} export timed out`,
           });
           clearExportPollTimer();
           return;
         }
         setSingleExportState(format, { status: 'processing', error: null });
         clearExportPollTimer();
-        exportPollTimerRef.current = setTimeout(() => {
-          void pollExportReady(format, attempt + 1);
-        }, 4000);
-        return;
-      }
-      if (target.status === 'ready') {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, { status: 'ready', error: null });
-        clearExportPollTimer();
-        return;
-      }
-      if (target.status === 'cancelled') {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, { status: 'idle', error: null });
-        clearExportPollTimer();
-        return;
-      }
-      if (target.status === 'failed') {
+        await new Promise<void>((r) => {
+          exportPollTimerRef.current = setTimeout(() => {
+            exportPollTimerRef.current = null;
+            r();
+          }, delayMs);
+        });
+        if (!exportPendingRef.current[format]) return;
+        await pollExportReady(format, attempt + 1);
+      } catch (e) {
         exportPendingRef.current[format] = false;
         setSingleExportState(format, {
           status: 'failed',
-          error: target.error_message ?? `${format.toUpperCase()} export failed`,
+          error: e instanceof Error ? e.message : 'Export status poll failed',
         });
         clearExportPollTimer();
-        return;
       }
-      if (attempt >= 30) {
-        exportPendingRef.current[format] = false;
-        setSingleExportState(format, {
-          status: 'failed',
-          error: `${format.toUpperCase()} export timed out`,
-        });
-        clearExportPollTimer();
-        return;
-      }
-      setSingleExportState(format, { status: 'processing', error: null });
-      clearExportPollTimer();
-      exportPollTimerRef.current = setTimeout(() => {
-        void pollExportReady(format, attempt + 1);
-      }, 4000);
     },
     [clearExportPollTimer, setSingleExportState, taskId]
   );
@@ -443,9 +495,14 @@ export function OcrParseWorkbench({
       throw new Error('No page available for export');
     }
     const beforePageIndex = activePageIndex;
+    const prevSelected = selectedLayoutId;
     const sections: string[] = [];
     const cache = new Map<string, string>();
     try {
+      flushSync(() => {
+        setSelectedLayoutId(null);
+      });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       for (let i = 0; i < pages.length; i += 1) {
         flushSync(() => {
           setActivePageIndex(i);
@@ -468,21 +525,110 @@ export function OcrParseWorkbench({
       flushSync(() => {
         setActivePageIndex(beforePageIndex);
       });
+      const snap = docRef.current;
+      const restorePage = snap?.pages[beforePageIndex];
+      if (
+        prevSelected &&
+        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
+      ) {
+        flushSync(() => {
+          setSelectedLayoutId(prevSelected);
+        });
+      }
     }
+    const fileName = docRef.current.file_name || 'document';
     return {
-      htmlDocument: buildSnapshotHtmlDocument(
-        sections,
-        docRef.current.file_name || 'document',
-        { orientation: 'portrait' }
-      ),
+      pdfMode: 'vector_shrink_only' as const,
+      htmlDocument: buildSnapshotHtmlDocument(sections, fileName, {
+        orientation: 'portrait',
+      }),
       orientation: 'portrait' as const,
     };
-  }, [activePageIndex, setActivePageIndex]);
+  }, [activePageIndex, selectedLayoutId, setActivePageIndex, setSelectedLayoutId]);
+
+  const collectWorkbenchSnapshotRaster = useCallback(async () => {
+    if (!docRef.current) {
+      throw new Error('Parse result not loaded');
+    }
+    const pages = docRef.current.pages || [];
+    if (pages.length === 0) {
+      throw new Error('No page available for export');
+    }
+    const beforePageIndex = activePageIndex;
+    const prevSelected = selectedLayoutId;
+    const cache = new Map<string, string>();
+    const rasterPages: SnapshotRasterPage[] = [];
+    try {
+      flushSync(() => {
+        setSelectedLayoutId(null);
+      });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      for (let i = 0; i < pages.length; i += 1) {
+        flushSync(() => {
+          setActivePageIndex(i);
+        });
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        );
+        const pageEl = document.querySelector<HTMLElement>(
+          `[data-export-page="true"][data-export-page-index="${i}"]`
+        );
+        if (!pageEl) {
+          throw new Error(`Export page ${i + 1} is not rendered`);
+        }
+        const snapshot = await snapshotPageElement(pageEl, cache, {
+          orientation: 'portrait',
+          preserveUnresolvedImageUrl: false,
+        });
+        const dataUrl = await snapshotPageHtmlToRasterDataUrl(
+          snapshot.pageHtml,
+          snapshot.pageW,
+          snapshot.pageH,
+          {
+            scale: rasterScale,
+            imageType: rasterImageType,
+          }
+        );
+        rasterPages.push({
+          dataUrl,
+          w: snapshot.pageW,
+          h: snapshot.pageH,
+        });
+      }
+    } finally {
+      flushSync(() => {
+        setActivePageIndex(beforePageIndex);
+      });
+      const snap = docRef.current;
+      const restorePage = snap?.pages[beforePageIndex];
+      if (
+        prevSelected &&
+        restorePage?.layouts?.some((ly) => ly.layout_id === prevSelected)
+      ) {
+        flushSync(() => {
+          setSelectedLayoutId(prevSelected);
+        });
+      }
+    }
+    return {
+      pdfMode: 'raster_snapshot' as const,
+      rasterPages,
+      orientation: 'portrait' as const,
+    };
+  }, [
+    activePageIndex,
+    selectedLayoutId,
+    rasterScale,
+    rasterImageType,
+    setActivePageIndex,
+    setSelectedLayoutId,
+  ]);
 
   const startExport = useCallback(async (format: 'pdf' | 'md' | 'html') => {
     if (
       !taskId ||
       exportState[format].status === 'processing' ||
+      exportPendingRef.current[format] ||
       exportStartLockRef.current.has(format)
     ) {
       return;
@@ -500,9 +646,24 @@ export function OcrParseWorkbench({
         await translateApi.patchOcrParseResult(taskId, payload);
       }
       const snapshotPayload =
-        format === 'pdf' || format === 'html'
-          ? await collectWorkbenchSnapshotHtml()
+        format === 'pdf'
+          ? pdfExportMode === 'raster_snapshot'
+            ? await collectWorkbenchSnapshotRaster()
+            : await collectWorkbenchSnapshotHtml()
+          : format === 'html'
+            ? await collectWorkbenchSnapshotHtml()
           : undefined;
+      if (format === 'pdf') {
+        const payloadShape =
+          snapshotPayload && 'rasterPages' in snapshotPayload
+            ? { kind: 'raster_snapshot', pages: snapshotPayload.rasterPages.length }
+            : { kind: 'vector_shrink_only', htmlBytes: snapshotPayload?.htmlDocument?.length ?? 0 };
+        console.info('[ocr/export] submit_pdf', {
+          taskId,
+          mode: pdfExportMode,
+          payload: payloadShape,
+        });
+      }
       await translateApi.retryOcrTaskExport(taskId, format, snapshotPayload);
       await pollExportReady(format, 0);
     } catch (e) {
@@ -518,8 +679,10 @@ export function OcrParseWorkbench({
   }, [
     clearExportPollTimer,
     collectWorkbenchSnapshotHtml,
+    collectWorkbenchSnapshotRaster,
     exportState,
     flushEditableText,
+    pdfExportMode,
     pollExportReady,
     setSingleExportState,
     taskId,
@@ -547,6 +710,7 @@ export function OcrParseWorkbench({
     async (format: 'pdf' | 'md' | 'html') => {
       if (!taskId) return;
       try {
+        exportPendingRef.current[format] = false;
         await translateApi.cancelOcrTaskExport(taskId, format);
         clearExportPollTimer();
         setSingleExportState(format, { status: 'idle', error: null });
@@ -597,78 +761,79 @@ export function OcrParseWorkbench({
           md: { status: 'idle', error: null },
           html: { status: 'idle', error: null },
         };
-        const pdf = exportsState.exports.find((one) => one.format === 'pdf');
-        const md = exportsState.exports.find((one) => one.format === 'md');
-        const html = exportsState.exports.find((one) => one.format === 'html');
+        const list = exportsState.exports ?? [];
+        const pdf = list.find((one) => one.format === 'pdf');
+        const md = list.find((one) => one.format === 'md');
+        const html = list.find((one) => one.format === 'html');
         if (pdf) {
+          const ps = (pdf.status ?? '').toLowerCase();
           const nextPdfStatus =
-            pdf.status === 'ready'
+            ps === 'ready'
               ? 'ready'
-              : pdf.status === 'cancelled'
+              : ps === 'cancelled'
                 ? 'idle'
-              : pdf.status === 'failed'
+              : ps === 'failed'
                 ? 'failed'
-                : pdf.status === 'pending' ||
-                    pdf.status === 'processing' ||
-                    exportState.pdf.status === 'processing'
+                : ps === 'pending' ||
+                    ps === 'processing'
                   ? 'processing'
                   : 'idle';
           next.pdf = {
             status: nextPdfStatus,
             error:
-              pdf.status === 'cancelled'
+              ps === 'cancelled'
                 ? null
                 : (pdf.error_message ?? null),
           };
-          if (pdf.status === 'ready' || pdf.status === 'failed' || pdf.status === 'cancelled') {
+          if (ps === 'ready' || ps === 'failed' || ps === 'cancelled') {
             exportPendingRef.current.pdf = false;
           }
         }
         if (md) {
+          const ms = (md.status ?? '').toLowerCase();
           const nextMdStatus =
-            md.status === 'ready'
+            ms === 'ready'
               ? 'ready'
-              : md.status === 'cancelled'
+              : ms === 'cancelled'
                 ? 'idle'
-              : md.status === 'failed'
+              : ms === 'failed'
                 ? 'failed'
-                : md.status === 'pending' ||
-                    md.status === 'processing' ||
-                    exportState.md.status === 'processing'
+                : ms === 'pending' ||
+                    ms === 'processing'
                   ? 'processing'
                   : 'idle';
           next.md = {
             status: nextMdStatus,
             error:
-              md.status === 'cancelled'
+              ms === 'cancelled'
                 ? null
                 : (md.error_message ?? null),
           };
-          if (md.status === 'ready' || md.status === 'failed' || md.status === 'cancelled') {
+          if (ms === 'ready' || ms === 'failed' || ms === 'cancelled') {
             exportPendingRef.current.md = false;
           }
         }
         if (html) {
+          const hs = (html.status ?? '').toLowerCase();
           const nextHtmlStatus =
-            html.status === 'ready'
+            hs === 'ready'
               ? 'ready'
-              : html.status === 'cancelled'
+              : hs === 'cancelled'
                 ? 'idle'
-                : html.status === 'failed'
+                : hs === 'failed'
                   ? 'failed'
-                  : html.status === 'pending' ||
-                      html.status === 'processing' ||
-                      exportState.html.status === 'processing'
+                  : hs === 'pending' ||
+                      hs === 'processing'
                     ? 'processing'
                     : 'idle';
           next.html = {
             status: nextHtmlStatus,
             error:
-              html.status === 'cancelled'
+              hs === 'cancelled'
                 ? null
                 : (html.error_message ?? null),
           };
-          if (html.status === 'ready' || html.status === 'failed' || html.status === 'cancelled') {
+          if (hs === 'ready' || hs === 'failed' || hs === 'cancelled') {
             exportPendingRef.current.html = false;
           }
         }
@@ -803,52 +968,50 @@ export function OcrParseWorkbench({
             {t('parseDemoSaveNow')}
           </Button>
         </div>
-        <div className="space-y-2">
-          <div className="rounded-md border border-fuchsia-200/80 bg-fuchsia-50/60 p-2 dark:border-fuchsia-900/50 dark:bg-fuchsia-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-fuchsia-800 dark:text-fuchsia-300">
+        <div className="grid grid-cols-3 gap-1">
+          <div className="min-w-0 rounded-md border border-fuchsia-200/80 bg-fuchsia-50/60 p-1.5 dark:border-fuchsia-900/50 dark:bg-fuchsia-950/25">
+            <div className="mb-1 truncate text-center text-[9px] font-semibold uppercase leading-tight text-fuchsia-800 dark:text-fuchsia-300">
               HTML
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.html.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-fuchsia-400 bg-fuchsia-600 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-fuchsia-400 bg-fuchsia-600 px-1 text-white hover:bg-fuchsia-700 dark:border-fuchsia-700 dark:bg-fuchsia-700 dark:hover:bg-fuchsia-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('html')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('html')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.html.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-fuchsia-700 dark:text-fuchsia-400" />
-                  <span className="text-[11px] text-fuchsia-900 dark:text-fuchsia-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-fuchsia-700 dark:text-fuchsia-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('html')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -856,17 +1019,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('html')}
-                    className="border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/40 dark:text-fuchsia-100"
                   >
                     {exportState.html.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <img src="/brand/local/html.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                      <img src="/brand/local/html.png" alt="" className="mx-auto mb-0.5 h-3.5 w-3.5" />
                     )}
                     {exportState.html.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.html.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.html.error}
                     </span>
                   ) : null}
@@ -874,51 +1037,49 @@ export function OcrParseWorkbench({
               )}
             </div>
           </div>
-          <div className="rounded-md border border-emerald-200/80 bg-emerald-50/60 p-2 dark:border-emerald-900/50 dark:bg-emerald-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+          <div className="min-w-0 rounded-md border border-emerald-200/80 bg-emerald-50/60 p-1.5 dark:border-emerald-900/50 dark:bg-emerald-950/25">
+            <div className="mb-1 hyphens-auto break-words text-center text-[8px] font-semibold uppercase leading-tight text-emerald-800 dark:text-emerald-300">
               Markdown
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.md.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-emerald-400 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-emerald-400 bg-emerald-600 px-1 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('md')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('md')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.md.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-emerald-700 dark:text-emerald-400" />
-                  <span className="text-[11px] text-emerald-900 dark:text-emerald-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-emerald-700 dark:text-emerald-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('md')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -926,17 +1087,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('md')}
-                    className="border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-100"
                   >
                     {exportState.md.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <FileText className="mr-1 size-3.5" />
+                      <FileText className="mx-auto mb-0.5 size-3.5" />
                     )}
                     {exportState.md.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.md.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.md.error}
                     </span>
                   ) : null}
@@ -944,51 +1105,49 @@ export function OcrParseWorkbench({
               )}
             </div>
           </div>
-          <div className="rounded-md border border-blue-200/80 bg-blue-50/60 p-2 dark:border-blue-900/50 dark:bg-blue-950/25">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+          <div className="min-w-0 rounded-md border border-blue-200/80 bg-blue-50/60 p-1.5 dark:border-blue-900/50 dark:bg-blue-950/25">
+            <div className="mb-1 truncate text-center text-[9px] font-semibold uppercase leading-tight text-blue-800 dark:text-blue-300">
               PDF
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1">
               {exportState.pdf.status === 'ready' ? (
-                <>
+                <div className="flex min-w-0 gap-0.5">
                   <Button
                     type="button"
                     size="sm"
-                    className="border border-blue-400 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+                    title={t('downloadAction')}
+                    className="min-w-0 flex-1 border border-blue-400 bg-blue-600 px-1 text-white hover:bg-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
                     disabled={!taskId || downloadBusyFormat !== null}
                     onClick={() => void handleDownloadExport('pdf')}
                   >
-                    <Download className="mr-1 size-3.5" />
-                    {t('downloadAction')}
+                    <Download className="mx-auto size-3.5" />
                   </Button>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="shrink-0 px-1.5"
                     disabled={!taskId || exportSidebarLocked}
                     title={t('removeExportTitle')}
                     onClick={() => void deleteExport('pdf')}
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
-                </>
+                </div>
               ) : exportState.pdf.status === 'processing' ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-blue-700 dark:text-blue-400" />
-                  <span className="text-[11px] text-blue-900 dark:text-blue-200">
-                    {t('exportingStatus')}
-                  </span>
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-blue-700 dark:text-blue-400" />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 w-full px-1 text-[10px] leading-tight"
                     disabled={!taskId}
                     onClick={() => void cancelExport('pdf')}
                   >
                     {t('cancelAction')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Button
@@ -996,17 +1155,17 @@ export function OcrParseWorkbench({
                     size="sm"
                     disabled={!taskId || exportSidebarLocked}
                     onClick={() => void startExport('pdf')}
-                    className="border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
+                    className="h-auto min-h-8 w-full whitespace-normal px-1 py-1.5 text-[10px] leading-tight border border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/40 dark:text-blue-100"
                   >
                     {exportState.pdf.status === 'failed' ? (
-                      <RotateCw className="mr-1 size-3.5" />
+                      <RotateCw className="mx-auto mb-0.5 size-3.5" />
                     ) : (
-                      <img src="/brand/local/pdf.png" alt="" className="mr-1 h-3.5 w-3.5" />
+                      <img src="/brand/local/pdf.png" alt="" className="mx-auto mb-0.5 h-3.5 w-3.5" />
                     )}
                     {exportState.pdf.status === 'failed' ? t('retryAction') : t('exportAction')}
                   </Button>
                   {exportState.pdf.error ? (
-                    <span className="max-w-[14rem] text-[11px] text-red-600 dark:text-red-400">
+                    <span className="line-clamp-3 text-[9px] leading-tight text-red-600 dark:text-red-400">
                       {exportState.pdf.error}
                     </span>
                   ) : null}
@@ -1036,9 +1195,12 @@ export function OcrParseWorkbench({
       undo,
     ]
   );
-  const showTopPageControls = !(toolbarPosition === 'left' && hideSourcePanel);
+  /** 侧栏 Pages + portal 时翻页在侧栏，顶栏不再重复 Prev/Next */
+  const useOcrPortalLayout = hideSourcePanel && Boolean(externalToolbarContainerId);
+  const showTopPageControls = !useOcrPortalLayout;
   const showLeftToolbar = toolbarPosition === 'left' && hideSourcePanel;
   const showTopFileActions = !showLeftToolbar;
+  const showWorkbenchTopBar = showTopPageControls || showTopFileActions;
   const [externalToolbarHost, setExternalToolbarHost] = useState<HTMLElement | null>(
     null
   );
@@ -1065,33 +1227,47 @@ export function OcrParseWorkbench({
     panel: ReactNode,
     tone: 'normal' | 'error' = 'normal'
   ) => (
-    <div
-      className={cn(
-        'min-h-0 min-w-0 flex-1',
-        showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
-      )}
-    >
-      {showLeftToolbar &&
-      !externalToolbarContainerId &&
-      !shouldUseExternalToolbar ? (
-        <aside
-          id={toolbarId}
-          className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
-        >
-          <ParseResultEditorToolbar disabled currentEditorStyle={{}} sectionIds={toolbarSectionIds} />
-        </aside>
-      ) : null}
+    <>
       <div
         className={cn(
-          'flex min-h-0 min-w-0 flex-1 items-center rounded-lg border p-3',
-          tone === 'error'
-            ? 'border-red-200 bg-red-50/90 text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
-            : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300'
+          'min-h-0 min-w-0 flex-1',
+          showLeftToolbar ? 'flex flex-col gap-2 md:flex-row' : 'flex'
         )}
       >
-        {panel}
+        {showLeftToolbar &&
+        !externalToolbarContainerId &&
+        !shouldUseExternalToolbar ? (
+          <aside
+            id={toolbarId}
+            className="flex w-full shrink-0 flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-2 md:h-[calc(100vh-9rem)] md:w-72 md:self-start md:overflow-y-auto"
+          >
+            <ParseResultEditorToolbar
+              disabled
+              currentEditorStyle={{}}
+              sectionIds={toolbarSectionIds}
+            />
+          </aside>
+        ) : null}
+        <div
+          className={cn(
+            'flex min-h-0 min-w-0 flex-1 items-center rounded-lg border p-3',
+            tone === 'error'
+              ? 'border-red-200 bg-red-50/90 text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
+              : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300'
+          )}
+        >
+          {panel}
+        </div>
       </div>
-    </div>
+      {shouldUseExternalToolbar && externalToolbarHost
+        ? createPortal(
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50/95 p-1.5 dark:border-zinc-800 dark:bg-zinc-950">
+              {toolbarContent}
+            </div>,
+            externalToolbarHost
+          )
+        : null}
+    </>
   );
 
   if (!parseResultUrl) {
@@ -1120,7 +1296,16 @@ export function OcrParseWorkbench({
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
+    <div
+      className={cn(
+        'flex min-w-0 flex-col',
+        hideSourcePanel && unifiedMainScroll ? 'gap-0' : 'gap-3',
+        unifiedMainScroll
+          ? 'min-h-0 w-full min-w-0 max-w-full'
+          : 'min-h-0 flex-1 overflow-hidden'
+      )}
+    >
+      {showWorkbenchTopBar ? (
       <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 pb-2 dark:border-zinc-800">
         {showTopPageControls ? (
           <>
@@ -1240,7 +1425,8 @@ export function OcrParseWorkbench({
           </div>
         ) : null}
       </div>
-      {!selectedLayoutId ? (
+      ) : null}
+      {!selectedLayoutId && !useOcrPortalLayout ? (
         <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
           {t('selectBlockHint')}
         </p>
@@ -1248,7 +1434,10 @@ export function OcrParseWorkbench({
 
       <div
         className={cn(
-          'min-h-0 min-w-0 flex-1',
+          'min-w-0',
+          unifiedMainScroll
+            ? 'flex min-h-0 w-full min-w-0 max-w-full md:min-h-0'
+            : 'min-h-0 flex-1',
           toolbarPosition === 'left' && hideSourcePanel ? 'flex flex-col gap-2 md:flex-row' : 'flex flex-col gap-2'
         )}
       >
@@ -1264,7 +1453,14 @@ export function OcrParseWorkbench({
         ) : null}
         <div
           className={cn(
-            'grid min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900',
+            'grid min-w-0 rounded-lg bg-white dark:bg-zinc-900',
+            /** 与 Source 同宽：外层卡片已有 border，内层再套 border 会吃掉内容区约 2×1px */
+            hideSourcePanel && unifiedMainScroll
+              ? 'border-0 dark:border-0'
+              : 'border border-zinc-200 dark:border-zinc-800',
+            unifiedMainScroll
+              ? 'flex min-h-0 w-full min-w-0 max-w-full md:min-h-0'
+              : 'min-h-0 flex-1 overflow-hidden',
             hideSourcePanel
               ? 'grid-cols-1'
               : collapsed
@@ -1291,7 +1487,8 @@ export function OcrParseWorkbench({
           ) : null}
           <div
             className={cn(
-              'relative flex min-h-0 min-w-0 flex-col',
+              'relative flex min-w-0 flex-col',
+              unifiedMainScroll ? 'min-h-0 w-full min-w-0 max-w-full md:min-h-0' : 'min-h-0',
               !hideSourcePanel && 'border-t border-zinc-200 dark:border-zinc-800 md:border-t-0 md:border-l'
             )}
           >
@@ -1301,6 +1498,7 @@ export function OcrParseWorkbench({
                 pageIndex={activePageIndex}
                 canvasScalePercent={jsonCanvasScale}
                 orientation="portrait"
+                scrollContainerMode={unifiedMainScroll ? 'parent' : 'panel'}
                 onActivate={() => onCanvasFocus?.()}
                 selectedLayoutId={selectedLayoutId}
                 onSelectLayout={setSelectedLayoutId}

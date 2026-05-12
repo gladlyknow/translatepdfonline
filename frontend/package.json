@@ -33,6 +33,7 @@
     "auth:generate": "tsx scripts/with-env.ts npx @better-auth/cli generate --config=src/core/auth/index.ts",
     "rbac:init": "tsx scripts/with-env.ts npx tsx scripts/init-rbac.ts",
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",
+    "ocr:mirror-images": "tsx scripts/with-env.ts npx tsx scripts/ocr-mirror-baidu-images.ts",
     "postinstall": "fumadocs-mdx",
     "generate-wrangler": "node scripts/generate-wrangler.js",
     "build:opennext": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js",
@@ -41,11 +42,15 @@
     "cf:deploy": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare deploy -- --keep-vars",
     "cf:deploy:workers:prod": "wrangler deploy --keep-vars && wrangler deploy -c wrangler.consumer.jsonc --keep-vars",
     "cf:deploy:workers:dev": "wrangler deploy --env develop --keep-vars && wrangler deploy -c wrangler.consumer.develop.jsonc --keep-vars",
+    "cf:versions:consumer:dev": "wrangler versions upload -c wrangler.consumer.develop.jsonc",
+    "cf:queues:consumer:remove:dev": "wrangler queues consumer remove translatepdfonline-dev translatepdfonline-quenues-dev",
+    "cf:queues:consumer:remove:prod": "wrangler queues consumer remove translatepdfonline translatepdfonline-quenues",
     "cf:deploy:no-keep": "node -e \"console.error('Blocked: deploy without --keep-vars is disabled. Use cf:deploy or explicit wrangler deploy --keep-vars.'); process.exit(1)\"",
     "cf:upload": "opennextjs-cloudflare build && node scripts/patch-opennext-deploy-keep-vars.js && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "brand:icons": "python scripts/export-brand-icons.py",
-    "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js"
+    "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js",
+    "test:scan-precheck": "tsx --test src/shared/lib/translate-scan-precheck.test.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",
@@ -182,7 +187,7 @@
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5",
-    "wrangler": "^4.34.0"
+    "wrangler": "^4.53.0"
   },
   "pnpm": {
     "overrides": {

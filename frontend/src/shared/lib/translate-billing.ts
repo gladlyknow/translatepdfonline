@@ -7,12 +7,14 @@ import { getWorkerBindingMeta } from '@/shared/lib/worker-env';
 import {
   estimateTranslatedPages,
   intersectPageRangeWithDocument,
+  normalizePageRangeInput,
   parseTranslatePageRange,
 } from '@/shared/lib/translate-billing-estimate';
 
 export {
   estimateTranslatedPages,
   intersectPageRangeWithDocument,
+  normalizePageRangeInput,
   parseTranslatePageRange,
 };
 

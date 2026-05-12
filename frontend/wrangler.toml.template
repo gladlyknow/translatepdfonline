@@ -10,7 +10,7 @@ compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 keep_names = false
 # 控制台里维护的「变量」默认会在 deploy 时被 wrangler 用本地配置覆盖；设为 true 与 CLI --keep-vars 一致，避免每次部署清空 Dashboard 变量。
-# 注意：wrangler versions upload 仍可能清空变量，预览流水线请勿用 versions upload 替代 deploy。
+# 注意：`wrangler versions upload` 不接受 `--keep-vars`；且仍可能覆盖/清空与版本绑定的 vars。Consumer/主站请优先 `wrangler deploy ... --keep-vars`；若必须用 versions upload，勿加无效参数，变量请在 Dashboard 或后续版本里单独维护。
 keep_vars = true
 
 [assets]
@@ -26,6 +26,9 @@ __WRANGLER_VARS_BODY__
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "1f0a3251f43343c3872e5f882ff3d879"
+# OpenNext `deploy` / Wrangler 在 CI 里会走 `getPlatformProxy`，仍要求可解析的本地串；占位即可（不上线真实库）。
+# 本地开发请用 `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` 覆盖，勿依赖此占位连库。
+localConnectionString = "postgres://_build:_build@127.0.0.1:5432/_build_placeholder"
 
 # OCR 管线专用队列（与 BabelDOC / translate FC 队列勿共用）。Producer 见 POST /api/ocr/tasks。
 [[queues.producers]]
@@ -37,7 +40,8 @@ queue = "translatepdfonline"
 # 并先在 Dashboard 创建队列 translatepdfonline-dev（与生产队列名不同）。
 [env.develop]
 name = "translatepdfonline-dev"
-keep_vars = true
+# 注意：不要在 [env.develop] 下写 keep_vars。Wrangler / OpenNext 校验不接受该嵌套字段；
+# 顶层 keep_vars = true 已存在；部署请使用：wrangler deploy --env develop --keep-vars
 
 [env.develop.vars]
 # develop 变量建议在 Dashboard 的 translatepdfonline-dev 下单独维护；
@@ -46,6 +50,7 @@ keep_vars = true
 [[env.develop.hyperdrive]]
 binding = "HYPERDRIVE"
 id = "1f0a3251f43343c3872e5f882ff3d879"
+localConnectionString = "postgres://_build:_build@127.0.0.1:5432/_build_placeholder"
 
 [[env.develop.queues.producers]]
 binding = "OCR_PIPELINE_QUEUE"

@@ -235,6 +235,12 @@ class ILTranslatorLLMOnly:
             logger.debug(f"save translate tracking to {path}")
             with Path(path).open("w", encoding="utf-8") as f:
                 f.write(tracker.to_json())
+        self.shared_context_cross_split_part.add_paragraph_translation_stats(
+            total,
+            self.total_count,
+            self.ok_count,
+            self.fallback_count,
+        )
         logger.info(
             f"Translation completed. Total: {self.total_count}, Successful: {self.ok_count}, Fallback: {self.fallback_count}"
         )

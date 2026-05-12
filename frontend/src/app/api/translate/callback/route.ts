@@ -24,6 +24,9 @@ function deriveErrorCodeFromCallbackBody(body: {
   const msg =
     typeof body.error_message === 'string' ? body.error_message : '';
   const low = msg.toLowerCase();
+  if (low.includes('babeldoc_insufficient_text_layer')) {
+    return 'scan_detected_use_ocr';
+  }
   if (
     low.includes('too many cid paragraphs') ||
     low.includes('cid paragraphs')
@@ -52,7 +55,10 @@ export async function POST(req: Request) {
     const status = body.status; // 'completed' | 'failed'
     const outputObjectKey = body.output_object_key ?? null;
     const errorMessage = body.error_message ?? null;
-    const errorCode = deriveErrorCodeFromCallbackBody(body);
+    const errorCode =
+      status === 'completed'
+        ? null
+        : deriveErrorCodeFromCallbackBody(body);
     if (!taskId) {
       return Response.json({ detail: 'task_id required' }, { status: 400 });
     }
@@ -148,13 +154,21 @@ export async function POST(req: Request) {
         }
       }
 
+      const postCompleteHint =
+        completed && body.suggest_try_ocr === true ? 'suggest_try_ocr' : null;
+
       await tx
         .update(translationTasks)
         .set({
           status: completed ? 'completed' : 'failed',
           outputObjectKey: outputObjectKey ?? task.outputObjectKey,
-          errorCode: errorCode ?? task.errorCode,
-          errorMessage: errorMessage ?? task.errorMessage,
+          errorCode: completed
+            ? null
+            : (errorCode ?? task.errorCode ?? null),
+          errorMessage: completed
+            ? null
+            : (errorMessage ?? task.errorMessage ?? null),
+          postCompleteHint,
           progressPercent: 100,
           updatedAt: new Date(),
           ...(completed

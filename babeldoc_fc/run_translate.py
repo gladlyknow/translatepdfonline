@@ -11,8 +11,22 @@ import time
 from pathlib import Path
 
 from .config import get_deepseek_api_key, get_deepseek_base_url, get_deepseek_model
+from .text_layer_gate import InsufficientTextLayerForTranslationError, enforce_text_layer_after_translate
 
 logger = logging.getLogger(__name__)
+
+
+def _skip_scanned_detection_from_env() -> bool:
+    """
+    When True, BabelDOC will not raise ScannedPDFError (legacy FC behavior).
+    Default False: run built-in scan detection. Set BABELDOC_SKIP_SCANNED_DETECTION=1 to disable.
+    """
+    raw = (os.getenv("BABELDOC_SKIP_SCANNED_DETECTION") or "").strip().lower()
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return False
 
 
 def _babeldoc_path() -> Path:
@@ -93,10 +107,10 @@ def run_translate_local(
     source_lang: str,
     target_lang: str,
     page_range: str | None = None,
-) -> tuple[list[str], int | None]:
+) -> tuple[list[str], int | None, bool]:
     """
     在 FC 内执行 BabelDOC 翻译，将结果写入 output_dir。
-    返回 (输出 PDF 路径列表, 可选的 BabelDOC 页数提示)；主文件一般为 *.mono.pdf 或第一个 pdf。
+    返回 (输出 PDF 路径列表, 可选的 BabelDOC 页数提示, suggest_try_ocr)；第三项为 True 表示译后语言层门闸建议用户尝试 OCR，但 PDF 仍已生成。
     """
     from pathlib import Path
 
@@ -197,6 +211,10 @@ def run_translate_local(
     target_only = _target_lang_only_instruction(target_lang_norm)
     custom_prompt = f"{target_only}\n\n{list_preserve_prompt}" if target_only else list_preserve_prompt
 
+    skip_scan = _skip_scanned_detection_from_env()
+    if skip_scan:
+        logger.info("run_translate_local: skip_scanned_detection=True (BABELDOC_SKIP_SCANNED_DETECTION)")
+
     config = TranslationConfig(
         translator=translator,
         input_file=str(local_pdf_path),
@@ -205,7 +223,7 @@ def run_translate_local(
         doc_layout_model=None,
         output_dir=str(output_dir),
         pages=page_range,
-        skip_scanned_detection=True,
+        skip_scanned_detection=skip_scan,
         use_rich_pbar=False,
         only_include_translated_page=True,
         no_dual=True,
@@ -218,6 +236,15 @@ def run_translate_local(
     )
 
     result = translate(config)
+    suggest_try_ocr = False
+    try:
+        enforce_text_layer_after_translate(result, local_pdf_path, page_range)
+    except InsufficientTextLayerForTranslationError as e:
+        logger.warning(
+            "run_translate_local: text_layer_gate soft-pass suggest_try_ocr err=%s",
+            e,
+        )
+        suggest_try_ocr = True
     page_hint: int | None = None
     if result is not None:
         for attr in (
@@ -263,7 +290,7 @@ def run_translate_local(
                 out_list.append(str(path))
         # 保持 mono 在前，便于 main 里优先选 .mono.pdf
         if out_list:
-            return out_list, page_hint
+            return out_list, page_hint, suggest_try_ocr
     # 回退：output_dir 下 rglob 查找 PDF（含子目录），排除 glossary
     out_path = Path(output_dir)
     if out_path.exists():
@@ -271,8 +298,8 @@ def run_translate_local(
         pdfs = [p for p in pdfs if "gloss" not in p.name.lower()]
         if pdfs:
             logger.info("run_translate_local: using rglob fallback %s", [str(p) for p in pdfs])
-            return [str(p) for p in pdfs], page_hint
-    return [], page_hint
+            return [str(p) for p in pdfs], page_hint, suggest_try_ocr
+    return [], page_hint, suggest_try_ocr
 
 
 def _is_transient_translate_error(exc: BaseException) -> bool:
@@ -305,7 +332,7 @@ def run_translate_local_with_retries(
     source_lang: str,
     target_lang: str,
     page_range: str | None = None,
-) -> tuple[list[str], int | None]:
+) -> tuple[list[str], int | None, bool]:
     """包装 run_translate_local：对瞬时错误有限次重试（次数由 BABELDOC_TRANSLATE_MAX_ATTEMPTS 控制）。"""
     max_n = max(1, min(8, int(os.getenv("BABELDOC_TRANSLATE_MAX_ATTEMPTS", "3"))))
     last_exc: BaseException | None = None

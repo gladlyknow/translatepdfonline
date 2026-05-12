@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
-import { useRouter, usePathname } from '@/core/i18n/navigation';
+import { Link, useRouter, usePathname } from '@/core/i18n/navigation';
 import { useSession } from '@/core/auth/client';
 import { useAppContext } from '@/shared/contexts/app';
 import { useTranslateFooterWorkbenchOptional } from '@/shared/contexts/translate-footer-workbench';
@@ -27,7 +27,8 @@ import {
   type UILang,
 } from '@/shared/lib/translate-api';
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
-import { Loader2, Download, Trash2, RefreshCw } from 'lucide-react';
+import { Loader2, Download, Trash2, RefreshCw, Languages } from 'lucide-react';
+import { toSupportedUiLang } from '@/shared/lib/translate-langs';
 
 const PdfViewerPane = dynamic(
   () =>
@@ -39,6 +40,8 @@ const PdfViewerPane = dynamic(
 
 const TASK_PARAM = 'task';
 const DOCUMENT_PARAM = 'document';
+const SOURCE_LANG_PARAM = 'source_lang';
+const TARGET_LANG_PARAM = 'target_lang';
 const POLL_INTERVAL_MS_ACTIVE = 2000;
 const PREVIEW_PAGE_DEBOUNCE_MS = 400;
 const HISTORY_PAGE_SIZE = 3;
@@ -91,6 +94,38 @@ function isScanLikelyFailure(
   if (!message) return false;
   const m = message.toLowerCase();
   return m.includes('too many cid paragraphs') || m.includes('cid paragraphs');
+}
+
+function shouldOfferOcrRedirect(
+  code: string | null | undefined,
+  message: string | null | undefined
+): boolean {
+  return (
+    isNoParagraphsFailure(code, message) ||
+    isScanLikelyFailure(code, message)
+  );
+}
+
+/** Query string for OCR Translator (document, languages, optional page_range / doc_pages). */
+function buildOcrWorkbenchSearch(params: {
+  documentId: string;
+  sourceLang: string;
+  targetLang: string;
+  pageRange?: string | null;
+  docPages?: number | null;
+}): string {
+  const qs = new URLSearchParams();
+  qs.set('document', params.documentId);
+  qs.set('source_lang', params.sourceLang);
+  qs.set('target_lang', params.targetLang);
+  const pr = params.pageRange?.trim();
+  if (pr) {
+    qs.set('page_range', pr);
+    if (params.docPages != null && params.docPages > 0) {
+      qs.set('doc_pages', String(params.docPages));
+    }
+  }
+  return qs.toString();
 }
 
 function parsePageRange(range: string | null): [number, number] | null {
@@ -148,6 +183,7 @@ export function TranslatePageClient() {
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
   const [taskView, setTaskView] = useState<TaskView | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarSourcePageField, setSidebarSourcePageField] = useState('');
   const [targetPage, setTargetPage] = useState(1);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [documentCreatedAt, setDocumentCreatedAt] = useState<string | null>(
@@ -256,6 +292,8 @@ export function TranslatePageClient() {
     [targetTotalPages, targetNumPagesFromViewer]
   );
 
+  const sourceNavTotal = Math.max(1, effectiveDocumentPageCount || 1);
+
   const debouncedSourcePage = useDebouncedValue(
     currentPage,
     PREVIEW_PAGE_DEBOUNCE_MS
@@ -265,16 +303,49 @@ export function TranslatePageClient() {
     PREVIEW_PAGE_DEBOUNCE_MS
   );
 
-  const updateTaskInUrl = useCallback(
-    (tid: string | null) => {
+  const replaceTranslateQuery = useCallback(
+    (patch: {
+      taskId?: string | null;
+      documentId?: string | null;
+      sourceLang?: UILang | '' | null;
+      targetLang?: UILang | '' | null;
+    }) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (tid) params.set(TASK_PARAM, tid);
-      else params.delete(TASK_PARAM);
+      if ('taskId' in patch && patch.taskId !== undefined) {
+        if (patch.taskId) params.set(TASK_PARAM, patch.taskId);
+        else params.delete(TASK_PARAM);
+      }
+      if ('documentId' in patch && patch.documentId !== undefined) {
+        if (patch.documentId) params.set(DOCUMENT_PARAM, patch.documentId);
+        else params.delete(DOCUMENT_PARAM);
+      }
+      if ('sourceLang' in patch && patch.sourceLang !== undefined) {
+        if (patch.sourceLang) params.set(SOURCE_LANG_PARAM, patch.sourceLang);
+        else params.delete(SOURCE_LANG_PARAM);
+      }
+      if ('targetLang' in patch && patch.targetLang !== undefined) {
+        if (patch.targetLang) params.set(TARGET_LANG_PARAM, patch.targetLang);
+        else params.delete(TARGET_LANG_PARAM);
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
     [searchParams, pathname, router]
   );
+
+  const updateTaskInUrl = useCallback(
+    (tid: string | null) => {
+      replaceTranslateQuery({ taskId: tid });
+    },
+    [replaceTranslateQuery]
+  );
+
+  useEffect(() => {
+    const qSource = toSupportedUiLang(searchParams.get(SOURCE_LANG_PARAM));
+    const qTarget = toSupportedUiLang(searchParams.get(TARGET_LANG_PARAM));
+    if (qSource) setSourceLang(qSource);
+    if (qTarget) setTargetLang(qTarget);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!themeMounted) return;
@@ -314,20 +385,24 @@ export function TranslatePageClient() {
         setTaskId(tid);
         setTaskStatus(detail.status);
         setTaskDetail(detail);
+        setTaskView(view ?? null);
+        const docId =
+          typeof detail.document_id === 'string' && detail.document_id.trim()
+            ? detail.document_id.trim()
+            : null;
         if (view) {
-          setTaskView(view);
           blockAutoDocumentLoadRef.current = false;
-          setDocumentId(detail.document_id);
+          setDocumentId(docId);
           setFilename(view.document_filename);
           setLastUploadedFile({
             name: view.document_filename,
             size: view.document_size_bytes ?? 0,
           });
-        } else if (detail.document_id) {
+        } else if (docId) {
           blockAutoDocumentLoadRef.current = false;
-          setDocumentId(detail.document_id);
+          setDocumentId(docId);
           try {
-            const d = await translateApi.getDocument(detail.document_id);
+            const d = await translateApi.getDocument(docId);
             if (cancelled) return;
             setFilename(d.filename);
             setLastUploadedFile({
@@ -340,6 +415,11 @@ export function TranslatePageClient() {
               setLastUploadedFile(null);
             }
           }
+        } else {
+          blockAutoDocumentLoadRef.current = false;
+          setDocumentId(null);
+          setFilename(null);
+          setLastUploadedFile(null);
         }
       } catch {
         if (!cancelled) {
@@ -673,13 +753,20 @@ export function TranslatePageClient() {
     return () => {
       cancelled = true;
     };
-  }, [historyLogOpen, recentDocumentPage, recentTaskPage, taskId, taskStatus]);
+  }, [
+    historyLogOpen,
+    recentDocumentPage,
+    recentTaskPage,
+    taskId,
+    taskStatus,
+    documentId,
+  ]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
     setRecentTaskPage(0);
     setRecentDocumentPage(0);
-  }, [historyLogOpen]);
+  }, [historyLogOpen, documentId]);
 
   const handleRefreshResult = async () => {
     if (!taskId || refreshInFlightRef.current) return;
@@ -714,7 +801,12 @@ export function TranslatePageClient() {
     setTaskView(null);
     setTaskDetail(null);
     setTaskStatus(null);
-    updateTaskInUrl(null);
+    replaceTranslateQuery({
+      taskId: null,
+      documentId: docId,
+      sourceLang: sourceLang || null,
+      targetLang: targetLang || null,
+    });
   };
 
   const handleDeleteDocument = async () => {
@@ -757,9 +849,9 @@ export function TranslatePageClient() {
       setTaskView(null);
       setTaskDetail(null);
       setTaskStatus(null);
-      updateTaskInUrl(null);
+      replaceTranslateQuery({ taskId: null, documentId: null });
     }
-  }, [documentId, updateTaskInUrl]);
+  }, [documentId, replaceTranslateQuery]);
 
   const handleTaskCreated = (tid: string, _?: TranslateTaskCreatedMeta) => {
     setTaskId(tid);
@@ -869,13 +961,37 @@ export function TranslatePageClient() {
   }, [currentPage, effectiveTargetTotalPages, taskStatus]);
 
   const handleNextPage = useCallback(() => {
-    const total = Math.max(1, effectiveDocumentPageCount || 1);
-    const next = Math.min(total, currentPage + 1);
+    const next = Math.min(sourceNavTotal, currentPage + 1);
     setCurrentPage(next);
     if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
       setTargetPage(Math.min(Math.max(1, next), effectiveTargetTotalPages));
     }
-  }, [currentPage, effectiveDocumentPageCount, effectiveTargetTotalPages, taskStatus]);
+  }, [currentPage, sourceNavTotal, effectiveTargetTotalPages, taskStatus]);
+
+  useEffect(() => {
+    setSidebarSourcePageField(String(currentPage));
+  }, [currentPage]);
+
+  const commitSidebarSourcePageField = useCallback(() => {
+    const raw = sidebarSourcePageField.trim();
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n)) {
+      setSidebarSourcePageField(String(currentPage));
+      return;
+    }
+    const clamped = Math.min(sourceNavTotal, Math.max(1, n));
+    setCurrentPage(clamped);
+    if (taskStatus === 'completed' && effectiveTargetTotalPages > 0) {
+      setTargetPage(Math.min(Math.max(1, clamped), effectiveTargetTotalPages));
+    }
+    setSidebarSourcePageField(String(clamped));
+  }, [
+    sidebarSourcePageField,
+    sourceNavTotal,
+    currentPage,
+    taskStatus,
+    effectiveTargetTotalPages,
+  ]);
 
   const uiLogs: TranslateUiLog[] = useMemo(() => {
     if (!taskId) return [];
@@ -932,11 +1048,69 @@ export function TranslatePageClient() {
     taskView?.task ??
     (taskStatus === 'failed' && taskDetail ? taskDetail : null);
 
-  /** 仅在 URL 指定 task/document 且尚未恢复时显示加载 */
-  const restoringFromUrl =
-    !documentId &&
-    (Boolean(searchParams.get(TASK_PARAM)?.trim()) ||
-      Boolean(searchParams.get(DOCUMENT_PARAM)?.trim()));
+  /** 侧栏「打开 OCR」卡：随任务状态切换文案，完成/失败均保留跳转 */
+  const ocrWorkbenchAside = useMemo(() => {
+    const preprocessed = Boolean(taskView?.task?.preprocess_with_ocr);
+    const suggestTry =
+      taskStatus === 'completed' &&
+      taskView?.task?.post_complete_hint === 'suggest_try_ocr' &&
+      !preprocessed;
+
+    if (preprocessed) {
+      return {
+        title: t('ocrJumpWhenPreprocessedTitle'),
+        body: t('ocrJumpWhenPreprocessedBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    if (suggestTry) {
+      return {
+        title: t('suggestOcrHintTitle'),
+        body: t('suggestOcrHintBody'),
+        cta: t('suggestOcrHintCta'),
+        suggestTry: true,
+      };
+    }
+    if (taskStatus === 'completed') {
+      return {
+        title: t('completedOcrOfferTitle'),
+        body: t('completedOcrOfferBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    if (taskStatus === 'failed') {
+      return {
+        title: t('failedOcrOfferTitle'),
+        body: t('failedOcrOfferBody'),
+        cta: t('ocrJumpCta'),
+        suggestTry: false,
+      };
+    }
+    return {
+      title: t('ocrJumpHintTitle'),
+      body: t('ocrJumpHintBody'),
+      cta: t('ocrJumpCta'),
+      suggestTry: false,
+    };
+  }, [
+    taskStatus,
+    taskView?.task?.preprocess_with_ocr,
+    taskView?.task?.post_complete_hint,
+    t,
+  ]);
+
+  /**
+   * 从 URL 恢复：不要用「!documentId + 有 task」长期全屏阻塞（getTaskView 慢或失败时仍应出现工作台）。
+   * task：仅当 URL 中的 task 与当前 taskId 尚未对齐时 loading；document：仅 document= 且无 task 时等到 documentId 对齐。
+   */
+  const taskParam = searchParams.get(TASK_PARAM)?.trim() ?? '';
+  const docParam = searchParams.get(DOCUMENT_PARAM)?.trim() ?? '';
+  const restoringFromTaskUrl = Boolean(taskParam) && taskId !== taskParam;
+  const restoringFromDocUrl =
+    Boolean(docParam) && !taskParam && documentId !== docParam;
+  const restoringFromUrl = restoringFromTaskUrl || restoringFromDocUrl;
   const restoringRecent =
     isRecentRequested && !recentBootstrapDone && !taskId && !documentId;
   if (restoringFromUrl || restoringRecent) {
@@ -953,7 +1127,7 @@ export function TranslatePageClient() {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-100 md:flex-row dark:bg-zinc-950">
       <aside
         id="translate-workbench-aside"
-        className="flex max-h-[45vh] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
+        className="flex max-h-[min(72dvh,34rem)] w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 md:max-h-none md:w-72 md:border-b-0 md:border-r"
       >
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
           <div className="grid grid-cols-2 gap-2">
@@ -1034,17 +1208,34 @@ export function TranslatePageClient() {
             <button
               type="button"
               onClick={handleNextPage}
-              disabled={currentPage >= Math.max(1, effectiveDocumentPageCount || 1)}
+              disabled={currentPage >= sourceNavTotal}
               className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               {tOcrWb('pagesNext')}
             </button>
-            <p className="col-span-2 text-center text-[11px] text-zinc-500 dark:text-zinc-400">
-              {tOcrWb('pagesSourcePage', {
-                current: currentPage,
-                total: Math.max(1, effectiveDocumentPageCount || 1),
-              })}
-            </p>
+            <div className="col-span-2 flex flex-wrap items-center justify-center gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span className="shrink-0">{tOcrWb('pagesSourcePageLabel')}</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={tOcrWb('pagesPageInputAria')}
+                value={sidebarSourcePageField}
+                onChange={(e) => setSidebarSourcePageField(e.target.value)}
+                onBlur={commitSidebarSourcePageField}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitSidebarSourcePageField();
+                    (e.target as HTMLInputElement).blur();
+                  }
+                }}
+                className="w-11 rounded border border-zinc-300 bg-white px-1 py-0.5 text-center tabular-nums text-zinc-800 outline-none focus:border-sky-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-sky-400"
+              />
+              <span className="shrink-0 tabular-nums text-zinc-500 dark:text-zinc-400">
+                / {sourceNavTotal}
+              </span>
+            </div>
             <label className="col-span-2 flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
               <span>{tOcrWb('canvasScale')}</span>
               <input
@@ -1116,6 +1307,59 @@ export function TranslatePageClient() {
             </p>
           )}
         </div>
+
+        {documentId ? (
+          <div
+            className={
+              ocrWorkbenchAside.suggestTry
+                ? 'rounded-lg border border-sky-200/90 bg-sky-50/95 px-3 py-2.5 text-xs leading-relaxed text-sky-950 shadow-sm dark:border-sky-800/50 dark:bg-sky-950/35 dark:text-sky-50'
+                : 'rounded-lg border border-zinc-200/90 bg-zinc-50/95 px-3 py-2.5 text-xs leading-relaxed text-zinc-800 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900/70 dark:text-zinc-100'
+            }
+          >
+            <p
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'font-semibold text-sky-900 dark:text-sky-100'
+                  : 'font-semibold text-zinc-900 dark:text-zinc-100'
+              }
+            >
+              {ocrWorkbenchAside.title}
+            </p>
+            <p
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'mt-1 text-[11px] text-sky-900/88 dark:text-sky-100/88'
+                  : 'mt-1 text-[11px] text-zinc-600 dark:text-zinc-300'
+              }
+            >
+              {ocrWorkbenchAside.body}
+            </p>
+            <Link
+              href={`/ocrtranslator?${buildOcrWorkbenchSearch({
+                documentId,
+                sourceLang:
+                  toSupportedUiLang(
+                    sourceLang ||
+                      (taskView?.task?.source_lang as string | undefined)
+                  ) || 'en',
+                targetLang:
+                  toSupportedUiLang(
+                    targetLang ||
+                      (taskView?.task?.target_lang as string | undefined)
+                  ) || 'zh',
+                pageRange: taskView?.task?.page_range ?? null,
+                docPages: taskView?.task?.document_page_count ?? null,
+              })}`}
+              className={
+                ocrWorkbenchAside.suggestTry
+                  ? 'mt-2 inline-flex items-center gap-1.5 rounded-md bg-sky-600/95 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-sky-600 dark:bg-sky-500/90 dark:hover:bg-sky-500'
+                  : 'mt-2 inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700'
+              }
+            >
+              {ocrWorkbenchAside.cta}
+            </Link>
+          </div>
+        ) : null}
 
         {documentId ? (
           <TranslationForm
@@ -1197,79 +1441,125 @@ export function TranslatePageClient() {
             )}
             {taskStatus === 'failed' &&
               failedTaskInfo &&
-              (failedTaskInfo.error_message || failedTaskInfo.error_code) && (
-                <p
-                  className={
-                    isNoParagraphsFailure(
-                      failedTaskInfo.error_code,
-                      failedTaskInfo.error_message
-                    )
-                      ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
-                      : 'mt-2 text-xs text-red-600 dark:text-red-400'
-                  }
-                >
-                  {isNoParagraphsFailure(
-                    failedTaskInfo.error_code,
-                    failedTaskInfo.error_message
-                  )
-                    ? tErrors('no_paragraphs')
-                    : failedTaskInfo.error_code === 'scan_detected_use_ocr'
-                      ? tErrors('scan_detected_use_ocr')
-                    : failedTaskInfo.error_message ??
-                      (failedTaskInfo.error_code
-                        ? tErrors(
-                            failedTaskInfo.error_code as
-                              | 'pdf_font_unsupported'
-                              | 'tounicode_missing'
-                              | 'font_subset_corrupt'
-                              | 'no_paragraphs'
-                              | 'ocr_preprocess_failed'
-                              | 'scan_detected_use_ocr'
-                          )
-                        : '')}
-                </p>
-              )}
-            {taskStatus === 'failed' &&
-              failedTaskInfo &&
-              isScanLikelyFailure(
-                failedTaskInfo.error_code,
-                failedTaskInfo.error_message
-              ) &&
-              documentId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (ocrRedirecting || ocrNavLockRef.current) return;
-                    ocrNavLockRef.current = true;
-                    setOcrRedirecting(true);
-                    const qs = new URLSearchParams({
-                      document: documentId,
-                      source_lang:
-                        sourceLang ||
-                        (taskView?.task?.source_lang as UILang | undefined) ||
-                        'en',
-                      target_lang:
-                        targetLang ||
-                        (taskView?.task?.target_lang as UILang | undefined) ||
-                        'zh',
-                    });
-                    router.push(`/ocrtranslator?${qs.toString()}`);
-                    setTimeout(() => {
-                      setOcrRedirecting(false);
-                      ocrNavLockRef.current = false;
-                    }, 3000);
-                  }}
-                  disabled={ocrRedirecting}
-                  className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/60"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    {ocrRedirecting ? (
-                      <Loader2 size={12} className="animate-spin" />
+              (failedTaskInfo.error_message || failedTaskInfo.error_code) &&
+              (() => {
+                const code = failedTaskInfo.error_code;
+                const msg = failedTaskInfo.error_message;
+                const ocrCta =
+                  documentId &&
+                  shouldOfferOcrRedirect(code, msg);
+                if (ocrCta) {
+                  const noPara = isNoParagraphsFailure(code, msg);
+                  const targetForOcr =
+                    toSupportedUiLang(
+                      targetLang ||
+                        (taskView?.task?.target_lang as string | undefined)
+                    ) || 'zh';
+                  const sourceForOcr =
+                    toSupportedUiLang(
+                      sourceLang ||
+                        (taskView?.task?.source_lang as string | undefined)
+                    ) || 'en';
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (ocrRedirecting || ocrNavLockRef.current) return;
+                        ocrNavLockRef.current = true;
+                        setOcrRedirecting(true);
+                        const qs = buildOcrWorkbenchSearch({
+                          documentId,
+                          sourceLang: sourceForOcr,
+                          targetLang: targetForOcr,
+                          pageRange: taskView?.task?.page_range ?? null,
+                          docPages: taskView?.task?.document_page_count ?? null,
+                        });
+                        router.push(`/ocrtranslator?${qs}`);
+                        setTimeout(() => {
+                          setOcrRedirecting(false);
+                          ocrNavLockRef.current = false;
+                        }, 3000);
+                      }}
+                      disabled={ocrRedirecting}
+                      className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-left text-xs font-medium text-amber-950 shadow-sm hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-950/60"
+                    >
+                      <span className="flex items-start gap-2.5">
+                        {ocrRedirecting ? (
+                          <Loader2
+                            size={18}
+                            className="mt-0.5 shrink-0 animate-spin text-amber-800 dark:text-amber-200"
+                          />
+                        ) : (
+                          <Languages
+                            size={18}
+                            className="mt-0.5 shrink-0 text-sky-700 dark:text-sky-300"
+                          />
+                        )}
+                        <span className="min-w-0 flex-1 leading-relaxed">
+                          <span className="block font-semibold">
+                            {noPara
+                              ? tErrors('no_paragraphs')
+                              : tErrors('scan_detected_use_ocr')}
+                          </span>
+                          <span className="mt-1 block text-[11px] font-normal text-amber-900/90 dark:text-amber-100/90">
+                            {tTranslate('preprocessWithOcr')} →
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+                  );
+                }
+                return (
+                  <>
+                    <p
+                      className={
+                        isNoParagraphsFailure(code, msg)
+                          ? 'mt-2 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/35 dark:text-amber-50'
+                          : 'mt-2 text-xs text-red-600 dark:text-red-400'
+                      }
+                    >
+                      {isNoParagraphsFailure(code, msg)
+                        ? tErrors('no_paragraphs')
+                        : failedTaskInfo.error_code === 'scan_detected_use_ocr'
+                          ? tErrors('scan_detected_use_ocr')
+                          : failedTaskInfo.error_message ??
+                            (failedTaskInfo.error_code
+                              ? tErrors(
+                                  failedTaskInfo.error_code as
+                                    | 'pdf_font_unsupported'
+                                    | 'tounicode_missing'
+                                    | 'font_subset_corrupt'
+                                    | 'no_paragraphs'
+                                    | 'ocr_preprocess_failed'
+                                    | 'scan_detected_use_ocr'
+                                )
+                              : '')}
+                    </p>
+                    {documentId ? (
+                      <Link
+                        href={`/ocrtranslator?${buildOcrWorkbenchSearch({
+                          documentId,
+                          sourceLang:
+                            toSupportedUiLang(
+                              sourceLang ||
+                                (taskView?.task?.source_lang as string | undefined)
+                            ) || 'en',
+                          targetLang:
+                            toSupportedUiLang(
+                              targetLang ||
+                                (taskView?.task?.target_lang as string | undefined)
+                            ) || 'zh',
+                          pageRange: taskView?.task?.page_range ?? null,
+                          docPages: taskView?.task?.document_page_count ?? null,
+                        })}`}
+                        className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700"
+                      >
+                        {t('ocrJumpCta')}
+                      </Link>
                     ) : null}
-                    {tTranslate('preprocessWithOcr')}
-                  </span>
-                </button>
-              )}
+                  </>
+                );
+              })()}
             {taskStatus === 'completed' &&
               !targetPdfUrl &&
               (taskView?.primary_file_url ?? taskView?.outputs?.length) && (

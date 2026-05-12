@@ -21,5 +21,17 @@
   "backgroundTaskHint": "The task is running in the background. You can close this page or do something else; come back when it's done.",
   "longTaskHint": "Long documents may take several minutes to translate. Thank you for your patience.",
   "queuedWaitHint": "Your task has been queued. Other tasks may be in progress; please wait a moment.",
-  "restoring": "Loading task…"
+  "restoring": "Loading task…",
+  "suggestOcrHintTitle": "You can try OCR translation",
+  "suggestOcrHintBody": "This PDF was translated, but the text layer may be weak or uneven. OCR rebuilds text from page images and often works better for scans or difficult layouts.",
+  "suggestOcrHintCta": "Open OCR Translator",
+  "completedOcrOfferTitle": "Optional: OCR preprocessing",
+  "completedOcrOfferBody": "Translation is ready. If you want to edit layout text or handle scanned pages, open the OCR translator with this document and languages.",
+  "ocrJumpHintTitle": "Scans or tricky layout?",
+  "ocrJumpHintBody": "Rebuild text from page images—same file and languages.",
+  "ocrJumpCta": "Open OCR",
+  "ocrJumpWhenPreprocessedTitle": "Fine-tune layout",
+  "ocrJumpWhenPreprocessedBody": "Translate-time OCR is on; open the workbench for deeper edits.",
+  "failedOcrOfferTitle": "Translation stopped — try OCR?",
+  "failedOcrOfferBody": "For scans or weak text layers, OCR rebuilds text from page images first. You can continue with the same PDF and languages."
 }

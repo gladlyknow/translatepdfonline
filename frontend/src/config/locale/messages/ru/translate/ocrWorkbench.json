@@ -39,5 +39,14 @@
   "toolbarFontYaheiShort": "YaHei",
   "toolbarFontSimsunShort": "Song",
   "toolbarFontKaitiShort": "Kai",
-  "toolbarFontNotoShort": "Noto"
+  "toolbarFontNotoShort": "Noto",
+  "sourceColumnShort": "S",
+  "targetColumnShort": "T",
+  "pageRangeColumnShort": "P",
+  "ocrPageRangePlaceholder": "Диапазон страниц (необязательно, напр. 1-10)",
+  "pagesSourcePageLabel": "Страница оригинала",
+  "pagesJsonPageLabel": "Страница JSON",
+  "pagesPageInputAria": "Номер страницы",
+  "focusPanelJson": "Фокус JSON",
+  "focusPanelSource": "Фокус исходника"
 }

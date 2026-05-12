@@ -33,7 +33,11 @@ export async function ensureDocumentPageCount(params: {
   documentId: string;
   objectKey: string;
   knownPageCount?: number | null;
-  reason: 'upload_complete' | 'ocr_precheck';
+  reason:
+    | 'upload_complete'
+    | 'ocr_precheck'
+    | 'ocr_page_range'
+    | 'translate_billing_precheck';
 }): Promise<{
   pageCount: number | null;
   source: 'known' | 'r2_pdf' | 'unavailable';

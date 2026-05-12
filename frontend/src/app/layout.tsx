@@ -121,6 +121,7 @@ export default async function RootLayout({
           }
           sizes="any"
         /> */}
+        
         <link
           rel="icon"
           type="image/png"

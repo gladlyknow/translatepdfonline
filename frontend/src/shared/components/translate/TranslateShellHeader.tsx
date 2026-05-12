@@ -1,6 +1,8 @@
 'use client';
 
+import { useMemo } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { History } from 'lucide-react';
 import { Link, useRouter } from '@/core/i18n/navigation';
@@ -30,6 +32,14 @@ export function TranslateShellHeader({
   const { appearance } = useTranslateHeaderAppearance();
   const onDark = appearance === 'onDark';
   const logoSrc = cacheBustedPublicPath(envConfigs.app_logo);
+  const searchParams = useSearchParams();
+  // 当前页（如 /translate）若已选 target_lang，跳转到 /ocrtranslator 时带过去
+  const ocrHref = useMemo(() => {
+    const tgt = searchParams?.get('target_lang')?.trim();
+    return tgt
+      ? `/ocrtranslator?target_lang=${encodeURIComponent(tgt)}`
+      : '/ocrtranslator';
+  }, [searchParams]);
 
   if (shellChrome?.headerCollapsed) {
     return null;
@@ -97,7 +107,7 @@ export function TranslateShellHeader({
           {t('navPdfTranslate')}
         </Link>
         <Link
-          href="/ocrtranslator?recent=1"
+          href={ocrHref}
           title={t('navPdfOcr')}
           className={
             onDark

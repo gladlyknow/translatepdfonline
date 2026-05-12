@@ -13,6 +13,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
+import { cn } from '@/shared/lib/utils';
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const CMAP_URL = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`;
@@ -236,8 +238,17 @@ export function PdfViewerPane({
     );
   }
 
+  const showTopChrome =
+    showPageControls || (showZoomControls && Boolean(onScaleChange));
+
   return (
-    <div ref={containerRef} className="flex min-w-0 w-full flex-col gap-2">
+    <div
+      ref={containerRef}
+      className={cn(
+        'flex min-w-0 w-full flex-col',
+        showTopChrome ? 'gap-2' : 'gap-0'
+      )}
+    >
       <div
         ref={widthMeasureRef}
         className="h-0 min-h-0 w-full min-w-0 shrink-0 overflow-hidden"

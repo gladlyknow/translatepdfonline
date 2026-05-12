@@ -21,6 +21,14 @@ import { renderWorkbenchHtmlToPdfBytes } from '@/shared/lib/ocr-export-html-to-p
 import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
 import { createPresignedGet, getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { toPublicOcrErrorMessage } from '@/shared/lib/ocr-public-error';
+
+/**
+ * Export consumer tuning (deploy on the queue Worker that runs `processOcrTaskExport`):
+ * - OCR_EXPORT_STAGE_TIMEOUT_MS: per-stage ceiling for load_staging_html, materialize_html_images_to_r2,
+ *   and render_pdf_from_staging_html (each `withStageTimeout` call uses this). Default 180s; raise for
+ *   very large HTML / many images if logs show `export stage timeout (…)`.
+ * - OCR_EXPORT_UPLOAD_RETRY_MAX: R2 putObject retries for final output and staging assets.
+ */
 const OCR_EXPORT_UPLOAD_RETRY_MAX = Math.max(
   1,
   Number(process.env.OCR_EXPORT_UPLOAD_RETRY_MAX || '4') || 4
@@ -32,6 +40,21 @@ const OCR_EXPORT_STAGE_TIMEOUT_MS = Math.max(
 const OCR_EXPORT_IMAGE_RETRY_MAX = 5;
 const OCR_EXPORT_IMAGE_CONCURRENCY = 4;
 const OCR_EXPORT_IMAGE_URL_TTL_SECONDS = Math.max(3600, 7 * 24 * 3600);
+const OCR_PDF_EXPORT_MODE_DEFAULT: OcrPdfExportMode =
+  process.env.OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+    ? 'raster_snapshot'
+    : 'vector_shrink_only';
+
+export type OcrPdfExportMode = 'vector_shrink_only' | 'raster_snapshot';
+type OcrExportRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
+function normalizePdfMode(raw: unknown): OcrPdfExportMode {
+  return raw === 'raster_snapshot' ? 'raster_snapshot' : 'vector_shrink_only';
+}
 
 function toPublicExportErrorMessage(raw: string): string {
   return toPublicOcrErrorMessage(raw, 'Export failed, please retry');
@@ -138,6 +161,59 @@ function decodeDataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType
     return { bytes: out, contentType };
   }
   return { bytes: new TextEncoder().encode(decodeURIComponent(body)), contentType };
+}
+
+function buildRasterSnapshotPdfHtml(params: {
+  pages: OcrExportRasterPage[];
+  orientation: 'portrait' | 'landscape';
+  title?: string;
+}): string {
+  const safeTitle = String(params.title || 'document')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/"/g, '&quot;');
+  const pageSections = params.pages
+    .map((page, index) => {
+      const safeDataUrl = page.dataUrl.replace(/"/g, '&quot;').replace(/&/g, '&amp;');
+      return `<section class="snapshot-raster-page" aria-label="page-${index + 1}">
+  <img src="${safeDataUrl}" alt="" width="${Math.max(1, Math.round(page.w))}" height="${Math.max(1, Math.round(page.h))}" />
+</section>`;
+    })
+    .join('');
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${safeTitle}</title><style>
+    :root{color-scheme:light;}
+    html,body{margin:0;padding:0;}
+    body{padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .snapshot-raster-page{
+      margin:0 auto;
+      width:100%;
+      min-height:100vh;
+      break-after:page;
+      page-break-after:always;
+      break-inside:avoid;
+      page-break-inside:avoid;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#fff;
+    }
+    .snapshot-raster-page:last-child{
+      break-after:auto;
+      page-break-after:auto;
+    }
+    .snapshot-raster-page img{
+      display:block;
+      max-width:100%;
+      max-height:100%;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    @page{margin:0;size:A4 ${params.orientation};}
+  </style></head><body>${pageSections}<script>window.__prLayoutFitDone=true;</script></body></html>`;
 }
 
 function getExportAppOrigin(): string {
@@ -470,7 +546,33 @@ export async function ensureOcrPendingExportsForTask(params: {
   return exportIds;
 }
 
-export async function processOcrTaskExport(exportId: string): Promise<void> {
+function parseStagedRasterPayload(raw: string): {
+  orientation: 'portrait' | 'landscape';
+  pages: OcrExportRasterPage[];
+} {
+  const parsed = JSON.parse(raw) as {
+    orientation?: unknown;
+    pages?: Array<{ dataUrl?: unknown; w?: unknown; h?: unknown }>;
+  };
+  const orientation = parsed.orientation === 'landscape' ? 'landscape' : 'portrait';
+  const pagesRaw = Array.isArray(parsed.pages) ? parsed.pages : [];
+  const pages = pagesRaw
+    .map((item) => ({
+      dataUrl: String(item?.dataUrl || ''),
+      w: Math.max(1, Number(item?.w) || 1),
+      h: Math.max(1, Number(item?.h) || 1),
+    }))
+    .filter((item) => /^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(item.dataUrl));
+  if (pages.length === 0) {
+    throw new Error('staged raster payload has no valid pages');
+  }
+  return { orientation, pages };
+}
+
+export async function processOcrTaskExport(
+  exportId: string,
+  options?: { pdfMode?: OcrPdfExportMode }
+): Promise<void> {
   const row = await findExportById(exportId);
   if (!row) return;
   if (row.status === OcrTaskExportStatus.cancelled) return;
@@ -484,6 +586,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
   }
   const claimed = await claimExportForProcessing(exportId);
   if (!claimed) return;
+  const effectivePdfMode = normalizePdfMode(options?.pdfMode ?? OCR_PDF_EXPORT_MODE_DEFAULT);
 
   try {
     if (await isTaskCancelled(row.taskId)) {
@@ -499,7 +602,12 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
     if (row.format === 'pdf') {
       await appendExportLog(
         exportId,
-        'pdf: workbench_like HTML → Chromium (Browser Rendering required)'
+        `pdf: mode=${effectivePdfMode} staging_source → Chromium via BROWSER binding on Consumer Worker`
+      );
+    } else if (row.format === 'html') {
+      await appendExportLog(
+        exportId,
+        'html: staging_html (R2) → materialize images → final HTML on R2'
       );
     }
     if (await isTaskCancelled(row.taskId)) {
@@ -521,34 +629,73 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       if (!htmlBytes) {
         throw new Error('staging html missing for pdf export');
       }
-      const html = new TextDecoder('utf-8').decode(htmlBytes);
-      const normalized = await withStageTimeout(
-        'materialize_html_images_to_r2',
-        () =>
-          materializeHtmlImagesToR2({
-            taskId: row.taskId,
-            exportId,
-            html,
-          }),
-        OCR_EXPORT_STAGE_TIMEOUT_MS
-      );
-      console.log(
-        '[ocr/export] pdf_render_context',
-        JSON.stringify({
-          task_id: row.taskId,
-          export_id: exportId,
-          render_mode: 'dom_snapshot_staging',
-          staging_html_key: stagingHtmlKey,
-          html_length: normalized.html.length,
-          image_r2_urls: normalized.count,
-        })
-      );
-
-      const pdfBytes = await withStageTimeout(
-        'render_pdf_from_staging_html',
-        () => renderWorkbenchHtmlToPdfBytes(normalized.html),
-        OCR_EXPORT_STAGE_TIMEOUT_MS
-      );
+      let pdfBytes: Uint8Array;
+      let logSuffix = '';
+      if (effectivePdfMode === 'raster_snapshot') {
+        const payload = parseStagedRasterPayload(new TextDecoder('utf-8').decode(htmlBytes));
+        const rasterHtml = buildRasterSnapshotPdfHtml({
+          pages: payload.pages,
+          orientation: payload.orientation,
+          title: `ocr-${row.taskId}`,
+        });
+        console.log(
+          '[ocr/export] pdf_render_context',
+          JSON.stringify({
+            task_id: row.taskId,
+            export_id: exportId,
+            render_mode: 'raster_snapshot_pages',
+            staging_raster_key: stagingHtmlKey,
+            staging_bytes: htmlBytes.byteLength,
+            pages: payload.pages.length,
+            orientation: payload.orientation,
+          })
+        );
+        pdfBytes = await withStageTimeout(
+          'render_pdf_from_raster_snapshot',
+          () => renderWorkbenchHtmlToPdfBytes(rasterHtml),
+          OCR_EXPORT_STAGE_TIMEOUT_MS
+        );
+        logSuffix = `raster_pages=${payload.pages.length}`;
+      } else {
+        const html = new TextDecoder('utf-8').decode(htmlBytes);
+        console.log(
+          '[ocr/export] pdf_staging_loaded',
+          JSON.stringify({
+            task_id: row.taskId,
+            export_id: exportId,
+            staging_bytes: htmlBytes.byteLength,
+            approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
+            stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+          })
+        );
+        const normalized = await withStageTimeout(
+          'materialize_html_images_to_r2',
+          () =>
+            materializeHtmlImagesToR2({
+              taskId: row.taskId,
+              exportId,
+              html,
+            }),
+          OCR_EXPORT_STAGE_TIMEOUT_MS
+        );
+        console.log(
+          '[ocr/export] pdf_render_context',
+          JSON.stringify({
+            task_id: row.taskId,
+            export_id: exportId,
+            render_mode: 'dom_snapshot_staging',
+            staging_html_key: stagingHtmlKey,
+            html_length: normalized.html.length,
+            image_r2_urls: normalized.count,
+          })
+        );
+        pdfBytes = await withStageTimeout(
+          'render_pdf_from_staging_html',
+          () => renderWorkbenchHtmlToPdfBytes(normalized.html),
+          OCR_EXPORT_STAGE_TIMEOUT_MS
+        );
+        logSuffix = `staging_html image_r2_urls=${normalized.count}`;
+      }
       console.log(
         '[ocr/export] pdf_render_done',
         JSON.stringify({
@@ -568,7 +715,7 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       });
       await appendExportLog(
         exportId,
-        `ready pdf_bytes=${pdfBytes.byteLength} staging_html image_r2_urls=${normalized.count} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
+        `ready pdf_bytes=${pdfBytes.byteLength} mode=${effectivePdfMode} ${logSuffix} img_retry=${OCR_EXPORT_IMAGE_RETRY_MAX} img_concurrency=${OCR_EXPORT_IMAGE_CONCURRENCY}`
       );
     } else if (row.format === 'html') {
       const stagingHtmlKey = exportStagingHtmlKey(row.taskId, exportId);
@@ -581,6 +728,16 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
         throw new Error('staging html missing for html export');
       }
       const html = new TextDecoder('utf-8').decode(htmlBytes);
+      console.log(
+        '[ocr/export] html_staging_loaded',
+        JSON.stringify({
+          task_id: row.taskId,
+          export_id: exportId,
+          staging_bytes: htmlBytes.byteLength,
+          approx_img_tags: (html.match(/<img\b/gi) ?? []).length,
+          stage_timeout_ms: OCR_EXPORT_STAGE_TIMEOUT_MS,
+        })
+      );
       const normalized = await withStageTimeout(
         'materialize_html_images_to_r2',
         () =>
@@ -620,7 +777,13 @@ export async function processOcrTaskExport(exportId: string): Promise<void> {
       const targetLang = langRow?.targetLang ?? '';
       const markdown = await withStageTimeout(
         'load_markdown',
-        () => loadMarkdownFromR2(row.sourceMarkdownObjectKey),
+        async () => {
+          try {
+            return await loadMarkdownFromR2(row.sourceMarkdownObjectKey);
+          } catch {
+            return '';
+          }
+        },
         OCR_EXPORT_STAGE_TIMEOUT_MS
       );
       const markdownWithR2Urls = await withStageTimeout(

@@ -10,6 +10,7 @@ import { TranslateFooterWorkbenchProvider } from '@/shared/contexts/translate-fo
 import { TranslateHistoryDrawerProvider } from '@/shared/contexts/translate-history-drawer';
 import { TranslateHeaderAppearanceProvider } from '@/shared/contexts/translate-header-appearance';
 import { TranslateShellChromeProvider } from '@/shared/contexts/translate-shell-chrome';
+import { cn } from '@/shared/lib/utils';
 
 export function TranslateAppShell({
   children,
@@ -29,9 +30,24 @@ export function TranslateAppShell({
       <TranslateFooterWorkbenchProvider>
         <TranslateShellChromeProvider>
           <TranslateHistoryDrawerProvider>
-            <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+            <div
+              className={cn(
+                'flex flex-col bg-zinc-50 dark:bg-zinc-950',
+                // OCR：锁视口高度，避免 body 滚动把侧栏+portal 整块卷走（仅 main overflow-hidden 不够）
+                shellVariant === 'ocr'
+                  ? 'h-[100dvh] max-h-[100dvh] overflow-hidden'
+                  : 'min-h-screen'
+              )}
+            >
               <TranslateShellHeader userNav={userNav} variant={shellVariant} />
-              <main className="flex min-h-0 min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-auto">
+              <main
+                className={cn(
+                  'flex min-h-0 flex-1 flex-col',
+                  shellVariant === 'ocr'
+                    ? 'overflow-hidden'
+                    : 'min-h-[calc(100vh-3.5rem)] overflow-auto'
+                )}
+              >
                 {children}
               </main>
               {footer}

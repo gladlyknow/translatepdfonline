@@ -2,6 +2,16 @@
  * 纯函数：预估翻译页数（客户端与服务端共用，不依赖 Worker env）。
  */
 
+/** 与 translate API 一致：统一页范围字符（减号、空白） */
+export function normalizePageRangeInput(raw: unknown): string | null {
+  if (raw == null) return null;
+  const s = String(raw)
+    .trim()
+    .replace(/\u2013|\u2014|\u2212/g, '-')
+    .replace(/\s+/g, '');
+  return s === '' ? null : s;
+}
+
 export function parseTranslatePageRange(
   range: string | null | undefined
 ): [number, number] | null {

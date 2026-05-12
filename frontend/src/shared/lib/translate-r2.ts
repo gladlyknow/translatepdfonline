@@ -7,7 +7,8 @@
  * 1) Env: R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT / R2_ENDPOINT_URL
  * 2) DB admin settings: r2_bucket_name, r2_access_key, r2_secret_key, r2_endpoint
  *
- * For local dev: R2_PUBLIC_URL or NEXT_PUBLIC_R2_PUBLIC_URL for GET without signing (Node only).
+ * 匿名可读对象的公网前缀：`R2_PUBLIC_URL` / `NEXT_PUBLIC_R2_PUBLIC_URL` → DB `r2_domain`（与 storage `publicDomain` 一致）→ 否则 presign。
+ * 本地开发仍可用 `R2_PUBLIC_URL` 避免直连 S3 API。
  * In Cloudflare Worker uses aws4fetch (no Node fs); in Node uses @aws-sdk (dynamic import).
  */
 
@@ -164,6 +165,36 @@ export function encodeR2KeyForPublicUrl(key: string): string {
   return key.split('/').map((s) => encodeURIComponent(s)).join('/');
 }
 
+function normalizePublicReadBaseUrl(raw: string): string {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  try {
+    const u = new URL(s);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return '';
+    return `${u.protocol}//${u.host}${u.pathname.replace(/\/+$/, '')}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * 匿名可读对象的公网 URL 前缀：`R2_PUBLIC_URL` / `NEXT_PUBLIC_R2_PUBLIC_URL`，其次 DB `r2_domain`（与 storage R2Provider.publicDomain 一致）。
+ * 浏览器端不读库，返回空串。
+ */
+export async function resolveR2PublicReadBaseUrl(): Promise<string> {
+  const fromEnv = normalizePublicReadBaseUrl(
+    String(process.env.R2_PUBLIC_URL || process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '')
+  );
+  if (fromEnv) return fromEnv;
+  if (typeof window !== 'undefined') return '';
+  try {
+    const cfg = await getAllConfigs();
+    return normalizePublicReadBaseUrl(String(cfg['r2_domain'] ?? ''));
+  } catch {
+    return '';
+  }
+}
+
 /**
  * True if translate R2 flows can run: full S3 signing config (env and/or DB), or Node-only public read URL.
  */
@@ -279,6 +310,13 @@ export async function createPresignedGet(
   expiresInSeconds = 3600,
   options?: CreatePresignedGetOptions
 ): Promise<string> {
+  if (!options?.responseContentDisposition) {
+    const pubBase = await resolveR2PublicReadBaseUrl();
+    if (pubBase) {
+      return `${pubBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(key)}`;
+    }
+  }
+
   const creds = await resolveTranslateR2S3Env();
   if (creds) {
     console.log(
@@ -302,11 +340,6 @@ export async function createPresignedGet(
     if (!creds) throw new Error('R2 not configured');
     return createPresignedGetWorker(creds, key, expiresInSeconds, options);
   }
-  const publicBase = getR2PublicBaseUrl();
-  if (publicBase) {
-    // 公网直链无签名，无法带 response-content-disposition（浏览器可能仍内联打开）
-    return `${publicBase}/${encodeR2KeyForPublicUrl(key)}`;
-  }
   if (!creds) throw new Error('R2 not configured');
   const { GetObjectCommand, S3Client } = await import('@aws-sdk/client-s3');
   const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
@@ -328,20 +361,112 @@ export async function createPresignedGet(
   return (getSignedUrl as SignUrl)(client, command, { expiresIn: expiresInSeconds });
 }
 
-/** Get object body from R2 (for server-side PDF slice extraction). */
-export async function getObjectBody(key: string): Promise<Uint8Array> {
+/** 与无 `responseContentDisposition` 的 `createPresignedGet` 一致：公网前缀（env / DB `r2_domain`）优先。 */
+export async function resolveR2ObjectPublicUrl(
+  key: string,
+  presignExpiresSeconds = 7 * 24 * 3600
+): Promise<string> {
+  return createPresignedGet(key, presignExpiresSeconds);
+}
+
+/**
+ * Fetch a byte range from R2 (Range GET). Used for scan precheck without downloading the full PDF.
+ * @param startInclusive first byte index
+ * @param endInclusive last byte index (HTTP Range inclusive)
+ */
+export async function getObjectByteRange(
+  key: string,
+  startInclusive: number,
+  endInclusive: number
+): Promise<Uint8Array> {
+  if (endInclusive < startInclusive || startInclusive < 0) {
+    throw new Error('Invalid byte range');
+  }
+  const range = `bytes=${startInclusive}-${endInclusive}`;
   const creds = await resolveTranslateR2S3Env();
+
   if (isCloudflareWorker) {
     if (!creds) throw new Error('R2 not configured');
-    const url = await createPresignedGetWorker(creds, key, 3600);
+    const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+    const client = new AwsClient({
+      service: 's3',
+      region: 'auto',
+      accessKeyId,
+      secretAccessKey,
+    });
+    const base = `${endpoint}/${bucket}/${key}`;
+    const u = new URL(base);
+    u.searchParams.set('X-Amz-Expires', '600');
+    const signed = await client.sign(
+      new Request(u.toString(), { method: 'GET', headers: { Range: range } }),
+      { aws: { signQuery: true } }
+    );
+    const res = await fetch(signed.url, { headers: { Range: range } });
+    if (!res.ok) {
+      throw new Error(`R2 range get failed: ${res.status}`);
+    }
+    const buf = await res.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  const publicBase = await resolveR2PublicReadBaseUrl();
+  if (publicBase) {
+    const url = `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(key)}`;
+    const res = await fetch(url, {
+      headers: { Range: range },
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (!res.ok) {
+      throw new Error(`R2 range get failed: ${res.status}`);
+    }
+    const buf = await res.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  if (!creds) throw new Error('R2 not configured');
+  const { GetObjectCommand, S3Client } = await import('@aws-sdk/client-s3');
+  const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
+  const client = new S3Client({
+    region: 'auto',
+    endpoint,
+    credentials: { accessKeyId, secretAccessKey },
+    forcePathStyle: true,
+  });
+  const out = await client.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Range: range,
+    })
+  );
+  const body = out.Body;
+  if (!body) throw new Error('Empty object body');
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of body as AsyncIterable<Uint8Array>) {
+    chunks.push(chunk);
+  }
+  const total = chunks.reduce((acc, c) => acc + c.length, 0);
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    merged.set(c, offset);
+    offset += c.length;
+  }
+  return merged;
+}
+
+/** Get object body from R2 (for server-side PDF slice extraction). */
+export async function getObjectBody(key: string): Promise<Uint8Array> {
+  if (isCloudflareWorker) {
+    const url = await createPresignedGet(key, 3600);
     const res = await fetch(url);
     if (!res.ok) throw new Error(`R2 get failed: ${res.status}`);
     const buf = await res.arrayBuffer();
     return new Uint8Array(buf);
   }
-  const publicBase = getR2PublicBaseUrl();
+  const publicBase = await resolveR2PublicReadBaseUrl();
   if (publicBase) {
-    const url = `${publicBase}/${encodeR2KeyForPublicUrl(key)}`;
+    const url = `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(key)}`;
     const timeoutMs = 90_000; // 单次 90 秒，配合重试提高成功率
 
     const isTimeoutError = (e: unknown): boolean => {
@@ -375,6 +500,7 @@ export async function getObjectBody(key: string): Promise<Uint8Array> {
     }
     throw lastErr;
   }
+  const creds = await resolveTranslateR2S3Env();
   if (!creds) throw new Error('R2 not configured');
   const { GetObjectCommand, S3Client } = await import('@aws-sdk/client-s3');
   const { bucket, accessKeyId, secretAccessKey, endpoint } = creds;
@@ -386,7 +512,7 @@ export async function getObjectBody(key: string): Promise<Uint8Array> {
   });
 
   const s3TimeoutMs = 90_000;
-  const isTimeoutError = (e: unknown): boolean => {
+  const isTimeoutErrorS3 = (e: unknown): boolean => {
     const err = e as Error & { name?: string };
     return err?.name === 'AbortError' || (typeof err?.message === 'string' && err.message.includes('timeout'));
   };
@@ -425,10 +551,10 @@ export async function getObjectBody(key: string): Promise<Uint8Array> {
       return await doGet();
     } catch (e) {
       lastErr = e;
-      if (!isTimeoutError(e) || attempt === maxAttempts) break;
+      if (!isTimeoutErrorS3(e) || attempt === maxAttempts) break;
     }
   }
-  if (isTimeoutError(lastErr)) {
+  if (isTimeoutErrorS3(lastErr)) {
     throw new Error('Storage connection timed out. Check network or try again later.');
   }
   throw lastErr;

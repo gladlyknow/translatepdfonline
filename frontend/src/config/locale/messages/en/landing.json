@@ -20,7 +20,7 @@
         },
         {
           "title": "PDF OCR",
-          "url": "/ocrtranslator?recent=1",
+          "url": "/ocrtranslator",
           "icon_url": "/imgs/branding/generalocr.svg"
         },
         {

@@ -201,8 +201,8 @@ export function TranslationForm({
   }>({ open: false, need: null, have: null });
   const [ocrSuggestion, setOcrSuggestion] = useState<{
     documentId: string;
-    sourceLang: UILang;
     targetLang: UILang;
+    sourceLang?: UILang;
   } | null>(null);
   const [ocrNavigating, setOcrNavigating] = useState(false);
   const submitLockRef = useRef(false);
@@ -210,13 +210,13 @@ export function TranslationForm({
   useEffect(() => {
     if (!ocrSuggestion) return;
     if (
-      ocrSuggestion.sourceLang !== sourceLang ||
+      ocrSuggestion.documentId !== documentId ||
       ocrSuggestion.targetLang !== targetLang
     ) {
       setOcrSuggestion(null);
       setError(null);
     }
-  }, [ocrSuggestion, sourceLang, targetLang]);
+  }, [ocrSuggestion, documentId, targetLang]);
 
   usePreventBackgroundWheel(creditsModal.open, null);
 
@@ -235,9 +235,11 @@ export function TranslationForm({
     setOcrNavigating(true);
     const qs = new URLSearchParams({
       document: ocrSuggestion.documentId,
-      source_lang: ocrSuggestion.sourceLang,
       target_lang: ocrSuggestion.targetLang,
     });
+    if (ocrSuggestion.sourceLang) {
+      qs.set('source_lang', ocrSuggestion.sourceLang);
+    }
     router.push(`/ocrtranslator?${qs.toString()}`);
   };
 
@@ -387,12 +389,12 @@ export function TranslationForm({
       if (err.status === 409) {
         const code =
           typeof err.body?.code === 'string' ? err.body.code : '';
-        if (code === 'scan_detected_use_ocr' && sourceLang && targetLang) {
+        if (code === 'scan_detected_use_ocr' && targetLang && documentId) {
           setError(tErrors('scan_detected_use_ocr'));
           setOcrSuggestion({
             documentId,
-            sourceLang,
             targetLang,
+            ...(sourceLang ? { sourceLang } : {}),
           });
           return;
         }

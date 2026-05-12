@@ -1,3 +1,4 @@
+import { buildLayoutFitInlineScript } from '@/shared/ocr-workbench/parse-result-export-layout-fit-script';
 import { resolveImageDataUrl } from '@/shared/ocr-workbench/parse-result-image-data';
 
 const BLANK_PIXEL_DATA_URL =
@@ -9,16 +10,10 @@ export type SnapshotImageIssue = {
   reason: 'missing-src' | 'resolve-failed';
 };
 
-export type SnapshotPngAttempt = {
-  strategy: 'direct' | 'strip-external-url' | 'minimal-style';
-  ok: boolean;
-  reason?: string;
-};
-
-export type SnapshotPngResult = {
+export type SnapshotRasterPage = {
   dataUrl: string;
-  strategy: SnapshotPngAttempt['strategy'];
-  attempts: SnapshotPngAttempt[];
+  w: number;
+  h: number;
 };
 
 function escapeHtml(s: string): string {
@@ -43,10 +38,54 @@ function allElements(root: Element): Element[] {
   return [root, ...Array.from(root.querySelectorAll('*'))];
 }
 
+/**
+ * SVG foreignObject → canvas 时，样式里若含跨域 `url(...)`（如 background-image），会污染画布，
+ * `toDataURL` 抛 Tainted canvases。栅格导出只保留 `data:` 内联资源 URL，其余抹成 `none`。
+ */
+function stripNonDataCssUrlsFromStyle(style: string): string {
+  if (!style.includes('url(')) return style;
+  return style.replace(/url\(\s*([^)]+)\s*\)/gi, (full, inner: string) => {
+    const t = String(inner).replace(/^['"]|['"]$/g, '').trim();
+    if (/^data:/i.test(t)) return full;
+    return 'none';
+  });
+}
+
+function sanitizeRasterSnapshotStyles(clone: HTMLElement): void {
+  for (const el of allElements(clone)) {
+    if (!(el instanceof HTMLElement)) continue;
+    const raw = el.getAttribute('style');
+    if (!raw?.includes('url(')) continue;
+    el.setAttribute('style', stripNonDataCssUrlsFromStyle(raw));
+  }
+}
+
+/** 打印快照里避免 scrollport（overflow:auto）被 Chromium PDF 裁切 */
+function normalizeSnapshotOverflowForPrint(clone: HTMLElement): void {
+  const candidates = clone.querySelectorAll<HTMLElement>(
+    '[data-layout-id], .parse-result-rich-host'
+  );
+  for (const el of candidates) {
+    const raw = el.getAttribute('style');
+    if (!raw) continue;
+    let next = raw;
+    next = next.replace(/overflow-y\s*:\s*auto\b/gi, 'overflow-y:hidden');
+    next = next.replace(/overflow-y\s*:\s*scroll\b/gi, 'overflow-y:hidden');
+    next = next.replace(/overflow-x\s*:\s*auto\b/gi, 'overflow-x:hidden');
+    next = next.replace(/overflow-x\s*:\s*scroll\b/gi, 'overflow-x:hidden');
+    next = next.replace(/overflow\s*:\s*auto\b/gi, 'overflow:hidden');
+    next = next.replace(/overflow\s*:\s*scroll\b/gi, 'overflow:hidden');
+    if (next !== raw) el.setAttribute('style', next);
+  }
+}
+
 export async function snapshotPageElement(
   pageEl: HTMLElement,
   cache: Map<string, string>,
-  options?: { orientation?: 'portrait' | 'landscape' }
+  options?: {
+    orientation?: 'portrait' | 'landscape';
+    preserveUnresolvedImageUrl?: boolean;
+  }
 ): Promise<{
   sectionHtml: string;
   pageHtml: string;
@@ -69,6 +108,8 @@ export async function snapshotPageElement(
       dst.removeAttribute('tabindex');
     }
   }
+
+  normalizeSnapshotOverflowForPrint(clone);
 
   let imageWarnings = 0;
   const imageIssues: SnapshotImageIssue[] = [];
@@ -97,18 +138,23 @@ export async function snapshotPageElement(
       );
       dst.setAttribute('src', optimized || inlined);
     } else {
-      // Keep original URL for backend staging download/rewrite.
-      // Do not blank it here, otherwise export loses recoverable images.
-      dst.setAttribute('src', raw);
+      const preserveUnresolvedImageUrl = options?.preserveUnresolvedImageUrl !== false;
+      // Vector HTML export preserves unresolved URL for backend materialization.
+      // Raster snapshot must avoid cross-origin tainted canvas, so fallback to blank pixel.
+      dst.setAttribute('src', preserveUnresolvedImageUrl ? raw : BLANK_PIXEL_DATA_URL);
       imageWarnings += 1;
       imageIssues.push({ layoutId, src: raw, reason: 'resolve-failed' });
     }
     dst.removeAttribute('srcset');
   }
 
+  if (options?.preserveUnresolvedImageUrl === false) {
+    sanitizeRasterSnapshotStyles(clone);
+  }
+
   const rect = pageEl.getBoundingClientRect();
-  const pageW = Math.max(1, Math.round(rect.width));
-  const pageH = Math.max(1, Math.round(rect.height));
+  const pageW = Math.max(1, Math.ceil(rect.width));
+  const pageH = Math.max(1, Math.ceil(rect.height));
   // 96dpi 下 A4 约 794x1123；打印时把编辑页等比压入一张纸内，避免一页拆成两页
   const orientation = options?.orientation === 'landscape' ? 'landscape' : 'portrait';
   const printLimitW = orientation === 'landscape' ? 1123 : 794;
@@ -126,239 +172,53 @@ export async function snapshotPageElement(
   };
 }
 
-export async function snapshotPageHtmlToPngDataUrl(
+export async function snapshotPageHtmlToRasterDataUrl(
   pageHtml: string,
   pageW: number,
-  pageH: number
+  pageH: number,
+  options?: { scale?: number; imageType?: 'png' | 'jpeg'; jpegQuality?: number }
 ): Promise<string> {
-  const { dataUrl } = await snapshotPageHtmlToPngDataUrlWithDiagnostics(
-    pageHtml,
-    pageW,
-    pageH
-  );
-  return dataUrl;
-}
-
-export async function snapshotPageHtmlToPngDataUrlWithDiagnostics(
-  pageHtml: string,
-  pageW: number,
-  pageH: number
-): Promise<SnapshotPngResult> {
-  // SVG foreignObject 渲染时，远程 <img src="http..."> 容易触发整页渲染失败；仅在 PNG 快照路径把非 data URL 兜底为空像素。
-  const safeHtml = toXmlSafeHtml(
-    pageHtml.replace(
-      /(<img\b[^>]*\bsrc=)(['"])(?!data:)[^'"]*\2/gi,
-      `$1"${BLANK_PIXEL_DATA_URL}"`
-    )
-  );
-  const attempts: SnapshotPngAttempt[] = [];
-  try {
-    const dataUrl = await renderSvgHtmlToPngDataUrl(safeHtml, pageW, pageH);
-    attempts.push({ strategy: 'direct', ok: true });
-    return { dataUrl, strategy: 'direct', attempts };
-  } catch (e) {
-    attempts.push({
-      strategy: 'direct',
-      ok: false,
-      reason: e instanceof Error ? e.message : 'unknown',
-    });
+  if (typeof document === 'undefined') {
+    throw new Error('raster snapshot requires browser runtime');
   }
-  const retryHtml = stripExternalCssUrls(safeHtml);
-  try {
-    const dataUrl = await renderSvgHtmlToPngDataUrl(retryHtml, pageW, pageH);
-    attempts.push({ strategy: 'strip-external-url', ok: true });
-    return { dataUrl, strategy: 'strip-external-url', attempts };
-  } catch (e) {
-    attempts.push({
-      strategy: 'strip-external-url',
-      ok: false,
-      reason: e instanceof Error ? e.message : 'unknown',
-    });
-  }
-  const minimalHtml = minimizeSvgRiskHtml(retryHtml);
-  try {
-    const dataUrl = await renderSvgHtmlToPngDataUrl(minimalHtml, pageW, pageH);
-    attempts.push({ strategy: 'minimal-style', ok: true });
-    return { dataUrl, strategy: 'minimal-style', attempts };
-  } catch (e) {
-    attempts.push({
-      strategy: 'minimal-style',
-      ok: false,
-      reason: e instanceof Error ? e.message : 'unknown',
-    });
-  }
-  const reason = attempts
-    .filter((a) => !a.ok)
-    .map((a) => `${a.strategy}:${a.reason ?? 'failed'}`)
-    .join('; ');
-  throw new Error(`snapshot render failed (${reason})`);
-}
-
-async function renderSvgHtmlToPngDataUrl(
-  html: string,
-  pageW: number,
-  pageH: number
-): Promise<string> {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pageW}" height="${pageH}">
-  <foreignObject x="0" y="0" width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml" style="width:${pageW}px;height:${pageH}px;overflow:hidden;background:#fff;">
-      ${html}
-    </div>
-  </foreignObject>
+  const scale = Math.max(1, Math.min(4, options?.scale ?? 2));
+  const imageType = options?.imageType === 'jpeg' ? 'jpeg' : 'png';
+  const jpegQuality = Math.max(0.6, Math.min(0.98, options?.jpegQuality ?? 0.92));
+  const targetW = Math.max(1, Math.round(pageW * scale));
+  const targetH = Math.max(1, Math.round(pageH * scale));
+  const xhtml = pageHtml
+    .replace(/&(?!#?[a-z0-9]+;)/gi, '&amp;')
+    .replace(/\u0000/g, '');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${targetW}" height="${targetH}" viewBox="0 0 ${pageW} ${pageH}">
+<foreignObject x="0" y="0" width="${pageW}" height="${pageH}">
+  <div xmlns="http://www.w3.org/1999/xhtml" style="width:${pageW}px;height:${pageH}px;overflow:hidden;background:#fff;">
+    ${xhtml}
+  </div>
+</foreignObject>
 </svg>`;
   const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  let img: HTMLImageElement;
+  const objectUrl = URL.createObjectURL(blob);
   try {
-    img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const i = new Image();
-      i.onload = () => resolve(i);
-      i.onerror = () => reject(new Error('snapshot svg render failed'));
-      i.src = url;
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('raster snapshot svg render failed'));
+      el.src = objectUrl;
     });
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-  const canvas = document.createElement('canvas');
-  canvas.width = pageW;
-  canvas.height = pageH;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('snapshot canvas context missing');
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, pageW, pageH);
-  ctx.drawImage(img, 0, 0, pageW, pageH);
-  return canvas.toDataURL('image/png');
-}
-
-function toXmlSafeHtml(html: string): string {
-  let out = html;
-  out = out.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '');
-  out = out.replace(/&(?!(?:[a-z]+|#\d+|#x[\da-f]+);)/gi, '&amp;');
-  out = out.replace(
-    /<\s*(img|br|hr|input|meta|link|source|track|wbr|area|base|col|embed|param)\b([^>]*?)(?<!\/)>/gi,
-    '<$1$2 />'
-  );
-  return out;
-}
-
-function stripExternalCssUrls(html: string): string {
-  return html.replace(/url\((['"]?)(?!data:|#)[^)]+\1\)/gi, 'none');
-}
-
-function stripUnsupportedColorFunctions(html: string): string {
-  return html.replace(/style=(['"])([\s\S]*?)\1/gi, (_m, quote: string, css: string) => {
-    const next = css
-      .split(';')
-      .map((piece) => piece.trim())
-      .filter(Boolean)
-      .map((decl) => {
-        const idx = decl.indexOf(':');
-        if (idx <= 0) return '';
-        const key = decl.slice(0, idx).trim().toLowerCase();
-        let val = decl.slice(idx + 1).trim();
-        if (!/\b(?:oklch|oklab|lch|lab)\(/i.test(val)) {
-          return `${key}:${val}`;
-        }
-        if (key.includes('background')) {
-          val = 'transparent';
-        } else if (key === 'color' || key.endsWith('-color')) {
-          if (key.includes('border')) {
-            val = 'rgba(0,0,0,0.25)';
-          } else {
-            val = 'rgb(17,24,39)';
-          }
-        } else {
-          return '';
-        }
-        return `${key}:${val}`;
-      })
-      .filter(Boolean)
-      .join(';');
-    return `style=${quote}${next}${quote}`;
-  });
-}
-
-function minimizeSvgRiskHtml(html: string): string {
-  if (typeof document === 'undefined') return html;
-  try {
-    const host = document.createElement('div');
-    host.innerHTML = html;
-    const whitelist = new Set([
-      'position',
-      'left',
-      'top',
-      'right',
-      'bottom',
-      'width',
-      'height',
-      'min-width',
-      'min-height',
-      'max-width',
-      'max-height',
-      'display',
-      'box-sizing',
-      'overflow',
-      'overflow-x',
-      'overflow-y',
-      'margin',
-      'margin-left',
-      'margin-top',
-      'margin-right',
-      'margin-bottom',
-      'padding',
-      'padding-left',
-      'padding-top',
-      'padding-right',
-      'padding-bottom',
-      'border',
-      'border-left',
-      'border-top',
-      'border-right',
-      'border-bottom',
-      'border-width',
-      'border-style',
-      'border-color',
-      'border-radius',
-      'background',
-      'background-color',
-      'color',
-      'font',
-      'font-size',
-      'font-family',
-      'font-weight',
-      'font-style',
-      'line-height',
-      'text-align',
-      'white-space',
-      'word-break',
-      'overflow-wrap',
-      'opacity',
-      'transform',
-      'transform-origin',
-      'object-fit',
-      'object-position',
-      'z-index',
-    ]);
-    for (const el of Array.from(host.querySelectorAll<HTMLElement>('*'))) {
-      const raw = el.getAttribute('style');
-      if (!raw) continue;
-      const keep: string[] = [];
-      for (const piece of raw.split(';')) {
-        const idx = piece.indexOf(':');
-        if (idx <= 0) continue;
-        const key = piece.slice(0, idx).trim().toLowerCase();
-        const val = piece.slice(idx + 1).trim();
-        if (!key || !val) continue;
-        if (!whitelist.has(key)) continue;
-        if (/url\((?!['"]?(?:data:|#))/i.test(val)) continue;
-        keep.push(`${key}:${val}`);
-      }
-      if (keep.length > 0) el.setAttribute('style', keep.join(';'));
-      else el.removeAttribute('style');
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('raster snapshot canvas context missing');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, targetW, targetH);
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+    if (imageType === 'jpeg') {
+      return canvas.toDataURL('image/jpeg', jpegQuality);
     }
-    return host.innerHTML;
-  } catch {
-    return html;
+    return canvas.toDataURL('image/png');
+  } finally {
+    URL.revokeObjectURL(objectUrl);
   }
 }
 
@@ -453,5 +313,5 @@ export function buildSnapshotHtmlDocument(
         transform:scale(var(--print-scale));
       }
     }
-  </style></head><body>${pageSections.join('')}</body></html>`;
+  </style></head><body>${pageSections.join('')}${buildLayoutFitInlineScript('[data-layout-id]')}</body></html>`;
 }

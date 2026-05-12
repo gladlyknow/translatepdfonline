@@ -30,6 +30,13 @@ import { sendOcrExportQueueMessage } from '@/shared/lib/ocr-queue';
 
 export const maxDuration = 300;
 
+type OcrPdfExportMode = 'vector_shrink_only' | 'raster_snapshot';
+type OcrExportRasterPage = {
+  dataUrl: string;
+  w: number;
+  h: number;
+};
+
 const OCR_EXPORT_STALE_MS = Number.parseInt(
   process.env.OCR_EXPORT_STALE_MS || '300000',
   10
@@ -49,6 +56,22 @@ const OCR_EXPORT_SIGNED_URL_TTL_SECONDS = Math.max(
     Number.parseInt(process.env.OCR_EXPORT_SIGNED_URL_TTL_SECONDS || '900', 10)
   )
 );
+
+function resolvePdfExportMode(): OcrPdfExportMode {
+  return process.env.OCR_PDF_EXPORT_MODE === 'raster_snapshot'
+    ? 'raster_snapshot'
+    : 'vector_shrink_only';
+}
+
+function parsePdfExportMode(v: unknown): OcrPdfExportMode | null {
+  if (v === 'raster_snapshot') return 'raster_snapshot';
+  if (v === 'vector_shrink_only') return 'vector_shrink_only';
+  return null;
+}
+
+function isDataImageUrl(v: string): boolean {
+  return /^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(v);
+}
 
 function dispositionFilename(base: string, ext: string) {
   const safe = `${base}.${ext}`.replace(/[^\w.\-]+/g, '_');
@@ -276,6 +299,7 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ taskId: string }> }
 ) {
+  let createdExportId: string | null = null;
   try {
     const { taskId } = await params;
     const { userId, anonId } = await getTranslateAuth();
@@ -299,7 +323,9 @@ export async function POST(
     const body = (await req.json()) as {
       format?: string;
       action?: string;
+      pdfMode?: string;
       htmlDocument?: string;
+      rasterPages?: OcrExportRasterPage[];
       orientation?: 'portrait' | 'landscape';
     };
     const format = String(body.format || '').trim().toLowerCase();
@@ -339,33 +365,104 @@ export async function POST(
     ) {
       return Response.json({ detail: 'export already in progress' }, { status: 409 });
     }
+    const serverPdfMode = resolvePdfExportMode();
+    const requestedPdfMode = parsePdfExportMode(body.pdfMode);
+    let stagedBodyBytes: Uint8Array | null = null;
+    let stagedContentType: string | null = null;
+    let stagedLogLine: string | null = null;
+    let pdfModeForQueue: OcrPdfExportMode | undefined;
+    if (format === 'html') {
+      const htmlDocument = String(body.htmlDocument || '');
+      if (!htmlDocument.trim()) {
+        return Response.json(
+          { detail: 'htmlDocument is required for html export' },
+          { status: 400 }
+        );
+      }
+      stagedBodyBytes = new TextEncoder().encode(htmlDocument);
+      stagedContentType = 'text/html; charset=utf-8';
+      stagedLogLine = `staged html uploaded bytes=${htmlDocument.length}`;
+    } else if (format === 'pdf') {
+      const hasRasterPages = Array.isArray(body.rasterPages) && body.rasterPages.length > 0;
+      const hasHtmlDocument = Boolean(String(body.htmlDocument || '').trim());
+      if (serverPdfMode === 'raster_snapshot' && !hasRasterPages) {
+        return Response.json(
+          {
+            detail:
+              'OCR_PDF_EXPORT_MODE=raster_snapshot requires rasterPages for pdf export; vector fallback is disabled',
+          },
+          { status: 400 }
+        );
+      }
+      const effectivePdfMode =
+        requestedPdfMode ??
+        (hasRasterPages
+          ? ('raster_snapshot' as const)
+          : hasHtmlDocument
+            ? ('vector_shrink_only' as const)
+            : serverPdfMode);
+      pdfModeForQueue = effectivePdfMode;
+
+      if (effectivePdfMode === 'raster_snapshot') {
+        const rasterPages = Array.isArray(body.rasterPages) ? body.rasterPages : [];
+        if (rasterPages.length === 0) {
+          return Response.json(
+            { detail: 'rasterPages is required for pdf export in raster_snapshot mode' },
+            { status: 400 }
+          );
+        }
+        for (const [index, page] of rasterPages.entries()) {
+          const url = String(page?.dataUrl || '');
+          if (!isDataImageUrl(url)) {
+            return Response.json(
+              { detail: `rasterPages[${index}].dataUrl must be image data URL` },
+              { status: 400 }
+            );
+          }
+        }
+        const payload = JSON.stringify({
+          pdfMode: 'raster_snapshot',
+          orientation: body.orientation === 'landscape' ? 'landscape' : 'portrait',
+          pages: rasterPages.map((p) => ({
+            dataUrl: String(p.dataUrl),
+            w: Math.max(1, Number(p.w) || 1),
+            h: Math.max(1, Number(p.h) || 1),
+          })),
+        });
+        stagedBodyBytes = new TextEncoder().encode(payload);
+        stagedContentType = 'application/json; charset=utf-8';
+        stagedLogLine = `staged raster uploaded pages=${rasterPages.length} bytes=${payload.length}`;
+      } else {
+        const htmlDocument = String(body.htmlDocument || '');
+        if (!htmlDocument.trim()) {
+          return Response.json(
+            { detail: 'htmlDocument is required for pdf export in vector mode' },
+            { status: 400 }
+          );
+        }
+        stagedBodyBytes = new TextEncoder().encode(htmlDocument);
+        stagedContentType = 'text/html; charset=utf-8';
+        stagedLogLine = `staged html uploaded bytes=${htmlDocument.length}`;
+      }
+    }
     const exportId = await retryOcrTaskExport(taskId, format);
     if (!exportId) {
       return Response.json({ detail: 'Task not found' }, { status: 404 });
     }
-    if (format === 'pdf' || format === 'html') {
-      const htmlDocument = String(body.htmlDocument || '');
-      if (!htmlDocument.trim()) {
-        return Response.json(
-          { detail: 'htmlDocument is required for pdf/html export' },
-          { status: 400 }
-        );
-      }
+    createdExportId = exportId;
+    if (stagedBodyBytes && stagedContentType) {
       const stagingKey = exportStagingHtmlKey(taskId, exportId);
-      await putObject(
-        stagingKey,
-        new TextEncoder().encode(htmlDocument),
-        'text/html; charset=utf-8'
-      );
+      await putObject(stagingKey, stagedBodyBytes, stagedContentType);
       await appendExportLog(
         exportId,
-        `staged html uploaded key=${stagingKey} bytes=${htmlDocument.length}`
+        `${stagedLogLine ?? 'staged source uploaded'} key=${stagingKey}`
       );
     }
     const queued = await sendOcrExportQueueMessage({
       taskId,
       exportId,
       format,
+      pdfMode: format === 'pdf' ? pdfModeForQueue : undefined,
     });
     if (!queued.ok) {
       await updateExportRow(exportId, {
@@ -385,6 +482,16 @@ export async function POST(
     });
   } catch (e) {
     console.error('[ocr/exports POST]', e);
+    if (createdExportId) {
+      const raw = e instanceof Error ? e.message : String(e);
+      await appendExportLog(createdExportId, `failed before enqueue: ${raw.slice(0, 240)}`);
+      await updateExportRow(createdExportId, {
+        status: OcrTaskExportStatus.failed,
+        r2Key: null,
+        readyAt: null,
+        errorMessage: toPublicErrorMessage(raw),
+      });
+    }
     return Response.json(
       { detail: e instanceof Error ? e.message : 'Failed to start export' },
       { status: 500 }

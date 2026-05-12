@@ -3,7 +3,10 @@ import { and, eq } from 'drizzle-orm';
 import { translationTasks } from '@/config/db/schema';
 import { db } from '@/core/db';
 import { getTranslateAuth } from '@/app/api/translate/auth';
-import { getObjectBody, isR2Configured, putObject } from '@/shared/lib/translate-r2';
+import { getOcrParseResultBodyForRead } from '@/shared/lib/ocr-parse-result-r2-keys';
+import { isR2Configured, putObject } from '@/shared/lib/translate-r2';
+import { buildMarkdownExportWithAssets } from '@/shared/ocr-workbench/parse-result-export-md';
+import { parseParseResultJson } from '@/shared/ocr-workbench/translator-parse-result';
 
 export const maxDuration = 300;
 
@@ -50,16 +53,37 @@ export async function GET(
       return Response.json({ detail: 'Storage not configured' }, { status: 503 });
     }
     const key = markdownObjectKey(taskId, task.sourceLang, task.targetLang);
-    let md: string;
+    let bytes: Uint8Array;
     try {
-      const bytes = await getObjectBody(key);
-      md = new TextDecoder('utf-8').decode(bytes);
+      bytes = await getOcrParseResultBodyForRead(
+        taskId,
+        task.sourceLang,
+        task.targetLang
+      );
     } catch {
-      return Response.json({ detail: 'markdown not available' }, { status: 404 });
+      return Response.json({ detail: 'parse result not available' }, { status: 404 });
     }
+    let raw: unknown;
+    try {
+      raw = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    } catch {
+      return Response.json({ detail: 'invalid parse result JSON' }, { status: 500 });
+    }
+    const parsed = parseParseResultJson(raw);
+    if (!parsed.ok) {
+      return Response.json(
+        { detail: `invalid parse result: ${parsed.error}` },
+        { status: 500 }
+      );
+    }
+    const { markdown } = await buildMarkdownExportWithAssets(
+      parsed.data,
+      `ocr-${taskId}`
+    );
     return Response.json({
-      markdown: md,
+      markdown,
       object_key: key,
+      source: 'parse_result_rebuild',
       updated_at: task.updatedAt?.toISOString?.() ?? task.updatedAt,
     });
   } catch (e) {

@@ -20,5 +20,17 @@
   "backgroundTaskHint": "The task is running in the background. You can close this page or do something else; come back when it's done.",
   "longTaskHint": "Long documents may take several minutes to translate. Thank you for your patience.",
   "queuedWaitHint": "Your task has been queued. Other tasks may be in progress; please wait a moment.",
-  "restoring": "Loading task…"
+  "restoring": "Loading task…",
+  "suggestOcrHintTitle": "Prueba la traducción con OCR",
+  "suggestOcrHintBody": "El PDF se tradujo, pero la capa de texto puede ser débil. El OCR reconstruye el texto desde las imágenes de página y suele funcionar mejor en escaneos o diseños difíciles.",
+  "suggestOcrHintCta": "Abrir traductor OCR",
+  "completedOcrOfferTitle": "Opcional: preprocesar con OCR",
+  "completedOcrOfferBody": "La traducción está lista. Si quieres editar el texto del diseño o volver a procesar páginas escaneadas, abre el traductor OCR con este documento e idiomas.",
+  "ocrJumpHintTitle": "¿Escaneo o maquetación difícil?",
+  "ocrJumpHintBody": "Reconstruye el texto desde imágenes de página: mismo archivo e idiomas.",
+  "ocrJumpCta": "Abrir OCR",
+  "ocrJumpWhenPreprocessedTitle": "Afinar el diseño",
+  "ocrJumpWhenPreprocessedBody": "OCR en la traducción activado; abre el banco de trabajo para editar más.",
+  "failedOcrOfferTitle": "La traducción se detuvo — ¿probar OCR?",
+  "failedOcrOfferBody": "En escaneos o capas de texto débiles, primero OCR para reconstruir el texto desde las imágenes de página; mismo PDF e idiomas."
 }

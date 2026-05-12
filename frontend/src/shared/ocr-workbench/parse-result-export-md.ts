@@ -27,7 +27,10 @@ export function buildMarkdownExport(doc: ParseResult): string {
       if (ly.type === 'table') {
         const tb = findTableForLayout(page, ly.layout_id);
         parts.push(stripUrlsFromText(tb?.markdown ?? ''), '');
-      } else if (ly.type === 'image') {
+      } else if (
+        ly.type === 'image' ||
+        Boolean(findImageForLayout(page, ly.layout_id)?.data_url?.trim())
+      ) {
         parts.push(`![image:${ly.layout_id}]`, '');
       } else {
         const raw = ly.text || '';
@@ -60,9 +63,15 @@ export async function buildMarkdownExportWithAssets(
       if (ly.type === 'table') {
         const tb = findTableForLayout(page, ly.layout_id);
         parts.push(stripUrlsFromText(tb?.markdown ?? ''), '');
-      } else if (ly.type === 'image') {
+      } else {
         const im = findImageForLayout(page, ly.layout_id);
         const raw = im?.data_url?.trim() ?? '';
+        if (!(ly.type === 'image' || raw)) {
+          const rawText = ly.text || '';
+          const t = stripHtmlTags(stripUrlsFromText(rawText)).trim();
+          if (t) parts.push(t, '');
+          continue;
+        }
         const dataUrl = raw ? await resolveImageDataUrl(raw, cache) : '';
         const bytes = dataUrl ? dataUrlToBytes(dataUrl) : null;
         if (!bytes) {
@@ -74,10 +83,6 @@ export async function buildMarkdownExportWithAssets(
         const name = `${baseName}_assets/p${page.page_num}_${ly.layout_id}.${ext}`;
         assets.push({ name, bytes });
         parts.push(`![image:${ly.layout_id}](./${name})`, '');
-      } else {
-        const rawText = ly.text || '';
-        const t = stripHtmlTags(stripUrlsFromText(rawText)).trim();
-        if (t) parts.push(t, '');
       }
     }
   }

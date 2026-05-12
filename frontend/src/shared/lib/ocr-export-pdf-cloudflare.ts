@@ -9,8 +9,14 @@ type CloudflarePuppeteerModule = {
     newPage: () => Promise<{
       setContent: (
         html: string,
-        opts?: { waitUntil?: 'domcontentloaded'; timeout?: number }
+        opts?: { waitUntil?: 'domcontentloaded' | 'load' | 'networkidle0'; timeout?: number }
       ) => Promise<void>;
+      emulateMediaType?: (mediaType: 'print' | 'screen') => Promise<void>;
+      setViewport?: (opts: {
+        width: number;
+        height: number;
+        deviceScaleFactor?: number;
+      }) => Promise<void>;
       waitForFunction: (
         pageFunction: () => unknown,
         opts?: { timeout?: number }
@@ -51,6 +57,18 @@ export async function htmlToPdfBytesCloudflareWithDiagnostics(
   const browser = await launch(browserBinding);
   try {
     const page = await browser.newPage();
+    // Headless default viewport (~800px) + snapshot max-width used to shrink wide pages vs Workbench.
+    if (typeof page.setViewport === 'function') {
+      await page.setViewport({
+        width: 4096,
+        height: 8192,
+        deviceScaleFactor: 1,
+      });
+    }
+    // Print: white body in snapshot; @page A4 still applies for PDF pagination.
+    if (typeof page.emulateMediaType === 'function') {
+      await page.emulateMediaType('print');
+    }
     await page.setContent(html, {
       waitUntil: 'domcontentloaded',
       timeout: 120_000,
@@ -91,7 +109,7 @@ export async function htmlToPdfBytesCloudflareWithDiagnostics(
     const output = await page.pdf({
       printBackground: true,
       preferCSSPageSize: true,
-      margin: { top: '8mm', bottom: '8mm', left: '8mm', right: '8mm' },
+      margin: { top: '0', bottom: '0', left: '0', right: '0' },
     });
     return {
       bytes: toUint8Array(output),
