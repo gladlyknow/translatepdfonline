@@ -533,6 +533,59 @@ function normalizeDeepSeekBatchArrayOutput(
   return null;
 }
 
+const COERCE_DEEPSEEK_BATCH_JSON_MAX_DEPTH = 2;
+
+/**
+ * 模型偶发返回对象包裹数组或 JSON 字符串；规范为数组供 normalize 使用。
+ * `coerced` 为真表示曾从非数组顶层解包（用于观测性 warn）。
+ */
+function coerceDeepSeekBatchJsonToArray(
+  parsed: unknown,
+  depth = 0
+): { arr: unknown[] | null; coerced: boolean } {
+  if (Array.isArray(parsed)) {
+    return { arr: parsed, coerced: false };
+  }
+  if (depth >= COERCE_DEEPSEEK_BATCH_JSON_MAX_DEPTH) {
+    return { arr: null, coerced: false };
+  }
+  if (typeof parsed === 'string') {
+    const s = parsed.trim();
+    if (
+      (s.startsWith('[') && s.endsWith(']')) ||
+      (s.startsWith('{') && s.endsWith('}'))
+    ) {
+      try {
+        const inner = JSON.parse(s) as unknown;
+        const r = coerceDeepSeekBatchJsonToArray(inner, depth + 1);
+        return { arr: r.arr, coerced: r.coerced || true };
+      } catch {
+        return { arr: null, coerced: false };
+      }
+    }
+    return { arr: null, coerced: false };
+  }
+  if (parsed != null && typeof parsed === 'object') {
+    const o = parsed as Record<string, unknown>;
+    for (const k of ['translations', 'items', 'result', 'data', 'strings'] as const) {
+      const x = o[k];
+      if (Array.isArray(x)) {
+        return { arr: x, coerced: true };
+      }
+    }
+    const keys = Object.keys(o);
+    const numericKeys = keys.filter((k) => /^\d+$/.test(k));
+    if (numericKeys.length > 0 && numericKeys.length === keys.length) {
+      numericKeys.sort((a, b) => Number(a) - Number(b));
+      return {
+        arr: numericKeys.map((k) => o[k]),
+        coerced: true,
+      };
+    }
+  }
+  return { arr: null, coerced: false };
+}
+
 function isRetryableDeepSeekStatus(status: number): boolean {
   return status === 429 || (status >= 500 && status <= 599);
 }
@@ -759,13 +812,14 @@ export async function translateStringListWithDeepSeek(params: {
           json.message ||
           `DeepSeek batch translate: empty content (${res.status})`;
       } else {
+        let rawParsed: unknown = null;
         try {
-          parsedArr = JSON.parse(rawContent);
+          rawParsed = JSON.parse(rawContent);
         } catch {
           const fence = rawContent.match(/\[[\s\S]*\]/);
           if (fence) {
             try {
-              parsedArr = JSON.parse(fence[0]);
+              rawParsed = JSON.parse(fence[0]);
             } catch {
               lastError = 'DeepSeek batch translate: invalid JSON array';
             }
@@ -773,6 +827,15 @@ export async function translateStringListWithDeepSeek(params: {
             lastError = 'DeepSeek batch translate: invalid JSON array';
           }
         }
+        const { arr: coercedArr, coerced } =
+          coerceDeepSeekBatchJsonToArray(rawParsed);
+        if (coerced && coercedArr) {
+          console.warn(
+            '[ocr/deepseek_parse_batch] output_coerced_to_array',
+            JSON.stringify({ ...logBase, coerce: true })
+          );
+        }
+        parsedArr = coercedArr;
         if (Array.isArray(parsedArr)) {
           const normalized = normalizeDeepSeekBatchArrayOutput(
             parsedArr,

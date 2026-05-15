@@ -280,6 +280,8 @@ export function OcrTranslatePageClient() {
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollInFlightRef = useRef(false);
   const pollNextAllowedAtRef = useRef(0);
+  /** 失败后轮询会停；用户重试后 bump 以重启轮询 */
+  const [pollEpoch, setPollEpoch] = useState(0);
 
   const setTaskViewStable = useCallback((next: TaskView | null) => {
     if (!next) {
@@ -654,7 +656,7 @@ export function OcrTranslatePageClient() {
       clearPollTimer();
       pollInFlightRef.current = false;
     };
-  }, [taskId, setTaskViewStable]);
+  }, [taskId, setTaskViewStable, pollEpoch]);
 
   useEffect(() => {
     if (!historyLogOpen) return;
@@ -1385,7 +1387,22 @@ export function OcrTranslatePageClient() {
                     setTaskStatus('queued');
                     setLastResumeStage(res.resume_stage ?? null);
                     setSubmitError(null);
-                    await handleRefreshResult();
+                    setTaskDetail((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            status: 'queued',
+                            error_code: null,
+                            error_message: null,
+                            progress_stage: res.resume_stage ?? prev.progress_stage,
+                          }
+                        : prev
+                    );
+                    const detail = await translateApi.getTask(taskId);
+                    setTaskStatus(detail.status);
+                    setTaskDetail(detail);
+                    pollNextAllowedAtRef.current = 0;
+                    setPollEpoch((e) => e + 1);
                   } catch (e) {
                     setSubmitError(
                       e instanceof Error ? e.message : tTranslate('createTaskFailed')

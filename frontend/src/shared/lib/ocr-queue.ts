@@ -12,6 +12,7 @@ import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
 import { mirrorBaiduImagesIntoParseResult } from '@/shared/lib/ocr-parse-result-image-proxy';
 import { ocrParseResultSourceKey } from '@/shared/lib/ocr-parse-result-r2-keys';
+import { isCloudflareWorker } from '@/shared/lib/env';
 import { tryGetAlsCfEnv } from '@/shared/lib/worker-runtime-env';
 import { runOcrStage } from '@/shared/lib/ocr-step-runner';
 import { ocrMetricLog, ocrWorkLog } from '@/shared/lib/ocr-work-log';
@@ -59,6 +60,39 @@ const DEFAULT_MAX_ATTEMPTS = Math.max(
   1,
   Number(process.env.OCR_PIPELINE_MAX_ATTEMPTS || '3') || 3
 );
+
+export function ocrDispatchBatchSize(): number {
+  return Math.min(
+    2,
+    Math.max(1, Number(process.env.OCR_DISPATCH_BATCH_SIZE || '2') || 2)
+  );
+}
+
+/** 队列 producer 不可用时，在后台 invoke 派发（与创建 OCR 任务回退一致）。 */
+export function scheduleOcrDispatchInBackground(
+  work: () => Promise<unknown>
+): void {
+  const running = work();
+  if (isCloudflareWorker) {
+    try {
+      const ctx = getCloudflareContext() as unknown as {
+        ctx?: { waitUntil?: (p: Promise<unknown>) => void };
+      };
+      if (ctx?.ctx?.waitUntil) {
+        ctx.ctx.waitUntil(running);
+        return;
+      }
+    } catch {
+      // fall through
+    }
+  }
+  void running.catch((e) =>
+    console.error(
+      '[ocr/pipeline] background_dispatch_failed',
+      e instanceof Error ? e.message : String(e)
+    )
+  );
+}
 
 /**
  * `mirror_baidu_images` 阶段配置：异步队列中下载百度签名图片到 R2，并改写 source ParseResult JSON。
@@ -1034,6 +1068,8 @@ export async function invokeOcrPipelineForTask(
 export async function retryOcrTaskFromFailedStage(taskId: string): Promise<{
   ok: boolean;
   resumeStage?: OcrStage;
+  /** 队列 send 失败；调用方应 schedule dispatchPendingOcrJobs */
+  needsDispatchFallback?: boolean;
 }> {
   const [row] = await db()
     .select({
@@ -1067,8 +1103,21 @@ export async function retryOcrTaskFromFailedStage(taskId: string): Promise<{
       updatedAt: new Date(),
     })
     .where(eq(translationTasks.id, taskId));
-  await enqueueNextStage(taskId, stage);
-  return { ok: true, resumeStage: stage };
+
+  const sendResult = await sendOcrPipelineQueueMessage(taskId);
+  if (sendResult.ok) {
+    return { ok: true, resumeStage: stage };
+  }
+
+  console.warn(
+    '[ocr/retry] enqueue_failed',
+    JSON.stringify({
+      task_id: taskId,
+      resume_stage: stage,
+      reason: sendResult.reason,
+    })
+  );
+  return { ok: true, resumeStage: stage, needsDispatchFallback: true };
 }
 
 export async function failTimedOutOcrTasks(limit = 20): Promise<number> {
