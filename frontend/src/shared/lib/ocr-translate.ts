@@ -533,47 +533,113 @@ function normalizeDeepSeekBatchArrayOutput(
   return null;
 }
 
-const COERCE_DEEPSEEK_BATCH_JSON_MAX_DEPTH = 2;
+const COERCE_DEEPSEEK_BATCH_JSON_MAX_DEPTH = 3;
+
+const DEEPSEEK_BATCH_ARRAY_KEYS = [
+  'translations',
+  'translation',
+  'items',
+  'item',
+  'result',
+  'results',
+  'data',
+  'strings',
+  'texts',
+  'output',
+  'content',
+] as const;
+
+/** 去掉助手回复外的 Markdown 代码围栏与首尾空白 */
+function stripAssistantJsonContent(raw: string): string {
+  let s = raw.trim();
+  const fenced = s.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```\s*$/i);
+  if (fenced) {
+    return fenced[1].trim();
+  }
+  return s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
+}
+
+function tryParseJson(text: string): unknown | null {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 从助手正文中解析 JSON：先 strip，再 parse，最后用非贪婪方式抽取首个 `[...]`。
+ */
+function parseAssistantContentToJson(rawContent: string): unknown | null {
+  const stripped = stripAssistantJsonContent(rawContent);
+  const direct = tryParseJson(stripped);
+  if (direct != null) return direct;
+  const bracket = stripped.match(/\[[\s\S]*?\]/);
+  if (bracket) {
+    return tryParseJson(bracket[0]);
+  }
+  return null;
+}
+
+type DeepSeekBatchParseFailReason = 'invalid_json' | 'coerce_null' | 'length_mismatch';
 
 /**
  * 模型偶发返回对象包裹数组或 JSON 字符串；规范为数组供 normalize 使用。
- * `coerced` 为真表示曾从非数组顶层解包（用于观测性 warn）。
+ * `coerced` 为真表示顶层曾为非数组形态（用于观测性 warn）。
  */
 function coerceDeepSeekBatchJsonToArray(
   parsed: unknown,
   depth = 0
 ): { arr: unknown[] | null; coerced: boolean } {
   if (Array.isArray(parsed)) {
-    return { arr: parsed, coerced: false };
+    return { arr: parsed, coerced: depth > 0 };
   }
   if (depth >= COERCE_DEEPSEEK_BATCH_JSON_MAX_DEPTH) {
     return { arr: null, coerced: false };
   }
   if (typeof parsed === 'string') {
-    const s = parsed.trim();
+    const s = stripAssistantJsonContent(parsed);
     if (
       (s.startsWith('[') && s.endsWith(']')) ||
       (s.startsWith('{') && s.endsWith('}'))
     ) {
-      try {
-        const inner = JSON.parse(s) as unknown;
+      const inner = tryParseJson(s);
+      if (inner != null) {
         const r = coerceDeepSeekBatchJsonToArray(inner, depth + 1);
-        return { arr: r.arr, coerced: r.coerced || true };
-      } catch {
-        return { arr: null, coerced: false };
+        return { arr: r.arr, coerced: r.coerced || r.arr != null };
+      }
+      const bracket = s.match(/\[[\s\S]*?\]/);
+      if (bracket) {
+        const fromBracket = tryParseJson(bracket[0]);
+        if (fromBracket != null) {
+          const r = coerceDeepSeekBatchJsonToArray(fromBracket, depth + 1);
+          return { arr: r.arr, coerced: r.coerced || r.arr != null };
+        }
       }
     }
     return { arr: null, coerced: false };
   }
   if (parsed != null && typeof parsed === 'object') {
     const o = parsed as Record<string, unknown>;
-    for (const k of ['translations', 'items', 'result', 'data', 'strings'] as const) {
+    for (const k of DEEPSEEK_BATCH_ARRAY_KEYS) {
       const x = o[k];
       if (Array.isArray(x)) {
         return { arr: x, coerced: true };
       }
     }
     const keys = Object.keys(o);
+    if (keys.length === 1) {
+      const only = o[keys[0]!];
+      if (Array.isArray(only)) {
+        return { arr: only, coerced: true };
+      }
+      if (only != null && typeof only === 'object') {
+        const nested = coerceDeepSeekBatchJsonToArray(only, depth + 1);
+        if (nested.arr) {
+          return { arr: nested.arr, coerced: true };
+        }
+      }
+    }
     const numericKeys = keys.filter((k) => /^\d+$/.test(k));
     if (numericKeys.length > 0 && numericKeys.length === keys.length) {
       numericKeys.sort((a, b) => Number(a) - Number(b));
@@ -582,8 +648,81 @@ function coerceDeepSeekBatchJsonToArray(
         coerced: true,
       };
     }
+    for (const v of Object.values(o)) {
+      if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+        const nested = coerceDeepSeekBatchJsonToArray(v, depth + 1);
+        if (nested.arr) {
+          return { arr: nested.arr, coerced: true };
+        }
+      }
+    }
   }
   return { arr: null, coerced: false };
+}
+
+function parseDeepSeekBatchAssistantContent(
+  rawContent: string,
+  expectedLen: number
+):
+  | { ok: true; strings: string[]; coerced: boolean }
+  | {
+      ok: false;
+      reason: DeepSeekBatchParseFailReason;
+      lastError: string;
+      got?: number;
+    } {
+  const rawParsed = parseAssistantContentToJson(rawContent);
+  if (rawParsed == null) {
+    return {
+      ok: false,
+      reason: 'invalid_json',
+      lastError: `DeepSeek batch translate: invalid JSON (expected array of ${expectedLen} strings)`,
+    };
+  }
+  const { arr, coerced } = coerceDeepSeekBatchJsonToArray(rawParsed);
+  if (!arr) {
+    return {
+      ok: false,
+      reason: 'coerce_null',
+      lastError: `DeepSeek batch translate: response is not a JSON array (expected ${expectedLen} strings)`,
+    };
+  }
+  const normalized = normalizeDeepSeekBatchArrayOutput(arr, expectedLen);
+  if (!normalized) {
+    return {
+      ok: false,
+      reason: 'length_mismatch',
+      got: arr.length,
+      lastError: `DeepSeek batch translate: expected ${expectedLen} strings, got ${arr.length}`,
+    };
+  }
+  return { ok: true, strings: normalized, coerced };
+}
+
+function logDeepSeekBatchParseFailed(
+  logBase: Record<string, unknown>,
+  params: {
+    attempt: number;
+    reason: DeepSeekBatchParseFailReason;
+    lastError: string;
+    rawContent: string;
+    finishReason?: string;
+    got?: number;
+  }
+): void {
+  console.warn(
+    '[ocr/deepseek_parse_batch] parse_failed',
+    JSON.stringify({
+      ...logBase,
+      attempt: params.attempt,
+      parse_reason: params.reason,
+      finish_reason: params.finishReason ?? null,
+      raw_len: params.rawContent.length,
+      raw_prefix: params.rawContent.slice(0, 400),
+      got: params.got ?? null,
+      last_error: params.lastError,
+    })
+  );
 }
 
 function isRetryableDeepSeekStatus(status: number): boolean {
@@ -812,43 +951,32 @@ export async function translateStringListWithDeepSeek(params: {
           json.message ||
           `DeepSeek batch translate: empty content (${res.status})`;
       } else {
-        let rawParsed: unknown = null;
-        try {
-          rawParsed = JSON.parse(rawContent);
-        } catch {
-          const fence = rawContent.match(/\[[\s\S]*\]/);
-          if (fence) {
-            try {
-              rawParsed = JSON.parse(fence[0]);
-            } catch {
-              lastError = 'DeepSeek batch translate: invalid JSON array';
-            }
-          } else {
-            lastError = 'DeepSeek batch translate: invalid JSON array';
+        const parsed = parseDeepSeekBatchAssistantContent(
+          rawContent,
+          plan.slice.length
+        );
+        if (parsed.ok) {
+          if (parsed.coerced) {
+            console.warn(
+              '[ocr/deepseek_parse_batch] output_coerced_to_array',
+              JSON.stringify({ ...logBase, coerce: true, attempt })
+            );
           }
+          parsedArr = parsed.strings;
+          break;
         }
-        const { arr: coercedArr, coerced } =
-          coerceDeepSeekBatchJsonToArray(rawParsed);
-        if (coerced && coercedArr) {
-          console.warn(
-            '[ocr/deepseek_parse_batch] output_coerced_to_array',
-            JSON.stringify({ ...logBase, coerce: true })
-          );
-        }
-        parsedArr = coercedArr;
-        if (Array.isArray(parsedArr)) {
-          const normalized = normalizeDeepSeekBatchArrayOutput(
-            parsedArr,
-            plan.slice.length
-          );
-          if (normalized) {
-            parsedArr = normalized;
-            break;
-          }
-        }
-        lastError = `DeepSeek batch translate: expected ${plan.slice.length} strings, got ${
-          Array.isArray(parsedArr) ? parsedArr.length : 'non-array'
-        }`;
+        lastError = parsed.lastError;
+        logDeepSeekBatchParseFailed(logBase, {
+          attempt,
+          reason: parsed.reason,
+          lastError: parsed.lastError,
+          rawContent,
+          finishReason:
+            lastAttemptHttp.received === true
+              ? lastAttemptHttp.finishReason
+              : undefined,
+          got: parsed.got,
+        });
         parsedArr = null;
       }
       if (attempt < RETRY_MAX) {
