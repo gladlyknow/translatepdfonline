@@ -664,6 +664,16 @@ export async function translateStringListWithDeepSeek(params: {
     let parsedArr: unknown = null;
     let lastError = '';
     let usageInfo: Record<string, unknown> | null = null;
+    /** 仅最后一次「成功收到 HTTP 响应」的解析结果；fetch 抛错时不更新，避免误把更早的 200 空响应当作最终态 */
+    let lastAttemptHttp:
+      | {
+          received: true;
+          ok: boolean;
+          rawContentEmpty: boolean;
+          explicitApiError: boolean;
+          finishReason?: string;
+        }
+      | { received: false } = { received: false };
 
     for (let attempt = 1; attempt <= RETRY_MAX; attempt += 1) {
       let res: Response;
@@ -687,6 +697,7 @@ export async function translateStringListWithDeepSeek(params: {
           signal: AbortSignal.timeout(fetchTimeoutMs),
         });
       } catch (e) {
+        lastAttemptHttp = { received: false };
         const name = e instanceof Error ? e.name : '';
         const msg = e instanceof Error ? e.message : String(e);
         const isTimeout =
@@ -703,12 +714,28 @@ export async function translateStringListWithDeepSeek(params: {
       }
 
       const json = (await res.json().catch(() => ({}))) as {
-        choices?: Array<{ message?: { content?: string } }>;
+        choices?: Array<{
+          message?: { content?: string };
+          finish_reason?: string;
+        }>;
         usage?: Record<string, unknown>;
         error?: { message?: string };
         message?: string;
       };
       if (json.usage) usageInfo = json.usage;
+
+      const choice0 = json.choices?.[0];
+      const rawForSnapshot = String(choice0?.message?.content ?? '').trim();
+      lastAttemptHttp = {
+        received: true,
+        ok: res.ok,
+        rawContentEmpty: res.ok ? !rawForSnapshot : false,
+        explicitApiError: Boolean(String(json.error?.message ?? '').trim()),
+        finishReason:
+          res.ok && choice0 && typeof choice0.finish_reason === 'string'
+            ? choice0.finish_reason
+            : undefined,
+      };
 
       if (!res.ok) {
         lastError =
@@ -768,31 +795,58 @@ export async function translateStringListWithDeepSeek(params: {
       }
     }
 
-    if (!Array.isArray(parsedArr) || parsedArr.length !== plan.slice.length) {
-      throw new Error(lastError || 'DeepSeek batch translate failed');
-    }
-    const filled = parsedArr as string[];
-    for (let i = 0; i < plan.slice.length; i++) {
-      out[plan.start + i] = filled[i];
+    if (Array.isArray(parsedArr) && parsedArr.length === plan.slice.length) {
+      const filled = parsedArr as string[];
+      for (let i = 0; i < plan.slice.length; i++) {
+        out[plan.start + i] = filled[i];
+      }
+
+      console.log(
+        '[ocr/deepseek_parse_batch] done',
+        JSON.stringify({
+          ...logBase,
+          elapsed_ms: Date.now() - batchStarted,
+          ...(usageInfo
+            ? {
+                prompt_tokens: usageInfo.prompt_tokens ?? null,
+                completion_tokens: usageInfo.completion_tokens ?? null,
+                prompt_cache_hit_tokens:
+                  usageInfo.prompt_cache_hit_tokens ?? null,
+                prompt_cache_miss_tokens:
+                  usageInfo.prompt_cache_miss_tokens ?? null,
+              }
+            : {}),
+        })
+      );
+      return;
     }
 
-    console.log(
-      '[ocr/deepseek_parse_batch] done',
-      JSON.stringify({
-        ...logBase,
-        elapsed_ms: Date.now() - batchStarted,
-        ...(usageInfo
-          ? {
-              prompt_tokens: usageInfo.prompt_tokens ?? null,
-              completion_tokens: usageInfo.completion_tokens ?? null,
-              prompt_cache_hit_tokens:
-                usageInfo.prompt_cache_hit_tokens ?? null,
-              prompt_cache_miss_tokens:
-                usageInfo.prompt_cache_miss_tokens ?? null,
-            }
-          : {}),
-      })
-    );
+    const canPassthroughEmptyContent =
+      lastAttemptHttp.received === true &&
+      lastAttemptHttp.ok === true &&
+      lastAttemptHttp.rawContentEmpty === true &&
+      lastAttemptHttp.explicitApiError === false;
+
+    if (canPassthroughEmptyContent) {
+      const fr =
+        lastAttemptHttp.received === true ? lastAttemptHttp.finishReason ?? null : null;
+      for (let i = 0; i < plan.slice.length; i++) {
+        out[plan.start + i] = plan.slice[i] ?? '';
+      }
+      console.warn(
+        '[ocr/deepseek_parse_batch] degraded_passthrough',
+        JSON.stringify({
+          ...logBase,
+          reason: 'empty_content',
+          finish_reason: fr,
+          last_error: lastError || null,
+          elapsed_ms: Date.now() - batchStarted,
+        })
+      );
+      return;
+    }
+
+    throw new Error(lastError || 'DeepSeek batch translate failed');
   };
 
   const wavesEstimate = Math.ceil(
