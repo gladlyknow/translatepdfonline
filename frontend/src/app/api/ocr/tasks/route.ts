@@ -1,4 +1,3 @@
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { and, eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { db } from '@/core/db';
@@ -7,9 +6,10 @@ import { getTranslateAuth } from '../../translate/auth';
 import {
   dispatchPendingOcrJobs,
   enqueueOcrTask,
+  ocrDispatchBatchSize,
+  scheduleOcrDispatchInBackground,
   sendOcrPipelineQueueMessage,
 } from '@/shared/lib/ocr-queue';
-import { isCloudflareWorker } from '@/shared/lib/env';
 import { isSupportedUiLang } from '@/shared/lib/translate-langs';
 import {
   estimateTranslatedPages,
@@ -267,28 +267,9 @@ export async function POST(req: Request) {
 
     const queuedOnCf = await sendOcrPipelineQueueMessage(taskId);
     if (!queuedOnCf.ok) {
-      const running = dispatchPendingOcrJobs(
-        Math.min(
-          2,
-          Math.max(1, parseInt(process.env.OCR_DISPATCH_BATCH_SIZE || '2', 10) || 2)
-        )
+      scheduleOcrDispatchInBackground(() =>
+        dispatchPendingOcrJobs(ocrDispatchBatchSize())
       );
-      if (isCloudflareWorker) {
-        try {
-          const ctx = getCloudflareContext() as unknown as {
-            ctx?: { waitUntil?: (p: Promise<unknown>) => void };
-          };
-          if (ctx?.ctx?.waitUntil) {
-            ctx.ctx.waitUntil(running);
-          } else {
-            void running;
-          }
-        } catch {
-          void running;
-        }
-      } else {
-        void running;
-      }
     }
 
     return Response.json({

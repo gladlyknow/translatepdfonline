@@ -1,4 +1,9 @@
-import { retryOcrTaskFromFailedStage } from '@/shared/lib/ocr-queue';
+import {
+  dispatchPendingOcrJobs,
+  ocrDispatchBatchSize,
+  retryOcrTaskFromFailedStage,
+  scheduleOcrDispatchInBackground,
+} from '@/shared/lib/ocr-queue';
 import { db } from '@/core/db';
 import { translationTasks } from '@/config/db/schema';
 import { and, eq } from 'drizzle-orm';
@@ -28,6 +33,11 @@ export async function POST(
       return Response.json(
         { detail: 'Task is not retryable from failed/cancelled stage' },
         { status: 400 }
+      );
+    }
+    if (result.needsDispatchFallback) {
+      scheduleOcrDispatchInBackground(() =>
+        dispatchPendingOcrJobs(ocrDispatchBatchSize())
       );
     }
     return Response.json({

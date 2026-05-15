@@ -72,20 +72,24 @@ export async function generateMetadata({
   }
 
   const messageKey = `pages.${dynamicPageSlug}`;
-  const t = await getTranslations({ locale, namespace: messageKey });
+  try {
+    const t = await getTranslations({ locale, namespace: messageKey });
 
-  // return dynamic page metadata
-  if (t.has('metadata')) {
-    title = t.raw('metadata.title');
-    description = t.raw('metadata.description');
+    // return dynamic page metadata
+    if (t.has('metadata')) {
+      title = t.raw('metadata.title');
+      description = t.raw('metadata.description');
 
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-    };
+      return {
+        title,
+        description,
+        alternates: {
+          canonical: canonicalUrl,
+        },
+      };
+    }
+  } catch {
+    // 缺失 namespace（如扫描路径）不抛错，回落到 common.metadata
   }
 
   // 3. return common metadata
