@@ -33,5 +33,8 @@
   "ocrJumpWhenPreprocessedTitle": "Fine-tune layout",
   "ocrJumpWhenPreprocessedBody": "Translate-time OCR is on; open the workbench for deeper edits.",
   "failedOcrOfferTitle": "Translation stopped — try OCR?",
-  "failedOcrOfferBody": "For scans or weak text layers, OCR rebuilds text from page images first. You can continue with the same PDF and languages."
+  "failedOcrOfferBody": "For scans or weak text layers, OCR rebuilds text from page images first. You can continue with the same PDF and languages.",
+  "scanDetectedFailedTitle": "Scanned PDF detected — use OCR",
+  "scanDetectedFailedBody": "This PDF appears to be a scanned document without an extractable text layer. BabelDOC text-based translation is not suitable. OCR can rebuild text from page images and then translate.",
+  "scanDetectedFailedCta": "Go to OCR Translation"
 }

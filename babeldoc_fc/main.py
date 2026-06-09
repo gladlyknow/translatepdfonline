@@ -331,6 +331,51 @@ async def translate(
                 if body.callback_url and body.task_id:
                     _notify_callback(body.callback_url, body.task_id, "failed", error_message=f"Failed to download source PDF: {e}")
                 raise HTTPException(status_code=502, detail=f"Failed to download source PDF: {e}") from e
+
+            # --- pymupdf 快速预检：在 BabelDOC/DeepSeek 之前拦截扫描件 ---
+            _fast_precheck_pages = max(1, min(10, int(os.getenv("BABELDOC_FAST_PRECHECK_PAGES", "3"))))
+            _fast_precheck_min_chars = max(1, int(os.getenv("BABELDOC_FAST_PRECHECK_MIN_CHARS", "50")))
+            _fast_precheck_enabled = os.getenv("BABELDOC_FAST_PRECHECK_ENABLED", "true").strip().lower() not in ("0", "false", "no", "off")
+            if _fast_precheck_enabled:
+                try:
+                    import pymupdf as _pymupdf_precheck
+                    _precheck_doc = _pymupdf_precheck.open(input_pdf)
+                    _total_chars = 0
+                    _pages_to_check = min(len(_precheck_doc), _fast_precheck_pages)
+                    for _pi in range(_pages_to_check):
+                        try:
+                            _text = _precheck_doc[_pi].get_text()
+                            _total_chars += len((_text or "").strip())
+                        except Exception:
+                            pass
+                    _precheck_doc.close()
+                    _precheck_pass = _total_chars >= _fast_precheck_min_chars
+                    logger.info(
+                        "pymupdf_precheck: task_id=%s pages_checked=%s total_chars=%s threshold=%s verdict=%s",
+                        body.task_id, _pages_to_check, _total_chars, _fast_precheck_min_chars,
+                        "pass" if _precheck_pass else "scan_detected",
+                    )
+                    if not _precheck_pass:
+                        if body.callback_url and body.task_id:
+                            _notify_callback(
+                                body.callback_url, body.task_id, "failed",
+                                error_code="scan_detected_use_ocr",
+                                error_message="Scanned PDF detected in precheck: too little extractable text (chars=%d, threshold=%d)" % (
+                                    _total_chars, _fast_precheck_min_chars,
+                                ),
+                            )
+                        raise HTTPException(
+                            status_code=422,
+                            detail="Scanned PDF detected in precheck: insufficient text layer",
+                        )
+                except HTTPException:
+                    raise
+                except ImportError:
+                    logger.warning("pymupdf not available for fast precheck, skip")
+                except Exception as _precheck_err:
+                    logger.warning("pymupdf_precheck error (not blocking): %s", _precheck_err)
+            # --- pymupdf 快速预检结束 ---
+
             try:
                 output_paths, babeldoc_page_hint, suggest_try_ocr = run_translate_local_with_retries(
                     local_pdf_path=input_pdf,

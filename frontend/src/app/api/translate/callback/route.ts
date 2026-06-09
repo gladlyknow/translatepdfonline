@@ -155,7 +155,11 @@ export async function POST(req: Request) {
       }
 
       const postCompleteHint =
-        completed && body.suggest_try_ocr === true ? 'suggest_try_ocr' : null;
+        completed && body.suggest_try_ocr === true
+          ? 'suggest_try_ocr'
+          : !completed && errorCode === 'scan_detected_use_ocr'
+            ? 'scan_detected_use_ocr'
+            : null;
 
       await tx
         .update(translationTasks)

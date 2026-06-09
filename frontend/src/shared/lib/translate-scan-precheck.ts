@@ -62,10 +62,11 @@ export function normalizeScanBlockMode(raw: string | undefined | null): ScanBloc
     return s;
   }
   /**
-   * 默认 strict：Worker 仅拦元数据「高置信扫描」；其余交给 FC/BabelDOC。
-   * 需要 Worker 侧更强预检时显式设 SCAN_BLOCK_MODE=balanced 或 aggressive。
+   * 默认 balanced：在 strict 基础上额外拦截 suspected_scan 硬证据、二进制强信号、
+   * CID token 密度等，在 FC 请求前拦截更多扫描件，减少无效 FC 费用。
+   * 需要更严格时设 SCAN_BLOCK_MODE=aggressive；完全关闭设 off。
    */
-  return 'strict';
+  return 'balanced';
 }
 
 /**
@@ -297,6 +298,20 @@ export type ScanInterceptDecision = {
   };
 };
 
+/** pdf.js 文本提取试探结果 */
+export type PdfjsTextResult = {
+  /** 是否成功执行了 pdf.js 文本提取 */
+  checked: boolean;
+  /** 有有效文字的页数（>MIN_CHARS_PER_PAGE 的页） */
+  pagesWithText: number;
+  /** 检查的页数 */
+  pagesChecked: number;
+  /** 所有检查页的总字符数 */
+  totalChars: number;
+  /** 是否有任一页文字极少（疑似扫描/图片页） */
+  veryLowText: boolean;
+};
+
 /**
  * Whether POST /api/translate should return 409 scan_detected_use_ocr.
  */
@@ -305,6 +320,7 @@ export function decideScanIntercept(params: {
   preprocessWithOcr: boolean;
   metadata: ScanMetadataResult;
   binary: BinaryScanSignals | null;
+  pdfjsText?: PdfjsTextResult | null;
 }): ScanInterceptDecision {
   if (params.preprocessWithOcr) {
     return {
@@ -365,7 +381,7 @@ export function decideScanIntercept(params: {
     }
     /**
      * 硬 suspected（页均 600KB+ 且大文件、或 900KB+ 多页等）仍直接 409。
-     * 仅 softMetadataOnly（350KB+ 页均等弱信号）不误伤正规大图 PDF，改由下方二进制/CID 规则兜底。
+     * 仅 softMetadataOnly（350KB+ 页均等弱信号）不误伤正规大图 PDF，改由下方二进制/CID/ pdf.js 规则兜底。
      */
     if (meta.decision === 'suspected_scan' && meta.softMetadataOnly !== true) {
       return {
@@ -373,6 +389,25 @@ export function decideScanIntercept(params: {
         reasonCodes: [
           ...meta.reasonCodes,
           'block_mode_balanced_suspected_metadata',
+        ],
+        signals: signalsBase,
+      };
+    }
+    /**
+     * pdf.js 文本试探：前 2 页几乎无文字 + 元数据有任意扫描信号 → 拦截。
+     * 常见于扫描件（文件大但无文字层），避免仅靠文件大小误伤嵌入大图的文字 PDF。
+     */
+    if (
+      params.pdfjsText?.checked &&
+      params.pdfjsText.veryLowText &&
+      meta.decision !== 'normal_pdf'
+    ) {
+      return {
+        intercept: true,
+        reasonCodes: [
+          'pdfjs_very_low_text',
+          ...meta.reasonCodes,
+          'block_mode_balanced_pdfjs',
         ],
         signals: signalsBase,
       };

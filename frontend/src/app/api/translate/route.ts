@@ -17,6 +17,7 @@ import {
   scanFromMetadata,
   scanFromPdfHeadBytes,
 } from '@/shared/lib/translate-scan-precheck';
+import { checkPdfTextWithPdfjs } from '@/shared/lib/translate-scan-pdfjs';
 import { isCloudflareWorker } from '@/shared/lib/env';
 import {
   getWorkerBindingMeta,
@@ -187,6 +188,12 @@ export async function POST(req: Request) {
 
     let binarySignals = null as ReturnType<typeof scanFromPdfHeadBytes> | null;
     let pdfHeadFetch: 'ok' | 'skipped' | 'failed' = 'skipped';
+    let midSamplesCount = 0;
+    let midSamplesTotalBytes = 0;
+    let pdfjsTextResult = null as Awaited<
+      ReturnType<typeof checkPdfTextWithPdfjs>
+    > | null;
+
     if (!preprocessWithOcr && (await isR2Configured())) {
       const rawHeadMax = Number(process.env.SCAN_PDF_HEAD_MAX_BYTES);
       const parsedHeadMax =
@@ -195,7 +202,10 @@ export async function POST(req: Request) {
           : 1024 * 1024;
       const headMax = Math.min(parsedHeadMax, 4 * 1024 * 1024);
       const objectKey = (sourceSliceObjectKey || doc.objectKey || '').trim();
+      const totalSize = Number(doc.sizeBytes || 0);
+
       if (objectKey) {
+        // 1) 头部取样
         try {
           const head = await getObjectByteRange(objectKey, 0, headMax - 1);
           const isPdfHeader =
@@ -208,7 +218,8 @@ export async function POST(req: Request) {
           if (isPdfHeader) {
             binarySignals = scanFromPdfHeadBytes(head);
             pdfHeadFetch = 'ok';
-            const totalSize = Number(doc.sizeBytes || 0);
+
+            // 2) 尾部取样
             const tailMax = 512 * 1024;
             if (totalSize > head.length && totalSize > tailMax) {
               try {
@@ -237,6 +248,61 @@ export async function POST(req: Request) {
                 );
               }
             }
+
+            // 3) 中间段取样：>2MB PDF 额外取 1-2 个中间段，捕获中间页的扫描信号
+            const midSampleSize = 512 * 1024;
+            if (totalSize > 2 * 1024 * 1024 && totalSize > headMax + midSampleSize) {
+              const midCount = totalSize > 8 * 1024 * 1024 ? 2 : 1;
+              for (let s = 0; s < midCount; s++) {
+                const offset =
+                  headMax +
+                  Math.floor(
+                    ((s + 1) * (totalSize - headMax - midSampleSize)) /
+                      (midCount + 1)
+                  );
+                if (offset > 0 && offset + midSampleSize - 1 < totalSize) {
+                  try {
+                    const mid = await getObjectByteRange(
+                      objectKey,
+                      offset,
+                      offset + midSampleSize - 1
+                    );
+                    if (mid.length > 0) {
+                      binarySignals = mergeBinaryScanSignals(
+                        binarySignals!,
+                        scanFromPdfHeadBytes(mid)
+                      );
+                      midSamplesCount += 1;
+                      midSamplesTotalBytes += mid.length;
+                    }
+                  } catch {
+                    // 中间段取样失败不阻塞
+                  }
+                }
+              }
+            }
+
+            // 4) pdf.js 文本提取试探：前 2 页文字检测
+            try {
+              // 获取 PDF 前 512KB 用于 pdf.js 加载（通常含前几页）
+              const pdfjsFetchSize = Math.min(totalSize, 512 * 1024);
+              const pdfjsBytes =
+                totalSize === head.length
+                  ? head
+                  : await getObjectByteRange(objectKey, 0, pdfjsFetchSize - 1);
+              pdfjsTextResult = await checkPdfTextWithPdfjs(pdfjsBytes);
+            } catch (pdfjsErr) {
+              console.warn(
+                '[translate] scan_pdfjs_text_check_failed',
+                JSON.stringify({
+                  document_id: documentId,
+                  error:
+                    pdfjsErr instanceof Error
+                      ? pdfjsErr.message
+                      : String(pdfjsErr),
+                })
+              );
+            }
           } else {
             pdfHeadFetch = 'failed';
           }
@@ -259,11 +325,13 @@ export async function POST(req: Request) {
       preprocessWithOcr,
       metadata: scanMetadata,
       binary: binarySignals,
+      pdfjsText: pdfjsTextResult,
     });
 
     if (
       scanMetadata.decision !== 'normal_pdf' ||
       binarySignals != null ||
+      pdfjsTextResult?.checked ||
       scanBlockMode !== 'off'
     ) {
       console.log(
@@ -282,6 +350,12 @@ export async function POST(req: Request) {
           pdf_head_fetch: pdfHeadFetch,
           binary_sample_bytes: binarySignals?.sampleBytes ?? null,
           strong_binary_count: scanDecision.signals?.strong_binary_count ?? null,
+          mid_samples_count: midSamplesCount,
+          mid_samples_total_bytes: midSamplesTotalBytes,
+          pdfjs_checked: pdfjsTextResult?.checked ?? false,
+          pdfjs_text_pages_with_text: pdfjsTextResult?.pagesWithText ?? null,
+          pdfjs_total_chars: pdfjsTextResult?.totalChars ?? null,
+          pdfjs_very_low_text: pdfjsTextResult?.veryLowText ?? null,
         })
       );
     }

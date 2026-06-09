@@ -1080,6 +1080,17 @@ export function TranslatePageClient() {
         suggestTry: false,
       };
     }
+    if (
+      taskStatus === 'failed' &&
+      taskView?.task?.post_complete_hint === 'scan_detected_use_ocr'
+    ) {
+      return {
+        title: t('scanDetectedFailedTitle'),
+        body: t('scanDetectedFailedBody'),
+        cta: t('scanDetectedFailedCta'),
+        suggestTry: true,
+      };
+    }
     if (taskStatus === 'failed') {
       return {
         title: t('failedOcrOfferTitle'),
