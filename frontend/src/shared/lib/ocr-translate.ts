@@ -552,6 +552,10 @@ const DEEPSEEK_BATCH_ARRAY_KEYS = [
 /** 去掉助手回复外的 Markdown 代码围栏与首尾空白 */
 function stripAssistantJsonContent(raw: string): string {
   let s = raw.trim();
+  const innerFence = s.match(/```(?:json)?\s*\n([\s\S]*?)\n?```/i);
+  if (innerFence) {
+    return innerFence[1].trim();
+  }
   const fenced = s.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```\s*$/i);
   if (fenced) {
     return fenced[1].trim();
@@ -568,17 +572,103 @@ function tryParseJson(text: string): unknown | null {
 }
 
 /**
- * 从助手正文中解析 JSON：先 strip，再 parse，最后用非贪婪方式抽取首个 `[...]`。
+ * 从 `open` 起做括号平衡扫描（尊重 JSON 双引号字符串内的括号），返回完整片段或 null（截断）。
+ */
+function extractBalancedJsonSlice(
+  text: string,
+  open: '[' | '{',
+  close: ']' | '}'
+): string | null {
+  const start = text.indexOf(open);
+  if (start < 0) return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (escape) {
+        escape = false;
+      } else if (c === '\\') {
+        escape = true;
+      } else if (c === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (c === '"') {
+      inString = true;
+      continue;
+    }
+    if (c === open) {
+      depth += 1;
+    } else if (c === close) {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(start, i + 1);
+      }
+    }
+  }
+  return null;
+}
+
+/** 截断的 `[...` 尝试补全闭合括号（仅当 finish_reason=length 类场景偶有救） */
+function tryRepairTruncatedJsonArray(text: string): string | null {
+  const t = text.trim();
+  if (!t.startsWith('[')) return null;
+  if (t.endsWith(']')) return null;
+  let repaired = t.replace(/,\s*$/, '');
+  if (!repaired.endsWith(']')) {
+    repaired += ']';
+  }
+  return tryParseJson(repaired) != null ? repaired : null;
+}
+
+function tryParseJsonCandidates(candidates: string[]): unknown | null {
+  for (const c of candidates) {
+    if (!c.trim()) continue;
+    const parsed = tryParseJson(c);
+    if (parsed != null) return parsed;
+    const repaired = tryRepairTruncatedJsonArray(c);
+    if (repaired) {
+      const fromRepair = tryParseJson(repaired);
+      if (fromRepair != null) return fromRepair;
+    }
+  }
+  return null;
+}
+
+/**
+ * 从助手正文中解析 JSON：strip → 整段 parse → 平衡括号抽数组/对象 → 首尾 `[`…`]` 兜底。
  */
 function parseAssistantContentToJson(rawContent: string): unknown | null {
   const stripped = stripAssistantJsonContent(rawContent);
-  const direct = tryParseJson(stripped);
-  if (direct != null) return direct;
-  const bracket = stripped.match(/\[[\s\S]*?\]/);
-  if (bracket) {
-    return tryParseJson(bracket[0]);
+  const candidates: string[] = [stripped];
+
+  const balancedArray = extractBalancedJsonSlice(stripped, '[', ']');
+  if (balancedArray) candidates.push(balancedArray);
+
+  const balancedObject = extractBalancedJsonSlice(stripped, '{', '}');
+  if (balancedObject) candidates.push(balancedObject);
+
+  const firstBracket = stripped.indexOf('[');
+  const lastBracket = stripped.lastIndexOf(']');
+  if (firstBracket >= 0 && lastBracket > firstBracket) {
+    candidates.push(stripped.slice(firstBracket, lastBracket + 1));
   }
-  return null;
+
+  const firstBrace = stripped.indexOf('{');
+  const lastBrace = stripped.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    candidates.push(stripped.slice(firstBrace, lastBrace + 1));
+  }
+
+  if (stripped.startsWith('[')) {
+    const repaired = tryRepairTruncatedJsonArray(stripped);
+    if (repaired) candidates.push(repaired);
+  }
+
+  return tryParseJsonCandidates(candidates);
 }
 
 type DeepSeekBatchParseFailReason = 'invalid_json' | 'coerce_null' | 'length_mismatch';
@@ -603,18 +693,10 @@ function coerceDeepSeekBatchJsonToArray(
       (s.startsWith('[') && s.endsWith(']')) ||
       (s.startsWith('{') && s.endsWith('}'))
     ) {
-      const inner = tryParseJson(s);
+      const inner = parseAssistantContentToJson(s);
       if (inner != null) {
         const r = coerceDeepSeekBatchJsonToArray(inner, depth + 1);
         return { arr: r.arr, coerced: r.coerced || r.arr != null };
-      }
-      const bracket = s.match(/\[[\s\S]*?\]/);
-      if (bracket) {
-        const fromBracket = tryParseJson(bracket[0]);
-        if (fromBracket != null) {
-          const r = coerceDeepSeekBatchJsonToArray(fromBracket, depth + 1);
-          return { arr: r.arr, coerced: r.coerced || r.arr != null };
-        }
       }
     }
     return { arr: null, coerced: false };
@@ -718,7 +800,11 @@ function logDeepSeekBatchParseFailed(
       parse_reason: params.reason,
       finish_reason: params.finishReason ?? null,
       raw_len: params.rawContent.length,
-      raw_prefix: params.rawContent.slice(0, 400),
+      raw_prefix: params.rawContent.slice(0, 500),
+      raw_suffix:
+        params.rawContent.length > 500
+          ? params.rawContent.slice(-200)
+          : null,
       got: params.got ?? null,
       last_error: params.lastError,
     })

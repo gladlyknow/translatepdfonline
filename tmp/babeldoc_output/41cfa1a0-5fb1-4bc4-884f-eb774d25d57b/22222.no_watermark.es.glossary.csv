@@ -1,0 +1,11 @@
+source,target,tgt_lng
+Server Configuration Tuning,Ajuste de Configuración del Servidor,
+ALTER TABLE SET STATISTICS,ALTER TABLE SET STATISTICS,
+Checkpoints,Puntos de Control,
+PostgreSQL,PostgreSQL,
+checkpoint_segments,checkpoint_segments,
+min_wal_size,min_wal_size,
+max_wal_size,max_wal_size,
+WAL,WAL,
+checkpoint_timeout,checkpoint_timeout,
+checkpoint_completion_target,checkpoint_completion_target,
