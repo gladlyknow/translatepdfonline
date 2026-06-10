@@ -98,9 +98,9 @@ export function UploadPageClient() {
       );
       router.push(`/translate?task=${res.task_id}`);
     } catch (error) {
-      const err = error as Error & { status?: number; code?: string };
+      const err = error as Error & { status?: number; body?: { code?: string } };
       // 扫描件检测 (409) → 自动重定向到 OCR
-      if (err?.status === 409 || err?.code === 'scan_detected_use_ocr') {
+      if (err?.status === 409 || err?.body?.code === 'scan_detected_use_ocr') {
         const qs = new URLSearchParams({
           document: uploadedDocumentId,
           source_lang: sourceLang,
