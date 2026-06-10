@@ -276,9 +276,12 @@ function countStrongBinarySignals(
 
 function veryStrongBinaryWithHeavyPages(
   bin: BinaryScanSignals | null | undefined,
-  avgBytesPerPage: number
+  avgBytesPerPage: number,
+  pagesForAvgSize: number
 ): boolean {
   if (!bin || bin.sampleBytes < 500) return false;
+  // 至少 2 页，避免单页大 PDF（如海报、信息图）因页均=文件大小而被误判
+  if (pagesForAvgSize < 2) return false;
   return (
     bin.imageSubtypeCount >= 18 &&
     bin.tjOperatorCount < 25 &&
@@ -412,7 +415,7 @@ export function decideScanIntercept(params: {
         signals: signalsBase,
       };
     }
-    if (veryStrongBinaryWithHeavyPages(bin, meta.avgBytesPerPage)) {
+    if (veryStrongBinaryWithHeavyPages(bin, meta.avgBytesPerPage, meta.pagesForAvgSize)) {
       return {
         intercept: true,
         reasonCodes: [
@@ -454,7 +457,7 @@ export function decideScanIntercept(params: {
       signals: signalsBase,
     };
   }
-  if (veryStrongBinaryWithHeavyPages(bin, meta.avgBytesPerPage)) {
+  if (veryStrongBinaryWithHeavyPages(bin, meta.avgBytesPerPage, meta.pagesForAvgSize)) {
     return {
       intercept: true,
       reasonCodes: ['block_mode_aggressive_binary_heavy_pages'],
