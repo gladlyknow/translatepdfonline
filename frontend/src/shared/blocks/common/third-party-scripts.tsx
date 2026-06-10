@@ -21,13 +21,12 @@ function getEmbeddedConfigs(): Record<string, string> | null {
  */
 export function ThirdPartyScripts() {
   useEffect(() => {
-    const id = requestIdleCallback
-      ? requestIdleCallback(() => injectScripts())
-      : setTimeout(() => injectScripts(), 500);
-    return () => {
-      if (requestIdleCallback) cancelIdleCallback(id as number);
-      else clearTimeout(id as ReturnType<typeof setTimeout>);
-    };
+    if (typeof requestIdleCallback === 'undefined') {
+      const id = setTimeout(() => injectScripts(), 500);
+      return () => clearTimeout(id);
+    }
+    const id = requestIdleCallback(() => injectScripts());
+    return () => cancelIdleCallback(id);
   }, []);
 
   return null;
