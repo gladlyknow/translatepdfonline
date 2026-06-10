@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "Novità",
           "title": "Traduzione PDF professionale con layout preservato",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "Prezzi di lancio per i primi utenti",
         "buttons": [

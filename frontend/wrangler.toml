@@ -57,3 +57,14 @@ localConnectionString = "postgres://_build:_build@127.0.0.1:5432/_build_placehol
 [[env.develop.queues.producers]]
 binding = "OCR_PIPELINE_QUEUE"
 queue = "translatepdfonline-dev"
+
+# ─── R2 ISR 增量缓存 ──────────────────────────────────────────
+# 复用已有 translatepdfonline 桶，与文档存储共用一个桶
+# OpenNext 缓存 key 有独立前缀，不会与 documents/ 冲突
+[[r2_buckets]]
+binding = "NEXT_CACHE"
+bucket_name = "translatepdfonline"
+
+[env.develop.r2_buckets]
+binding = "NEXT_CACHE"
+bucket_name = "translatepdfonline"

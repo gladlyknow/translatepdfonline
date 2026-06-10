@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "Νέο",
           "title": "Επαγγελματική μετάφραση PDF με διατήρηση διάταξης",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "Ειδική τιμή λανσαρίσματος για πρώιμους χρήστες",
         "buttons": [

@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "Nuevo",
           "title": "Traducción profesional que respeta el diseño",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "Precio de lanzamiento para usuarios iniciales",
         "buttons": [

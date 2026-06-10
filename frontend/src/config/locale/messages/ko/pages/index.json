@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "신규",
           "title": "레이아웃을 보존하는 전문 PDF 번역",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "얼리 유저를 위한 런칭 가격",
         "buttons": [

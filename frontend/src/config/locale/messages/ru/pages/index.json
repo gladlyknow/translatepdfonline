@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "Новое",
           "title": "Профессиональный перевод PDF с сохранением вёрстки",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "Вводная цена для ранних пользователей",
         "buttons": [

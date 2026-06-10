@@ -1,10 +1,17 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
+import { locales } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
+// Showcases 页内容完全来自 i18n JSON → 静态生成，绕过 Worker
+export const dynamic = 'force-static';
 export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.showcases.metadata',

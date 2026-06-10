@@ -1,9 +1,9 @@
 import { defineCloudflareConfig } from '@opennextjs/cloudflare';
+import r2IncrementalCache from '@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache';
 
 export default defineCloudflareConfig({
-  // Uncomment to enable R2 cache,
-  // It should be imported as:
-  // `import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";`
-  // See https://opennext.js.org/cloudflare/caching for more details
-  // incrementalCache: r2IncrementalCache,
+  // R2 持久化 ISR 缓存 — Worker 冷启动后缓存不丢失
+  // 复用已有的 translatepdfonline 桶，与文档存储共用一个桶
+  // 无需额外创建 bucket
+  incrementalCache: r2IncrementalCache,
 });

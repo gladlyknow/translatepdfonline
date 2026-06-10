@@ -2,9 +2,6 @@
   "page": {
     "show_sections": [
       "hero",
-      "introduce",
-      "benefits",
-      "usage",
       "features",
       "stats",
       "faq",
@@ -20,7 +17,7 @@
         "announcement": {
           "badge": "Neu",
           "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
-            "url": "/upload"
+          "url": "/upload"
         },
         "tip": "Einführungspreis für frühe Nutzer",
         "buttons": [
