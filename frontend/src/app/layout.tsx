@@ -7,7 +7,8 @@ import NextTopLoader from 'nextjs-toploader';
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
-import { ThirdPartyScripts } from '@/shared/blocks/common/third-party-scripts';
+import { ThirdPartyConfigTag, ThirdPartyScripts } from '@/shared/blocks/common/third-party-scripts';
+import { getAllConfigs } from '@/shared/models/config';
 
 const notoSansMono = Noto_Sans_Mono({
   subsets: ['latin'],
@@ -40,6 +41,14 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   const appUrl = envConfigs.app_url || '';
+
+  // 服务端获取配置，通过 script 标签传递给客户端，避免客户端 import 触发 next/cache
+  let embeddedConfigs: Record<string, string> = {};
+  try {
+    embeddedConfigs = await getAllConfigs();
+  } catch {
+    // 配置加载失败不阻塞渲染
+  }
 
   return (
     <html
@@ -94,7 +103,15 @@ export default async function RootLayout({
           </>
         ) : null}
 
-        <ThirdPartyScripts />
+        {/* AdSense 验证 meta 标签（需在 head 中） */}
+        {embeddedConfigs.adsense_publisher_id ? (
+          <meta
+            name="google-adsense-account"
+            content={embeddedConfigs.adsense_publisher_id}
+          />
+        ) : null}
+
+        <ThirdPartyConfigTag configs={embeddedConfigs} />
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
         <NextTopLoader
@@ -112,6 +129,8 @@ export default async function RootLayout({
         <UtmCapture />
 
         {children}
+
+        <ThirdPartyScripts />
       </body>
     </html>
   );

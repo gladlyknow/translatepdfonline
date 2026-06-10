@@ -1,59 +1,77 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { getAllConfigs } from '@/shared/models/config';
-import { getAdsService } from '@/shared/services/ads';
-import { getAffiliateService } from '@/shared/services/affiliate';
-import { getAnalyticsService } from '@/shared/services/analytics';
-import { getCustomerService } from '@/shared/services/customer_service';
+import { useEffect } from 'react';
+
+const DATA_ID = 'third-party-configs';
+
+function getEmbeddedConfigs(): Record<string, string> | null {
+  if (typeof document === 'undefined') return null;
+  const el = document.getElementById(DATA_ID);
+  if (!el) return null;
+  try {
+    return JSON.parse(el.textContent || '{}');
+  } catch {
+    return null;
+  }
+}
 
 /**
  * 客户端异步加载第三方营销/分析脚本。
- * 避免在服务端布局中阻塞页面渲染。
+ * 使用 requestIdleCallback 延迟到页面完全渲染后执行，不阻塞 FCP/LCP。
  */
 export function ThirdPartyScripts() {
-  const [headNodes, setHeadNodes] = useState<ReactNode[]>([]);
-  const [bodyNodes, setBodyNodes] = useState<ReactNode[]>([]);
-
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const configs = await getAllConfigs();
-
-        const [ads, analytics, affiliate, customer] = await Promise.all([
-          getAdsService(configs),
-          getAnalyticsService(configs),
-          getAffiliateService(configs),
-          getCustomerService(configs),
-        ]);
-
-        if (cancelled) return;
-
-        const head: ReactNode[] = [];
-        const body: ReactNode[] = [];
-
-        for (const svc of [ads, analytics, affiliate, customer]) {
-          const h = svc.getHeadScripts?.();
-          if (h) head.push(h);
-          const b = svc.getBodyScripts?.();
-          if (b) body.push(b);
-        }
-
-        setHeadNodes(head);
-        setBodyNodes(body);
-      } catch {
-        // 第三方脚本加载失败不应影响页面功能
-      }
-    }
-    load();
-    return () => { cancelled = true; };
+    const id = requestIdleCallback
+      ? requestIdleCallback(() => injectScripts())
+      : setTimeout(() => injectScripts(), 500);
+    return () => {
+      if (requestIdleCallback) cancelIdleCallback(id as number);
+      else clearTimeout(id as ReturnType<typeof setTimeout>);
+    };
   }, []);
 
+  return null;
+}
+
+function injectScripts() {
+  const configs = getEmbeddedConfigs();
+  if (!configs || !Object.keys(configs).length) return;
+
+  // Google Analytics
+  if (configs.google_analytics_id) {
+    const gtag = document.createElement('script');
+    gtag.src = `https://www.googletagmanager.com/gtag/js?id=${configs.google_analytics_id}`;
+    gtag.async = true;
+    document.head.appendChild(gtag);
+    const init = document.createElement('script');
+    init.textContent = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${configs.google_analytics_id}');`;
+    document.head.appendChild(init);
+  }
+
+  // Microsoft Clarity
+  if (configs.clarity_id) {
+    const s = document.createElement('script');
+    s.textContent = `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement("script");t.src="https://www.clarity.ms/tag/"+i;t.async=1;y=l.getElementsByTagName("script")[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${configs.clarity_id}");`;
+    document.head.appendChild(s);
+  }
+
+  // Plausible
+  if (configs.plausible_domain && configs.plausible_src) {
+    const s = document.createElement('script');
+    s.src = configs.plausible_src;
+    s.setAttribute('data-domain', configs.plausible_domain);
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+}
+
+/** 服务端组件：将配置序列化为客户端可读的 script 标签 */
+export function ThirdPartyConfigTag({ configs }: { configs: Record<string, string> }) {
   return (
-    <>
-      {headNodes}
-      {bodyNodes}
-    </>
+    <script
+      id={DATA_ID}
+      type="application/json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(configs) }}
+    />
   );
 }
