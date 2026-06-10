@@ -77,9 +77,9 @@ export function UploadPageClient() {
   const goTranslate = useCallback(async () => {
     if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
     launchLockRef.current = true;
+    setLaunchingMode('translate');
+    setLaunchError(null);
     try {
-      setLaunchError(null);
-      setLaunchingMode('translate');
       const resolvedDocumentId = await resolveActiveDocumentId();
       if (!resolvedDocumentId) {
         throw new Error(tHome('uploadFirstHint'));
@@ -87,13 +87,28 @@ export function UploadPageClient() {
       if (resolvedDocumentId !== uploadedDocumentId) {
         setUploadedDocumentId(resolvedDocumentId);
       }
-      const qs = new URLSearchParams({
-        document: resolvedDocumentId,
-        source_lang: sourceLang,
-        target_lang: targetLang,
-      });
-      router.push(`/translate?${qs.toString()}`);
+      // 直接创建翻译任务，跳转到 workbench 并自动开始
+      const res = await translateApi.translate(
+        resolvedDocumentId,
+        sourceLang,
+        targetLang,
+        undefined, // pageRange
+        undefined, // sourceSliceObjectKey
+        false      // preprocessWithOcr
+      );
+      router.push(`/translate?task=${res.task_id}`);
     } catch (error) {
+      const err = error as Error & { status?: number; code?: string };
+      // 扫描件检测 (409) → 自动重定向到 OCR
+      if (err?.status === 409 || err?.code === 'scan_detected_use_ocr') {
+        const qs = new URLSearchParams({
+          document: uploadedDocumentId,
+          source_lang: sourceLang,
+          target_lang: targetLang,
+        });
+        router.push(`/ocrtranslator?${qs.toString()}`);
+        return;
+      }
       setLaunchError(toLaunchError(error));
     } finally {
       setLaunchingMode(null);
@@ -112,9 +127,9 @@ export function UploadPageClient() {
   const goOcr = useCallback(async () => {
     if (!uploadedDocumentId || !targetLang || launchLockRef.current) return;
     launchLockRef.current = true;
+    setLaunchingMode('ocr');
+    setLaunchError(null);
     try {
-      setLaunchError(null);
-      setLaunchingMode('ocr');
       const resolvedDocumentId = await resolveActiveDocumentId();
       if (!resolvedDocumentId) {
         throw new Error(tHome('uploadFirstHint'));
@@ -122,11 +137,13 @@ export function UploadPageClient() {
       if (resolvedDocumentId !== uploadedDocumentId) {
         setUploadedDocumentId(resolvedDocumentId);
       }
-      const qs = new URLSearchParams({
-        document: resolvedDocumentId,
-        target_lang: targetLang,
-      });
-      router.push(`/ocrtranslator?${qs.toString()}`);
+      // 直接创建 OCR 任务，跳转到 workbench 并自动开始
+      const res = await translateApi.createOcrTask(
+        resolvedDocumentId,
+        sourceLang || '', // OCR 允许不选源语言
+        targetLang
+      );
+      router.push(`/ocrtranslator?task=${res.task_id}`);
     } catch (error) {
       setLaunchError(toLaunchError(error));
     } finally {
@@ -136,6 +153,7 @@ export function UploadPageClient() {
   }, [
     resolveActiveDocumentId,
     router,
+    sourceLang,
     tHome,
     targetLang,
     toLaunchError,

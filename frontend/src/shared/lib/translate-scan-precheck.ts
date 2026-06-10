@@ -422,12 +422,19 @@ export function decideScanIntercept(params: {
         signals: signalsBase,
       };
     }
-    if (bin && bin.sampleBytes >= 512 && bin.cidTokenCount >= 18) {
-      return {
-        intercept: true,
-        reasonCodes: ['block_mode_balanced_cid_tokens_in_sample'],
-        signals: signalsBase,
-      };
+    // CID token 密度检查：用每 MB 密度替代固定阈值，避免误伤带嵌入字体的正常 PDF
+    // 同时要求文字算子极少（Tj < 24），有正常文字的 PDF 不会被拦截
+    if (bin && bin.sampleBytes >= 512) {
+      const mb = bin.sampleBytes / (1024 * 1024);
+      const cidPerMb = bin.cidTokenCount / Math.max(mb, 0.5);
+      const hasEnoughTextOps = bin.tjOperatorCount >= 24;
+      if (cidPerMb >= 40 && !hasEnoughTextOps) {
+        return {
+          intercept: true,
+          reasonCodes: ['block_mode_balanced_cid_tokens_high_density'],
+          signals: signalsBase,
+        };
+      }
     }
     return { intercept: false, reasonCodes: [], signals: signalsBase };
   }

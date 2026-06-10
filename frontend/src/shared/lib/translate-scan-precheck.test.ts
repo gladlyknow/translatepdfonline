@@ -226,4 +226,29 @@ describe('decideScanIntercept', () => {
     });
     assert.equal(d.intercept, true);
   });
+
+  it('balanced does NOT block high CID with enough text operators (normal CJK PDF)', () => {
+    const normal = scanFromMetadata({
+      filename: 'paper.pdf',
+      sizeBytes: 2_000_000,
+      pageCount: 10,
+      pageRange: null,
+    });
+    assert.equal(normal.decision, 'normal_pdf');
+    // 模拟带嵌入 CJK 字体的正常 PDF：有 CID token + 有大量文字算子
+    const parts: string[] = [];
+    for (let i = 0; i < 40; i++) parts.push('(cid:12)');
+    for (let i = 0; i < 30; i++) parts.push(' BT /F1 12 Tf 100 700 Td (Hello) Tj ET ');
+    const body = parts.join('\n');
+    const bin = scanFromPdfHeadBytes(pdfHeaderWithBody(body));
+    assert.ok(bin.cidTokenCount >= 18, 'should have enough CID tokens');
+    assert.ok(bin.tjOperatorCount >= 24, 'should have enough text operators');
+    const d = decideScanIntercept({
+      mode: 'balanced',
+      preprocessWithOcr: false,
+      metadata: normal,
+      binary: bin,
+    });
+    assert.equal(d.intercept, false, 'normal PDF with text ops should not be blocked');
+  });
 });
