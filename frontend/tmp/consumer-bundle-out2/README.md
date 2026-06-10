@@ -1,1 +1,0 @@
-This folder contains the built output assets for the worker "translatepdfonline-quenues-dev" generated at 2026-05-07T01:46:53.573Z.

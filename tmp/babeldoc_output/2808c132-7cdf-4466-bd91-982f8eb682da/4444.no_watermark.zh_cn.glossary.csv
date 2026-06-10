@@ -1,9 +1,0 @@
-source,target,tgt_lng
-Server Configuration Tuning,服务器配置调优,
-pgtune,pgtune,
-PostgreSQL 8.4,PostgreSQL 8.4,
-postgresql.conf,postgresql.conf,
-data warehouse server,数据仓库服务器,
-developer workstation,开发工作站,
-RAM,内存,
-web interface,网页界面,
