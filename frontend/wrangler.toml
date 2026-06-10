@@ -60,11 +60,11 @@ queue = "translatepdfonline-dev"
 
 # ─── R2 ISR 增量缓存 ──────────────────────────────────────────
 # 复用已有 translatepdfonline 桶，与文档存储共用一个桶
-# OpenNext 缓存 key 有独立前缀，不会与 documents/ 冲突
+# 绑定名必须为 NEXT_INC_CACHE_R2_BUCKET（OpenNext 1.14+ 固定要求）
 [[r2_buckets]]
-binding = "NEXT_CACHE"
+binding = "NEXT_INC_CACHE_R2_BUCKET"
 bucket_name = "translatepdfonline"
 
 [env.develop.r2_buckets]
-binding = "NEXT_CACHE"
+binding = "NEXT_INC_CACHE_R2_BUCKET"
 bucket_name = "translatepdfonline"
