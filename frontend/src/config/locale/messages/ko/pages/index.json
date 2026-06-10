@@ -2,6 +2,9 @@
   "page": {
     "show_sections": [
       "hero",
+      "introduce",
+      "benefits",
+      "usage",
       "features",
       "stats",
       "faq",
