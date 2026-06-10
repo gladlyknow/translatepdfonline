@@ -110,6 +110,22 @@ function isIncrementalCacheMissingError(e: unknown): boolean {
   return msg.includes('incrementalCache');
 }
 
+/** Worker 内存缓存：config 表极少变更，TTL 60s 足够 */
+let _workerConfigCache: { data: Configs; ts: number } | null = null;
+const WORKER_CONFIG_CACHE_TTL_MS = 60_000;
+
+async function _getWorkerCachedConfigs(): Promise<Configs> {
+  if (
+    _workerConfigCache &&
+    Date.now() - _workerConfigCache.ts < WORKER_CONFIG_CACHE_TTL_MS
+  ) {
+    return _workerConfigCache.data;
+  }
+  const data = await loadConfigsFromDatabase();
+  _workerConfigCache = { data, ts: Date.now() };
+  return data;
+}
+
 export async function getAllConfigs(): Promise<Configs> {
   let dbConfigs: Configs = {};
 
@@ -117,13 +133,14 @@ export async function getAllConfigs(): Promise<Configs> {
   if (typeof window === 'undefined' && hasPostgresRuntimeConfig()) {
     try {
       if (tryGetAlsCfEnv()) {
-        dbConfigs = await loadConfigsFromDatabase();
+        // Worker 环境：用内存缓存减少 Hyperdrive DB 查询（config 表变更极少）
+        dbConfigs = await _getWorkerCachedConfigs();
       } else {
         try {
           dbConfigs = await getConfigs();
         } catch (e) {
           if (isIncrementalCacheMissingError(e)) {
-            dbConfigs = await loadConfigsFromDatabase();
+            dbConfigs = await _getWorkerCachedConfigs();
           } else {
             throw e;
           }

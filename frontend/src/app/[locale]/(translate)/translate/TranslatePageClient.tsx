@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -29,6 +29,7 @@ import {
 import { useTranslateShellChromeOptional } from '@/shared/contexts/translate-shell-chrome';
 import { Loader2, Download, Trash2, RefreshCw, Languages } from 'lucide-react';
 import { toSupportedUiLang } from '@/shared/lib/translate-langs';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 
 const PdfViewerPane = dynamic(
   () =>
@@ -96,13 +97,28 @@ function isScanLikelyFailure(
   return m.includes('too many cid paragraphs') || m.includes('cid paragraphs');
 }
 
+/** FC 层面的错误（翻译服务不可用），应引导用户走 OCR */
+function isFcServiceFailure(code: string | null | undefined): boolean {
+  if (!code) return false;
+  return (
+    code === 'fc_http_error' ||
+    code === 'fc_submit_exhausted' ||
+    code === 'fc_service_disabled' ||
+    code === 'fc_payload_too_large' ||
+    code === 'presign_failed' ||
+    code === 'r2_not_configured' ||
+    code === 'stale_fc_accepted'
+  );
+}
+
 function shouldOfferOcrRedirect(
   code: string | null | undefined,
   message: string | null | undefined
 ): boolean {
   return (
     isNoParagraphsFailure(code, message) ||
-    isScanLikelyFailure(code, message)
+    isScanLikelyFailure(code, message) ||
+    isFcServiceFailure(code)
   );
 }
 
@@ -630,7 +646,7 @@ export function TranslatePageClient() {
   const refreshInFlightRef = useRef(false);
   const mainPdfDownloadLockRef = useRef(false);
   const [mainPdfDownloadBusy, setMainPdfDownloadBusy] = useState(false);
-  const ocrNavLockRef = useRef(false);
+
   const OUTPUT_PREVIEW_BACKOFF_MS = 60_000;
 
   useEffect(() => {
@@ -1461,6 +1477,7 @@ export function TranslatePageClient() {
                   shouldOfferOcrRedirect(code, msg);
                 if (ocrCta) {
                   const noPara = isNoParagraphsFailure(code, msg);
+                  const fcFail = isFcServiceFailure(code);
                   const targetForOcr =
                     toSupportedUiLang(
                       targetLang ||
@@ -1475,8 +1492,7 @@ export function TranslatePageClient() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (ocrRedirecting || ocrNavLockRef.current) return;
-                        ocrNavLockRef.current = true;
+                        if (ocrRedirecting) return;
                         setOcrRedirecting(true);
                         const qs = buildOcrWorkbenchSearch({
                           documentId,
@@ -1485,34 +1501,37 @@ export function TranslatePageClient() {
                           pageRange: taskView?.task?.page_range ?? null,
                           docPages: taskView?.task?.document_page_count ?? null,
                         });
-                        router.push(`/ocrtranslator?${qs}`);
+                        startTransition(() => {
+                          router.push(`/ocrtranslator?${qs}`);
+                        });
                         setTimeout(() => {
                           setOcrRedirecting(false);
-                          ocrNavLockRef.current = false;
-                        }, 3000);
+                        }, 1500);
                       }}
                       disabled={ocrRedirecting}
-                      className="mt-2 w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-left text-xs font-medium text-amber-950 shadow-sm hover:bg-amber-100 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-950/60"
+                      className={`mt-2 w-full rounded-lg px-4 py-3 text-left text-sm font-semibold text-white transition-[box-shadow,background-color] disabled:opacity-50 ${TRANSLATE_PRIMARY_CTA_CLASSNAME}`}
                     >
                       <span className="flex items-start gap-2.5">
                         {ocrRedirecting ? (
                           <Loader2
                             size={18}
-                            className="mt-0.5 shrink-0 animate-spin text-amber-800 dark:text-amber-200"
+                            className="mt-0.5 shrink-0 animate-spin"
                           />
                         ) : (
                           <Languages
                             size={18}
-                            className="mt-0.5 shrink-0 text-sky-700 dark:text-sky-300"
+                            className="mt-0.5 shrink-0"
                           />
                         )}
                         <span className="min-w-0 flex-1 leading-relaxed">
-                          <span className="block font-semibold">
+                          <span className="block">
                             {noPara
                               ? tErrors('no_paragraphs')
-                              : tErrors('scan_detected_use_ocr')}
+                              : fcFail
+                                ? tErrors('fc_service_unavailable')
+                                : tErrors('scan_detected_use_ocr')}
                           </span>
-                          <span className="mt-1 block text-[11px] font-normal text-amber-900/90 dark:text-amber-100/90">
+                          <span className="mt-1 block text-xs font-normal opacity-90">
                             {tTranslate('preprocessWithOcr')} →
                           </span>
                         </span>
@@ -1520,6 +1539,20 @@ export function TranslatePageClient() {
                     </button>
                   );
                 }
+                const isFcRaw =
+                  isFcServiceFailure(code) ||
+                  (msg && /^FC HTTP\s+\d{3}/.test(msg));
+                const fallbackCode = code ?? '';
+                const hasKnownErrorKey =
+                  isNoParagraphsFailure(code, msg) ||
+                  code === 'scan_detected_use_ocr' ||
+                  [
+                    'pdf_font_unsupported',
+                    'tounicode_missing',
+                    'font_subset_corrupt',
+                    'ocr_preprocess_failed',
+                  ].includes(fallbackCode);
+
                 return (
                   <>
                     <p
@@ -1531,20 +1564,15 @@ export function TranslatePageClient() {
                     >
                       {isNoParagraphsFailure(code, msg)
                         ? tErrors('no_paragraphs')
-                        : failedTaskInfo.error_code === 'scan_detected_use_ocr'
+                        : code === 'scan_detected_use_ocr'
                           ? tErrors('scan_detected_use_ocr')
-                          : failedTaskInfo.error_message ??
-                            (failedTaskInfo.error_code
-                              ? tErrors(
-                                  failedTaskInfo.error_code as
-                                    | 'pdf_font_unsupported'
-                                    | 'tounicode_missing'
-                                    | 'font_subset_corrupt'
-                                    | 'no_paragraphs'
-                                    | 'ocr_preprocess_failed'
-                                    | 'scan_detected_use_ocr'
-                                )
-                              : '')}
+                          : isFcRaw
+                            ? tErrors('fc_service_unavailable')
+                            : hasKnownErrorKey
+                              ? tErrors(fallbackCode as any)
+                              : msg && !/^FC HTTP\s+\d{3}/.test(msg)
+                                ? msg.slice(0, 280)
+                                : tErrors('fc_service_unavailable')}
                     </p>
                     {documentId ? (
                       <Link
@@ -1563,7 +1591,7 @@ export function TranslatePageClient() {
                           pageRange: taskView?.task?.page_range ?? null,
                           docPages: taskView?.task?.document_page_count ?? null,
                         })}`}
-                        className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700"
+                        className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-[0_4px_14px_0_rgba(3,105,161,0.28)] transition-[box-shadow,background-color] hover:bg-sky-600 hover:shadow-[0_6px_18px_0_rgba(3,105,161,0.3)] dark:bg-sky-600 dark:hover:bg-sky-500"
                       >
                         {t('ocrJumpCta')}
                       </Link>

@@ -295,7 +295,7 @@ export function Hero({
                       2424
                     }
                     sizes="(max-width: 768px) 100vw, 1200px"
-                    loading="lazy"
+                    priority
                     fetchPriority="high"
                     quality={75}
                     unoptimized={(
@@ -323,7 +323,7 @@ export function Hero({
                         630
                       }
                       sizes="(max-width: 768px) 100vw, 1200px"
-                      loading="lazy"
+                      loading="eager"
                       fetchPriority="high"
                       quality={75}
                       unoptimized={section.image_invert.src.startsWith('http')}
@@ -347,7 +347,7 @@ export function Hero({
                         630
                       }
                       sizes="(max-width: 768px) 100vw, 1200px"
-                      loading="lazy"
+                      loading="eager"
                       fetchPriority="high"
                       quality={75}
                       unoptimized={section.image.src.startsWith('http')}

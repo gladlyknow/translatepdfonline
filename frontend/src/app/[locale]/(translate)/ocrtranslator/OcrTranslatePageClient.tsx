@@ -515,6 +515,10 @@ export function OcrTranslatePageClient() {
             typeof pc === 'number' && pc > 0 ? pc : null
           );
           setFilename(doc.filename);
+          setLastUploadedFile({
+            name: doc.filename,
+            size: doc.size_bytes ?? 0,
+          });
         }
       })
       .catch(() => {

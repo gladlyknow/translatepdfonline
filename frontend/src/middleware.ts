@@ -103,5 +103,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // 包含 /api 以便 Cloudflare env 在 API 路由中生效
-  matcher: ['/((?!_next|_vercel|trpc|.*\\..*).*)'],
+  // 排除静态资源目录，减少中间件开销
+  matcher: [
+    '/((?!_next|_vercel|trpc|imgs|brand|fonts|favicon|.*\\..*).*)',
+  ],
 };

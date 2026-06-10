@@ -78,6 +78,13 @@ function errorCodeFromFcErrorBodySnippet(snippet: string): string | null {
   ) {
     return 'no_paragraphs';
   }
+  if (
+    low.includes('invokedisabled') ||
+    low.includes('invocation is disabled') ||
+    low.includes('function invocation is disabled')
+  ) {
+    return 'fc_service_disabled';
+  }
   return null;
 }
 
