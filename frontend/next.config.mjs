@@ -70,6 +70,60 @@ const nextConfig = {
   experimental: {
     // Disable mdxRs for Vercel deployment compatibility with fumadocs-mdx
     ...(process.env.VERCEL ? {} : { mdxRs: true }),
+    // 优化包导入，减少 bundle 大小
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'react-icons',
+      '@tabler/icons-react',
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // 客户端 chunk 分割策略：将大型 vendor 库分离
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          // PDF 相关（仅在 translate 页使用）
+          pdfjs: {
+            test: /[\\/]node_modules[\\/](pdfjs-dist|react-pdf|@pdf-lib)[\\/]/,
+            name: 'vendor-pdf',
+            chunks: 'all',
+            priority: 30,
+          },
+          // 动画库（landing 页使用）
+          framerMotion: {
+            test: /[\\/]node_modules[\\/](framer-motion|motion)[\\/]/,
+            name: 'vendor-animation',
+            chunks: 'all',
+            priority: 25,
+          },
+          // 文档框架
+          fumadocs: {
+            test: /[\\/]node_modules[\\/](fumadocs|next-mdx-remote|shiki|rehype|remark)[\\/]/,
+            name: 'vendor-docs',
+            chunks: 'all',
+            priority: 20,
+          },
+          // UI 组件库
+          radixUI: {
+            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+            name: 'vendor-radix',
+            chunks: 'all',
+            priority: 15,
+          },
+          // 通用 vendor
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor-common',
+            chunks: 'all',
+            priority: 10,
+            minChunks: 2,
+          },
+        },
+      };
+    }
+    return config;
   },
 };
 

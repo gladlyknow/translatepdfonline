@@ -15,6 +15,7 @@ const notoSansMono = Noto_Sans_Mono({
   variable: '--font-sans',
   display: 'swap',
   preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 });
 
 const merriweather = Merriweather({
@@ -22,7 +23,8 @@ const merriweather = Merriweather({
   weight: ['400', '700'],
   variable: '--font-serif',
   display: 'swap',
-  preload: false,
+  preload: true,
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -57,6 +59,14 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Google Fonts 预连接，减少字体下载 DNS/TLS 延迟 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
         {/* 标签页图标：优先 logo.webp，附带 png 回退。 */}
         {/* <link
           rel="icon"

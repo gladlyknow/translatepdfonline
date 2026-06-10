@@ -21,15 +21,15 @@
           { "name": "other", "title": "Άλλο" }
         ],
         "items": [
-          { "title": "ThinkAny", "description": "Μηχανή αναζήτησης AI", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.png", "alt": "showcases" }, "group": "ai-chatbot" },
-          { "title": "HeyBeauty", "description": "Εικονική δοκιμή AI", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "AI Wallpaper", "description": "Γεννήτρια ταπετσαρίας AI", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "AI Cover", "description": "Γεννήτρια εξωφύλλων AI", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "GPTs Works", "description": "Κατάλογος GPT", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.png", "alt": "showcases" }, "group": "other" },
-          { "title": "Melodisco", "description": "Αναπαραγωγέας μουσικής AI", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.png", "alt": "showcases" }, "group": "ai-music" },
-          { "title": "Pagen", "description": "Γεννήτρια σελίδων προορισμού AI", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.png", "alt": "showcases" }, "group": "ai-coding" },
-          { "title": "SoraFM", "description": "Γεννήτρια βίντεο AI", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.png", "alt": "showcases" }, "group": "ai-video" },
-          { "title": "PodLM", "description": "Γεννήτρια podcast AI", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.png", "alt": "showcases" }, "group": "ai-audio" }
+          { "title": "ThinkAny", "description": "Μηχανή αναζήτησης AI", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.webp", "alt": "showcases" }, "group": "ai-chatbot" },
+          { "title": "HeyBeauty", "description": "Εικονική δοκιμή AI", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Wallpaper", "description": "Γεννήτρια ταπετσαρίας AI", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Cover", "description": "Γεννήτρια εξωφύλλων AI", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "GPTs Works", "description": "Κατάλογος GPT", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.webp", "alt": "showcases" }, "group": "other" },
+          { "title": "Melodisco", "description": "Αναπαραγωγέας μουσικής AI", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.webp", "alt": "showcases" }, "group": "ai-music" },
+          { "title": "Pagen", "description": "Γεννήτρια σελίδων προορισμού AI", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.webp", "alt": "showcases" }, "group": "ai-coding" },
+          { "title": "SoraFM", "description": "Γεννήτρια βίντεο AI", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.webp", "alt": "showcases" }, "group": "ai-video" },
+          { "title": "PodLM", "description": "Γεννήτρια podcast AI", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.webp", "alt": "showcases" }, "group": "ai-audio" }
         ]
       }
     }

@@ -21,15 +21,15 @@
           { "name": "other", "title": "기타" }
         ],
         "items": [
-          { "title": "ThinkAny", "description": "AI 검색 엔진", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.png", "alt": "showcases" }, "group": "ai-chatbot" },
-          { "title": "HeyBeauty", "description": "AI 가상 피팅", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "AI Wallpaper", "description": "AI 배경화면 생성기", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "AI Cover", "description": "AI 커버 생성기", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.png", "alt": "showcases" }, "group": "ai-image" },
-          { "title": "GPTs Works", "description": "GPTs 디렉터리", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.png", "alt": "showcases" }, "group": "other" },
-          { "title": "Melodisco", "description": "AI 뮤직 플레이어", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.png", "alt": "showcases" }, "group": "ai-music" },
-          { "title": "Pagen", "description": "AI 랜딩 페이지 생성기", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.png", "alt": "showcases" }, "group": "ai-coding" },
-          { "title": "SoraFM", "description": "AI 동영상 생성기", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.png", "alt": "showcases" }, "group": "ai-video" },
-          { "title": "PodLM", "description": "AI 팟캐스트 생성기", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.png", "alt": "showcases" }, "group": "ai-audio" }
+          { "title": "ThinkAny", "description": "AI 검색 엔진", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.webp", "alt": "showcases" }, "group": "ai-chatbot" },
+          { "title": "HeyBeauty", "description": "AI 가상 피팅", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Wallpaper", "description": "AI 배경화면 생성기", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "AI Cover", "description": "AI 커버 생성기", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.webp", "alt": "showcases" }, "group": "ai-image" },
+          { "title": "GPTs Works", "description": "GPTs 디렉터리", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.webp", "alt": "showcases" }, "group": "other" },
+          { "title": "Melodisco", "description": "AI 뮤직 플레이어", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.webp", "alt": "showcases" }, "group": "ai-music" },
+          { "title": "Pagen", "description": "AI 랜딩 페이지 생성기", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.webp", "alt": "showcases" }, "group": "ai-coding" },
+          { "title": "SoraFM", "description": "AI 동영상 생성기", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.webp", "alt": "showcases" }, "group": "ai-video" },
+          { "title": "PodLM", "description": "AI 팟캐스트 생성기", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.webp", "alt": "showcases" }, "group": "ai-audio" }
         ]
       }
     }

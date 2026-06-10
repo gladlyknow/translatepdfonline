@@ -4,12 +4,12 @@ import { Star } from 'lucide-react';
 import { Avatar } from '@/shared/components/ui/avatar';
 
 const userImgUrls = [
-  '/imgs/avatars/1.png',
-  '/imgs/avatars/2.png',
-  '/imgs/avatars/3.png',
-  '/imgs/avatars/4.png',
-  '/imgs/avatars/5.png',
-  '/imgs/avatars/6.png',
+  '/imgs/avatars/1.webp',
+  '/imgs/avatars/2.webp',
+  '/imgs/avatars/3.webp',
+  '/imgs/avatars/4.webp',
+  '/imgs/avatars/5.webp',
+  '/imgs/avatars/6.webp',
 ];
 
 export function SocialAvatars({ tip }: { tip: string }) {

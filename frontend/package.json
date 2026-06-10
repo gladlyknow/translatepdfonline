@@ -50,7 +50,10 @@
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "brand:icons": "python scripts/export-brand-icons.py",
     "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js",
-    "test:scan-precheck": "tsx --test src/shared/lib/translate-scan-precheck.test.ts"
+    "test:scan-precheck": "tsx --test src/shared/lib/translate-scan-precheck.test.ts",
+    "perf:test": "bash scripts/perf-test.sh",
+    "perf:test:prod": "URL=https://www.translatepdfonline.com bash scripts/perf-test.sh",
+    "perf:test:dev": "URL=https://translatepdfonline-dev.gladlyknow.workers.dev bash scripts/perf-test.sh"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",

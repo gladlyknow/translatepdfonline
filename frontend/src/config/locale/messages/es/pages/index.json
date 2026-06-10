@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Vista previa de traducción PDF",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Vista previa de traducción PDF",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "Producto",
         "description": "Servicio web para traducir PDF manteniendo el diseño original. Pensado para artículos, manuales, informes y libros.",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "Los PDF traducidos reflejan la estructura: texto en columnas, tablas, imágenes y títulos alineados con el original.",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "Elija origen y destino entre un conjunto creciente de idiomas, adecuado para documentos académicos y profesionales.",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "Los archivos se transfieren por HTTPS y se eliminan según la política de retención tras el procesamiento.",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "El panel Historial lista sus cargas y trabajos para reabrir una tarea sin volver a subir el mismo PDF.",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "Orientado a maquetación académica y técnica: fórmulas, figuras y tablas cuando el pipeline lo permite.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "Compare origen y traducción en el navegador con desplazamiento sincronizado antes de descargar.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233

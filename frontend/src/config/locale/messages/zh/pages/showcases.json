@@ -51,7 +51,7 @@
             "url": "https://thinkany.ai",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/7.png",
+              "src": "/imgs/cases/7.webp",
               "alt": "案例展示"
             },
             "group": "ai-chatbot"
@@ -62,7 +62,7 @@
             "url": "https://heybeauty.ai",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/5.png",
+              "src": "/imgs/cases/5.webp",
               "alt": "案例展示"
             },
             "group": "ai-image"
@@ -73,7 +73,7 @@
             "url": "https://aiwallpaper.shop",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/1.png",
+              "src": "/imgs/cases/1.webp",
               "alt": "案例展示"
             },
             "group": "ai-image"
@@ -84,7 +84,7 @@
             "url": "https://aicover.design",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/2.png",
+              "src": "/imgs/cases/2.webp",
               "alt": "案例展示"
             },
             "group": "ai-image"
@@ -95,7 +95,7 @@
             "url": "https://gpts.works",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/3.png",
+              "src": "/imgs/cases/3.webp",
               "alt": "案例展示"
             },
             "group": "other"
@@ -106,7 +106,7 @@
             "url": "https://melodis.co",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/4.png",
+              "src": "/imgs/cases/4.webp",
               "alt": "案例展示"
             },
             "group": "ai-music"
@@ -117,7 +117,7 @@
             "url": "https://pagen.so",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/6.png",
+              "src": "/imgs/cases/6.webp",
               "alt": "案例展示"
             },
             "group": "ai-coding"
@@ -128,7 +128,7 @@
             "url": "https://sorafm.trys.ai",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/8.png",
+              "src": "/imgs/cases/8.webp",
               "alt": "案例展示"
             },
             "group": "ai-video"
@@ -139,7 +139,7 @@
             "url": "https://podlm.ai",
             "target": "_blank",
             "image": {
-              "src": "/imgs/cases/9.png",
+              "src": "/imgs/cases/9.webp",
               "alt": "案例展示"
             },
             "group": "ai-audio"

@@ -29,12 +29,20 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // API 路由仅做 env 合并，不经过 intl/auth；开发环境打印请求日志
+  // 生产环境确保 API 响应不被 CDN 缓存
   if (pathname.startsWith('/api')) {
     if (process.env.NODE_ENV === 'development') {
       const method = request.method;
       console.log(`${method} ${pathname}`);
     }
-    return NextResponse.next();
+    const apiResponse = NextResponse.next();
+    apiResponse.headers.set(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, proxy-revalidate'
+    );
+    apiResponse.headers.set('CDN-Cache-Control', 'no-store');
+    apiResponse.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
+    return apiResponse;
   }
 
   // Handle internationalization first
@@ -90,7 +98,12 @@ export async function middleware(request: NextRequest) {
     intlResponse.headers.delete('Set-Cookie');
 
     // Cache-Control header for public pages
-    const cacheControl = 'public, s-maxage=3600, stale-while-revalidate=14400';
+    // Landing page (root) ISR 1h, CDN 24h; other public pages: CDN 24h
+    const isRoot =
+      pathWithoutLocale === '' || pathWithoutLocale === '/';
+    const cacheControl = isRoot
+      ? 'public, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400'
+      : 'public, s-maxage=86400, stale-while-revalidate=14400, stale-if-error=86400';
 
     intlResponse.headers.set('Cache-Control', cacheControl);
     intlResponse.headers.set('CDN-Cache-Control', cacheControl);

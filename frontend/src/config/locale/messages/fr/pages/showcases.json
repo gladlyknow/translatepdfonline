@@ -26,7 +26,7 @@
             "description": "Moteur de recherche IA",
             "url": "https://thinkany.ai",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/7.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/7.webp", "alt": "vitrine" },
             "group": "ai-chatbot"
           },
           {
@@ -34,7 +34,7 @@
             "description": "Essayage virtuel IA",
             "url": "https://heybeauty.ai",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/5.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/5.webp", "alt": "vitrine" },
             "group": "ai-image"
           },
           {
@@ -42,7 +42,7 @@
             "description": "Générateur de fonds d’écran IA",
             "url": "https://aiwallpaper.shop",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/1.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/1.webp", "alt": "vitrine" },
             "group": "ai-image"
           },
           {
@@ -50,7 +50,7 @@
             "description": "Générateur de couvertures IA",
             "url": "https://aicover.design",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/2.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/2.webp", "alt": "vitrine" },
             "group": "ai-image"
           },
           {
@@ -58,7 +58,7 @@
             "description": "Annuaire GPTs",
             "url": "https://gpts.works",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/3.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/3.webp", "alt": "vitrine" },
             "group": "other"
           },
           {
@@ -66,7 +66,7 @@
             "description": "Lecteur de musique IA",
             "url": "https://melodis.co",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/4.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/4.webp", "alt": "vitrine" },
             "group": "ai-music"
           },
           {
@@ -74,7 +74,7 @@
             "description": "Générateur de pages d’atterrissage IA",
             "url": "https://pagen.so",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/6.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/6.webp", "alt": "vitrine" },
             "group": "ai-coding"
           },
           {
@@ -82,7 +82,7 @@
             "description": "Générateur de vidéos IA",
             "url": "https://sorafm.trys.ai",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/8.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/8.webp", "alt": "vitrine" },
             "group": "ai-video"
           },
           {
@@ -90,7 +90,7 @@
             "description": "Générateur de podcasts IA",
             "url": "https://podlm.ai",
             "target": "_blank",
-            "image": { "src": "/imgs/cases/9.png", "alt": "vitrine" },
+            "image": { "src": "/imgs/cases/9.webp", "alt": "vitrine" },
             "group": "ai-audio"
           }
         ]

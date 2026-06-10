@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Предпросмотр перевода PDF",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Предпросмотр перевода PDF",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "Продукт",
         "description": "Веб-сервис для перевода PDF с сохранением исходной вёрстки. Для статей, руководств, отчётов и книг.",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "Переведённые PDF повторяют структуру: много колонок, таблицы, изображения и заголовки как в источнике.",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "Выберите исходный и целевой язык из растущего набора для академических и профессиональных документов.",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "Файлы передаются по HTTPS и удаляются согласно политике хранения после обработки.",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "Панель истории показывает загрузки и задачи — продолжайте работу без повторной загрузки того же PDF.",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "Ориентация на академическую и техническую вёрстку — уравнения, рисунки и таблицы, насколько позволяет конвейер.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "Сравнивайте источник и перевод в браузере с синхронной прокруткой перед скачиванием.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233

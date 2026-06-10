@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF 번역 미리보기",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF 번역 미리보기",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "제품",
         "description": "원본 디자인을 유지하며 PDF 문서를 번역하는 웹 서비스입니다. 논문, 매뉴얼, 보고서, 도서에 적합하며 단순 텍스트 덤프가 아닙니다.",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "번역 PDF는 구조를 반영합니다. 다단 본문, 표, 이미지, 제목이 원본과 맞춰집니다.",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "출발어와 도착어를 계속 늘어나는 목록에서 선택합니다. 학술·업무 문서에 적합합니다.",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "파일은 HTTPS로 전송되며 처리 후 정해진 보존 정책에 따라 삭제됩니다.",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "기록 패널에 업로드와 작업이 나열되어 같은 PDF를 다시 올리지 않고 작업을 다시 열 수 있습니다.",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "학술·기술 레이아웃에 맞게 조정했습니다. 수식, 그림, 표는 파이프라인이 지원하는 범위에서 처리합니다.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "다운로드 전 브라우저에서 원문과 번역 페이지를 동기 스크롤로 비교합니다.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233

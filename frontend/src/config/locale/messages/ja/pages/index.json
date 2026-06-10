@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF 翻訳のプレビュー",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF 翻訳のプレビュー",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "プロダクト",
         "description": "元のデザインを保ちながら PDF 文書を翻訳するウェブサービスです。論文、マニュアル、レポート、書籍向けで、単なるテキストの羅列ではありません。",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "翻訳後の PDF は構造を再現します。複数段の本文、表、画像、見出しがソースと揃います。",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "ソース言語とターゲット言語を増え続ける一覧から選択。学術・業務文書にも適しています。",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "ファイルは HTTPS で転送され、処理後は定められた保存期間に従って削除されます。",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "履歴パネルにアップロードとジョブが並び、同じ PDF を再アップロードせずタスクを開き直せます。",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "学術・技術レイアウト向けに調整。数式、図、表はパイプラインが対応する範囲で扱います。",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "ダウンロード前に、ブラウザで原文と訳文を同期スクロールしながら比較できます。",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233

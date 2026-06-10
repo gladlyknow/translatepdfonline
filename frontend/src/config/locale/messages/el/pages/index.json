@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Προεπισκόπηση μετάφρασης PDF",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Προεπισκόπηση μετάφρασης PDF",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "Προϊόν",
         "description": "Υπηρεσία web για μετάφραση εγγράφων PDF διατηρώντας το αρχικό σχεδιασμό. Για εργασίες, εγχειρίδια, αναφορές και βιβλία — όχι απλή εξαγωγή κειμένου.",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "Τα μεταφρασμένα PDF αντικατοπτρίζουν τη δομή: πολυστήλικο κείμενο, πίνακες, εικόνες και επικεφαλίδες παραμένουν ευθυγραμμισμένα με την πηγή.",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "Επιλέξτε πηγή και στόχο από ένα διευρυνόμενο σύνολο. Κατάλληλο για ακαδημαϊκά και επαγγελματικά έγγραφα.",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "Τα αρχεία μεταφέρονται μέσω HTTPS και αφαιρούνται σύμφωνα με πολιτική διατήρησης μετά την επεξεργασία.",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "Το πάνελ Ιστορικού εμφανίζει τα ανεβάσματα και τις εργασίες ώστε να ανοίξετε ξανά χωρίς να ξανανεβάσετε το ίδιο PDF.",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "Βελτιστοποιημένο για ακαδημαϊκές και τεχνικές διατάξεις — εξισώσεις, σχήματα και πίνακες όπου υποστηρίζει η ροή.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "Συγκρίνετε πηγαίες και μεταφρασμένες σελίδες στον browser με συγχρονισμένη κύλιση πριν το κατέβασμα.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233

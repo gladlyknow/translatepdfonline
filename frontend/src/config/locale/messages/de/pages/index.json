@@ -42,13 +42,13 @@
         "show_avatars": false,
         "show_award": false,
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Vorschau der PDF-Übersetzung",
           "width": 1820,
           "height": 1111
         },
         "image_invert": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "Vorschau der PDF-Übersetzung",
           "width": 1820,
           "height": 1111
@@ -61,7 +61,7 @@
         "label": "Produkt",
         "description": "Webdienst zum Übersetzen von PDFs bei erhaltener ursprünglicher Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
         "image": {
-          "src": "/imgs/features/landing-page_new.png",
+          "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
           "width": 1820,
           "height": 1111
@@ -72,7 +72,7 @@
             "description": "Übersetzte PDFs spiegeln die Struktur: mehrspaltiger Text, Tabellen, Bilder und Überschriften wie in der Quelle.",
             "icon": "RiLayoutLine",
             "image": {
-              "src": "/imgs/features/1.png",
+              "src": "/imgs/features/1.webp",
               "alt": "introduce"
             }
           },
@@ -81,7 +81,7 @@
             "description": "Quell- und Zielsprache aus einer wachsenden Liste wählen — für akademische und professionelle Dokumente.",
             "icon": "RiTranslate2",
             "image": {
-              "src": "/imgs/features/2.png",
+              "src": "/imgs/features/2.webp",
               "alt": "introduce"
             }
           },
@@ -90,7 +90,7 @@
             "description": "Dateien werden per HTTPS übertragen und nach der Aufbewahrungsrichtlinie gelöscht.",
             "icon": "RiShieldCheckLine",
             "image": {
-              "src": "/imgs/features/3.png",
+              "src": "/imgs/features/3.webp",
               "alt": "introduce"
             }
           },
@@ -99,7 +99,7 @@
             "description": "Der Verlauf listet Uploads und Aufgaben — Arbeit ohne erneutes Hochladen desselben PDFs fortsetzen.",
             "icon": "RiHistoryLine",
             "image": {
-              "src": "/imgs/features/4.png",
+              "src": "/imgs/features/4.webp",
               "alt": "introduce"
             }
           }
@@ -118,7 +118,7 @@
             "description": "Ausgelegt auf akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen, soweit die Pipeline es erlaubt.",
             "icon": "RiFilePdf2Line",
             "image": {
-              "src": "/imgs/features/landing-page_new.png",
+              "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
               "width": 1820,
               "height": 1111
@@ -129,7 +129,7 @@
             "description": "Quelle und Übersetzung im Browser mit synchronisiertem Scrollen vergleichen — vor dem Download.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
-              "src": "/imgs/features/dense_PDFs.png",
+              "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
               "width": 2511,
               "height": 1233
