@@ -13,6 +13,8 @@ const PUBLIC_PATHS = [
   '/pricing',
   '/upload',
   '/ocrtranslator',
+  '/pdf-to-text',
+  '/image-to-text',
   '/docs',
   '/blog',
   '/updates',
