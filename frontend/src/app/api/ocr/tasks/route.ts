@@ -27,9 +27,13 @@ export async function POST(req: Request) {
     const { userId, anonId } = await getTranslateAuth();
     const body = await req.json();
     const documentId = String(body.document_id || '').trim();
-    const sourceLang = String(body.source_lang || '')
+    let sourceLang = String(body.source_lang || '')
       .trim()
       .toLowerCase();
+    // 'auto' means auto-detect — normalize to empty string for downstream
+    if (sourceLang === 'auto') {
+      sourceLang = '';
+    }
     const targetLang = String(body.target_lang || '')
       .trim()
       .toLowerCase();
