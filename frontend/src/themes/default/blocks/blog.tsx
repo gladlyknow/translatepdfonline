@@ -1,3 +1,5 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';

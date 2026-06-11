@@ -19,9 +19,19 @@
           "icon": "FileText"
         },
         {
-          "title": "PDF OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "AI OCR",
+          "children": [
+            {
+              "title": "PDF to Text",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "Image to Text",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
         },
         {
           "title": "上传",

@@ -34,6 +34,8 @@ type Props = {
   onRequireSignIn?: () => void;
   locked?: boolean;
   lockedHint?: string;
+  /** 接受的文件 MIME 类型，默认 application/pdf */
+  accept?: string;
 };
 
 export function UploadDropzone({
@@ -45,6 +47,7 @@ export function UploadDropzone({
   onRequireSignIn,
   locked = false,
   lockedHint,
+  accept = 'application/pdf',
 }: Props) {
   const t = useTranslations('translate.upload');
   const tHome = useTranslations('translate.home');
@@ -257,7 +260,7 @@ export function UploadDropzone({
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf"
+        accept={accept}
         onChange={handleChange}
         disabled={disabled}
         className="hidden"

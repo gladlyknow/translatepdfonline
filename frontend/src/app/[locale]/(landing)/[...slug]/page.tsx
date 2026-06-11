@@ -7,6 +7,14 @@ import { getLocalPage } from '@/shared/models/post';
 
 export const revalidate = 3600;
 
+// Internal paths + locale codes that should not be treated as page slugs
+const RESERVED_SLUGS = new Set([
+  'webpack-hmr',
+  '__nextjs_original-stack-frame',
+  // Locale codes as slug segments indicate a double-prefix URL (e.g. /fr/zh/...)
+  'en', 'zh', 'es', 'fr', 'it', 'el', 'ja', 'ko', 'de', 'ru',
+]);
+
 // dynamic page metadata
 export async function generateMetadata({
   params,
@@ -29,6 +37,11 @@ export async function generateMetadata({
 
   // filter invalid slug
   if (staticPageSlug.includes('.')) {
+    return;
+  }
+
+  // filter Next.js internal paths (webpack-hmr etc.)
+  if (RESERVED_SLUGS.has(staticPageSlug) || staticPageSlug.startsWith('_next')) {
     return;
   }
 
@@ -124,6 +137,11 @@ export default async function DynamicPage({
 
   // filter invalid slug
   if (staticPageSlug.includes('.')) {
+    return notFound();
+  }
+
+  // filter Next.js internal paths (webpack-hmr etc.)
+  if (RESERVED_SLUGS.has(staticPageSlug) || staticPageSlug.startsWith('_next')) {
     return notFound();
   }
 

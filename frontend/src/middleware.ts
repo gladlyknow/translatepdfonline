@@ -88,6 +88,7 @@ export async function middleware(request: NextRequest) {
 
   // Remove Set-Cookie from public pages to allow caching
   // We exclude admin, settings, activity, and auth pages from this behavior
+  // Preserve NEXT_LOCALE cookie so locale detection works across page navigations
   if (
     !pathWithoutLocale.startsWith('/admin') &&
     !pathWithoutLocale.startsWith('/settings') &&
@@ -95,7 +96,13 @@ export async function middleware(request: NextRequest) {
     !pathWithoutLocale.startsWith('/sign-') &&
     !pathWithoutLocale.startsWith('/auth')
   ) {
+    const setCookieHeaders = intlResponse.headers.getSetCookie();
     intlResponse.headers.delete('Set-Cookie');
+    for (const cookie of setCookieHeaders) {
+      if (cookie.startsWith('NEXT_LOCALE=')) {
+        intlResponse.headers.append('Set-Cookie', cookie);
+      }
+    }
 
     // Cache-Control header for public pages
     // Landing page (root) ISR 1h, CDN 24h; other public pages: CDN 24h

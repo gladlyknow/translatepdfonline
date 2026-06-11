@@ -63,6 +63,7 @@ export function LocaleDetector() {
       const href = query ? `${pathname}?${query}` : pathname;
       router.replace(href, { locale });
       cacheSet(PREFERRED_LOCALE_KEY, locale);
+      cacheSet('user-locale-preference', locale);
       setShowBanner(false);
     },
     [router, pathname, searchParams]
@@ -82,7 +83,8 @@ export function LocaleDetector() {
 
     // Check if user has dismissed the banner or already set a preference
     const dismissed = isDismissed();
-    const preferredLocale = cacheGet(PREFERRED_LOCALE_KEY);
+    // Check both keys for backward compatibility
+    const preferredLocale = cacheGet(PREFERRED_LOCALE_KEY) || cacheGet('user-locale-preference');
 
     // If user has previously clicked to switch locale, auto-switch to that preference
     if (

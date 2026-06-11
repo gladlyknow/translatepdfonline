@@ -1,3 +1,5 @@
+'use client';
+
 import moment from 'moment';
 import { useLocale } from 'next-intl';
 

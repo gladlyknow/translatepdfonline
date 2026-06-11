@@ -294,7 +294,7 @@ export const translateApi = {
 
   createOcrTask: (
     documentId: string,
-    sourceLang: UILang | '',
+    sourceLang: UILang | '' | 'auto',
     targetLang: UILang,
     options?: {
       page_range?: string | null;

@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';

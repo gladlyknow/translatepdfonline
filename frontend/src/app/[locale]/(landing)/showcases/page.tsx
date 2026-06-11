@@ -27,7 +27,7 @@ export default async function ShowcasesPage({
   setRequestLocale(locale);
 
   // get page data
-  const t = await getTranslations('pages.showcases');
+  const t = await getTranslations({ locale, namespace: 'pages.showcases' });
 
   const page: DynamicPage = {
     title: t.raw('page.title'),

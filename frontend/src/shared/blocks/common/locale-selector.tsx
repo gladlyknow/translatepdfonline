@@ -33,13 +33,19 @@ export function LocaleSelector({
 
   const handleSwitchLanguage = (value: string) => {
     if (value !== currentLocale) {
-      // Update localStorage to sync with locale detector
-      cacheSet('locale', value);
+      cacheSet('user-locale-preference', value);
+      // Defensively strip current locale prefix to prevent double-prefix URLs
+      // (e.g. /zh/image-to-text → /fr/zh/image-to-text)
+      let cleanPath = pathname;
+      const prefix = `/${currentLocale}`;
+      if (cleanPath.startsWith(prefix + '/')) {
+        cleanPath = cleanPath.slice(prefix.length);
+      } else if (cleanPath === prefix) {
+        cleanPath = '/';
+      }
       const query = searchParams?.toString?.() ?? '';
-      const href = query ? `${pathname}?${query}` : pathname;
-      router.push(href, {
-        locale: value,
-      });
+      const href = query ? `${cleanPath}?${query}` : cleanPath;
+      router.replace(href, { locale: value });
     }
   };
 

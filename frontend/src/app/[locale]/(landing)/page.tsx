@@ -21,7 +21,7 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations('pages.index');
+  const t = await getTranslations({ locale, namespace: 'pages.index' });
 
   // get page data
   const page: DynamicPage = t.raw('page');
