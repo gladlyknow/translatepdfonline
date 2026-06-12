@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Trimestriel — Économisez Plus",
   "creditsModalSubscribeSemiAnnual": "Semestriel — Meilleur Rapport Qualité/Prix",
   "creditsModalSubscribeYearly": "Annuel — Économies Maximales",
-  "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+  "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+  "heroUploadLead": "Importez une image et extrayez le texte par IA",
+  "heroUploadSub": "Formats PNG, JPG, BMP, WebP acceptés. Reconnaissance en quelques secondes, texte éditable.",
+  "heroUploadHint": "Traduction en 10+ langues disponible après extraction OCR."
 }

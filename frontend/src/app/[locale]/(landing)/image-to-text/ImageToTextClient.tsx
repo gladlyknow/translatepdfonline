@@ -210,6 +210,10 @@ export function ImageToTextClient({ children }: { children?: ReactNode }) {
             initialFile={lastUploadedFile}
             variant="hero"
             accept={IMAGE_ACCEPT}
+            heroLead={t('heroUploadLead')}
+            heroSub={t('heroUploadSub')}
+            heroHint={t('heroUploadHint')}
+            fileTypeLabel="IMG"
             onRequireSignIn={() => setIsShowSignModal(true)}
           />
 

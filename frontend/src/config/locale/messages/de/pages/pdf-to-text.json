@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Vierteljährlich — Mehr sparen",
   "creditsModalSubscribeSemiAnnual": "Halbjährlich — Bestes Preis-Leistungs-Verhältnis",
   "creditsModalSubscribeYearly": "Jährlich — Maximale Ersparnis",
-  "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+  "heroUploadLead": "PDF hochladen, Text mit KI extrahieren",
+  "heroUploadSub": "KI-OCR extrahiert Text aus jedem PDF — gescannt, bildbasiert oder digital. Export als Word, TXT oder Markdown.",
+  "heroUploadHint": "10+ Sprachen für Textextraktion und Übersetzung unterstützt."
 }

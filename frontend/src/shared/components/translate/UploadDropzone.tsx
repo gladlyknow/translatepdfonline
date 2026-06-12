@@ -36,6 +36,14 @@ type Props = {
   lockedHint?: string;
   /** 接受的文件 MIME 类型，默认 application/pdf */
   accept?: string;
+  /** variant=hero 时自定义主文案（覆盖 translate.home heroUploadLead） */
+  heroLead?: string;
+  /** variant=hero 时自定义副文案（覆盖 translate.home heroUploadSub） */
+  heroSub?: string;
+  /** variant=hero 时自定义语言提示行（覆盖 translate.home heroLanguagesHint） */
+  heroHint?: string;
+  /** 上传列表中显示的文件类型标签，不传则自动从 accept 推断 */
+  fileTypeLabel?: string;
 };
 
 export function UploadDropzone({
@@ -48,6 +56,10 @@ export function UploadDropzone({
   locked = false,
   lockedHint,
   accept = 'application/pdf',
+  heroLead,
+  heroSub,
+  heroHint,
+  fileTypeLabel,
 }: Props) {
   const t = useTranslations('translate.upload');
   const tHome = useTranslations('translate.home');
@@ -110,8 +122,24 @@ export function UploadDropzone({
         handleRequireSignIn();
         return;
       }
-      if (file.type !== 'application/pdf') {
-        setError(t('selectPdfOnly'));
+      const allowedTypes = accept
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (!allowedTypes.includes(file.type) && accept !== '*') {
+        // 提取扩展名生成友好的错误提示
+        const exts = [
+          ...new Set(
+            allowedTypes
+              .map((t) => t.replace(/^[^/]+\//, '').toUpperCase())
+              .filter(Boolean)
+          ),
+        ];
+        setError(
+          exts.length
+            ? t('selectFileTypeOnly', { types: exts.join(', ') })
+            : t('selectPdfOnly')
+        );
         return;
       }
       if (file.size > MAX_FILE_BYTES) {
@@ -134,7 +162,7 @@ export function UploadDropzone({
         const putRes = await fetch(presigned.upload_url, {
           method: 'PUT',
           body: file,
-          headers: { 'Content-Type': 'application/pdf' },
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
         });
         if (!putRes.ok) {
           throw new Error('Upload to storage failed');
@@ -302,7 +330,7 @@ export function UploadDropzone({
                     : 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300'
                 }`}
               >
-                PDF
+                {fileTypeLabel || (accept === 'application/pdf' ? 'PDF' : accept.replace(/image\//, '').toUpperCase().split(',')[0]?.trim() || 'FILE')}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{uploadedInfo.name}</div>
@@ -354,21 +382,21 @@ export function UploadDropzone({
                     heroDark ? 'text-zinc-50' : 'text-slate-800 dark:text-zinc-100'
                   }`}
                 >
-                  {tHome('heroUploadLead')}
+                  {heroLead || tHome('heroUploadLead')}
                 </span>
                 <span
                   className={`max-w-md text-center text-sm ${
                     heroDark ? 'text-zinc-300' : 'text-slate-500 dark:text-zinc-400'
                   }`}
                 >
-                  {tHome('heroUploadSub')}
+                  {heroSub || tHome('heroUploadSub')}
                 </span>
                 <span
                   className={`text-center text-xs ${
                     heroDark ? 'text-zinc-400' : 'text-slate-400 dark:text-zinc-500'
                   }`}
                 >
-                  {tHome('heroLanguagesHint')}
+                  {heroHint || tHome('heroLanguagesHint')}
                 </span>
               </>
             ) : (

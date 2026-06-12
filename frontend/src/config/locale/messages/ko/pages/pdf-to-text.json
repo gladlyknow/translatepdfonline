@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "분기별 — 더 저렴하게",
   "creditsModalSubscribeSemiAnnual": "반기별 — 최고 가치",
   "creditsModalSubscribeYearly": "연간 — 최대 할인",
-  "errorGeneric": "오류가 발생했습니다. 다시 시도해 주세요."
+  "errorGeneric": "오류가 발생했습니다. 다시 시도해 주세요.",
+  "heroUploadLead": "PDF를 업로드하고 AI로 텍스트 추출",
+  "heroUploadSub": "AI OCR이 스캔 PDF, 이미지 PDF, 디지털 PDF에서 텍스트를 추출합니다. Word, TXT, Markdown으로 내보내기.",
+  "heroUploadHint": "10개 이상 언어의 텍스트 추출 및 번역을 지원합니다."
 }

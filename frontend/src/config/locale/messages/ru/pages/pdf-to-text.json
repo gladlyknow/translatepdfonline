@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Ежеквартально — Больше Экономии",
   "creditsModalSubscribeSemiAnnual": "Полугодовой — Лучшая Ценность",
   "creditsModalSubscribeYearly": "Годовой — Максимальная Экономия",
-  "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
+  "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова.",
+  "heroUploadLead": "Загрузите PDF и извлеките текст с помощью ИИ",
+  "heroUploadSub": "ИИ OCR извлекает текст из любого PDF — отсканированного, изображения или цифрового. Экспорт в Word, TXT или Markdown.",
+  "heroUploadHint": "Поддержка 10+ языков для извлечения и перевода текста."
 }

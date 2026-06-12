@@ -4,6 +4,7 @@
   "success": "上传成功",
   "error": "上传失败",
   "selectPdfOnly": "请选择 PDF 文件",
+  "selectFileTypeOnly": "请选择 {types} 文件",
   "loginRequired": "请先登录后上传。",
   "loginHintQuotaExceeded": "已使用完匿名上传额度，请登录（右上角）后继续上传。",
   "storageUnavailable": "存储未配置，请稍后再试。",

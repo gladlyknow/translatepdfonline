@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Ежеквартально — Больше Экономии",
   "creditsModalSubscribeSemiAnnual": "Полугодовой — Лучшая Ценность",
   "creditsModalSubscribeYearly": "Годовой — Максимальная Экономия",
-  "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
+  "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова.",
+  "heroUploadLead": "Загрузите изображение и извлеките текст с помощью ИИ",
+  "heroUploadSub": "Поддержка PNG, JPG, BMP, WebP. Распознавание за секунды, редактируемый текст.",
+  "heroUploadHint": "Перевод на 10+ языков доступен после OCR-извлечения."
 }

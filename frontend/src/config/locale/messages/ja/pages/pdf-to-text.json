@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "四半期 — よりお得",
   "creditsModalSubscribeSemiAnnual": "半年 — ベストバリュー",
   "creditsModalSubscribeYearly": "年間 — 最大割引",
-  "errorGeneric": "エラーが発生しました。再度お試しください。"
+  "errorGeneric": "エラーが発生しました。再度お試しください。",
+  "heroUploadLead": "PDFをアップロード、AIが文字を抽出",
+  "heroUploadSub": "AI OCRがスキャンPDF、画像PDF、電子PDFから文字を抽出。Word、TXT、Markdownに出力。",
+  "heroUploadHint": "10言語以上の文字抽出と翻訳に対応。"
 }

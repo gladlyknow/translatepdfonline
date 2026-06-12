@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "四半期 — よりお得",
   "creditsModalSubscribeSemiAnnual": "半年 — ベストバリュー",
   "creditsModalSubscribeYearly": "年間 — 最大割引",
-  "errorGeneric": "エラーが発生しました。再度お試しください。"
+  "errorGeneric": "エラーが発生しました。再度お試しください。",
+  "heroUploadLead": "画像をアップロード、AIが文字を即時抽出",
+  "heroUploadSub": "PNG/JPG/BMP/WebP対応。数秒で認識、編集可能なテキストを出力。",
+  "heroUploadHint": "OCR抽出後、10言語以上に翻訳できます。"
 }

@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Trimestral — Ahorra Más",
   "creditsModalSubscribeSemiAnnual": "Semestral — Mejor Valor",
   "creditsModalSubscribeYearly": "Anual — Máximo Ahorro",
-  "errorGeneric": "Algo salió mal. Intenta de nuevo."
+  "errorGeneric": "Algo salió mal. Intenta de nuevo.",
+  "heroUploadLead": "Sube una imagen y extrae el texto con IA",
+  "heroUploadSub": "Compatible con PNG, JPG, BMP y WebP. Reconocimiento en segundos con texto editable.",
+  "heroUploadHint": "Traducción a 10+ idiomas disponible tras el OCR."
 }

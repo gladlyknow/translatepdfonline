@@ -4,6 +4,7 @@
   "success": "Загрузка выполнена",
   "error": "Ошибка загрузки",
   "selectPdfOnly": "Выберите файл PDF",
+  "selectFileTypeOnly": "Пожалуйста, выберите файл {types}",
   "loginRequired": "Войдите, чтобы загружать файлы.",
   "loginHintQuotaExceeded": "Лимит анонимной загрузки исчерпан. Войдите (справа вверху).",
   "storageUnavailable": "Хранилище не настроено. Попробуйте позже.",

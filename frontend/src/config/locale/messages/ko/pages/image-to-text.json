@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "분기별 — 더 저렴하게",
   "creditsModalSubscribeSemiAnnual": "반기별 — 최고 가치",
   "creditsModalSubscribeYearly": "연간 — 최대 할인",
-  "errorGeneric": "오류가 발생했습니다. 다시 시도해 주세요."
+  "errorGeneric": "오류가 발생했습니다. 다시 시도해 주세요.",
+  "heroUploadLead": "이미지를 업로드하고 AI로 텍스트 추출",
+  "heroUploadSub": "PNG, JPG, BMP, WebP 지원. 수 초 내 인식 완료, 편집 가능한 텍스트 제공.",
+  "heroUploadHint": "OCR 추출 후 10개 이상 언어로 번역 가능."
 }

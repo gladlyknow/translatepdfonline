@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Τριμηνιαίο — Εξοικονομήστε Περισσότερα",
   "creditsModalSubscribeSemiAnnual": "Εξαμηνιαίο — Καλύτερη Αξία",
   "creditsModalSubscribeYearly": "Ετήσιο — Μέγιστη Εξοικονόμηση",
-  "errorGeneric": "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά."
+  "errorGeneric": "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά.",
+  "heroUploadLead": "Ανεβάστε PDF, εξάγετε κείμενο με ΤΝ",
+  "heroUploadSub": "Το OCR AI εξάγει κείμενο από κάθε PDF — σαρωμένο, εικόνας ή ψηφιακό. Εξαγωγή σε Word, TXT ή Markdown.",
+  "heroUploadHint": "Υποστήριξη 10+ γλωσσών για εξαγωγή και μετάφραση κειμένου."
 }

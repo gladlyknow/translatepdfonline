@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Vierteljährlich — Mehr sparen",
   "creditsModalSubscribeSemiAnnual": "Halbjährlich — Bestes Preis-Leistungs-Verhältnis",
   "creditsModalSubscribeYearly": "Jährlich — Maximale Ersparnis",
-  "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+  "heroUploadLead": "Bild hochladen, Text mit KI extrahieren",
+  "heroUploadSub": "Unterstützt PNG, JPG, BMP, WebP. Erkennung in Sekunden, editierbarer Text.",
+  "heroUploadHint": "Übersetzung in 10+ Sprachen nach der OCR-Extraktion verfügbar."
 }

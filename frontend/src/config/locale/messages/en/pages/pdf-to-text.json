@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Quarterly — Save More",
   "creditsModalSubscribeSemiAnnual": "Semi-Annual — Best Value",
   "creditsModalSubscribeYearly": "Yearly — Maximum Savings",
-  "errorGeneric": "Something went wrong. Please try again."
+  "errorGeneric": "Something went wrong. Please try again.",
+  "heroUploadLead": "Drop a PDF, extract text with AI",
+  "heroUploadSub": "AI OCR extracts text from any PDF — scanned, image-based, or digital. Export to Word, TXT, or Markdown.",
+  "heroUploadHint": "10+ languages supported for text extraction and translation."
 }

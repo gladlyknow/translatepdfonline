@@ -48,5 +48,8 @@
   "creditsModalSubscribeQuarterly": "Τριμηνιαίο — Εξοικονομήστε Περισσότερα",
   "creditsModalSubscribeSemiAnnual": "Εξαμηνιαίο — Καλύτερη Αξία",
   "creditsModalSubscribeYearly": "Ετήσιο — Μέγιστη Εξοικονόμηση",
-  "errorGeneric": "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά."
+  "errorGeneric": "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά.",
+  "heroUploadLead": "Ανεβάστε εικόνα και εξάγετε κείμενο με Τεχνητή Νοημοσύνη",
+  "heroUploadSub": "Υποστηρίζει PNG, JPG, BMP, WebP. Αναγνώριση σε δευτερόλεπτα, επεξεργάσιμο κείμενο.",
+  "heroUploadHint": "Μετάφραση σε 10+ γλώσσες διαθέσιμη μετά την εξαγωγή OCR."
 }

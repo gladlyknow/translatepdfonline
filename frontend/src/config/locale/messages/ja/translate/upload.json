@@ -4,6 +4,7 @@
   "success": "アップロード完了",
   "error": "アップロードに失敗しました",
   "selectPdfOnly": "PDF ファイルを選択してください",
+  "selectFileTypeOnly": "{types}ファイルを選択してください",
   "loginRequired": "ファイルをアップロードするにはログインしてください。",
   "loginHintQuotaExceeded": "匿名アップロードの上限に達しました。右上からログインして続行してください。",
   "storageUnavailable": "ストレージが設定されていません。しばらくしてからお試しください。",

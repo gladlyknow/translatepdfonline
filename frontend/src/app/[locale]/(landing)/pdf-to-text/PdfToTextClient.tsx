@@ -211,6 +211,10 @@ export function PdfToTextClient({ children }: { children?: ReactNode }) {
             onUploaded={handleUploaded}
             initialFile={lastUploadedFile}
             variant="hero"
+            heroLead={t('heroUploadLead')}
+            heroSub={t('heroUploadSub')}
+            heroHint={t('heroUploadHint')}
+            fileTypeLabel="PDF"
             onRequireSignIn={() => setIsShowSignModal(true)}
           />
 

@@ -4,6 +4,7 @@
   "success": "Caricamento completato",
   "error": "Caricamento non riuscito",
   "selectPdfOnly": "Seleziona un file PDF",
+  "selectFileTypeOnly": "Seleziona un file {types}",
   "loginRequired": "Accedi per caricare i file.",
   "loginHintQuotaExceeded": "Quota di caricamento anonimo superata. Accedi (in alto a destra) per continuare.",
   "storageUnavailable": "L’archiviazione non è configurata. Riprova più tardi.",
