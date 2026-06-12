@@ -48,5 +48,6 @@
   "pagesJsonPageLabel": "JSONページ",
   "pagesPageInputAria": "ページ番号",
   "focusPanelJson": "JSON フォーカス",
-  "focusPanelSource": "原稿フォーカス"
+  "focusPanelSource": "原稿フォーカス",
+  "sourceLoading": "ソースを読み込み中…"
 }

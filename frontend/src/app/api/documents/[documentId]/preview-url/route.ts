@@ -52,12 +52,24 @@ export async function GET(
     const pageParam = url.searchParams.get('page');
     const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
 
+    const publicBase = await resolveR2PublicReadBaseUrl();
+
+    // 图片文件：直接返回文件本身，不调用 PDFDocument.load
+    const isImage = /\.(png|jpe?g|bmp|webp)$/i.test(doc.filename);
+    if (isImage) {
+      const previewUrl = publicBase
+        ? `${publicBase.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(doc.objectKey)}`
+        : await createPresignedGet(doc.objectKey, 3600);
+      return Response.json({
+        preview_url: previewUrl,
+        total_pages: 1,
+      });
+    }
+
     const maxBytes = maxPreviewLoadBytes();
     const maxMb = Math.round(maxBytes / (1024 * 1024));
     const totalFromDoc =
       doc.pageCount != null && doc.pageCount > 0 ? doc.pageCount : null;
-
-    const publicBase = await resolveR2PublicReadBaseUrl();
 
     // 第 1 页：公网直链（有 R2_PUBLIC_URL）或预签名（无公网 base），避免大文件仅因缺 publicBase 命中 413
     if (page === 1 && doc.objectKey) {

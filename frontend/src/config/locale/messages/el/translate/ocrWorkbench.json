@@ -48,5 +48,6 @@
   "pagesJsonPageLabel": "Σελίδα JSON",
   "pagesPageInputAria": "Αριθμός σελίδας",
   "focusPanelJson": "Εστίαση JSON",
-  "focusPanelSource": "Εστίαση πηγής"
+  "focusPanelSource": "Εστίαση πηγής",
+  "sourceLoading": "Φόρτωση πηγής…"
 }

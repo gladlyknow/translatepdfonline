@@ -1585,6 +1585,28 @@ export function OcrTranslatePageClient() {
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] p-3 md:p-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-start md:gap-4 md:[grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex min-h-0 w-full min-w-0 flex-col">
+            {/\.(png|jpe?g|bmp|webp)$/i.test(filename ?? lastUploadedFile?.name ?? '') ? (
+              <div
+                className="flex min-h-0 flex-col rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+                onClick={() => setActiveFocusPanel('source')}
+              >
+                <p className="shrink-0 border-b border-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                  {tHome('sourceLabel')}
+                </p>
+                <div className="flex min-h-0 flex-1 items-center justify-center p-2">
+                  {sourcePdfUrl ? (
+                    <img
+                      src={sourcePdfUrl}
+                      alt={filename ?? lastUploadedFile?.name ?? 'Source image'}
+                      className="max-h-full max-w-full rounded object-contain"
+                      style={{ maxHeight: '70vh' }}
+                    />
+                  ) : (
+                    <p className="text-sm text-zinc-400">{tOcrWb('sourceLoading')}</p>
+                  )}
+                </div>
+              </div>
+            ) : (
             <OcrSourcePdfPanel
               sourceLabel={tHome('sourceLabel')}
               documentId={documentId}
@@ -1598,6 +1620,7 @@ export function OcrTranslatePageClient() {
               onFocusSource={() => setActiveFocusPanel('source')}
               unifiedMainScroll
             />
+            )}
             </div>
             <div
               className="flex min-h-0 min-w-0 max-w-full w-full flex-col rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"

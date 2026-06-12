@@ -48,5 +48,6 @@
   "pagesJsonPageLabel": "Pagina JSON",
   "pagesPageInputAria": "Numero di pagina",
   "focusPanelJson": "Focus JSON",
-  "focusPanelSource": "Focus sorgente"
+  "focusPanelSource": "Focus sorgente",
+  "sourceLoading": "Caricamento sorgente…"
 }

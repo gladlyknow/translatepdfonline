@@ -101,5 +101,6 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "Page range (optional, e.g. 1-10)"
+  "ocrPageRangePlaceholder": "Page range (optional, e.g. 1-10)",
+  "sourceLoading": "Loading source…"
 }

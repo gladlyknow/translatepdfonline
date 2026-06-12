@@ -101,5 +101,6 @@
   "sourceColumnShort": "S",
   "targetColumnShort": "T",
   "pageRangeColumnShort": "P",
-  "ocrPageRangePlaceholder": "页码范围（可选，如 1-10）"
+  "ocrPageRangePlaceholder": "页码范围（可选，如 1-10）",
+  "sourceLoading": "正在加载源文件…"
 }

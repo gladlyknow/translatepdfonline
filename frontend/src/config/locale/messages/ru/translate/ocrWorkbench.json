@@ -48,5 +48,6 @@
   "pagesJsonPageLabel": "Страница JSON",
   "pagesPageInputAria": "Номер страницы",
   "focusPanelJson": "Фокус JSON",
-  "focusPanelSource": "Фокус исходника"
+  "focusPanelSource": "Фокус исходника",
+  "sourceLoading": "Загрузка источника…"
 }
