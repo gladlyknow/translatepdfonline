@@ -51,5 +51,6 @@
   "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
   "heroUploadLead": "Déposez un PDF, extrayez le texte par IA",
   "heroUploadSub": "L'OCR IA extrait le texte de tout PDF — numérisé, image ou digital. Export Word, TXT ou Markdown.",
-  "heroUploadHint": "10+ langues prises en charge pour l'extraction et la traduction."
+  "heroUploadHint": "10+ langues prises en charge pour l'extraction et la traduction.",
+  "errorPageCountPending": "Le nombre de pages est en cours de préparation. Veuillez réessayer dans quelques secondes."
 }

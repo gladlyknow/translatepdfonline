@@ -51,5 +51,6 @@
   "errorGeneric": "Qualcosa è andato storto. Riprova.",
   "heroUploadLead": "Carica un PDF ed estrai il testo con l'IA",
   "heroUploadSub": "L'OCR AI estrae il testo da qualsiasi PDF — scansionato, immagine o digitale. Esporta in Word, TXT o Markdown.",
-  "heroUploadHint": "Oltre 10 lingue supportate per estrazione e traduzione."
+  "heroUploadHint": "Oltre 10 lingue supportate per estrazione e traduzione.",
+  "errorPageCountPending": "Il conteggio delle pagine è in preparazione. Riprova tra qualche secondo."
 }

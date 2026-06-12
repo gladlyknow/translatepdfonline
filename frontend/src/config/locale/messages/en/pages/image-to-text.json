@@ -51,5 +51,6 @@
   "creditsModalSubscribeQuarterly": "Quarterly — Save More",
   "creditsModalSubscribeSemiAnnual": "Semi-Annual — Best Value",
   "creditsModalSubscribeYearly": "Yearly — Maximum Savings",
-  "errorGeneric": "Something went wrong. Please try again."
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorPageCountPending": "Document page count is still being prepared. Please retry in a few seconds."
 }

@@ -119,13 +119,18 @@ export async function POST(req: Request) {
     const needResolvedPages = billingOn || Boolean(pageRange);
 
     let resolvedPageCount: number | null = doc.pageCount ?? null;
+    // 图片文件：固定 1 页，无需调用 ensureDocumentPageCount
+    const isImageFile = /\.(png|jpe?g|bmp|webp)$/i.test(doc.filename);
+    if (isImageFile) {
+      resolvedPageCount = 1;
+    }
     let pageCountMeta: {
       source: string;
       latencyMs: number;
       attempts: number;
     } | null = null;
 
-    if (needResolvedPages && (resolvedPageCount == null || resolvedPageCount < 1)) {
+    if (!isImageFile && needResolvedPages && (resolvedPageCount == null || resolvedPageCount < 1)) {
       const pageCountResult = await ensureDocumentPageCount({
         documentId: doc.id,
         objectKey: doc.objectKey,

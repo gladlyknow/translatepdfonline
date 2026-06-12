@@ -178,7 +178,12 @@ export function ImageToTextClient({ children }: { children?: ReactNode }) {
           have: typeof body.have === 'number' ? body.have : null,
         });
       } else {
-        setError(err instanceof Error ? err.message : t('errorGeneric'));
+        const code = err?.body?.code;
+        if (code === 'document_pages_required_for_billing') {
+          setError(t('errorPageCountPending'));
+        } else {
+          setError(err instanceof Error ? err.message : t('errorGeneric'));
+        }
       }
     } finally {
       setLaunching(false);

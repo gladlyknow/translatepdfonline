@@ -51,5 +51,6 @@
   "errorGeneric": "Qualcosa è andato storto. Riprova.",
   "heroUploadLead": "Carica un'immagine ed estrai il testo con l'IA",
   "heroUploadSub": "Supporta PNG, JPG, BMP, WebP. Riconoscimento in pochi secondi con testo modificabile.",
-  "heroUploadHint": "Traduzione in 10+ lingue disponibile dopo l'OCR."
+  "heroUploadHint": "Traduzione in 10+ lingue disponibile dopo l'OCR.",
+  "errorPageCountPending": "Il conteggio delle pagine è in preparazione. Riprova tra qualche secondo."
 }

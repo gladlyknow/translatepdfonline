@@ -51,5 +51,6 @@
   "errorGeneric": "出了点问题，请重试。",
   "heroUploadLead": "上传图片，AI 精准提取文字",
   "heroUploadSub": "支持 PNG、JPG、BMP、WebP 格式，数秒内完成识别，导出可编辑文本。",
-  "heroUploadHint": "OCR 识别完成后支持翻译为 10+ 种语言。"
+  "heroUploadHint": "OCR 识别完成后支持翻译为 10+ 种语言。",
+  "errorPageCountPending": "文档页数正在准备中，请稍后重试。"
 }

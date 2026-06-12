@@ -51,5 +51,6 @@
   "errorGeneric": "Algo salió mal. Intenta de nuevo.",
   "heroUploadLead": "Sube un PDF y extrae el texto con IA",
   "heroUploadSub": "OCR con IA extrae texto de cualquier PDF — escaneado, imagen o digital. Exporta a Word, TXT o Markdown.",
-  "heroUploadHint": "Más de 10 idiomas compatibles con extracción y traducción."
+  "heroUploadHint": "Más de 10 idiomas compatibles con extracción y traducción.",
+  "errorPageCountPending": "El recuento de páginas se está preparando. Vuelva a intentarlo en unos segundos."
 }

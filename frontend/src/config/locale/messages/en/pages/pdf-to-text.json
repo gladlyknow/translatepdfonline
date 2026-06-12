@@ -51,5 +51,6 @@
   "errorGeneric": "Something went wrong. Please try again.",
   "heroUploadLead": "Drop a PDF, extract text with AI",
   "heroUploadSub": "AI OCR extracts text from any PDF — scanned, image-based, or digital. Export to Word, TXT, or Markdown.",
-  "heroUploadHint": "10+ languages supported for text extraction and translation."
+  "heroUploadHint": "10+ languages supported for text extraction and translation.",
+  "errorPageCountPending": "Document page count is still being prepared. Please retry in a few seconds."
 }
