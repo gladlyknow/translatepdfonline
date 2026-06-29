@@ -238,7 +238,7 @@
             "icon": "RiUserLine"
           },
           {
-            "title": "Интерфейс на edge",
+            "title": "Интерфейс на периферии",
             "description": "Быстрая первая загрузка на Cloudflare; предпросмотр и скачивание в браузере.",
             "icon": "RiCloudy2Fill"
           },
@@ -261,15 +261,15 @@
         "items": [
           {
             "title": "8+",
-            "description": "языков интерфейса"
+            "description": "Языков интерфейса"
           },
           {
             "title": "7",
-            "description": "дней хранения по умолчанию"
+            "description": "Дней хранения по умолчанию"
           },
           {
             "title": "1",
-            "description": "конвейер, чувствительный к вёрстке"
+            "description": "Конвейер с учётом вёрстки"
           }
         ],
         "className": "bg-muted"

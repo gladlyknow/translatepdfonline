@@ -15,11 +15,27 @@
         "terms_link_text": "Politique complète : Conditions d’utilisation",
         "terms_path": "/terms-of-service",
         "groups": [
-          { "name": "one-time", "title": "Recharge" },
-          { "name": "monthly", "title": "Mensuel", "is_featured": true },
-          { "name": "quarterly", "title": "Trimestriel" },
-          { "name": "semi-annual", "title": "6 mois" },
-          { "name": "yearly", "title": "Annuel" }
+          {
+            "name": "one-time",
+            "title": "Recharge"
+          },
+          {
+            "name": "monthly",
+            "title": "Mensuel",
+            "is_featured": true
+          },
+          {
+            "name": "quarterly",
+            "title": "Trimestriel"
+          },
+          {
+            "name": "semi-annual",
+            "title": "6 mois"
+          },
+          {
+            "name": "yearly",
+            "title": "Annuel"
+          }
         ],
         "items": [
           {
@@ -48,7 +64,9 @@
             "credits": 500,
             "valid_days": 0,
             "group": "one-time",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "550 crédits / mois",
@@ -77,7 +95,9 @@
             "valid_days": 0,
             "group": "monthly",
             "plan_name": "Mensuel",
-            "payment_providers": ["creem"],
+            "payment_providers": [
+              "creem"
+            ],
             "trial_subscription": true
           },
           {
@@ -107,7 +127,9 @@
             "valid_days": 0,
             "group": "quarterly",
             "plan_name": "Trimestriel",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "3300 crédits / 6 mois",
@@ -136,7 +158,9 @@
             "valid_days": 0,
             "group": "semi-annual",
             "plan_name": "Semestriel",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "6500 crédits / an",
@@ -166,7 +190,9 @@
             "valid_days": 0,
             "group": "yearly",
             "plan_name": "Annuel",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           }
         ]
       }

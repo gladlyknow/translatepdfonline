@@ -238,7 +238,7 @@
             "icon": "RiUserLine"
           },
           {
-            "title": "Interfaccia su edge",
+            "title": "Interfaccia su rete periferica",
             "description": "Primo caricamento veloce su Cloudflare; il browser gestisce anteprima e download.",
             "icon": "RiCloudy2Fill"
           },

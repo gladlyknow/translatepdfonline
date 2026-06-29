@@ -32,5 +32,9 @@
   "ocrJumpWhenPreprocessedTitle": "Layout feinjustieren",
   "ocrJumpWhenPreprocessedBody": "OCR bei der Übersetzung ist aktiv; Workbench für tiefere Bearbeitung öffnen.",
   "failedOcrOfferTitle": "Übersetzung abgebrochen – OCR versuchen?",
-  "failedOcrOfferBody": "Bei Scans oder schwacher Textebene OCR zuerst: Text aus Seitenbildern neu aufbauen, dann mit derselben Datei und Sprachen weitermachen."
+  "failedOcrOfferBody": "Bei Scans oder schwacher Textebene OCR zuerst: Text aus Seitenbildern neu aufbauen, dann mit derselben Datei und Sprachen weitermachen.",
+  "cancelled": "Abgebrochen",
+  "scanDetectedFailedTitle": "Gescanntes PDF erkannt",
+  "scanDetectedFailedBody": "Dieses PDF ist ein Scan ohne extrahierbare Textebene. BabelDOC-Textübersetzung ist nicht anwendbar. OCR kann Text aus Seitenbildern rekonstruieren und dann übersetzen.",
+  "scanDetectedFailedCta": "Zur OCR-Übersetzung"
 }

@@ -1,8 +1,10 @@
 {
-  "pdf_font_unsupported": "This PDF uses fonts that are not suitable for text extraction. Use a PDF with a text layer or run OCR first.",
-  "tounicode_missing": "This PDF is missing ToUnicode mapping. Use a PDF with a text layer or run OCR first.",
-  "font_subset_corrupt": "This PDF may have corrupt font subsets. Try re-exporting the PDF or run OCR first.",
-  "no_paragraphs": "We couldn't find readable text to translate in this PDF. It may be scanned, image-only, or use a layout we don't fully support yet—this isn't your fault. We're actively improving support for these files in upcoming releases. Try \"Preprocess with OCR\" or a PDF where you can select text with the cursor.",
-  "ocr_preprocess_failed": "OCR preprocessing failed. Ensure OCRmyPDF and Tesseract are installed, or try again later.",
-  "scan_detected_use_ocr": "This file looks like a scanned PDF. We recommend OCR Translator to avoid failed BabelDOC retries."
+  "pdf_font_unsupported": "Este PDF usa fuentes que no permiten extraer texto fiable. Pruebe con un PDF que tenga capa de texto o use OCR.",
+  "tounicode_missing": "Falta la tabla ToUnicode en el PDF. Puede que las fuentes no admitan extracción de texto. Se recomienda OCR.",
+  "font_subset_corrupt": "Subconjunto de fuente dañado detectado. Considere usar OCR para este documento.",
+  "ocr_preprocess_failed": "El preprocesado OCR ha fallado. Vuelva a intentarlo o suba un PDF diferente.",
+  "no_paragraphs": "No se detectaron párrafos. Este PDF parece ser una imagen escaneada. Use OCR.",
+  "scan_detected_use_ocr": "PDF escaneado detectado. Use OCR para extraer y traducir el texto.",
+  "fc_service_unavailable": "Servicio de traducción no disponible temporalmente. Este PDF podría ser un escaneo. Use OCR para documentos basados en imágenes.",
+  "all_pages_failed": "La traducción ha fallado en todas las páginas. Revise los logs o contacte con soporte."
 }

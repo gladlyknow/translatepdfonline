@@ -5,5 +5,8 @@
   "navAria": "Hauptnavigation",
   "pricing": "Preise",
   "docs": "Dokumentation",
-  "historyNav": "Verlauf"
+  "historyNav": "Verlauf",
+  "navPdfTranslate": "PDF übersetzen",
+  "navPdfOcr": "PDF-OCR",
+  "navUpload": "Hochladen"
 }

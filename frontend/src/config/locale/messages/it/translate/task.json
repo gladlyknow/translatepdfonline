@@ -32,5 +32,9 @@
   "ocrJumpWhenPreprocessedTitle": "Raffina il layout",
   "ocrJumpWhenPreprocessedBody": "OCR in traduzione attivo; apri la workbench per modifiche più profonde.",
   "failedOcrOfferTitle": "Traduzione interrotta — provare l’OCR?",
-  "failedOcrOfferBody": "Per scansioni o livelli di testo deboli, prima l’OCR ricostruisce il testo dalle immagini di pagina; stesso PDF e lingue."
+  "failedOcrOfferBody": "Per scansioni o livelli di testo deboli, prima l’OCR ricostruisce il testo dalle immagini di pagina; stesso PDF e lingue.",
+  "cancelled": "Annullato",
+  "scanDetectedFailedTitle": "PDF scansionato rilevato",
+  "scanDetectedFailedBody": "Questo PDF è una scansione senza livello di testo estraibile. La traduzione testuale BabelDOC non è applicabile. L'OCR può ricostruire il testo dalle immagini e poi tradurre.",
+  "scanDetectedFailedCta": "Vai alla traduzione OCR"
 }

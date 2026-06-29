@@ -1,9 +1,12 @@
 {
   "brandShort": "Translate PDF",
-  "brandShortOcr": "Traductor OCR",
-  "brandSubtitleOcr": "Escaneos y PDF con imágenes",
-  "navAria": "Main",
-  "pricing": "Pricing",
-  "docs": "Docs",
-  "historyNav": "History"
+  "brandShortOcr": "OCR PDF",
+  "brandSubtitleOcr": "Traducción y OCR de PDF con IA",
+  "navPdfTranslate": "Traducir PDF",
+  "navPdfOcr": "OCR PDF",
+  "navUpload": "Subir",
+  "navAria": "Principal",
+  "pricing": "Precios",
+  "docs": "Documentación",
+  "historyNav": "Historial"
 }

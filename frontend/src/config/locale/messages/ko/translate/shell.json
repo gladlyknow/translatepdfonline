@@ -5,5 +5,8 @@
   "navAria": "메인",
   "pricing": "요금",
   "docs": "문서",
-  "historyNav": "기록"
+  "historyNav": "기록",
+  "navPdfTranslate": "PDF 번역",
+  "navPdfOcr": "PDF OCR",
+  "navUpload": "업로드"
 }

@@ -99,5 +99,11 @@
   "uploadFirstHint": "Ανεβάστε ένα PDF αριστερά, επιλέξτε γλώσσες και ξεκινήστε τη μετάφραση.",
   "historyWorkflowHint": "Περίπου ~30 δευτερόλεπτα ανά σελίδα κατά μέσο όρο.\nΜετά την υποβολή μπορείτε να φύγετε και να ελέγξετε το Ιστορικό αργότερα.\nΟι αποτυχημένες εργασίες δεν χρεώνονται — μπορείτε να υποβάλετε ξανά.\nΥποστήριξη: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "Εισάγατε {userRange}. Το έγγραφο έχει {docPages} σελίδες· η μετάφραση χρησιμοποίησε τις σελίδες {effectiveRange}.",
-  "pageRangeNoOverlap": "Το εύρος σελίδων που επιλέξατε δεν επικαλύπτεται με αυτό το έγγραφο ({docPages} σελίδες)."
+  "pageRangeNoOverlap": "Το εύρος σελίδων που επιλέξατε δεν επικαλύπτεται με αυτό το έγγραφο ({docPages} σελίδες).",
+  "goToPdfOcr": "OCR PDF",
+  "goToTranslate": "Μετάφραση",
+  "homeUploadCta": "Μεταφόρτωση",
+  "uploadOcrHint": "Χρησιμοποιήστε OCR PDF για σαρωμένα PDF χωρίς επιλέξιμο κείμενο. Για PDF με κείμενο, προτιμήστε Μετάφραση PDF.",
+  "uploadPdfOcrCta": "OCR PDF",
+  "uploadPdfTranslateCta": "Μετάφραση PDF"
 }

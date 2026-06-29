@@ -99,5 +99,11 @@
   "uploadFirstHint": "Carica un PDF a sinistra, scegli le lingue e avvia la traduzione.",
   "historyWorkflowHint": "Circa ~30 secondi a pagina in media.\nDopo l’invio puoi uscire dalla pagina e controllare la Cronologia più tardi.\nI job falliti non vengono addebitati: puoi inviare di nuovo.\nSupporto: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "Hai inserito {userRange}. Il documento ha {docPages} pagine; la traduzione ha usato le pagine {effectiveRange}.",
-  "pageRangeNoOverlap": "L’intervallo di pagine scelto non si sovrappone a questo documento ({docPages} pagine)."
+  "pageRangeNoOverlap": "L’intervallo di pagine scelto non si sovrappone a questo documento ({docPages} pagine).",
+  "goToPdfOcr": "OCR PDF",
+  "goToTranslate": "Traduci",
+  "homeUploadCta": "Carica",
+  "uploadOcrHint": "Usa OCR PDF per PDF scansionati senza testo selezionabile. Per PDF con testo, preferisci Traduci PDF.",
+  "uploadPdfOcrCta": "OCR PDF",
+  "uploadPdfTranslateCta": "Traduci PDF"
 }

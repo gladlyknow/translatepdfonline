@@ -47,7 +47,7 @@
   "workbenchPipelineTitle": "Analyse OCR et traduction du document",
   "workbenchPipelineHint": "OCR + traduction IA",
   "workbenchOcrInfoTitle": "Traducteur OCR",
-  "workbenchOcrInfoBody": "OCR d'abord, puis traduction avec prise en charge de l'edition visuelle.",
+  "workbenchOcrInfoBody": "OCR d'abord, puis traduction avec prise en charge de l'édition visuelle.",
   "workbenchHistory": "Historique",
   "workbenchDocument": "Document",
   "workbenchZoomHint": "Le zoom s’applique aux deux volets",
@@ -99,5 +99,11 @@
   "uploadFirstHint": "Téléversez un PDF à gauche, choisissez les langues et lancez la traduction.",
   "historyWorkflowHint": "Environ ~30 secondes par page en moyenne.\nAprès l’envoi, vous pouvez quitter la page et consulter l’historique plus tard.\nLes échecs ne sont pas facturés — vous pouvez renvoyer la tâche.\nAssistance : hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "Vous avez saisi {userRange}. Ce document compte {docPages} pages ; la traduction a porté sur {effectiveRange}.",
-  "pageRangeNoOverlap": "La plage de pages choisie ne chevauche pas ce document ({docPages} pages)."
+  "pageRangeNoOverlap": "La plage de pages choisie ne chevauche pas ce document ({docPages} pages).",
+  "goToPdfOcr": "OCR PDF",
+  "goToTranslate": "Traduire",
+  "homeUploadCta": "Téléverser",
+  "uploadOcrHint": "Utilisez OCR PDF pour les PDF numérisés sans texte sélectionnable. Pour les PDF avec texte, préférez Traduire PDF.",
+  "uploadPdfOcrCta": "OCR PDF",
+  "uploadPdfTranslateCta": "Traduire PDF"
 }

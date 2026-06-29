@@ -238,7 +238,7 @@
             "icon": "RiUserLine"
           },
           {
-            "title": "UI en el edge",
+            "title": "Interfaz en la nube",
             "description": "Carga inicial rápida en Cloudflare; la vista previa y la descarga ocurren en el navegador.",
             "icon": "RiCloudy2Fill"
           },

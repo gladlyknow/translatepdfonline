@@ -11,6 +11,9 @@ const DISALLOW = [
   '/no-permission',
   '/chat',
   '/chat/',
+  '/blog',
+  '/showcases',
+  '/updates',
 ];
 
 function buildRobotsTxt(sitemapUrl: string): string {

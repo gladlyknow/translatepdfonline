@@ -5,5 +5,8 @@
   "navAria": "Principal",
   "pricing": "Tarifs",
   "docs": "Documentation",
-  "historyNav": "Historique"
+  "historyNav": "Historique",
+  "navPdfTranslate": "Traduire PDF",
+  "navPdfOcr": "OCR PDF",
+  "navUpload": "Téléverser"
 }

@@ -1,13 +1,13 @@
 {
-  "dropzone": "Drop PDF here or click to select",
-  "uploading": "Uploading...",
-  "success": "Upload successful",
-  "error": "Upload failed",
-  "selectPdfOnly": "Please select a PDF file",
+  "dropzone": "Arrastre un PDF aquí o haga clic para seleccionar",
+  "uploading": "Subiendo…",
+  "success": "Subida exitosa",
+  "error": "Error al subir",
+  "selectPdfOnly": "Seleccione un archivo PDF",
   "selectFileTypeOnly": "Seleccione un archivo {types}",
-  "loginRequired": "Please sign in to upload files.",
-  "loginHintQuotaExceeded": "Anonymous upload quota exceeded. Please sign in (top right) to continue uploading.",
-  "storageUnavailable": "Storage is not configured. Please try again later.",
-  "fileTooLarge": "File is too large. Maximum size is 100 MB.",
-  "fileNotice": "Your file is transmitted over encrypted connections. It is kept for 7 days for download, then permanently deleted from our servers."
+  "loginRequired": "Inicie sesión para subir archivos.",
+  "loginHintQuotaExceeded": "Límite de subidas anónimas alcanzado. Inicie sesión para continuar.",
+  "storageUnavailable": "El almacenamiento no está configurado. Inténtelo más tarde.",
+  "fileTooLarge": "Archivo demasiado grande. El tamaño máximo es 100 MB.",
+  "fileNotice": "Su archivo se transmite por conexiones cifradas. Se conserva 7 días para descarga y luego se elimina permanentemente."
 }

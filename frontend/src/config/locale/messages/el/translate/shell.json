@@ -5,5 +5,8 @@
   "navAria": "Κύριο",
   "pricing": "Τιμολόγηση",
   "docs": "Τεκμηρίωση",
-  "historyNav": "Ιστορικό"
+  "historyNav": "Ιστορικό",
+  "navPdfTranslate": "Μετάφραση PDF",
+  "navPdfOcr": "OCR PDF",
+  "navUpload": "Μεταφόρτωση"
 }

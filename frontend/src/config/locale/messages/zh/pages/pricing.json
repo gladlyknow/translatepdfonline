@@ -64,7 +64,9 @@
             "credits": 500,
             "valid_days": 0,
             "group": "one-time",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "每月 550 积分",
@@ -93,7 +95,9 @@
             "valid_days": 0,
             "group": "monthly",
             "plan_name": "月付",
-            "payment_providers": ["creem"],
+            "payment_providers": [
+              "creem"
+            ],
             "trial_subscription": true
           },
           {
@@ -123,7 +127,9 @@
             "valid_days": 0,
             "group": "quarterly",
             "plan_name": "季付",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "每半年 3300 积分",
@@ -152,7 +158,9 @@
             "valid_days": 0,
             "group": "semi-annual",
             "plan_name": "半年付",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           },
           {
             "title": "每年 6500 积分",
@@ -169,7 +177,7 @@
             "price": "$45",
             "unit": "/ 年",
             "is_featured": false,
-            "label": "Save 25% compared to Monthly",
+            "label": "相比月付节省 25%",
             "tip": "单积分成本更低。",
             "button": {
               "title": "订阅年付",
@@ -182,7 +190,9 @@
             "valid_days": 0,
             "group": "yearly",
             "plan_name": "年付",
-            "payment_providers": ["creem"]
+            "payment_providers": [
+              "creem"
+            ]
           }
         ]
       }

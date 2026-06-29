@@ -39,7 +39,7 @@
   "starting": "Démarrage de l'OCR...",
   "creditsLoadFailed": "Impossible de charger le solde de crédits. Veuillez réessayer.",
   "loginRequiredTranslate": "Connectez-vous pour utiliser l'OCR. La traduction nécessite une facturation de crédits.",
-  "creditsModalTitle": "Crédits Insuffisants",
+  "creditsModalTitle": "Crédits insuffisants",
   "creditsModalIntro": "Vous avez besoin de {need} crédits mais il vous en reste {have}. Achetez un pack de crédits ou abonnez-vous pour continuer.",
   "creditsModalIntroGeneric": "Vous n'avez pas assez de crédits pour cette tâche OCR. Veuillez acheter plus de crédits.",
   "creditsModalBuyPack": "Acheter un Pack de Crédits",

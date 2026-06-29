@@ -99,5 +99,11 @@
   "uploadFirstHint": "左でPDFをアップロードし、言語を選んで翻訳を開始してください。",
   "historyWorkflowHint": "おおよそ1ページあたり30秒程度です。\n送信後はページを離れても構いません。後から履歴で確認できます。\n失敗したジョブに課金はされません。再送信できます。\nサポート: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "{userRange} と入力されました。この文書は {docPages} ページあり、{effectiveRange} のページで翻訳しました。",
-  "pageRangeNoOverlap": "選択したページ範囲はこの文書（{docPages} ページ）と重なりません。"
+  "pageRangeNoOverlap": "選択したページ範囲はこの文書（{docPages} ページ）と重なりません。",
+  "goToPdfOcr": "PDF OCR",
+  "goToTranslate": "翻訳",
+  "homeUploadCta": "アップロード",
+  "uploadOcrHint": "テキスト選択できないスキャンPDFにはOCRを使用してください。テキスト選択できるPDFには翻訳をおすすめします。",
+  "uploadPdfOcrCta": "PDF OCR",
+  "uploadPdfTranslateCta": "PDF翻訳"
 }

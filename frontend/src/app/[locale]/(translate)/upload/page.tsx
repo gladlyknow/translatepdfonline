@@ -1,6 +1,9 @@
 import { setRequestLocale } from 'next-intl/server';
 
+import { getMetadata } from '@/shared/lib/seo';
 import { UploadPageClient } from './UploadPageClient';
+
+export const generateMetadata = getMetadata({ canonicalUrl: '/upload' });
 
 export default async function UploadPage({
   params,

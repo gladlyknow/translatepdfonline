@@ -1,7 +1,15 @@
 import { CalendarIcon, TimerIcon } from 'lucide-react';
 
 import { MarkdownPreview } from '@/shared/blocks/common';
-import { type Post as PostType } from '@/shared/types/blocks/blog';
+// BlogPostType is used for static pages (privacy-policy, terms-of-service)
+type PostType = {
+  id: string;
+  title: string;
+  description?: string;
+  created_at?: string;
+  body?: React.ReactNode;
+  content?: string;
+};
 
 import '@/config/style/docs.css';
 

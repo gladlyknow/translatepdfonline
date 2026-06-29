@@ -238,7 +238,7 @@
             "icon": "RiUserLine"
           },
           {
-            "title": "Interface hébergée en edge",
+            "title": "Interface hébergée en périphérie",
             "description": "Chargement initial rapide sur Cloudflare ; aperçu et téléchargement dans le navigateur.",
             "icon": "RiCloudy2Fill"
           },

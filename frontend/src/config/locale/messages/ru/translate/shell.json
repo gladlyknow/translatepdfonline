@@ -5,5 +5,8 @@
   "navAria": "Основное меню",
   "pricing": "Тарифы",
   "docs": "Документация",
-  "historyNav": "История"
+  "historyNav": "История",
+  "navPdfTranslate": "Перевод PDF",
+  "navPdfOcr": "OCR PDF",
+  "navUpload": "Загрузить"
 }

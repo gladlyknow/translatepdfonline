@@ -10,7 +10,7 @@
   "compareAfterLabel": "После",
   "compareSliderAria": "Сравнить до и после перевода",
   "homeOcrBridgeTitle": "Скан или PDF с большим числом изображений?",
-  "homeOcrBridgeBody": "BabelDOC лучше всего работает, когда текст в PDF можно выделить. OCR Translator сначала распознаёт текст на сканах и в картинках, затем переводит — дополняя основной конвейер, когда одной вёрсточной вытяжки недостаточно.",
+  "homeOcrBridgeBody": "BabelDOC лучше всего работает, когда текст в PDF можно выделить. OCR Translator сначала распознаёт текст на сканах и в картинках, затем переводит — дополняя основной конвейер, когда одной извлечения вёрстки недостаточно.",
   "homeOcrBridgeCta": "Открыть OCR Translator",
   "formatPdf": "PDF",
   "formatAcademic": "Научная статья",
@@ -57,7 +57,7 @@
   "taskId": "ID задачи",
   "currentStatus": "Текущий статус",
   "translationFailed": "Перевод не выполнен",
-  "translationFailedNoDetail": "Смотрите логи воркера или обратитесь в поддержку.",
+  "translationFailedNoDetail": "Смотрите логи рабочего модуля или обратитесь в поддержку.",
   "translationFailedContact": "Перевод не завершён. Вопросы и поддержка:",
   "translationFailedContactEmail": "hello@translatepdfonline.com",
   "sourceFile": "Исходный файл",
@@ -99,5 +99,11 @@
   "uploadFirstHint": "Слева загрузите PDF, затем выберите языки и запустите перевод.",
   "historyWorkflowHint": "В среднем около ~30 секунд на страницу.\nПосле отправки можно уйти со страницы и позже проверить Историю.\nЗа неудачные задачи списание не производится — можно отправить снова.\nПоддержка: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "Вы указали {userRange}. В документе {docPages} стр.; перевод выполнен для страниц {effectiveRange}.",
-  "pageRangeNoOverlap": "Выбранный диапазон страниц не пересекается с этим документом ({docPages} стр.)."
+  "pageRangeNoOverlap": "Выбранный диапазон страниц не пересекается с этим документом ({docPages} стр.).",
+  "goToPdfOcr": "OCR PDF",
+  "goToTranslate": "Перевод",
+  "homeUploadCta": "Загрузить",
+  "uploadOcrHint": "Используйте OCR PDF для отсканированных PDF без выделяемого текста. Для текстовых PDF лучше использовать Перевод PDF.",
+  "uploadPdfOcrCta": "OCR PDF",
+  "uploadPdfTranslateCta": "Перевод PDF"
 }

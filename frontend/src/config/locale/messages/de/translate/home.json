@@ -99,5 +99,11 @@
   "uploadFirstHint": "Links ein PDF hochladen, dann Sprachen wählen und Übersetzung starten.",
   "historyWorkflowHint": "Etwa ~30 Sekunden pro Seite im Durchschnitt.\nNach dem Absenden können Sie die Seite verlassen und später unter Verlauf nachsehen.\nFehlgeschlagene Aufträge werden nicht berechnet — einfach erneut senden.\nSupport: hello@translatepdfonline.com",
   "pageRangeAdjustedNotice": "Sie haben {userRange} eingegeben. Das Dokument hat {docPages} Seiten; übersetzt wurden die Seiten {effectiveRange}.",
-  "pageRangeNoOverlap": "Der gewählte Seitenbereich überschneidet sich nicht mit diesem Dokument ({docPages} Seiten)."
+  "pageRangeNoOverlap": "Der gewählte Seitenbereich überschneidet sich nicht mit diesem Dokument ({docPages} Seiten).",
+  "goToPdfOcr": "PDF-OCR",
+  "goToTranslate": "Übersetzen",
+  "homeUploadCta": "Hochladen",
+  "uploadOcrHint": "Für gescannte oder bildbasierte PDFs ohne auswählbaren Text OCR verwenden. Für textbasierte PDFs Übersetzen bevorzugen.",
+  "uploadPdfOcrCta": "PDF-OCR",
+  "uploadPdfTranslateCta": "PDF-Übersetzen"
 }

@@ -16,7 +16,7 @@
         "variant": "translateDark",
         "title": "Translate PDF Online",
         "highlight_text": "KI-gestützte PDF-Übersetzung",
-        "description": "PDFs übersetzen bei erhaltener Seitenlayout: Spalten, Tabellen, Abbildungen und Schriften. Sprachen u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch — im Browser, ohne Installation.",
+        "description": "PDFs übersetzen bei erhaltenem Seitenlayout: Spalten, Tabellen, Abbildungen und Schriften. Sprachen u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch — im Browser, ohne Installation.",
         "announcement": {
           "badge": "Neu",
           "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
@@ -59,7 +59,7 @@
         "id": "introduce",
         "title": "Was ist Translate PDF Online",
         "label": "Produkt",
-        "description": "Webdienst zum Übersetzen von PDFs bei erhaltener ursprünglicher Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
+        "description": "Webdienst zum Übersetzen von PDFs bei erhaltenem ursprünglichem Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -223,7 +223,7 @@
         "description": "Konkrete Funktionen für Ihre PDF-Workflows.",
         "items": [
           {
-            "title": "Vektor-orientierte Pipeline",
+            "title": "Vektorbasierte Pipeline",
             "description": "BabelDOC-ähnlicher Ansatz: Text zurück in die PDF-Struktur, wo möglich.",
             "icon": "RiStackLine"
           },
@@ -269,7 +269,7 @@
           },
           {
             "title": "1",
-            "description": "Layout-sensible Pipeline"
+            "description": "Layout-bewusste Pipeline"
           }
         ],
         "className": "bg-muted"
@@ -281,7 +281,7 @@
         "items": [
           {
             "question": "Was ist Translate PDF Online und wie funktioniert es?",
-            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache; wir führen eine übersetzungs-Pipeline aus, die das Layout respektiert. Sie laden ein neues PDF herunter, das die ursprüngliche Struktur widerspiegelt, soweit die Technik das erlaubt."
+            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache; wir führen eine Übersetzungs-Pipeline aus, die das Layout respektiert. Sie laden ein neues PDF herunter, das die ursprüngliche Struktur widerspiegelt, soweit die Technik das erlaubt."
           },
           {
             "question": "Muss ich Software installieren?",

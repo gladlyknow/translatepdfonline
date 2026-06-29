@@ -1,12 +1,18 @@
 import { getThemeBlock } from '@/core/theme';
-import { Post as PostType } from '@/shared/types/blocks/blog';
 
 export default async function StaticPage({
   locale,
   post,
 }: {
   locale?: string;
-  post: PostType;
+  post: {
+    id: string;
+    title: string;
+    description?: string;
+    created_at?: string;
+    body?: React.ReactNode;
+    content?: string;
+  };
 }) {
   const PageDetail = await getThemeBlock('page-detail');
 
