@@ -1,5 +1,5 @@
 import { Fragment, ReactNode } from 'react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { TRANSLATE_PRIMARY_PRICE_GRADIENT_CLASSNAME } from '@/config/translate-ui';
 import { getThemeLayout } from '@/core/theme';
@@ -31,10 +31,14 @@ function landingTopBannerPromoText(t: {
 
 export default async function LandingLayout({
   children,
+  params,
 }: {
   children: ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const t = await getTranslations('landing');
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'landing' });
 
   const Layout = await getThemeLayout('landing');
 
