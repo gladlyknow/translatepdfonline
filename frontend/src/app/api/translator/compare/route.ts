@@ -1,14 +1,13 @@
 import { nanoid } from 'nanoid';
 
 import { respData, respErr } from '@/shared/lib/resp';
-import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
 import {
   createCompareJob,
   DocumentCompareJobStatus,
   listCompareJobs,
 } from '@/shared/models/compare-job';
-import { getStorageService } from '@/shared/services/storage';
+import { putObject, getR2PublicBaseUrl, encodeR2KeyForPublicUrl } from '@/shared/lib/translate-r2';
 
 const ALLOWED: Record<string, string> = {
   'application/pdf': 'pdf',
@@ -23,24 +22,17 @@ const ALLOWED: Record<string, string> = {
 
 const MAX_BYTES = 50 * 1024 * 1024;
 
+function buildPublicUrl(key: string): string {
+  const base = getR2PublicBaseUrl();
+  if (!base) return '';
+  return `${base.replace(/\/$/, '')}/${encodeR2KeyForPublicUrl(key)}`;
+}
+
 export async function POST(req: Request) {
   try {
     const user = await getUserInfo();
     if (!user) {
       return respErr('no auth, please sign in');
-    }
-
-    const configs = await getAllConfigs();
-    const hasR2Creds =
-      Boolean(configs.r2_access_key) &&
-      Boolean(configs.r2_secret_key) &&
-      Boolean(configs.r2_bucket_name);
-    const hasR2Endpoint = Boolean(configs.r2_endpoint || configs.r2_account_id);
-    if (!hasR2Creds) {
-      return respErr('R2 config missing. Please configure R2 credentials.');
-    }
-    if (!hasR2Endpoint) {
-      return respErr('R2 endpoint missing.');
     }
 
     const formData = await req.formData();
@@ -70,7 +62,6 @@ export async function POST(req: Request) {
       return respErr('compare file too large (max 50MB)');
     }
 
-    const storage = await getStorageService();
     const jobId = nanoid();
 
     const baseBuffer = new Uint8Array(await baseFile.arrayBuffer());
@@ -79,30 +70,10 @@ export async function POST(req: Request) {
     const baseKey = `translator/${user.id}/${jobId}/base.${baseExt}`;
     const compareKey = `translator/${user.id}/${jobId}/compare.${compareExt}`;
 
-    const [baseResult, compareResult] = await Promise.all([
-      storage.uploadFile({
-        key: baseKey,
-        body: baseBuffer,
-        contentType: baseFile.type,
-        disposition: 'inline',
-      }),
-      storage.uploadFile({
-        key: compareKey,
-        body: compareBuffer,
-        contentType: compareFile.type,
-        disposition: 'inline',
-      }),
+    await Promise.all([
+      putObject(baseKey, baseBuffer, baseFile.type),
+      putObject(compareKey, compareBuffer, compareFile.type),
     ]);
-
-    if (!baseResult.success) {
-      return respErr(baseResult.error || 'base file upload failed');
-    }
-    if (!compareResult.success) {
-      return respErr(compareResult.error || 'compare file upload failed');
-    }
-
-    const basePublicUrl = storage.getPublicUrl({ key: baseKey }) || '';
-    const comparePublicUrl = storage.getPublicUrl({ key: compareKey }) || '';
 
     const row = await createCompareJob({
       id: jobId,
@@ -111,11 +82,11 @@ export async function POST(req: Request) {
       baseR2Key: baseKey,
       baseFilename: baseFile.name || `base.${baseExt}`,
       baseFormat: baseExt,
-      basePublicUrl,
+      basePublicUrl: buildPublicUrl(baseKey),
       compareR2Key: compareKey,
       compareFilename: compareFile.name || `compare.${compareExt}`,
       compareFormat: compareExt,
-      comparePublicUrl,
+      comparePublicUrl: buildPublicUrl(compareKey),
     });
 
     return respData({

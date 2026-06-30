@@ -5,11 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter, usePathname } from '@/core/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
+import { History } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { TranslateLandingSections } from '@/shared/components/translate/TranslateLandingSections';
 import { translateApi } from '@/shared/lib/translate-api';
 import type { UILang } from '@/shared/lib/translate-api';
+import { useTranslateHistoryDrawerOptional } from '@/shared/contexts/translate-history-drawer';
 
 export function UploadPageClient() {
   const tHome = useTranslations('translate.home');
@@ -27,6 +29,7 @@ export function UploadPageClient() {
   const [launchingMode, setLaunchingMode] = useState<'translate' | 'ocr' | null>(null);
   const [launchError, setLaunchError] = useState<string | null>(null);
   const launchLockRef = useRef(false);
+  const historyDrawer = useTranslateHistoryDrawerOptional();
 
   const handleUploaded = useCallback(
     async (documentId: string, filename: string, sizeBytes: number) => {
@@ -168,6 +171,15 @@ export function UploadPageClient() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto">
       <TranslateLandingSections
+        funnelToolbar={
+          <button
+            type="button"
+            onClick={() => historyDrawer?.openHistory()}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          >
+            <History className="h-4 w-4" /> History
+          </button>
+        }
         onUploaded={handleUploaded}
         initialFile={lastUploadedFile}
         sourceLang={sourceLang}
@@ -180,23 +192,23 @@ export function UploadPageClient() {
             <button
               type="button"
               className={cn(
-                'rounded-lg px-3 py-1.5 text-sm font-semibold',
+                'rounded-lg px-4 py-2 text-sm font-semibold',
                 TRANSLATE_PRIMARY_CTA_CLASSNAME
               )}
-              onClick={goTranslate}
-              disabled={!canStartTask || launchingMode !== null}
+              onClick={goOcr}
+              disabled={!canStartOcr || launchingMode !== null}
             >
-              {launchingMode === 'translate'
+              {launchingMode === 'ocr'
                 ? tHome('downloading')
-                : tHome('uploadPdfTranslateCta')}
+                : tHome('uploadPdfOcrCta')}
             </button>
             <button
               type="button"
               className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              onClick={goOcr}
-              disabled={!canStartOcr || launchingMode !== null}
+              onClick={goTranslate}
+              disabled={!canStartTask || launchingMode !== null}
             >
-              {launchingMode === 'ocr' ? tHome('downloading') : tHome('uploadPdfOcrCta')}
+              {launchingMode === 'translate' ? tHome('downloading') : tHome('uploadPdfTranslateCta')}
             </button>
           </div>
         }

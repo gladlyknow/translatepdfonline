@@ -118,17 +118,6 @@ export function TranslateShellHeader({
           {t('navPdfOcr')}
         </Link>
         <Link
-          href="/upload"
-          title={t('navUpload')}
-          className={
-            onDark
-              ? 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-100 hover:bg-white/10 hover:text-white'
-              : 'rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
-          }
-        >
-          {t('navUpload')}
-        </Link>
-        <Link
           href="/pricing"
           title={t('pricing')}
           className={

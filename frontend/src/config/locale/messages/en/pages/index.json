@@ -37,20 +37,6 @@
             "url": "/upload",
             "target": "_self",
             "variant": "outline"
-          },
-          {
-            "title": "Contract Comparison",
-            "icon": "GitCompare",
-            "url": "/contract-comparison",
-            "target": "_self",
-            "variant": "outline"
-          },
-          {
-            "title": "Read Documentation",
-            "icon": "BookOpenText",
-            "url": "/docs",
-            "target": "_blank",
-            "variant": "outline"
           }
         ],
         "show_avatars": false,

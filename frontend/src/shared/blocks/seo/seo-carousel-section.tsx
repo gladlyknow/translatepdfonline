@@ -1,30 +1,55 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from '@/shared/components/ui/carousel';
 import { cn } from '@/shared/lib/utils';
 
 type Props = {
   title: string;
   items: ReactNode[];
-  /** card = slides look like cards; section = full-width text slides (for long-form SEO content) */
   variant?: 'card' | 'section';
   className?: string;
 };
 
+const AUTOPLAY_MS = 5000;
+
 export function SeoCarouselSection({ title, items, variant = 'card', className }: Props) {
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stop = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!api) return;
+    stop();
+    intervalRef.current = setInterval(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        api.scrollTo(0);
+      }
+    }, AUTOPLAY_MS);
+    return stop;
+  }, [api, stop]);
+
   if (!items.length) return null;
 
   return (
     <section className={cn('mx-auto w-full max-w-5xl', className)}>
       <h2 className="text-2xl font-bold text-center mb-8 text-foreground">{title}</h2>
-      <Carousel opts={{ align: 'start', loop: false }}>
+      <Carousel opts={{ align: 'start', loop: false }} setApi={setApi}>
         <CarouselContent>
           {items.map((item, i) => (
             <CarouselItem key={i} className="basis-full">

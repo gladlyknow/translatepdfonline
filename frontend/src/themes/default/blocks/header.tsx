@@ -89,18 +89,7 @@ export function Header({ header }: { header: HeaderType }) {
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));
   const isSolidPage = pathSegments.length === 2 && solidPages.includes(pathSegments[1]);
   const headerSolid = isScrolled || isHomePage || isSolidPage;
-  const navItems = (() => {
-    const items = [...(header.nav?.items ?? [])];
-    const hasUpload = items.some((item) => (item.url || '').toLowerCase() === '/upload');
-    if (!hasUpload) {
-      items.splice(Math.min(3, items.length), 0, {
-        title: 'Upload',
-        url: '/upload',
-        target: '_self',
-      } as NavItem);
-    }
-    return items;
-  })();
+  const navItems = header.nav?.items ?? [];
 
   const isHistoryTriggerItem = (item: NavItem) => {
     const normalizedUrl = (item.url || '').toLowerCase();

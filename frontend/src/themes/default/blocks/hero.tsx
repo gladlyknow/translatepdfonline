@@ -189,22 +189,6 @@ export function Hero({
                 </Button>
               );
             })}
-            {isTranslateDark ? (
-              <span className="rounded-full border border-sky-300/60 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-200">
-                {tHome('homeOcrBridgeTitle')}
-              </span>
-            ) : null}
-            {isTranslateDark ? (
-              <Button
-                asChild
-                size="sm"
-                className={cn('px-4 text-xs', TRANSLATE_PRIMARY_CTA_CLASSNAME)}
-              >
-                <Link href="/ocrtranslator" title={tHome('homeOcrBridgeCta')}>
-                  <span>{tHome('homeOcrBridgeCta')}</span>
-                </Link>
-              </Button>
-            ) : null}
             {isTranslateDark && section.tip ? (
               <span className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
                 {section.tip}
