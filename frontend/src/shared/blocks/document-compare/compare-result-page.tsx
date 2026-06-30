@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { useRouter } from '@/core/i18n/navigation';
 import CompareViewer from './compare-viewer';
 
@@ -163,7 +164,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
   if (state === 'loading') {
     return (
       <div className="min-h-dvh w-full flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-sky-700" />
       </div>
     );
   }
@@ -190,7 +191,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
       <div className="min-h-dvh w-full bg-background">
         <div className="mx-auto max-w-[1800px] px-4 pt-20 sm:pt-24 pb-4 sm:pb-6">
           <section className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <Loader2 className="h-12 w-12 animate-spin text-sky-700" />
             <p className="mt-4 text-lg font-medium text-foreground">{pt('comparingDocuments')}</p>
             <p className="mt-2 text-sm text-muted-foreground">{pt('comparingDesc')}</p>
             {job && (
@@ -210,11 +211,11 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
                 const isCurrent = currentIdx === stepIdx || (job && job.status === s.key);
                 return (
                   <div key={s.key} className="flex items-center gap-2">
-                    {i > 0 && <div className={cn('h-px w-10', isDone ? 'bg-green-400' : 'bg-primary/25')} />}
+                    {i > 0 && <div className={cn('h-px w-10', isDone ? 'bg-green-400' : 'bg-sky-700/25')} />}
                     <span className={cn(
                       'rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors',
                       isDone && 'border-green-500 bg-green-50 text-green-700',
-                      isCurrent && 'border-primary bg-primary/10 text-primary',
+                      isCurrent && 'border-primary bg-primary/10 text-sky-700',
                       !isDone && !isCurrent && 'border-border bg-muted/50 text-muted-foreground/50'
                     )}>
                       {isDone && '✓ '}{s.label}
@@ -243,7 +244,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
               {job?.errorMessage || pt('compareFailedDesc')}
             </p>
             <div className="mt-6 flex gap-3">
-              <Button onClick={() => router.push(backUrl)}>{pt('newComparison')}</Button>
+              <button type="button" onClick={() => router.push(backUrl)} className={cn(TRANSLATE_PRIMARY_CTA_CLASSNAME, 'inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-5 text-sm font-bold')}>{pt('newComparison')}</button>
               <Button variant="outline" onClick={() => window.location.reload()}>{pt('retry')}</Button>
             </div>
           </section>
@@ -261,11 +262,11 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
               &larr; {pt('back')}
             </Button>
             <span className="text-muted-foreground/30">|</span>
-            <FileText className="h-4 w-4 text-primary" />
+            <FileText className="h-4 w-4 text-sky-700" />
             <span className="font-semibold">{job?.baseFilename}</span>
             <span className="text-xs text-muted-foreground/60">{job?.baseFormat?.toUpperCase()}</span>
             <GitCompare className="h-3 w-3 text-muted-foreground/40" />
-            <FileText className="h-4 w-4 text-primary" />
+            <FileText className="h-4 w-4 text-sky-700" />
             <span className="font-semibold">{job?.compareFilename}</span>
             <span className="text-xs text-muted-foreground/60">{job?.compareFormat?.toUpperCase()}</span>
             {job?.createdAt && (
@@ -277,7 +278,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
             {job?.similarity && (
               <>
                 <span className="text-muted-foreground/30">|</span>
-                <span className="text-xs text-primary font-semibold">Similarity {job.similarity}</span>
+                <span className="text-xs text-sky-700 font-semibold">Similarity {job.similarity}</span>
               </>
             )}
             {job?.totalDiff != null && (
@@ -288,9 +289,13 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" onClick={() => router.push(backUrl)} className="gap-1 h-8">
+            <button
+              type="button"
+              onClick={() => router.push(backUrl)}
+              className={cn(TRANSLATE_PRIMARY_CTA_CLASSNAME, 'inline-flex items-center justify-center gap-1.5 rounded-lg py-1.5 px-3 text-xs font-semibold')}
+            >
               {pt('newComparison')}
-            </Button>
+            </button>
             <Button
               variant="ghost"
               size="sm"
@@ -307,7 +312,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
           <CompareViewer sdkUrl={sdkUrl} />
         ) : (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-sky-700" />
           </div>
         )}
 
