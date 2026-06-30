@@ -117,5 +117,11 @@
   "exploreImageToTextDesc": "Convert images to editable, searchable text.",
   "explorePdfTranslate": "AI PDF Translation Tool",
   "explorePdfTranslateDesc": "Translate PDF documents while keeping original layout.",
-  "exploreMoreTools": "Explore More Document Tools"
+  "exploreMoreTools": "Explore More Document Tools",
+  "diffSummaryTitle": "Comparison Summary",
+  "diffSimilarity": "Similarity",
+  "diffTotalItems": "Differences Found",
+  "diffAdded": "Added",
+  "diffDeleted": "Deleted",
+  "diffModified": "Modified"
 }

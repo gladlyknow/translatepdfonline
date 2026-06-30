@@ -523,3 +523,6 @@ Found a non-empty CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE varia
   syscall: 'open',
   path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
 }
+ ✓ Compiled middleware in 4ms
+ ✓ Compiled middleware in 2ms
+ ✓ Compiled middleware in 4ms

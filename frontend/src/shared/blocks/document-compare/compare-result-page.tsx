@@ -10,6 +10,7 @@ import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { useRouter } from '@/core/i18n/navigation';
+import CompareResultCustom from './compare-result-custom';
 import CompareViewer from './compare-viewer';
 
 type JobData = {
@@ -26,7 +27,7 @@ type JobData = {
 };
 
 const FALLBACKS: Record<string, string> = {
-  deleteConfirm: 'Are you sure you want to delete this comparison? This action cannot be undone.',
+  deleteConfirm: 'Are you sure you want to delete this comparison?',
   comparisonDeleted: 'Comparison deleted',
   deleteFailed: 'Failed to delete comparison',
   comparisonNotFound: 'Comparison not found',
@@ -72,20 +73,11 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
   const handleDelete = useCallback(async () => {
     if (!confirm(pt('deleteConfirm'))) return;
     try {
-      const r = await fetch(`/api/translator/compare/${jobId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const r = await fetch(`/api/translator/compare/${jobId}`, { method: 'DELETE', credentials: 'include' });
       const j = await r.json();
-      if (j.code === 0) {
-        toast.success(pt('comparisonDeleted'));
-        router.push(backUrl);
-      } else {
-        toast.error(j.message || pt('deleteFailed'));
-      }
-    } catch {
-      toast.error(pt('deleteFailed'));
-    }
+      if (j.code === 0) { toast.success(pt('comparisonDeleted')); router.push(backUrl); }
+      else { toast.error(j.message || pt('deleteFailed')); }
+    } catch { toast.error(pt('deleteFailed')); }
   }, [jobId, router, backUrl, pt]);
 
   const fetchJob = useCallback(async () => {
@@ -95,31 +87,19 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
       if (j.code === 0 && j.data?.job) {
         const d = j.data.job as JobData;
         setJob(d);
-        if (d.status === 'ready') {
-          setState('ready');
-        } else if (d.status === 'failed') {
-          setState('failed');
-        } else {
-          setState('polling');
-        }
-      } else {
-        setState('not_found');
-      }
-    } catch {
-      setState('not_found');
-    }
+        if (d.status === 'ready') setState('ready');
+        else if (d.status === 'failed') setState('failed');
+        else setState('polling');
+      } else { setState('not_found'); }
+    } catch { setState('not_found'); }
   }, [jobId]);
 
   const fetchSdkUrl = useCallback(async () => {
     try {
       const r = await fetch(`/api/translator/compare/${jobId}/sdk-url`, { credentials: 'include' });
       const j = await r.json();
-      if (j.code === 0 && j.data?.sdkUrl) {
-        setSdkUrl(j.data.sdkUrl);
-      }
-    } catch {
-      // retry later
-    }
+      if (j.code === 0 && j.data?.sdkUrl) setSdkUrl(j.data.sdkUrl);
+    } catch { /* retry later */ }
   }, [jobId]);
 
   const startPoll = useCallback(() => {
@@ -134,39 +114,19 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
         const data = j.data as JobData | undefined;
         if (data) {
           setJob(data);
-          if (data.status === 'ready') {
-            if (pollRef.current) clearInterval(pollRef.current);
-            pollRef.current = null;
-            setState('ready');
-          } else if (data.status === 'failed') {
-            if (pollRef.current) clearInterval(pollRef.current);
-            pollRef.current = null;
-            setState('failed');
-          }
+          if (data.status === 'ready') { if (pollRef.current) clearInterval(pollRef.current); pollRef.current = null; setState('ready'); }
+          else if (data.status === 'failed') { if (pollRef.current) clearInterval(pollRef.current); pollRef.current = null; setState('failed'); }
         }
-      } catch {
-        // keep polling
-      }
+      } catch { /* keep polling */ }
     }, 7_000);
   }, [jobId]);
 
-  useEffect(() => {
-    if (state === 'ready' && !sdkUrl) fetchSdkUrl();
-  }, [state, sdkUrl, fetchSdkUrl]);
-
+  useEffect(() => { if (state === 'ready' && !sdkUrl) fetchSdkUrl(); }, [state, sdkUrl, fetchSdkUrl]);
   useEffect(() => { fetchJob(); }, [fetchJob]);
-
-  useEffect(() => {
-    if (state === 'polling') startPoll();
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [state, startPoll]);
+  useEffect(() => { if (state === 'polling') startPoll(); return () => { if (pollRef.current) clearInterval(pollRef.current); }; }, [state, startPoll]);
 
   if (state === 'loading') {
-    return (
-      <div className="min-h-dvh w-full flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-sky-700" />
-      </div>
-    );
+    return <div className="min-h-dvh w-full flex items-center justify-center bg-background"><Loader2 className="h-10 w-10 animate-spin text-sky-700" /></div>;
   }
 
   if (state === 'not_found') {
@@ -177,9 +137,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
             <FileText className="h-16 w-16 text-muted-foreground/30" />
             <p className="mt-4 text-lg font-medium text-foreground">{pt('comparisonNotFound')}</p>
             <p className="mt-2 text-sm text-muted-foreground">{pt('comparisonNotFoundDesc')}</p>
-            <Button className="mt-6" onClick={() => router.push(backUrl)}>
-              {pt('backToDocCompare')}
-            </Button>
+            <Button className="mt-6" onClick={() => router.push(backUrl)}>{pt('backToDocCompare')}</Button>
           </div>
         </div>
       </div>
@@ -194,32 +152,16 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
             <Loader2 className="h-12 w-12 animate-spin text-sky-700" />
             <p className="mt-4 text-lg font-medium text-foreground">{pt('comparingDocuments')}</p>
             <p className="mt-2 text-sm text-muted-foreground">{pt('comparingDesc')}</p>
-            {job && (
-              <p className="mt-2 text-xs text-muted-foreground/60">
-                {job.baseFilename} vs {job.compareFilename}
-              </p>
-            )}
+            {job && <p className="mt-2 text-xs text-muted-foreground/60">{job.baseFilename} vs {job.compareFilename}</p>}
             <div className="mt-8 flex items-center gap-4">
-              {[
-                { key: 'submitted', label: pt('statusSubmitted') },
-                { key: 'processing', label: pt('statusAnalyzing') },
-                { key: 'ready', label: pt('statusComplete') },
-              ].map((s, i) => {
+              {[{ key: 'submitted', label: pt('statusSubmitted') }, { key: 'processing', label: pt('statusAnalyzing') }, { key: 'ready', label: pt('statusComplete') }].map((s, i) => {
                 const currentIdx = job ? ['submitted', 'processing', 'ready'].indexOf(job.status) : -1;
-                const stepIdx = i;
-                const isDone = currentIdx > stepIdx;
-                const isCurrent = currentIdx === stepIdx || (job && job.status === s.key);
+                const isDone = currentIdx > i;
+                const isCurrent = currentIdx === i || (job && job.status === s.key);
                 return (
                   <div key={s.key} className="flex items-center gap-2">
                     {i > 0 && <div className={cn('h-px w-10', isDone ? 'bg-green-400' : 'bg-sky-700/25')} />}
-                    <span className={cn(
-                      'rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors',
-                      isDone && 'border-green-500 bg-green-50 text-green-700',
-                      isCurrent && 'border-primary bg-primary/10 text-sky-700',
-                      !isDone && !isCurrent && 'border-border bg-muted/50 text-muted-foreground/50'
-                    )}>
-                      {isDone && '✓ '}{s.label}
-                    </span>
+                    <span className={cn('rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors', isDone && 'border-green-500 bg-green-50 text-green-700', isCurrent && 'border-sky-700 bg-sky-50 text-sky-700', !isDone && !isCurrent && 'border-border bg-muted/50 text-muted-foreground/50')}>{isDone && '✓ '}{s.label}</span>
                   </div>
                 );
               })}
@@ -236,13 +178,9 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
       <div className="min-h-dvh w-full bg-background">
         <div className="mx-auto max-w-[1800px] px-4 pt-20 sm:pt-24 pb-4 sm:pb-6">
           <section className="flex flex-col items-center justify-center py-16">
-            <div className="rounded-full bg-destructive/10 p-4">
-              <FileText className="h-10 w-10 text-destructive" />
-            </div>
+            <div className="rounded-full bg-destructive/10 p-4"><FileText className="h-10 w-10 text-destructive" /></div>
             <p className="mt-4 text-lg font-medium text-foreground">{pt('compareFailedTitle')}</p>
-            <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">
-              {job?.errorMessage || pt('compareFailedDesc')}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">{job?.errorMessage || pt('compareFailedDesc')}</p>
             <div className="mt-6 flex gap-3">
               <button type="button" onClick={() => router.push(backUrl)} className={cn(TRANSLATE_PRIMARY_CTA_CLASSNAME, 'inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-5 text-sm font-bold')}>{pt('newComparison')}</button>
               <Button variant="outline" onClick={() => window.location.reload()}>{pt('retry')}</Button>
@@ -256,69 +194,39 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
   return (
     <div className="min-h-dvh w-full bg-background">
       <div className="mx-auto max-w-[1800px] px-4 pt-20 sm:pt-24 pb-4 sm:pb-6">
+        {/* Header bar */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm">
-            <Button variant="ghost" size="sm" onClick={() => router.push(backUrl)} className="gap-1 text-sm h-8 px-2">
-              &larr; {pt('back')}
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => router.push(backUrl)} className="gap-1 text-sm h-8 px-2">&larr; {pt('back')}</Button>
             <span className="text-muted-foreground/30">|</span>
             <FileText className="h-4 w-4 text-sky-700" />
-            <span className="font-semibold">{job?.baseFilename}</span>
+            <span className="font-semibold text-foreground">{job?.baseFilename}</span>
             <span className="text-xs text-muted-foreground/60">{job?.baseFormat?.toUpperCase()}</span>
             <GitCompare className="h-3 w-3 text-muted-foreground/40" />
             <FileText className="h-4 w-4 text-sky-700" />
-            <span className="font-semibold">{job?.compareFilename}</span>
+            <span className="font-semibold text-foreground">{job?.compareFilename}</span>
             <span className="text-xs text-muted-foreground/60">{job?.compareFormat?.toUpperCase()}</span>
-            {job?.createdAt && (
-              <>
-                <span className="text-muted-foreground/30">|</span>
-                <span className="text-xs text-muted-foreground/60">{new Date(job.createdAt).toLocaleString()}</span>
-              </>
-            )}
-            {job?.similarity && (
-              <>
-                <span className="text-muted-foreground/30">|</span>
-                <span className="text-xs text-sky-700 font-semibold">Similarity {job.similarity}</span>
-              </>
-            )}
-            {job?.totalDiff != null && (
-              <>
-                <span className="text-muted-foreground/30">|</span>
-                <span className="text-xs font-medium">{job.totalDiff} diffs</span>
-              </>
-            )}
+            {job?.createdAt && <><span className="text-muted-foreground/30">|</span><span className="text-xs text-muted-foreground/60">{new Date(job.createdAt).toLocaleString()}</span></>}
+            {job?.similarity && <><span className="text-muted-foreground/30">|</span><span className="text-xs text-sky-700 font-semibold">Similarity {job.similarity}</span></>}
+            {job?.totalDiff != null && <><span className="text-muted-foreground/30">|</span><span className="text-xs font-medium text-foreground">{job.totalDiff} diffs</span></>}
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => router.push(backUrl)}
-              className={cn(TRANSLATE_PRIMARY_CTA_CLASSNAME, 'inline-flex items-center justify-center gap-1.5 rounded-lg py-1.5 px-3 text-xs font-semibold')}
-            >
-              {pt('newComparison')}
-            </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-              className="gap-1 h-8 text-muted-foreground/50 hover:text-red-600 hover:bg-red-50"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{pt('delete')}</span>
-            </Button>
+            <button type="button" onClick={() => router.push(backUrl)} className={cn(TRANSLATE_PRIMARY_CTA_CLASSNAME, 'inline-flex items-center justify-center gap-1.5 rounded-lg py-1.5 px-3 text-xs font-semibold')}>{pt('newComparison')}</button>
+            <Button variant="ghost" size="sm" onClick={handleDelete} className="gap-1 h-8 text-muted-foreground/50 hover:text-red-600 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5" /><span className="hidden sm:inline">{pt('delete')}</span></Button>
           </div>
         </div>
 
+        {/* Custom summary panel — i18n translated statistics above SDK iframe */}
+        <CompareResultCustom jobId={jobId} />
+
+        {/* SDK iframe — document diff with red highlights (original left panel preserved) */}
         {sdkUrl ? (
           <CompareViewer sdkUrl={sdkUrl} />
         ) : (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-sky-700" />
-          </div>
+          <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-sky-700" /></div>
         )}
 
-        <div className="mt-6 rounded-xl border border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground leading-relaxed">
-          {pt('trustText')}
-        </div>
+        <div className="mt-6 rounded-xl border border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground leading-relaxed">{pt('trustText')}</div>
       </div>
     </div>
   );
