@@ -10,7 +10,6 @@ import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { useRouter } from '@/core/i18n/navigation';
-import CompareResultCustom from './compare-result-custom';
 import CompareViewer from './compare-viewer';
 
 type JobData = {
@@ -194,7 +193,6 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
   return (
     <div className="min-h-dvh w-full bg-background">
       <div className="mx-auto max-w-[1800px] px-4 pt-20 sm:pt-24 pb-4 sm:pb-6">
-        {/* Header bar */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm">
             <Button variant="ghost" size="sm" onClick={() => router.push(backUrl)} className="gap-1 text-sm h-8 px-2">&larr; {pt('back')}</Button>
@@ -216,15 +214,7 @@ export default function CompareResultPageClient({ jobId }: { jobId: string }) {
           </div>
         </div>
 
-        {/* Custom summary panel — i18n translated statistics above SDK iframe */}
-        <CompareResultCustom jobId={jobId} />
-
-        {/* SDK iframe — document diff with red highlights (original left panel preserved) */}
-        {sdkUrl ? (
-          <CompareViewer sdkUrl={sdkUrl} />
-        ) : (
-          <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-sky-700" /></div>
-        )}
+        {sdkUrl ? <CompareViewer sdkUrl={sdkUrl} /> : <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-sky-700" /></div>}
 
         <div className="mt-6 rounded-xl border border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground leading-relaxed">{pt('trustText')}</div>
       </div>

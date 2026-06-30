@@ -6,7 +6,6 @@ import {
   DocumentCompareJobStatus,
 } from '@/shared/models/compare-job';
 import { queryCompareTask } from '@/shared/lib/translator/compare-api';
-import { putObject } from '@/shared/lib/translate-r2';
 
 export async function GET(
   _req: Request,
@@ -54,18 +53,10 @@ export async function GET(
 
         if (qr.status === 'success') {
           const subTask = qr.subTaskList?.[0];
-          const resultR2Key = `translator/${user.id}/${id}/result.json`;
-          const resultJson = new TextEncoder().encode(JSON.stringify({
-            similarity: qr.similarity || subTask?.similarity || null,
-            totalDiff: qr.totalDiff ?? subTask?.totalDiff ?? null,
-            subTaskList: qr.subTaskList || null,
-          }));
-          try { await putObject(resultR2Key, resultJson, 'application/json'); } catch (e) { console.error('[compare/status] failed to save result JSON', e); }
           await updateCompareJob(id, user.id, {
             status: DocumentCompareJobStatus.ready,
             similarity: qr.similarity || subTask?.similarity || null,
             totalDiff: qr.totalDiff ?? subTask?.totalDiff ?? null,
-            resultR2Key,
           });
         } else if (qr.status === 'failed') {
           await updateCompareJob(id, user.id, {
