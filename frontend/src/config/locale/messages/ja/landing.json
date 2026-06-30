@@ -42,6 +42,11 @@
           "title": "料金",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "ドキュメント",
+          "url": "/docs",
+          "icon": "BookOpen"
         }
       ]
     },

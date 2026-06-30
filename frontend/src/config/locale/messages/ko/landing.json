@@ -42,6 +42,11 @@
           "title": "요금",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "문서",
+          "url": "/docs",
+          "icon": "BookOpen"
         }
       ]
     },

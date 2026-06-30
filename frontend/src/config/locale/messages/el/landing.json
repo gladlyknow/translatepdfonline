@@ -42,6 +42,11 @@
           "title": "Τιμές",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "Τεκμηρίωση",
+          "url": "/docs",
+          "icon": "BookOpen"
         }
       ]
     },

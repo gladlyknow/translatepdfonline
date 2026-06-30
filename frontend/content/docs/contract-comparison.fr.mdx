@@ -1,0 +1,39 @@
+---
+title: Comparaison de Contrats
+description: Comparez deux documents PDF côte à côte — détection des différences par IA pour les contrats et documents juridiques.
+---
+
+## Qu'est-ce que la Comparaison de Contrats ?
+
+La **Comparaison de Contrats** est un outil basé sur l'IA qui analyse deux versions d'un document et met en évidence chaque différence — texte ajouté, supprimé ou modifié — pour vous permettre de réviser les changements sans relire manuellement page par page.
+
+Il fonctionne sur les contrats, les accords juridiques, les projets de politiques, les conditions générales et tout PDF contenant du texte. Téléversez une copie originale et une copie modifiée ; l'outil retourne un diff structuré avec un score de similarité et des éléments de changement catégorisés.
+
+## Fonctionnement
+
+1. **Téléversez** le document original et la version modifiée (les deux doivent être au format PDF).
+2. Le système extrait le texte des deux fichiers et exécute une comparaison par IA.
+3. Les résultats affichent un **pourcentage de similarité**, un **résumé des différences** (nombre total d'éléments, ajouts, suppressions, modifications) et le détail structuré de chaque changement.
+
+La comparaison s'effectue côté serveur. Les documents volumineux peuvent prendre plus de temps ; l'outil indique la progression pendant l'exécution.
+
+## Fonctionnalités
+
+- **Comparaison côte à côte** — visualisez le texte original et modifié en parallèle.
+- **Score de similarité** — un pourcentage indiquant la proximité des deux documents.
+- **Diffs catégorisés** — changements regroupés en ajouts, suppressions ou modifications.
+- **Historique des travaux** — les comparaisons passées sont sauvegardées et accessibles depuis le panneau Historique.
+- **Résultats partageables** — chaque comparaison reçoit une URL unique à partager avec vos collègues.
+
+## Formats pris en charge
+
+- **Entrée :** PDF (avec texte ; les PDF numérisés doivent d'abord passer par l'OCR — voir [Atelier OCR](/docs/ocr-workbench)).
+- **Sortie :** Vue interactive des différences dans le navigateur ; données brutes du diff accessibles depuis la page de résultat.
+
+## Remarques
+
+- La qualité de la comparaison dépend de la précision de l'extraction du texte. Les PDF très numérisés ou riches en images peuvent produire des résultats incomplets.
+- L'outil est optimisé pour les différences textuelles dans les contrats et documents juridiques ; il ne compare pas la mise en page visuelle, les signatures ni les cachets.
+- Les fichiers téléversés suivent la même [politique de conservation](/docs#sécurité-et-conservation-des-données) que les autres documents sur la plateforme.
+
+Pour l'outil interactif complet, visitez [Comparaison de Contrats](/contract-comparison).

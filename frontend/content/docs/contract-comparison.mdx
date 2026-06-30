@@ -1,0 +1,39 @@
+---
+title: Contract Comparison
+description: Compare two documents side by side — AI-powered diff detection for contracts, legal documents, and PDFs.
+---
+
+## What is Contract Comparison?
+
+**Contract Comparison** is an AI-powered tool that analyzes two versions of a document and highlights every difference — added, deleted, or modified text — so you can review changes without manually scanning pages line by line.
+
+It works on contracts, legal agreements, policy drafts, terms of service, and any text-based PDF. Upload an original and a revised copy; the tool returns a structured diff with similarity scoring and categorized change items.
+
+## How it works
+
+1. **Upload** the original document and the modified version (both must be PDF).
+2. The system extracts text from both files and runs an AI comparison pass.
+3. Results show a **similarity percentage**, a **diff summary** (total items, added, deleted, modified), and structured change details.
+
+Comparison happens server-side. Large documents may take longer; the tool shows progress while the job runs.
+
+## Features
+
+- **Side-by-side comparison** — view original and revised text in parallel.
+- **Similarity score** — a percentage indicating how close the two documents are.
+- **Categorized diffs** — changes grouped as added, deleted, or modified.
+- **Job history** — past comparisons are saved and can be reopened from the History panel.
+- **Shareable results** — each comparison gets a unique URL you can share with colleagues.
+
+## Supported formats
+
+- **Input:** PDF (text-based; scanned PDFs should go through OCR first — see [OCR Workbench](/docs/ocr-workbench)).
+- **Output:** Interactive diff view in the browser; raw diff data accessible via the comparison result page.
+
+## Notes
+
+- Comparison quality depends on text extraction accuracy. Heavily scanned or image-heavy PDFs may produce incomplete results.
+- The tool is optimized for text-level diffs in contracts and legal documents; it does not compare visual layout, signatures, or stamps.
+- Uploaded files follow the same [retention policy](/docs#data-security-and-retention) as other documents on the platform.
+
+For the full interactive tool, visit [Contract Comparison](/contract-comparison).

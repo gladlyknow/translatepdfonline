@@ -17,26 +17,59 @@ const es: Partial<Translations> = {
   search: 'Buscar contenido',
 };
 
+const fr: Partial<Translations> = {
+  search: 'Rechercher',
+};
+
+const it: Partial<Translations> = {
+  search: 'Cerca',
+};
+
+const el: Partial<Translations> = {
+  search: 'Αναζήτηση',
+};
+
+const ja: Partial<Translations> = {
+  search: '検索',
+};
+
+const ko: Partial<Translations> = {
+  search: '검색',
+};
+
+const de: Partial<Translations> = {
+  search: 'Suchen',
+};
+
+const ru: Partial<Translations> = {
+  search: 'Поиск',
+};
+
 const docsUiTranslations: Record<string, Partial<Translations> | undefined> = {
   zh,
   es,
+  fr,
+  it,
+  el,
+  ja,
+  ko,
+  de,
+  ru,
 };
 
 // available languages that will be displayed on UI
 // make sure `locale` is consistent with your i18n config
 const locales = [
-  {
-    name: 'English',
-    locale: 'en',
-  },
-  {
-    name: '简体中文',
-    locale: 'zh',
-  },
-  {
-    name: 'Español',
-    locale: 'es',
-  },
+  { name: 'English', locale: 'en' },
+  { name: '简体中文', locale: 'zh' },
+  { name: 'Español', locale: 'es' },
+  { name: 'Français', locale: 'fr' },
+  { name: 'Italiano', locale: 'it' },
+  { name: 'Ελληνικά', locale: 'el' },
+  { name: '日本語', locale: 'ja' },
+  { name: '한국어', locale: 'ko' },
+  { name: 'Deutsch', locale: 'de' },
+  { name: 'Русский', locale: 'ru' },
 ];
 
 export default async function DocsRootLayout({

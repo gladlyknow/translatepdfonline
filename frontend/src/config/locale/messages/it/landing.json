@@ -42,6 +42,11 @@
           "title": "Prezzi",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "Documentazione",
+          "url": "/docs",
+          "icon": "BookOpen"
         }
       ]
     },

@@ -42,6 +42,11 @@
           "title": "Тарифы",
           "url": "/pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "Документация",
+          "url": "/docs",
+          "icon": "BookOpen"
         }
       ]
     },
