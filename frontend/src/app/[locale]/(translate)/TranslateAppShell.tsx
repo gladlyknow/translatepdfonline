@@ -16,11 +16,12 @@ export function TranslateAppShell({
   children,
   footer,
   userNav,
+  header,
 }: {
   children: ReactNode;
   footer?: ReactNode;
-  /** 与落地页 Header 一致的用户菜单（含退出登录） */
   userNav?: UserNav;
+  header?: ReactNode;
 }) {
   const pathname = usePathname();
   const shellVariant = pathname.includes('/ocrtranslator') ? 'ocr' : 'translate';
@@ -32,17 +33,17 @@ export function TranslateAppShell({
           <TranslateHistoryDrawerProvider>
             <div
               className={cn(
-                'flex flex-col bg-zinc-50 dark:bg-zinc-950',
+                'flex flex-col bg-background',
                 // OCR：锁视口高度，避免 body 滚动把侧栏+portal 整块卷走（仅 main overflow-hidden 不够）
                 shellVariant === 'ocr'
                   ? 'h-[100dvh] max-h-[100dvh] overflow-hidden'
                   : 'min-h-screen'
               )}
             >
-              <TranslateShellHeader userNav={userNav} variant={shellVariant} />
+              {header ?? <TranslateShellHeader userNav={userNav} variant={shellVariant} />}
               <main
                 className={cn(
-                  'flex min-h-0 flex-1 flex-col',
+                  'flex min-h-0 flex-1 flex-col pt-16 lg:pt-20',
                   shellVariant === 'ocr'
                     ? 'overflow-hidden'
                     : 'min-h-[calc(100vh-3.5rem)] overflow-auto'

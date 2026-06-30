@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from '@/core/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { CloudUpload, FileText, Loader2 } from 'lucide-react';
+import { Clock, CloudUpload, FileText, Loader2 } from 'lucide-react';
 
 import { useAppContext } from '@/shared/contexts/app';
 import { translateApi, type UILang } from '@/shared/lib/translate-api';
@@ -212,6 +212,14 @@ export function PdfToTextClient({ children }: { children?: ReactNode }) {
       {/* Upload + Controls */}
       <div className="mx-auto mt-10 w-full max-w-3xl px-4">
         <div className="rounded-2xl border-2 border bg-card p-6 shadow-sm sm:p-8">
+          <div className="flex justify-end mb-2">
+            <Link
+              href="/upload#translate-history"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <Clock className="h-4 w-4" /> History
+            </Link>
+          </div>
           <UploadDropzone
             onUploaded={handleUploaded}
             initialFile={lastUploadedFile}

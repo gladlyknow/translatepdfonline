@@ -68,6 +68,7 @@ node_modules/
 frontend/node_modules/
 frontend/.next/
 frontend/.git/
+frontend/.env.example/
 frontend_old/
 frontend/db_bak/
 /.github/

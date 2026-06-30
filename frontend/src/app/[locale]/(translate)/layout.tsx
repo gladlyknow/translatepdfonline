@@ -6,6 +6,7 @@ import type {
   Footer as FooterType,
   Header as HeaderType,
 } from '@/shared/types/blocks/landing';
+import { Header } from '@/themes/default/blocks/header';
 import { FooterWithTranslateBehavior } from '@/themes/default/blocks/FooterWithTranslateBehavior';
 
 import { TranslateAppShell } from './TranslateAppShell';
@@ -23,6 +24,7 @@ export default async function TranslateGroupLayout({
   return (
     <TranslateAppShell
       userNav={landingHeader.user_nav}
+      header={<Header header={landingHeader} />}
       footer={
         <FooterWithTranslateBehavior>
           <Footer footer={footer} />

@@ -57,6 +57,7 @@ export const localeMessagesPaths = [
   'pages/pdf-to-text',
   'pages/image-to-text',
   'pages/pricing',
+  'pages/contract-comparison',
   'translate/pdfViewer',
   'translate/upload',
   'translate/translate',

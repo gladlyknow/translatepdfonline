@@ -34,9 +34,9 @@
           ]
         },
         {
-          "title": "Upload",
-          "url": "/upload",
-          "icon": "Upload"
+          "title": "Contract Comparison",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "Pricing",
@@ -47,11 +47,6 @@
           "title": "Docs",
           "url": "/docs",
           "icon": "BookOpen"
-        },
-        {
-          "title": "History",
-          "url": "/upload#translate-history",
-          "icon": "History"
         }
       ]
     },

@@ -25,11 +25,25 @@
         "tip": "Special launch pricing for early users",
         "buttons": [
           {
+            "title": "Open OCR Translator",
+            "icon": "ScanLine",
+            "url": "/ocrtranslator",
+            "target": "_self",
+            "variant": "dark"
+          },
+          {
             "title": "Get Started",
             "icon": "Zap",
             "url": "/upload",
             "target": "_self",
-            "variant": "dark"
+            "variant": "outline"
+          },
+          {
+            "title": "Contract Comparison",
+            "icon": "GitCompare",
+            "url": "/contract-comparison",
+            "target": "_self",
+            "variant": "outline"
           },
           {
             "title": "Read Documentation",

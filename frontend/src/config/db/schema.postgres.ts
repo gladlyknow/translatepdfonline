@@ -668,3 +668,39 @@ export const translationTaskExport = table(
     index('idx_translation_task_export_status').on(t.status),
   ]
 );
+
+export const documentCompareJob = table(
+  'document_compare_job',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    baseR2Key: text('base_r2_key').notNull(),
+    baseFilename: text('base_filename').notNull(),
+    baseFormat: text('base_format').notNull().default('pdf'),
+    basePublicUrl: text('base_public_url'),
+    compareR2Key: text('compare_r2_key').notNull(),
+    compareFilename: text('compare_filename').notNull(),
+    compareFormat: text('compare_format').notNull().default('pdf'),
+    comparePublicUrl: text('compare_public_url'),
+    basePageCount: integer('base_page_count').notNull().default(1),
+    comparePageCount: integer('compare_page_count').notNull().default(1),
+    totalPageCount: integer('total_page_count').notNull().default(2),
+    baiduTaskId: text('baidu_task_id'),
+    status: text('status').notNull().default('uploaded'),
+    resultR2Key: text('result_r2_key'),
+    similarity: text('similarity'),
+    totalDiff: integer('total_diff'),
+    errorMessage: text('error_message'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_doc_compare_job_user_created').on(t.userId, t.createdAt),
+    index('idx_doc_compare_job_status').on(t.status),
+  ]
+);

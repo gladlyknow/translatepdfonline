@@ -1,0 +1,525 @@
+
+
+> shipany-template-two@1.8.2 dev
+> next dev --turbopack
+
+[MDX] updated map file in 11.648959999999988ms
+[MDX] started dev server
+ ⚠ Port 3000 is in use by an unknown process, using available port 3003 instead.
+   ▲ Next.js 15.5.7 (Turbopack)
+   - Local:        http://localhost:3003
+   - Network:      http://10.254.128.253:3003
+   - Environments: .env
+   - Experiments (use with caution):
+     ✓ mdxRs
+     · optimizePackageImports
+
+ ✓ Starting...
+Found a non-empty CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE variable for binding. Hyperdrive will connect to this database during local development.
+ ✓ Compiled middleware in 372ms
+ ✓ Ready in 3.2s
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ✓ Compiled in 509ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/contract-comparison/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/android/claude/translatepdfonline/frontend/.next/server/app/[locale]/(landing)/page/app-build-manifest.json'
+}

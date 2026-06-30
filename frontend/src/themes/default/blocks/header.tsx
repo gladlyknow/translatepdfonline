@@ -83,7 +83,7 @@ export function Header({ header }: { header: HeaderType }) {
   const pathname = usePathname();
   const pathSegments = pathname.split('/').filter(Boolean);
   const historyDrawer = useTranslateHistoryDrawerOptional();
-  const solidPages = ['pdf-to-text', 'image-to-text'];
+  const solidPages = ['pdf-to-text', 'image-to-text', 'contract-comparison', 'upload', 'translate', 'ocrtranslator'];
   const isHomePage =
     pathSegments.length === 0 ||
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));
@@ -158,7 +158,7 @@ export function Header({ header }: { header: HeaderType }) {
         viewport={false}
         className="**:data-[slot=navigation-menu-content]:top-10 max-lg:hidden"
       >
-        <NavigationMenuList className="gap-2">
+        <NavigationMenuList className="gap-2 flex-nowrap">
           {navItems.map((item, idx) => {
             if (!item.children || item.children.length === 0) {
               return (
@@ -168,7 +168,7 @@ export function Header({ header }: { header: HeaderType }) {
                     target={item.target || '_self'}
                     title={item.title ?? ''}
                     onClick={(event) => handleNavItemClick(event, item)}
-                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:bg-muted/30 hover:text-foreground ${
+                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:bg-muted/30 hover:text-foreground whitespace-nowrap ${
                       item.is_active || pathname.endsWith(item.url as string)
                         ? 'bg-muted/40 text-muted-foreground'
                         : ''
@@ -183,7 +183,7 @@ export function Header({ header }: { header: HeaderType }) {
 
             return (
               <NavigationMenuItem key={idx}>
-                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-foreground">
+                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-foreground whitespace-nowrap">
                   <NavItemIcon item={item} className="h-4 w-4" />
                   {item.title}
                 </NavigationMenuTrigger>
@@ -334,14 +334,14 @@ export function Header({ header }: { header: HeaderType }) {
       <header
         data-state={isMobileMenuOpen ? 'active' : 'inactive'}
         {...(headerSolid && { 'data-scrolled': true })}
-        className="has-data-[state=open]:bg-background/50 fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen has-data-[state=open]:backdrop-blur"
+        className="has-data-[state=open]:bg-background fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen"
       >
         <div
           className={cn(
             'absolute inset-x-0 top-0 z-50 h-18 border-transparent ring-1 ring-transparent transition-all duration-300',
-            'in-data-scrolled:border-foreground/5 in-data-scrolled:bg-background/75 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
-            'has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card/75 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10 has-data-[state=open]:backdrop-blur',
-            'max-lg:in-data-[state=active]:bg-background/75 max-lg:h-14 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
+            'in-data-scrolled:border-foreground/5 in-data-scrolled:bg-background in-data-scrolled:border-b',
+            'has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10',
+            'max-lg:in-data-[state=active]:bg-background max-lg:h-14 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen'
           )}
         >
           <div className="container">

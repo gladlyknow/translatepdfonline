@@ -34,9 +34,9 @@
           ]
         },
         {
-          "title": "上传",
-          "url": "/upload",
-          "icon": "Upload"
+          "title": "合同对比",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "价格",
@@ -47,11 +47,6 @@
           "title": "文档",
           "url": "/docs",
           "icon": "BookOpen"
-        },
-        {
-          "title": "历史",
-          "url": "/upload#translate-history",
-          "icon": "History"
         }
       ]
     },
