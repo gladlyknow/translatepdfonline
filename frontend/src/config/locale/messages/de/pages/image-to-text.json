@@ -52,5 +52,7 @@
   "heroUploadLead": "Bild hochladen, Text mit KI extrahieren",
   "heroUploadSub": "Unterstützt PNG, JPG, BMP, WebP. Erkennung in Sekunden, editierbarer Text.",
   "heroUploadHint": "Übersetzung in 10+ Sprachen nach der OCR-Extraktion verfügbar.",
-  "errorPageCountPending": "Die Seitenzahl wird noch ermittelt. Bitte versuchen Sie es in einigen Sekunden erneut."
+  "errorPageCountPending": "Die Seitenzahl wird noch ermittelt. Bitte versuchen Sie es in einigen Sekunden erneut.",
+  "exploreContractCompareLabel": "KI-Vertragsvergleich",
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung."
 }

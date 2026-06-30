@@ -52,5 +52,7 @@
   "heroUploadLead": "Drop a PDF, extract text with AI",
   "heroUploadSub": "AI OCR extracts text from any PDF — scanned, image-based, or digital. Export to Word, TXT, or Markdown.",
   "heroUploadHint": "10+ languages supported for text extraction and translation.",
-  "errorPageCountPending": "Document page count is still being prepared. Please retry in a few seconds."
+  "errorPageCountPending": "Document page count is still being prepared. Please retry in a few seconds.",
+  "exploreContractCompareLabel": "AI Contract Comparison",
+  "exploreContractCompareDesc": "Compare contracts with AI-powered clause detection and side-by-side diff."
 }

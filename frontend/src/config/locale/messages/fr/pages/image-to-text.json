@@ -52,5 +52,7 @@
   "heroUploadLead": "Importez une image et extrayez le texte par IA",
   "heroUploadSub": "Formats PNG, JPG, BMP, WebP acceptés. Reconnaissance en quelques secondes, texte éditable.",
   "heroUploadHint": "Traduction en 10+ langues disponible après extraction OCR.",
-  "errorPageCountPending": "Le nombre de pages est en cours de préparation. Veuillez réessayer dans quelques secondes."
+  "errorPageCountPending": "Le nombre de pages est en cours de préparation. Veuillez réessayer dans quelques secondes.",
+  "exploreContractCompareLabel": "Comparaison de Contrats IA",
+  "exploreContractCompareDesc": "Comparez des contrats avec detection de clauses par IA."
 }

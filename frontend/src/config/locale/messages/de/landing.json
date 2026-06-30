@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "KI-OCR",
+          "children": [
+            {
+              "title": "PDF zu Text",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "Bild zu Text",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "Vertragsvergleich",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "Preise",

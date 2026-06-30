@@ -52,5 +52,7 @@
   "heroUploadLead": "PDF를 업로드하고 AI로 텍스트 추출",
   "heroUploadSub": "AI OCR이 스캔 PDF, 이미지 PDF, 디지털 PDF에서 텍스트를 추출합니다. Word, TXT, Markdown으로 내보내기.",
   "heroUploadHint": "10개 이상 언어의 텍스트 추출 및 번역을 지원합니다.",
-  "errorPageCountPending": "문서 페이지 수를 준비 중입니다. 잠시 후 다시 시도해 주세요."
+  "errorPageCountPending": "문서 페이지 수를 준비 중입니다. 잠시 후 다시 시도해 주세요.",
+  "exploreContractCompareLabel": "AI 계약 비교",
+  "exploreContractCompareDesc": "AI 기반 조항 감지 및 병렬 비교."
 }

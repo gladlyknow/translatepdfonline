@@ -52,5 +52,7 @@
   "heroUploadLead": "PDF hochladen, Text mit KI extrahieren",
   "heroUploadSub": "KI-OCR extrahiert Text aus jedem PDF — gescannt, bildbasiert oder digital. Export als Word, TXT oder Markdown.",
   "heroUploadHint": "10+ Sprachen für Textextraktion und Übersetzung unterstützt.",
-  "errorPageCountPending": "Die Seitenzahl wird noch ermittelt. Bitte versuchen Sie es in einigen Sekunden erneut."
+  "errorPageCountPending": "Die Seitenzahl wird noch ermittelt. Bitte versuchen Sie es in einigen Sekunden erneut.",
+  "exploreContractCompareLabel": "KI-Vertragsvergleich",
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung."
 }

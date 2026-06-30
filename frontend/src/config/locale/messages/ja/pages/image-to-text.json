@@ -52,5 +52,7 @@
   "heroUploadLead": "画像をアップロード、AIが文字を即時抽出",
   "heroUploadSub": "PNG/JPG/BMP/WebP対応。数秒で認識、編集可能なテキストを出力。",
   "heroUploadHint": "OCR抽出後、10言語以上に翻訳できます。",
-  "errorPageCountPending": "ページ数を準備中です。数秒後にもう一度お試しください。"
+  "errorPageCountPending": "ページ数を準備中です。数秒後にもう一度お試しください。",
+  "exploreContractCompareLabel": "AI契約比較",
+  "exploreContractCompareDesc": "AIによる条項検出と並列差分で契約を比較。"
 }

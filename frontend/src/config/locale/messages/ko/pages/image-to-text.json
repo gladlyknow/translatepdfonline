@@ -52,5 +52,7 @@
   "heroUploadLead": "이미지를 업로드하고 AI로 텍스트 추출",
   "heroUploadSub": "PNG, JPG, BMP, WebP 지원. 수 초 내 인식 완료, 편집 가능한 텍스트 제공.",
   "heroUploadHint": "OCR 추출 후 10개 이상 언어로 번역 가능.",
-  "errorPageCountPending": "문서 페이지 수를 준비 중입니다. 잠시 후 다시 시도해 주세요."
+  "errorPageCountPending": "문서 페이지 수를 준비 중입니다. 잠시 후 다시 시도해 주세요.",
+  "exploreContractCompareLabel": "AI 계약 비교",
+  "exploreContractCompareDesc": "AI 기반 조항 감지 및 병렬 비교."
 }

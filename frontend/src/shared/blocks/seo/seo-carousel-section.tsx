@@ -14,7 +14,7 @@ import { cn } from '@/shared/lib/utils';
 type Props = {
   title: string;
   items: ReactNode[];
-  variant?: 'card' | 'section';
+  variant?: 'card' | 'section' | 'image';
   className?: string;
 };
 
@@ -53,7 +53,9 @@ export function SeoCarouselSection({ title, items, variant = 'card', className }
         <CarouselContent>
           {items.map((item, i) => (
             <CarouselItem key={i} className="basis-full">
-              {variant === 'card' ? (
+              {variant === 'image' ? (
+                <div className="px-1">{item}</div>
+              ) : variant === 'card' ? (
                 <div className="rounded-2xl border-2 border bg-card p-6 h-full text-center">
                   {item}
                 </div>

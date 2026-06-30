@@ -83,14 +83,13 @@ const FALLBACKS: Record<string, string> = {
   heroTitle: 'Compare Any Two Documents',
   heroText: 'Upload any two files and let AI detect every insertion, deletion, and modification.',
   howItWorks: 'How It Works',
-  howStep1Title: 'Upload Two Files',
-  howStep1Desc: 'Drop the original and modified documents. Works with PDF, Word, or images.',
-  howStep2Title: 'AI Compares Everything',
-  howStep2Desc: 'Our AI aligns both documents and detects every insertion, deletion, font change, and layout shift.',
-  howStep3Title: 'Review Differences',
-  howStep3Desc: 'Side-by-side diff view highlights every change with page-level precision.',
+  howStep1Title: '1. Upload Two Files',
+  howStep1Desc: 'Start your contract comparison by dropping the original and modified documents — our contract comparison tool supports PDF, Word, and images with encrypted US-based transmission.',
+  howStep2Title: '2. AI Comparison',
+  howStep2Desc: 'Our AI contract comparison engine aligns both documents and detects every insertion, deletion, and layout shift — professional contract comparison with page-level precision.',
+  howStep3Title: '3. Review Side-by-Side',
+  howStep3Desc: 'Complete your contract comparison with color-coded side-by-side highlights — download the contract comparison report built for legal teams managing hundreds of contracts.',
   faqTitle: 'Frequently Asked Questions',
-  previewTitle: 'See It In Action',
 };
 
 export default function DocumentCompareClient() {
@@ -415,31 +414,23 @@ export default function DocumentCompareClient() {
         </div>
       </div>
 
-      {/* How It Works */}
-      <section className="mx-auto w-full max-w-5xl mt-10">
-        <h2 className="text-2xl font-bold text-center mb-8 text-foreground">{pt('howItWorks')}</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          {[{ step: '1', title: pt('howStep1Title'), desc: pt('howStep1Desc') }, { step: '2', title: pt('howStep2Title'), desc: pt('howStep2Desc') }, { step: '3', title: pt('howStep3Title'), desc: pt('howStep3Desc') }].map((s) => (
-            <div key={s.step} className="rounded-2xl border-2 border bg-card p-6 text-center">
-              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-sky-700/10 text-sky-700 text-lg font-bold">{s.step}</div>
-              <h3 className="text-base font-semibold text-foreground mb-2">{s.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Preview Screenshot */}
-      <section className="mx-auto w-full max-w-5xl mt-10">
-        <h2 className="text-2xl font-bold text-center mb-6 text-foreground">{pt('previewTitle', 'See It In Action')}</h2>
-        <Image
-          src="/imgs/features/contract-comparison-preview.png"
-          alt="Contract Comparison Preview"
-          width={1200}
-          height={630}
-          className="w-full rounded-xl border border-border shadow-sm"
-        />
-      </section>
+      {/* How It Works — carousel with full-width screenshots + SEO keywords */}
+      <SeoCarouselSection
+        title={pt('howItWorks')}
+        variant="image"
+        className="mt-10"
+        items={[
+          { img: '/imgs/features/Contract_Comparison_upload.png', title: pt('howStep1Title'), desc: pt('howStep1Desc') },
+          { img: '/imgs/features/Start_AI_Comparison.png', title: pt('howStep2Title'), desc: pt('howStep2Desc') },
+          { img: '/imgs/features/contract-comparison-preview.png', title: pt('howStep3Title'), desc: pt('howStep3Desc') },
+        ].map((s, i) => (
+          <div key={i}>
+            <Image src={s.img} alt={s.title} width={1200} height={630} className="w-full rounded-xl border border-border" />
+            <h3 className="text-lg font-semibold text-foreground mt-4 mb-2">{s.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+          </div>
+        ))}
+      />
 
       {/* FAQ — server-rendered for SEO, carousel for UX */}
       <SeoCarouselSection

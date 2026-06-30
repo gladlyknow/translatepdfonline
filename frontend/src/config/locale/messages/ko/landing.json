@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "AI OCR",
+          "children": [
+            {
+              "title": "PDF→텍스트 변환",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "이미지→텍스트 변환",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "계약 비교",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "요금",

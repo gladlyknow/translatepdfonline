@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "OCR IA",
+          "children": [
+            {
+              "title": "PDF in Testo",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "Immagine in Testo",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "Confronto Contratti",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "Prezzi",

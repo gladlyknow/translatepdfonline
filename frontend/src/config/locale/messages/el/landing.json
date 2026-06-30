@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "AI OCR",
+          "children": [
+            {
+              "title": "PDF σε Κείμενο",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "Εικόνα σε Κείμενο",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "Συγκριση Συμβολαιων",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "Τιμές",

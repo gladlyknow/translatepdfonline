@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "ИИ OCR",
+          "children": [
+            {
+              "title": "PDF в Текст",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "Изображение в Текст",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "Сравнение контрактов",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "Тарифы",

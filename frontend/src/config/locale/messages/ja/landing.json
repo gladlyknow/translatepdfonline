@@ -19,9 +19,24 @@
           "icon": "FileText"
         },
         {
-          "title": "OCR",
-          "url": "/ocrtranslator",
-          "icon_url": "/imgs/branding/generalocr.svg"
+          "title": "AI OCR",
+          "children": [
+            {
+              "title": "PDF→テキスト変換",
+              "url": "/pdf-to-text",
+              "icon": "FileText"
+            },
+            {
+              "title": "画像→テキスト変換",
+              "url": "/image-to-text",
+              "icon": "Image"
+            }
+          ]
+        },
+        {
+          "title": "契約比較",
+          "url": "/contract-comparison",
+          "icon": "GitCompare"
         },
         {
           "title": "料金",
