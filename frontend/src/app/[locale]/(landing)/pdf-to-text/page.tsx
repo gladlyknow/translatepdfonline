@@ -6,6 +6,7 @@ import { Link } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
+import { buildAlternates } from '@/shared/lib/hreflang';
 
 import { PdfToTextClient } from './PdfToTextClient';
 
@@ -32,7 +33,7 @@ export async function generateMetadata({
     title: t('metaTitle'),
     description: t('metaDescription'),
     keywords: t('keywords') || undefined,
-    alternates: { canonical },
+    alternates: { canonical, languages: buildAlternates('/pdf-to-text', locale).languages },
   };
 }
 

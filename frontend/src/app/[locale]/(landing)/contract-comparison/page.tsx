@@ -5,6 +5,7 @@ import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { SoftwareApplicationJsonLd } from '@/shared/blocks/seo/software-json-ld';
+import { buildAlternates } from '@/shared/lib/hreflang';
 import { SeoCarouselSection } from '@/shared/blocks/seo/seo-carousel-section';
 import DocumentCompareClient from '@/shared/blocks/document-compare';
 import { Link } from '@/core/i18n/navigation';
@@ -35,7 +36,7 @@ export async function generateMetadata({
     title: t('metaTitle'),
     description: t('metaDescription'),
     keywords: t.has('keywords') ? t('keywords') : undefined,
-    alternates: { canonical },
+    alternates: { canonical, languages: buildAlternates('/contract-comparison', locale).languages },
   };
 }
 

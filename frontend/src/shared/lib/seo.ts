@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
+import { buildAlternates } from '@/shared/lib/hreflang';
 
 // get metadata for page component
 export function getMetadata(
@@ -50,6 +51,16 @@ export function getMetadata(
     const canonicalUrl = await getCanonicalUrl(
       options.canonicalUrl || '',
       locale || ''
+    );
+
+    // per-page hreflang：基于页面 path 生成各 locale 对应 URL（含 x-default）
+    const alternatesPath =
+      options.canonicalUrl && !options.canonicalUrl.startsWith('http')
+        ? options.canonicalUrl
+        : '/';
+    const { languages: alternatesLanguages } = buildAlternates(
+      alternatesPath,
+      locale || defaultLocale
     );
 
     const title =
@@ -110,6 +121,7 @@ export function getMetadata(
         defaultMetadata.keywords,
       alternates: {
         canonical: canonicalUrl,
+        languages: alternatesLanguages,
       },
       icons: {
         icon: iconUrl,

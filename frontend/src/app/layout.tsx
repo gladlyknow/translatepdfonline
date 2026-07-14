@@ -5,7 +5,6 @@ import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
 import { cacheBustedPublicPath, envConfigs } from '@/config';
-import { locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
 import { ThirdPartyConfigTag, ThirdPartyScripts } from '@/shared/blocks/common/third-party-scripts';
 import { getAllConfigs } from '@/shared/models/config';
@@ -41,8 +40,6 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   setRequestLocale(locale);
-
-  const appUrl = envConfigs.app_url || '';
 
   // 服务端获取配置，通过 script 标签传递给客户端，避免客户端 import 触发 next/cache
   let embeddedConfigs: Record<string, string> = {};
@@ -98,20 +95,6 @@ export default async function RootLayout({
           name="msvalidate.01"
           content="6EBFE9DC98D628BCDAB6A9BBCF26C8D0"
         />
-
-        {/* inject locales */}
-        {locales ? (
-          <>
-            {locales.map((loc) => (
-              <link
-                key={loc}
-                rel="alternate"
-                hrefLang={loc}
-                href={`${appUrl}${loc === 'en' ? '' : `/${loc}`}`}
-              />
-            ))}
-          </>
-        ) : null}
 
         {/* AdSense 验证 meta 标签（需在 head 中） */}
         {embeddedConfigs.adsense_publisher_id ? (

@@ -32,6 +32,7 @@ export async function generateMetadata({
 
   return {
     title: `${t('sign.sign_up_title')} - ${t('metadata.title')}`,
+    robots: { index: false, follow: false },
     alternates: {
       canonical:
         locale !== defaultLocale

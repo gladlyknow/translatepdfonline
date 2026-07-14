@@ -4,7 +4,6 @@ import { defaultLocale, locales } from '@/config/locale';
 const PUBLIC_PATHS = [
   '/',
   '/pricing',
-  '/upload',
   '/ocrtranslator',
   '/pdf-to-text',
   '/image-to-text',

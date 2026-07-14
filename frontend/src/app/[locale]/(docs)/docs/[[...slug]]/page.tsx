@@ -11,6 +11,7 @@ import {
 import { envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
 import { source } from '@/core/docs/source';
+import { buildAlternates } from '@/shared/lib/hreflang';
 
 export const revalidate = 86400;
 export const dynamic = 'force-static';
@@ -60,13 +61,15 @@ export async function generateMetadata(props: {
   if (!page) notFound();
 
   const slugPath = params.slug?.length ? `/${params.slug.join('/')}` : '';
+  const docsPath = `/docs${slugPath}`;
   const localePrefix = params.locale && params.locale !== defaultLocale ? `/${params.locale}` : '';
   const base = envConfigs.app_url?.replace(/\/+$/, '') || '';
   const canonical = base ? `${base}${localePrefix}/docs${slugPath}` : undefined;
+  const { languages } = buildAlternates(docsPath, params.locale || defaultLocale);
 
   return {
     title: page.data.title,
     description: page.data.description,
-    ...(canonical ? { alternates: { canonical } } : {}),
+    ...(canonical ? { alternates: { canonical, languages } } : {}),
   };
 }
