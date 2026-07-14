@@ -30,6 +30,11 @@
               "title": "Image vers Texte",
               "url": "/image-to-text",
               "icon": "Image"
+            },
+            {
+              "title": "JPG en Word",
+              "url": "/jpg-to-word",
+              "icon": "Image"
             }
           ]
         },

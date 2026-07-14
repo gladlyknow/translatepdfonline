@@ -30,6 +30,11 @@
               "title": "图片转文字",
               "url": "/image-to-text",
               "icon": "Image"
+            },
+            {
+              "title": "JPG 转 Word",
+              "url": "/jpg-to-word",
+              "icon": "Image"
             }
           ]
         },

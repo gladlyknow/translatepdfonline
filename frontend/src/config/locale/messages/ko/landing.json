@@ -30,6 +30,11 @@
               "title": "이미지→텍스트 변환",
               "url": "/image-to-text",
               "icon": "Image"
+            },
+            {
+              "title": "JPG to Word 변환",
+              "url": "/jpg-to-word",
+              "icon": "Image"
             }
           ]
         },

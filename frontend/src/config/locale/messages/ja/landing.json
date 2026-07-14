@@ -30,6 +30,11 @@
               "title": "画像→テキスト変換",
               "url": "/image-to-text",
               "icon": "Image"
+            },
+            {
+              "title": "JPG to Word 変換",
+              "url": "/jpg-to-word",
+              "icon": "Image"
             }
           ]
         },

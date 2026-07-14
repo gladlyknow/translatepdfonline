@@ -13,6 +13,10 @@ type OcrQueueBody =
       taskId?: string;
       exportId?: string;
       format?: 'pdf' | 'md' | 'html';
+    }
+  | {
+      type?: 'doc_convert_poll';
+      taskId?: string;
     };
 
 type OcrQueueMessage = {

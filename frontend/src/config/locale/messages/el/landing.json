@@ -30,6 +30,11 @@
               "title": "Εικόνα σε Κείμενο",
               "url": "/image-to-text",
               "icon": "Image"
+            },
+            {
+              "title": "JPG σε Word",
+              "url": "/jpg-to-word",
+              "icon": "Image"
             }
           ]
         },

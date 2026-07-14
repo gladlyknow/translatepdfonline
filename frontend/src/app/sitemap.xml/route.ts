@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   '/ocrtranslator',
   '/pdf-to-text',
   '/image-to-text',
+  '/jpg-to-word',
   '/docs',
   '/contract-comparison',
   '/privacy-policy',

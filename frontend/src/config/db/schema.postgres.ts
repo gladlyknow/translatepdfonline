@@ -704,3 +704,34 @@ export const documentCompareJob = table(
     index('idx_doc_compare_job_status').on(t.status),
   ]
 );
+
+/** Document conversion jobs (JPG/Image → Word/Excel via Baidu doc_convert API). */
+export const docConvertTasks = table(
+  'doc_convert_tasks',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    sourceFormat: text('source_format').notNull(),
+    targetFormat: text('target_format').notNull(),
+    sourceR2Key: text('source_r2_key').notNull(),
+    sourceFilename: text('source_filename').notNull(),
+    baiduTaskId: text('baidu_task_id'),
+    status: text('status').notNull().default('uploaded'),
+    percent: integer('percent').default(0).notNull(),
+    resultData: text('result_data'),
+    resultR2Key: text('result_r2_key'),
+    errorMessage: text('error_message'),
+    creditConsumeId: text('credit_consume_id'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_doc_convert_tasks_user_created').on(t.userId, t.createdAt),
+    index('idx_doc_convert_tasks_status').on(t.status),
+  ]
+);

@@ -7,6 +7,7 @@ import { runOcrAndPersistParse } from '@/shared/lib/ocr-translate';
 import {
   processOcrTaskExport,
 } from '@/shared/lib/ocr-export-queue';
+import { processDocConvertJob } from '@/shared/lib/doc-convert-process';
 import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import { languagesNeedTranslation } from '@/shared/lib/ocr-lang';
 import { translateAndPersistParseResultTarget } from '@/shared/lib/ocr-parse-result-target-translate';
@@ -38,6 +39,10 @@ export type OcrPipelineQueueBody =
       exportId: string;
       format: 'pdf' | 'md' | 'html';
       pdfMode?: 'vector_shrink_only' | 'raster_snapshot';
+    }
+  | {
+      type: 'doc_convert_poll';
+      taskId: string;
     };
 type OcrStage =
   | 'ocr_submit_poll'
@@ -604,6 +609,35 @@ export async function sendOcrExportQueueMessage(params: {
   }
 }
 
+export async function sendDocConvertPollQueueMessage(
+  taskId: string
+): Promise<QueueSendResult> {
+  try {
+    const q = getQueueBindingFromContext();
+    if (!q || typeof q.send !== 'function') {
+      console.warn(
+        '[doc-convert/queue] binding_unavailable',
+        JSON.stringify({ task_id: taskId })
+      );
+      return { ok: false, reason: 'binding_unavailable' };
+    }
+    await q.send({ type: 'doc_convert_poll', taskId });
+    console.log(
+      '[doc-convert/queue] enqueued',
+      JSON.stringify({ task_id: taskId, at: nowIso() })
+    );
+    return { ok: true };
+  } catch (e) {
+    const reason = classifyEnqueueError(e);
+    const sanitized = sanitizeErrorForLog(e);
+    console.warn(
+      '[doc-convert/queue] enqueue_failed',
+      JSON.stringify({ task_id: taskId, reason, ...sanitized })
+    );
+    return { ok: false, reason, ...sanitized };
+  }
+}
+
 async function isTaskCancelled(taskId: string): Promise<boolean> {
   const rows = await db()
     .select({ status: translationTasks.status })
@@ -714,6 +748,13 @@ export async function handleOcrPipelineQueueBatch(batch: {
       await processOcrTaskExport(body.exportId, {
         pdfMode: body.pdfMode,
       });
+      continue;
+    }
+    if (body.type === 'doc_convert_poll') {
+      const taskId = (body as { taskId?: string }).taskId;
+      if (!taskId || typeof taskId !== 'string') continue;
+      await processDocConvertJob(taskId);
+      continue;
     }
   }
 }
