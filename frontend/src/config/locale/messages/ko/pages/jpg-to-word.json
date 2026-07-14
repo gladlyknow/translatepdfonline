@@ -62,5 +62,7 @@
   "errorInvalidType": "JPG / JPEG 이미지만 지원됩니다.",
   "errorTooLarge": "이미지가 너무 큽니다(최대 10MB).",
   "errorGeneric": "오류가 발생했습니다. 다시 시도하세요.",
-  "errorInsufficientCredits": "크레딧이 부족합니다. 요금 페이지로 이동..."
+  "errorInsufficientCredits": "크레딧이 부족합니다. 요금 페이지로 이동...",
+  "exploreContractCompareLabel": "AI 계약 비교",
+  "exploreContractCompareDesc": "AI 기반 조항 감지 및 병렬 비교."
 }

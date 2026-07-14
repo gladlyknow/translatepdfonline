@@ -208,6 +208,12 @@ export default async function JpgToWordPage({
                 label: t('exploreTranslateLabel') || 'PDF Translation',
                 desc: t('exploreTranslateDesc'),
               },
+              {
+                href: '/contract-comparison',
+                icon: 'pdf.png',
+                label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
+                desc: t('exploreContractCompareDesc'),
+              },
             ].map((link) => (
               <Link
                 key={link.href}

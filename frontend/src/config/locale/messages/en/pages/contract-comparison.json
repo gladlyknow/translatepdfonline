@@ -122,5 +122,7 @@
   "diffTotalItems": "Differences Found",
   "diffAdded": "Added",
   "diffDeleted": "Deleted",
-  "diffModified": "Modified"
+  "diffModified": "Modified",
+  "exploreJpgToWord": "JPG to Word",
+  "exploreJpgToWordDesc": "Convert JPG photos to editable Word (.docx) with AI OCR."
 }

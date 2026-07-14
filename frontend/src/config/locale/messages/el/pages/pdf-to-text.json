@@ -54,5 +54,7 @@
   "heroUploadHint": "Υποστήριξη 10+ γλωσσών για εξαγωγή και μετάφραση κειμένου.",
   "errorPageCountPending": "Ο αριθμός σελίδων προετοιμάζεται. Δοκιμάστε ξανά σε λίγα δευτερόλεπτα.",
   "exploreContractCompareLabel": "Συγκριση Συμβολαιων ΤΝ",
-  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ."
+  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ.",
+  "exploreJpgToWordLabel": "JPG σε Word",
+  "exploreJpgToWordDesc": "Μετατρέψτε φωτογραφίες JPG σε επεξεργάσιμο Word(.docx) με AI OCR."
 }

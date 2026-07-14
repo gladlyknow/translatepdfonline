@@ -54,5 +54,7 @@
   "heroUploadHint": "Übersetzung in 10+ Sprachen nach der OCR-Extraktion verfügbar.",
   "errorPageCountPending": "Die Seitenzahl wird noch ermittelt. Bitte versuchen Sie es in einigen Sekunden erneut.",
   "exploreContractCompareLabel": "KI-Vertragsvergleich",
-  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung."
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung.",
+  "exploreJpgToWordLabel": "JPG zu Word",
+  "exploreJpgToWordDesc": "JPG-Fotos mit KI-OCR in bearbeitbares Word(.docx) umwandeln."
 }

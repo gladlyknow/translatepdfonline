@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 
 type JobStatus =
   | 'uploaded'
@@ -270,7 +271,7 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
             onDrop={onDrop}
             className={cn(
               'flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border px-6 py-12 text-center transition-colors hover:bg-accent/40',
-              dragActive && 'border-primary bg-accent/40'
+              dragActive && 'border-sky-700 bg-accent/40'
             )}
           >
             <input
@@ -279,7 +280,7 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
               className="hidden"
               onChange={onPick}
             />
-            <CloudUpload className="size-10 text-primary" />
+            <CloudUpload className="size-10 text-sky-700" />
             <div>
               <p className="text-sm font-medium text-foreground">
                 {t('uploadHint')}
@@ -292,8 +293,10 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
         ) : (
           <div className="space-y-4">
             {/* File info */}
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3">
-              <FileText className="size-5 shrink-0 text-primary" />
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                <FileText className="size-5" />
+              </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">
                   {file.name}
@@ -332,7 +335,7 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
               <div className="space-y-1">
                 <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full bg-primary transition-all"
+                    className="h-full bg-sky-700 transition-all"
                     style={{ width: `${Math.max(5, percent)}%` }}
                   />
                 </div>
@@ -356,34 +359,71 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-3">
               {!job && !uploading ? (
-                <Button onClick={handleUpload} disabled={uploading}>
-                  <CloudUpload className="size-4" />
+                <button
+                  type="button"
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-bold transition-all disabled:opacity-50',
+                    TRANSLATE_PRIMARY_CTA_CLASSNAME
+                  )}
+                >
+                  <CloudUpload className="size-5" />
                   {t('btnUploadStart')}
-                </Button>
+                </button>
               ) : null}
               {uploading ? (
-                <Button disabled>
-                  <Loader2 className="size-4 animate-spin" />
+                <button
+                  type="button"
+                  disabled
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-bold transition-all disabled:opacity-50',
+                    TRANSLATE_PRIMARY_CTA_CLASSNAME
+                  )}
+                >
+                  <Loader2 className="size-5 animate-spin" />
                   {t('btnUploading')}
-                </Button>
+                </button>
               ) : null}
               {job && !isReady && !isFailed && !processing ? (
-                <Button onClick={() => handleStart()} disabled>
-                  <Loader2 className="size-4 animate-spin" />
+                <button
+                  type="button"
+                  disabled
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-bold transition-all disabled:opacity-50',
+                    TRANSLATE_PRIMARY_CTA_CLASSNAME
+                  )}
+                >
+                  <Loader2 className="size-5 animate-spin" />
                   {t('btnConverting')}
-                </Button>
+                </button>
               ) : null}
               {processing ? (
-                <Button disabled>
-                  <Loader2 className="size-4 animate-spin" />
+                <button
+                  type="button"
+                  disabled
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-bold transition-all disabled:opacity-50',
+                    TRANSLATE_PRIMARY_CTA_CLASSNAME
+                  )}
+                >
+                  <Loader2 className="size-5 animate-spin" />
                   {t('btnConverting')}
-                </Button>
+                </button>
               ) : null}
               {isReady ? (
-                <Button onClick={handleDownload} disabled={downloading}>
-                  <Download className="size-4" />
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-bold transition-all disabled:opacity-50',
+                    TRANSLATE_PRIMARY_CTA_CLASSNAME
+                  )}
+                >
+                  <Download className="size-5" />
                   {t('btnDownload')}
-                </Button>
+                </button>
               ) : null}
               {isFailed ? (
                 <Button variant="outline" onClick={handleRetry}>
@@ -414,7 +454,7 @@ function StepDot({
         className={cn(
           'flex size-6 items-center justify-center rounded-full text-[10px] font-bold',
           active
-            ? 'bg-primary text-primary-foreground'
+            ? 'bg-sky-700 text-white'
             : 'bg-muted text-muted-foreground'
         )}
       >
@@ -430,7 +470,7 @@ function StepLine({ active }: { active: boolean }) {
     <div
       className={cn(
         'h-0.5 flex-1',
-        active ? 'bg-primary' : 'bg-muted'
+        active ? 'bg-sky-700' : 'bg-muted'
       )}
     />
   );

@@ -122,5 +122,7 @@
   "diffTotalItems": "Различия",
   "diffAdded": "Добавлено",
   "diffDeleted": "Удалено",
-  "diffModified": "Изменено"
+  "diffModified": "Изменено",
+  "exploreJpgToWord": "JPG в Word",
+  "exploreJpgToWordDesc": "Конвертируйте фото JPG в редактируемый Word(.docx) через ИИ-OCR."
 }

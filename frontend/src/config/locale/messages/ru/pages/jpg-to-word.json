@@ -62,5 +62,7 @@
   "errorInvalidType": "Поддерживаются только изображения JPG / JPEG.",
   "errorTooLarge": "Изображение слишком большое (макс. 10 МБ).",
   "errorGeneric": "Что-то пошло не так. Попробуйте снова.",
-  "errorInsufficientCredits": "Недостаточно кредитов. Переход к ценам..."
+  "errorInsufficientCredits": "Недостаточно кредитов. Переход к ценам...",
+  "exploreContractCompareLabel": "Сравнение контрактов ИИ",
+  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий."
 }

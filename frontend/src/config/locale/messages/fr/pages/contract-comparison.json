@@ -122,5 +122,7 @@
   "diffTotalItems": "Differences",
   "diffAdded": "Ajoute",
   "diffDeleted": "Supprime",
-  "diffModified": "Modifie"
+  "diffModified": "Modifie",
+  "exploreJpgToWord": "JPG en Word",
+  "exploreJpgToWordDesc": "Convertit les photos JPG en Word(.docx) modifiable avec OCR IA."
 }

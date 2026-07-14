@@ -54,5 +54,7 @@
   "heroUploadHint": "Перевод на 10+ языков доступен после OCR-извлечения.",
   "errorPageCountPending": "Количество страниц документа подготавливается. Пожалуйста, повторите попытку через несколько секунд.",
   "exploreContractCompareLabel": "Сравнение контрактов ИИ",
-  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий."
+  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий.",
+  "exploreJpgToWordLabel": "JPG в Word",
+  "exploreJpgToWordDesc": "Конвертируйте фото JPG в редактируемый Word(.docx) через ИИ-OCR."
 }

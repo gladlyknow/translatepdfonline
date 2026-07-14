@@ -122,5 +122,7 @@
   "diffTotalItems": "差異",
   "diffAdded": "追加",
   "diffDeleted": "削除",
-  "diffModified": "変更"
+  "diffModified": "変更",
+  "exploreJpgToWord": "JPG to Word 変換",
+  "exploreJpgToWordDesc": "AI OCR で JPG 写真を編集可能な Word(.docx) に変換。"
 }

@@ -54,5 +54,7 @@
   "heroUploadHint": "Traduzione in 10+ lingue disponibile dopo l'OCR.",
   "errorPageCountPending": "Il conteggio delle pagine è in preparazione. Riprova tra qualche secondo.",
   "exploreContractCompareLabel": "Confronto Contratti IA",
-  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA."
+  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA.",
+  "exploreJpgToWordLabel": "JPG a Word",
+  "exploreJpgToWordDesc": "Converti foto JPG in Word(.docx) modificabile con OCR IA."
 }

@@ -13,6 +13,8 @@ const FALLBACKS: Record<string, string> = {
   exploreImageToTextDesc: 'Convert images to editable, searchable text.',
   explorePdfTranslate: 'AI PDF Translation Tool',
   explorePdfTranslateDesc: 'Translate PDF documents while keeping original layout.',
+  exploreJpgToWord: 'JPG to Word Converter',
+  exploreJpgToWordDesc: 'Convert JPG photos to editable Word (.docx) with AI OCR.',
 };
 
 export default function RelatedCompareLinks() {
@@ -44,6 +46,12 @@ export default function RelatedCompareLinks() {
       icon: 'pdf.png',
       label: pt('explorePdfTranslate'),
       desc: pt('explorePdfTranslateDesc'),
+    },
+    {
+      slug: 'jpg-to-word',
+      icon: 'generalocr.svg',
+      label: pt('exploreJpgToWord'),
+      desc: pt('exploreJpgToWordDesc'),
     },
   ];
 

@@ -62,5 +62,7 @@
   "errorInvalidType": "仅支持 JPG / JPEG 图片。",
   "errorTooLarge": "图片过大（最大 10MB）。",
   "errorGeneric": "出错了，请重试。",
-  "errorInsufficientCredits": "积分不足，正在跳转到定价页..."
+  "errorInsufficientCredits": "积分不足，正在跳转到定价页...",
+  "exploreContractCompareLabel": "AI 合同对比",
+  "exploreContractCompareDesc": "使用 AI 驱动的条款检测和并排差异对比合同。"
 }

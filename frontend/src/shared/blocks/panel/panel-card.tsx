@@ -63,6 +63,7 @@ export function PanelCard({
               key={idx}
               variant={button.variant || 'default'}
               size={button.size || 'default'}
+              className={button.className}
               asChild
             >
               <Link href={button.url || ''} target={button.target || '_self'}>

@@ -122,5 +122,7 @@
   "diffTotalItems": "Διαφορες",
   "diffAdded": "Προστεθηκε",
   "diffDeleted": "Διαγραφηκε",
-  "diffModified": "Τροποποιηθηκε"
+  "diffModified": "Τροποποιηθηκε",
+  "exploreJpgToWord": "JPG σε Word",
+  "exploreJpgToWordDesc": "Μετατρέψτε φωτογραφίες JPG σε επεξεργάσιμο Word(.docx) με AI OCR."
 }

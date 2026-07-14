@@ -122,5 +122,7 @@
   "diffTotalItems": "发现差异",
   "diffAdded": "新增",
   "diffDeleted": "删除",
-  "diffModified": "修改"
+  "diffModified": "修改",
+  "exploreJpgToWord": "JPG 转 Word",
+  "exploreJpgToWordDesc": "用 AI OCR 把 JPG 照片转成可编辑 Word(.docx)。"
 }

@@ -62,5 +62,7 @@
   "errorInvalidType": "Nur JPG / JPEG-Bilder werden unterstützt.",
   "errorTooLarge": "Bild zu groß (max. 10MB).",
   "errorGeneric": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
-  "errorInsufficientCredits": "Nicht genügend Credits. Weiterleitung zur Preisseite..."
+  "errorInsufficientCredits": "Nicht genügend Credits. Weiterleitung zur Preisseite...",
+  "exploreContractCompareLabel": "KI-Vertragsvergleich",
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung."
 }

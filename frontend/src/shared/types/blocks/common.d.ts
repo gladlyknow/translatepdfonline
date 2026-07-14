@@ -80,6 +80,7 @@ export interface Button extends NavItem {
     | 'link'
     | 'destructive'
     | 'dark';
+  className?: string;
   onClick?: () => void;
 }
 

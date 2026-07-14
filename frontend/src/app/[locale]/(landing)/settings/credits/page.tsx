@@ -14,6 +14,7 @@ import {
 import { getUserInfo } from '@/shared/models/user';
 import { Tab } from '@/shared/types/blocks/common';
 import { type Table } from '@/shared/types/blocks/table';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 
 export default async function CreditsPage({
   searchParams,
@@ -127,6 +128,7 @@ export default async function CreditsPage({
             url: '/pricing',
             target: '_blank',
             icon: 'Coins',
+            className: TRANSLATE_PRIMARY_CTA_CLASSNAME,
           },
         ]}
         className="max-w-md"

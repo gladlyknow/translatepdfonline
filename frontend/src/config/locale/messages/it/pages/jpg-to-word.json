@@ -62,5 +62,7 @@
   "errorInvalidType": "Solo immagini JPG / JPEG supportate.",
   "errorTooLarge": "Immagine troppo grande (max 10MB).",
   "errorGeneric": "Qualcosa è andato storto. Riprova.",
-  "errorInsufficientCredits": "Crediti insufficienti. Reindirizzamento ai prezzi..."
+  "errorInsufficientCredits": "Crediti insufficienti. Reindirizzamento ai prezzi...",
+  "exploreContractCompareLabel": "Confronto Contratti IA",
+  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA."
 }

@@ -145,6 +145,7 @@ export default async function ImageToTextPage({
               { href: '/pdf-to-text', icon: 'pdf.png', label: t('explorePdfToTextLabel') || 'PDF to Text', desc: t('explorePdfToTextDesc') },
               { href: '/translate', icon: 'pdf.png', label: t('exploreTranslateLabel') || 'PDF Translate', desc: t('exploreTranslateDesc') },
               { href: '/contract-comparison', icon: 'pdf.png', label: t('exploreContractCompareLabel') || 'AI Contract Comparison', desc: t('exploreContractCompareDesc') },
+              { href: '/jpg-to-word', icon: 'generalocr.svg', label: t('exploreJpgToWordLabel') || 'JPG to Word', desc: t('exploreJpgToWordDesc') },
             ].map((link) => (
               <Link
                 key={link.href}

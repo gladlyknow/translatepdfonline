@@ -62,5 +62,7 @@
   "errorInvalidType": "Υποστηρίζονται μόνο εικόνες JPG / JPEG.",
   "errorTooLarge": "Η εικόνα είναι πολύ μεγάλη (μέγ. 10MB).",
   "errorGeneric": "Κάτι πήγε στραβά. Δοκιμάστε ξανά.",
-  "errorInsufficientCredits": "Ανεπαρκή credits. Ανακατεύθυνση στις τιμές..."
+  "errorInsufficientCredits": "Ανεπαρκή credits. Ανακατεύθυνση στις τιμές...",
+  "exploreContractCompareLabel": "Συγκριση Συμβολαιων ΤΝ",
+  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ."
 }

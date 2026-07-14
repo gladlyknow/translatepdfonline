@@ -122,5 +122,7 @@
   "diffTotalItems": "Unterschiede",
   "diffAdded": "Hinzugefugt",
   "diffDeleted": "Geloscht",
-  "diffModified": "Geandert"
+  "diffModified": "Geandert",
+  "exploreJpgToWord": "JPG zu Word",
+  "exploreJpgToWordDesc": "JPG-Fotos mit KI-OCR in bearbeitbares Word(.docx) umwandeln."
 }

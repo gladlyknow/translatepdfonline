@@ -122,5 +122,7 @@
   "diffTotalItems": "차이점",
   "diffAdded": "추가됨",
   "diffDeleted": "삭제됨",
-  "diffModified": "수정됨"
+  "diffModified": "수정됨",
+  "exploreJpgToWord": "JPG to Word 변환",
+  "exploreJpgToWordDesc": "AI OCR 로 JPG 사진을 편집 가능한 Word(.docx) 로 변환."
 }
