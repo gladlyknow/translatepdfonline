@@ -15,8 +15,8 @@
         "id": "hero",
         "variant": "translateDark",
         "title": "Translate PDF Online",
-        "highlight_text": "KI-gestützte PDF-Übersetzung",
-        "description": "PDFs übersetzen bei erhaltenem Seitenlayout: Spalten, Tabellen, Abbildungen und Schriften. Sprachen u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch — im Browser, ohne Installation.",
+        "highlight_text": "Kostenlose KI-gestützte PDF-Übersetzung online",
+        "description": "PDF online übersetzen und das ursprüngliche Layout behalten — Spalten, Tabellen, Abbildungen und Schriftarten bleiben erhalten. Übersetzen Sie PDFs online ins Englische, Chinesische, Spanische, Französische, Italienische, Deutsche, Griechische, Japanische, Koreanische und Russische. Alles läuft im Browser, sodass Sie ein PDF online übersetzen ohne Installation und ohne Einrichtung.",
         "announcement": {
           "badge": "Neu",
           "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
@@ -59,7 +59,7 @@
         "id": "introduce",
         "title": "Was ist Translate PDF Online",
         "label": "Produkt",
-        "description": "Webdienst zum Übersetzen von PDFs bei erhaltenem ursprünglichem Seitenlayout. Für Artikel, Handbücher, Berichte und Bücher.",
+        "description": "Translate PDF Online ist ein Webdienst, der PDF-Dokumente online übersetzt und das ursprüngliche Design bewahrt. Er ist auf Aufsätze, Handbücher, Berichte und Bücher zugeschnitten — nicht auf simplen Text —, sodass Sie beim PDF online Übersetzen ein treues, lesbares Ergebnis erhalten, das die Quelle widerspiegelt.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -68,8 +68,8 @@
         },
         "items": [
           {
-            "title": "Ausgabe mit erhaltenem Layout",
-            "description": "Übersetzte PDFs spiegeln die Struktur: mehrspaltiger Text, Tabellen, Bilder und Überschriften wie in der Quelle.",
+            "title": "Layout-erhaltende Ausgabe",
+            "description": "Wenn Sie PDF online übersetzen, spiegelt das übersetzte PDF die Originalstruktur: mehrspaltiger Text, Tabellen, Bilder und Überschriften bleiben an der Stelle der Quellseite.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -78,7 +78,7 @@
           },
           {
             "title": "Viele Sprachpaare",
-            "description": "Quell- und Zielsprache aus einer wachsenden Liste wählen — für akademische und professionelle Dokumente.",
+            "description": "Wählen Sie Quelle und Ziel aus einer wachsenden Sprachliste, um PDF online zu übersetzen — geeignet für akademische, juristische und berufliche Dokumente über Regionen hinweg.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -86,8 +86,8 @@
             }
           },
           {
-            "title": "Sichere, zeitlich begrenzte Speicherung",
-            "description": "Dateien werden per HTTPS übertragen und nach der Aufbewahrungsrichtlinie gelöscht.",
+            "title": "Sichere, flüchtige Speicherung",
+            "description": "Wenn Sie PDF online übersetzen, wandern Dateien über HTTPS und werden nach einem festen Aufbewahrungsplan nach der Verarbeitung gelöscht, sodass Ihre Dokumente nicht verbleiben.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -95,8 +95,8 @@
             }
           },
           {
-            "title": "Verlauf und Aufgaben fortsetzen",
-            "description": "Der Verlauf listet Uploads und Aufgaben — Arbeit ohne erneutes Hochladen desselben PDFs fortsetzen.",
+            "title": "Verlauf und Aufgaben-Wiederherstellung",
+            "description": "Der Verlauf listet jedes PDF, das Sie online übersetzen, sodass Sie eine Aufgabe erneut öffnen können, ohne dieselbe Datei erneut hochzuladen, solange sie noch aufbewahrt wird.",
             "icon": "RiHistoryLine",
             "image": {
               "src": "/imgs/features/4.webp",
@@ -109,13 +109,13 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Warum Teams uns wählen",
+        "title": "Warum Teams PDFs online bei uns übersetzen",
         "label": "Vorteile",
-        "description": "Konzentrieren Sie sich auf den Inhalt — nicht auf Formatkorrektur nach der Übersetzung.",
+        "description": "Wenn Sie ein PDF online übersetzen, wollen Sie das Dokument unversehrt zurück — keinen Haufen kaputter Formatierung, den Sie von Hand reparieren müssen. Genau darum geht es.",
         "items": [
           {
-            "title": "Für dichte PDFs",
-            "description": "Ausgelegt auf akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen, soweit die Pipeline es erlaubt.",
+            "title": "Für dichte PDFs gebaut",
+            "description": "Optimiert für akademische und technische Layouts — Gleichungen, Abbildungen und Tabellen —, sodass Sie dichte PDFs online übersetzen, ohne Struktur zu verlieren, wo die Pipeline es unterstützt.",
             "icon": "RiFilePdf2Line",
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
@@ -125,8 +125,8 @@
             }
           },
           {
-            "title": "Seitenweise Gegenüberstellung",
-            "description": "Quelle und Übersetzung im Browser mit synchronisiertem Scrollen vergleichen — vor dem Download.",
+            "title": "Seitengenaue Gegenüberstellung",
+            "description": "Vor dem Download Quell- und übersetzte Seiten im Browser mit synchronisiertem Scrollen vergleichen, sodass Sie die Qualität jedes PDFs beurteilen können, das Sie online übersetzen.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
@@ -137,7 +137,7 @@
           },
           {
             "title": "Optionale Seitenbereiche",
-            "description": "Ganze Datei oder nur benötigte Seiten übersetzen — Zeit und Credits sparen.",
+            "description": "Übersetzen Sie die ganze Datei oder nur die Seiten, die Sie brauchen. Einen Seitenbereich festzulegen, lässt Sie ein großes PDF online schneller übersetzen und Credits sparen.",
             "icon": "RiBookReadLine",
             "image": {
               "src": "/imgs/features/page_range.png",
@@ -153,8 +153,8 @@
         "id": "usage",
         "carousel": true,
         "label": "",
-        "title": "So übersetzen Sie Ihr PDF",
-        "description": "Vom Upload bis Download und Verlauf:",
+        "title": "So übersetzen Sie ein PDF online",
+        "description": "Vom Upload bis zum Download — PDF online übersetzen in fünf Schritten:",
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
@@ -166,7 +166,7 @@
         "items": [
           {
             "title": "Hochladen",
-            "description": "PDF ablegen oder Datei wählen. Große Dokumente unterliegen den auf der Übersetzungsseite angezeigten Grenzen.",
+            "description": "PDF ablegen oder Datei wählen. Große Dokumente werden innerhalb der auf der Übersetzungsseite angezeigten Grenzen unterstützt, sodass Sie ein großes PDF online in einem Durchgang übersetzen können.",
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "PDF hochladen",
@@ -176,7 +176,7 @@
           },
           {
             "title": "Quellsprache",
-            "description": "Wählen Sie die Sprache des Dokuments, damit die Engine korrekt aus der Quelle übersetzt.",
+            "description": "Wählen Sie die Dokumentsprache, damit die Engine aus der korrekten Quelle übersetzt, wenn Sie PDF online übersetzen.",
             "image": {
               "src": "/imgs/features/choose_language_source.png",
               "alt": "Quellsprache wählen",
@@ -186,7 +186,7 @@
           },
           {
             "title": "Zielsprache",
-            "description": "Wählen Sie die Zielsprache und starten Sie den Auftrag.",
+            "description": "Wählen Sie die Sprache, in die das PDF übersetzt werden soll — Englisch, Chinesisch, Deutsch, Japanisch, Norwegisch und mehr — und starten Sie den Auftrag.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Zielsprache wählen",
@@ -195,8 +195,8 @@
             }
           },
           {
-            "title": "Herunterladen",
-            "description": "Nach Abschluss laden Sie das übersetzte PDF auf derselben Seite herunter.",
+            "title": "Download",
+            "description": "Wenn der Auftrag fertig ist, laden Sie das übersetzte PDF auf derselben Seite herunter. Das Ergebnis behält das ursprüngliche Layout, wo unterstützt.",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "Übersetztes PDF herunterladen",
@@ -206,7 +206,7 @@
           },
           {
             "title": "Verlauf",
-            "description": "Abgeschlossene Übersetzungen können Sie im Verlauf erneut öffnen, solange die Datei verfügbar ist.",
+            "description": "Öffnen Sie fertige Übersetzungen aus dem Verlauf, solange die Datei noch verfügbar ist, sodass Sie ein online übersetztes PDF nie verlieren.",
             "image": {
               "src": "/imgs/features/history.png",
               "alt": "Übersetzungsverlauf",
@@ -219,45 +219,45 @@
       },
       "features": {
         "id": "features",
-        "title": "Was Sie erhalten",
-        "description": "Konkrete Funktionen für Ihre PDF-Workflows.",
+        "title": "Was Sie bekommen, wenn Sie PDF online übersetzen",
+        "description": "Praktische Fähigkeiten für echte PDF-Übersetzungs-Workflows.",
         "items": [
           {
-            "title": "Vektorbasierte Pipeline",
-            "description": "BabelDOC-ähnlicher Ansatz: Text zurück in die PDF-Struktur, wo möglich.",
+            "title": "Vektor-freundliche Pipeline",
+            "description": "Nutzt einen BabelDOC-ähnlichen Pfad, sodass übersetzter Text dort in die PDF-Struktur zurückgelegt wird, wo unterstützt — so behält ein online übersetztes PDF sein Layout.",
             "icon": "RiStackLine"
           },
           {
             "title": "Credits und Abrechnung",
-            "description": "Nutzungsbasiert mit Credit-Modell nach Seiten und Produkten.",
+            "description": "Bezahlen Sie, was Sie übersetzen, mit einem Credit-Modell, das an Seiten und Produkteinstellungen geknüpft ist, sodass ein PDF online übersetzen berechenbar bleibt.",
             "icon": "RiCoinsLine"
           },
           {
-            "title": "Konto oder Gast",
-            "description": "Anmelden für Abrechnung und geräteübergreifenden Verlauf — oder in einer Sitzung ausprobieren.",
+            "title": "Konto- oder Gast-Flow",
+            "description": "Melden Sie sich an für Abrechnung und geräteübergreifenden Verlauf, oder testen Sie den Flow in einer einzigen Sitzung, bevor Sie ein PDF online übersetzen.",
             "icon": "RiUserLine"
           },
           {
             "title": "Edge-gehostete Oberfläche",
-            "description": "Schneller erster Aufbau auf Cloudflare; Vorschau und Download im Browser.",
+            "description": "Schneller erster Aufbau auf Cloudflare; Ihr Browser übernimmt Vorschau und Download und hält das PDF, das Sie online übersetzen, reaktionsschnell.",
             "icon": "RiCloudy2Fill"
           },
           {
             "title": "Dokumentation",
-            "description": "Architektur, Aufbewahrung und Compliance unter /docs.",
+            "description": "Architektur-, Aufbewahrungs- und Compliance-Hinweise unter /docs für Transparenz darüber, was passiert, wenn Sie PDF online übersetzen.",
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Nachvollziehbarer Stack",
-            "description": "Next.js-App mit klaren APIs zwischen UI, Speicher und Übersetzungs-Worker.",
+            "title": "Entwickler-freundlicher Stack",
+            "description": "Eine Next.js-App mit klaren APIs zwischen UI, Speicher und Übersetzungs-Worker — derselbe Stack, der Sie PDF zuverlässig online übersetzen lässt.",
             "icon": "RiCodeSSlashLine"
           }
         ]
       },
       "stats": {
         "id": "stats",
-        "title": "Für anspruchsvolle Dokumente",
-        "description": "Vom Artikel bis zu umfangreichen Handbüchern.",
+        "title": "Für anspruchsvolle Dokumente gebaut",
+        "description": "Vom einzelnen Aufsatz bis zum großen Handbuch — PDF online übersetzen in jedem Maßstab.",
         "items": [
           {
             "title": "8+",
@@ -276,43 +276,59 @@
       },
       "faq": {
         "id": "faq",
-        "title": "Häufige Fragen",
-        "description": "Mehr in der Dokumentation oder per E-Mail hello@translatepdfonline.com.",
+        "title": "Häufig gestellte Fragen zum PDFs online übersetzen",
+        "description": "Kurze Antworten, bevor Sie PDF online übersetzen. Mehr in /docs oder an hello@translatepdfonline.com.",
         "items": [
           {
+            "question": "Wie übersetze ich eine große PDF-Datei kostenlos online?",
+            "answer": "Um eine große PDF-Datei kostenlos online zu übersetzen, öffnen Sie die Übersetzungsseite, laden Sie Ihr PDF hoch, wählen Sie Quell- und Zielsprache und legen Sie bei Bedarf einen Seitenbereich fest. Große Dokumente werden innerhalb der angezeigten Grenzen unterstützt, und mit einem Seitenbereich übersetzen Sie ein großes PDF online schneller bei weniger Credits. Alles im Browser, ohne Installation."
+          },
+          {
+            "question": "Wie übersetze ich ein PDF online mit wirklich guter Übersetzungsqualität?",
+            "answer": "Für wirklich gute Qualität beim PDF online Übersetzen wählen Sie die korrekte Quellsprache, damit die Engine das Dokument genau liest, und nutzen Sie eine Layout-erhaltende Pipeline, die Überschriften, Tabellen und Spalten an Ort und Stelle belässt. Die DeepSeek-gestützte Übersetzung bewahrt die Originalstruktur, sodass das Ergebnis natürlich und treu statt flacher Text ist."
+          },
+          {
+            "question": "Wie übersetze ich ein PDF kostenlos online vom Deutschen ins Englische?",
+            "answer": "Um ein PDF kostenlos online vom Deutschen ins Englische zu übersetzen, setzen Sie Deutsch als Quellsprache und Englisch als Zielsprache, laden Sie Ihr PDF hoch und starten Sie den Auftrag. Die Layout-erhaltende Pipeline übersetzt das PDF vom Deutschen ins Englische und behält Schriftarten, Tabellen und Spalten."
+          },
+          {
+            "question": "Wie übersetze ich PDF-Dokumente online ins Norwegische?",
+            "answer": "Um PDF-Dokumente online ins Norwegische zu übersetzen, wählen Sie Norwegisch als Zielsprache, wählen Sie die Quellsprache des Dokuments und laden Sie das PDF hoch. Die Engine übersetzt das Dokument ins Norwegische und bewahrt das Layout, wo unterstützt, für ein lesbares, treues Ergebnis."
+          },
+          {
             "question": "Was ist Translate PDF Online und wie funktioniert es?",
-            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache; wir führen eine Übersetzungs-Pipeline aus, die das Layout respektiert. Sie laden ein neues PDF herunter, das die ursprüngliche Struktur widerspiegelt, soweit die Technik das erlaubt."
+            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache, und wir führen eine Layout-erhaltende Übersetzungspipeline aus. Danach laden Sie ein neues PDF herunter, das die Originalstruktur widerspiegelt, wo die Technik es unterstützt."
           },
           {
-            "question": "Muss ich Software installieren?",
-            "answer": "Nein. Upload und Vorschau im Browser. Übertragung per HTTPS."
+            "question": "Muss ich etwas installieren, um PDF online zu übersetzen?",
+            "answer": "Nein. Upload, Vorschau und Download laufen im Browser. Dateien werden über HTTPS übertragen, nichts zu installieren oder einzurichten."
           },
           {
-            "question": "Welche Sprachen werden unterstützt?",
-            "answer": "Die Übersetzungsseite listet die verfügbaren Sprachen (u. a. Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch). Weitere Paare werden ergänzt."
+            "question": "In welche Sprachen kann ich PDF online übersetzen?",
+            "answer": "Die Übersetzungsseite listet verfügbare Quell- und Zielsprachen: Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch und mehr. Wir fügen im Lauf der Zeit Paare hinzu."
           },
           {
-            "question": "Wie lange dauert die Übersetzung?",
-            "answer": "Kurze PDFs oft in wenigen Minuten; lange oder stark bebilderte länger. Seite offen lassen oder später im Verlauf die Aufgabe öffnen."
+            "question": "Wie lange dauert es, PDF online zu übersetzen?",
+            "answer": "Kurze PDFs sind oft in Minuten fertig; lange oder bildlastige Dateien dauern länger. Sie können auf der Seite bleiben oder später über den Verlauf zurückkehren."
           },
           {
-            "question": "Ist mein Dokument sicher?",
-            "answer": "Der Datenverkehr ist verschlüsselt. Gespeicherte Dateien unterliegen der in der Dokumentation beschriebenen Aufbewahrung (in der Regel automatische Löschung nach etwa sieben Tagen, sofern nicht anders angegeben)."
+            "question": "Ist mein Dokument sicher, wenn ich PDF online übersetze?",
+            "answer": "Der Verkehr ist verschlüsselt. Gespeicherte Objekte folgen der Aufbewahrungsrichtlinie in der Dokumentation, in der Regel automatische Löschung nach etwa sieben Tagen."
           },
           {
-            "question": "Kann ich nur bestimmte Seiten übersetzen?",
-            "answer": "Ja. Geben Sie beim Start einen Seitenbereich an."
+            "question": "Kann ich nur bestimmte Seiten eines PDF online übersetzen?",
+            "answer": "Ja. Legen Sie beim Start einen Seitenbereich fest, um nur einen Teil zu übersetzen — schneller und mit weniger Credits."
           },
           {
-            "question": "Wie öffne ich eine frühere Übersetzung erneut oder sehe sie in der Vorschau?",
-            "answer": "Öffnen Sie die Übersetzungsseite und nutzen Sie den Verlauf. Wählen Sie eine frühere Aufgabe, um den Status zu sehen und Quell- sowie übersetzte PDFs im Browser in der Vorschau anzuzeigen—ohne erneuten Upload, solange die Dateien laut Aufbewahrungsrichtlinie noch verfügbar sind."
+            "question": "Wie öffne oder sehe ich ein PDF, das ich früher online übersetzt habe?",
+            "answer": "Öffnen Sie die Übersetzungsseite und nutzen Sie den Verlauf. Wählen Sie einen vergangenen Auftrag, um den Status zu sehen und Quell- und übersetztes PDF nebeneinander anzuzeigen, ohne die Datei erneut hochzuladen, solange sie verfügbar ist."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Übersetzen Sie Ihr erstes PDF",
-        "description": "Upload auf der Übersetzungsseite — Verlauf für kürzliche Aufgaben nutzen.",
+        "title": "Übersetzen Sie Ihr erstes PDF online",
+        "description": "Laden Sie auf der Übersetzungsseite hoch und übersetzen Sie jetzt PDF online — nutzen Sie den Verlauf, um zu einem aktuellen Auftrag zurückzukehren.",
         "buttons": [
           {
             "title": "Jetzt übersetzen",

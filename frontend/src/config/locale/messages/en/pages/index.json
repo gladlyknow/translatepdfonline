@@ -15,8 +15,8 @@
         "id": "hero",
         "variant": "translateDark",
         "title": "Translate PDF Online",
-        "highlight_text": "AI-powered PDF translation",
-        "description": "Translate PDFs with layout preserved — columns, tables, figures, and fonts stay faithful. Supports English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, and more. Runs in your browser; no install.",
+        "highlight_text": "Free AI-powered PDF translation online",
+        "description": "Translate PDF online and keep the original layout — columns, tables, figures and fonts stay faithful. Translate PDFs online into English, Chinese, Spanish, French, Italian, German, Greek, Japanese, Korean and Russian. It runs in your browser, so you can translate a PDF online with no install and no setup.",
         "announcement": {
           "badge": "New",
           "title": "Professional layout-preserving PDF translation",
@@ -59,7 +59,7 @@
         "id": "introduce",
         "title": "What is Translate PDF Online",
         "label": "Product",
-        "description": "A web service for translating PDF documents while keeping the original design. Built for papers, manuals, reports, and books — not plain text dumps.",
+        "description": "Translate PDF Online is a web service that translates PDF documents online while keeping the original design. It is built for papers, manuals, reports and books — not plain text dumps — so when you translate a PDF online, you get a faithful, readable result that mirrors the source.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -69,7 +69,7 @@
         "items": [
           {
             "title": "Layout-preserving output",
-            "description": "Translated PDFs mirror structure: multi-column text, tables, images, and headings stay aligned with the source.",
+            "description": "When you translate PDF online, the translated PDF mirrors the original structure: multi-column text, tables, images and headings stay aligned with the source page.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -78,7 +78,7 @@
           },
           {
             "title": "Many language pairs",
-            "description": "Choose source and target from a growing set of languages. Fine for academic and professional documents.",
+            "description": "Choose source and target from a growing set of languages to translate PDF online — fine for academic, legal and professional documents across regions.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -87,7 +87,7 @@
           },
           {
             "title": "Secure, ephemeral storage",
-            "description": "Files are transferred over HTTPS and removed on a fixed retention schedule after processing.",
+            "description": "When you translate PDF online, files move over HTTPS and are removed on a fixed retention schedule after processing, so your documents do not linger.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -96,7 +96,7 @@
           },
           {
             "title": "History & task recovery",
-            "description": "The History panel lists your uploads and jobs so you can reopen a task without re-uploading the same PDF.",
+            "description": "The History panel lists every PDF you translate online, so you can reopen a task without re-uploading the same file while it is still retained.",
             "icon": "RiHistoryLine",
             "image": {
               "src": "/imgs/features/4.webp",
@@ -109,13 +109,13 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why teams choose us",
+        "title": "Why teams translate PDFs online with us",
         "label": "Benefits",
-        "description": "Focus on the document, not on fixing broken formatting after translation.",
+        "description": "When you translate a PDF online, you want the document back intact — not a pile of broken formatting to fix by hand. That is the whole point.",
         "items": [
           {
             "title": "Built for dense PDFs",
-            "description": "Tuned for academic and technical layouts — equations, figures, and tables where the pipeline supports them.",
+            "description": "Tuned for academic and technical layouts — equations, figures and tables — so you can translate dense PDFs online without losing structure where the pipeline supports it.",
             "icon": "RiFilePdf2Line",
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
@@ -126,7 +126,7 @@
           },
           {
             "title": "Side-by-side preview",
-            "description": "Compare source and translated pages in the browser with synced scrolling before you download.",
+            "description": "Before you download, compare source and translated pages in the browser with synced scrolling, so you can judge the quality of every PDF you translate online.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
@@ -137,7 +137,7 @@
           },
           {
             "title": "Optional page ranges",
-            "description": "Translate the whole file or only the pages you need to save time and credits.",
+            "description": "Translate the whole file or only the pages you need. Setting a page range lets you translate a big PDF online faster while saving credits.",
             "icon": "RiBookReadLine",
             "image": {
               "src": "/imgs/features/page_range.png",
@@ -153,8 +153,8 @@
         "id": "usage",
         "carousel": true,
         "label": "",
-        "title": "How to translate your PDF",
-        "description": "From upload to download and history:",
+        "title": "How to translate a PDF online",
+        "description": "From upload to download — translate PDF online in five steps:",
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
@@ -166,7 +166,7 @@
         "items": [
           {
             "title": "Upload",
-            "description": "Drop a PDF or pick a file. Large documents are supported within the limits shown on the translate page.",
+            "description": "Drop a PDF or pick a file. Large documents are supported within the limits shown on the translate page, so you can translate a big PDF online in one go.",
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "Upload a PDF file",
@@ -176,7 +176,7 @@
           },
           {
             "title": "Source language",
-            "description": "Select the document language so the engine translates from the correct source.",
+            "description": "Select the document language so the engine translates from the correct source when you translate PDF online.",
             "image": {
               "src": "/imgs/features/choose_language_source.png",
               "alt": "Choose source language",
@@ -186,7 +186,7 @@
           },
           {
             "title": "Target language",
-            "description": "Pick the language you want the PDF translated into, then start the job.",
+            "description": "Pick the language you want the PDF translated into — English, Chinese, German, Japanese, Norwegian and more — then start the job.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Choose target language",
@@ -196,7 +196,7 @@
           },
           {
             "title": "Download",
-            "description": "When the job finishes, download the translated PDF from the same screen.",
+            "description": "When the job finishes, download the translated PDF from the same screen. The result keeps the original layout wherever supported.",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "Download translated PDF",
@@ -206,7 +206,7 @@
           },
           {
             "title": "History",
-            "description": "Reopen finished translations from History while the file is still available.",
+            "description": "Reopen finished translations from History while the file is still available, so you never lose a PDF you translated online.",
             "image": {
               "src": "/imgs/features/history.png",
               "alt": "Translation history",
@@ -219,37 +219,37 @@
       },
       "features": {
         "id": "features",
-        "title": "What you get",
-        "description": "Practical capabilities for real PDF workflows.",
+        "title": "What you get when you translate PDF online",
+        "description": "Practical capabilities for real PDF translation workflows.",
         "items": [
           {
             "title": "Vector-friendly pipeline",
-            "description": "Uses a BabelDOC-style path so text is placed back into the PDF structure where supported.",
+            "description": "Uses a BabelDOC-style path so translated text is placed back into the PDF structure where supported — that is how a PDF translated online keeps its layout.",
             "icon": "RiStackLine"
           },
           {
             "title": "Credits & billing",
-            "description": "Pay for what you translate with a credits model tied to pages and product settings.",
+            "description": "Pay for what you translate with a credits model tied to pages and product settings, so translating a PDF online stays predictable.",
             "icon": "RiCoinsLine"
           },
           {
             "title": "Account or guest flow",
-            "description": "Sign in for billing and history across devices, or try the flow in a single session.",
+            "description": "Sign in for billing and history across devices, or try the flow in a single session before you translate a PDF online.",
             "icon": "RiUserLine"
           },
           {
             "title": "Edge-hosted UI",
-            "description": "Fast first load on Cloudflare; your browser handles preview and download.",
+            "description": "Fast first load on Cloudflare; your browser handles preview and download, keeping the PDF you translate online responsive.",
             "icon": "RiCloudy2Fill"
           },
           {
             "title": "Documentation",
-            "description": "Architecture, retention, and compliance notes in /docs for transparency.",
+            "description": "Architecture, retention and compliance notes in /docs for transparency about what happens when you translate PDF online.",
             "icon": "RiBookOpenLine"
           },
           {
             "title": "Developer-friendly stack",
-            "description": "Next.js app with clear APIs between UI, storage, and the translation worker.",
+            "description": "A Next.js app with clear APIs between UI, storage and the translation worker — the same stack that lets you translate PDF online reliably.",
             "icon": "RiCodeSSlashLine"
           }
         ]
@@ -257,7 +257,7 @@
       "stats": {
         "id": "stats",
         "title": "Built for serious documents",
-        "description": "From single papers to large manuals.",
+        "description": "From single papers to large manuals — translate PDF online at any scale.",
         "items": [
           {
             "title": "8+",
@@ -276,43 +276,59 @@
       },
       "faq": {
         "id": "faq",
-        "title": "Frequently asked questions",
-        "description": "More detail in our documentation or email hello@translatepdfonline.com.",
+        "title": "Frequently asked questions about translating PDF online",
+        "description": "Quick answers before you translate PDF online. More detail in /docs or email hello@translatepdfonline.com.",
         "items": [
           {
+            "question": "How do I translate a big PDF file online for free?",
+            "answer": "To translate a big PDF file online for free, open the translate page, upload your PDF, choose the source and target languages, and set a page range if you only need part of it. Large documents are supported within the limits shown on the page, and a page range lets you translate a big PDF online faster while spending fewer credits. You can translate PDF online without installing anything."
+          },
+          {
+            "question": "How do I translate a PDF online with really good translation quality?",
+            "answer": "For really good translation quality when you translate PDF online, pick the correct source language so the engine reads the document accurately, and use a layout-preserving pipeline that keeps headings, tables and columns in place. The DeepSeek-powered translation keeps the original structure, so the result reads naturally and stays faithful to the source instead of producing a flat text dump."
+          },
+          {
+            "question": "How do I translate a PDF from German to English for free online?",
+            "answer": "To translate a PDF from German to English for free online, set the source language to German and the target language to English on the translate page, then upload your PDF and start the job. The layout-preserving pipeline translates German PDFs into English while keeping the original fonts, tables and columns, so you can translate a German PDF online and get a clean English result."
+          },
+          {
+            "question": "How do I translate PDF documents to Norwegian online?",
+            "answer": "To translate PDF documents to Norwegian online, choose Norwegian as the target language on the translate page, select the source language of your document, and upload the PDF. The engine translates the document into Norwegian while preserving the layout where supported, so you can translate PDF documents to Norwegian online and download a readable, faithful result."
+          },
+          {
             "question": "What is Translate PDF Online and how does it work?",
-            "answer": "You upload a PDF, choose source and target languages, and we run a layout-aware translation pipeline. You download a new PDF that mirrors the original structure where the technology supports it."
+            "answer": "You upload a PDF, choose source and target languages, and we run a layout-aware translation pipeline. You then download a new PDF that mirrors the original structure where the technology supports it. Everything to translate PDF online happens in the browser — no install required."
           },
           {
-            "question": "Do I need to install anything?",
-            "answer": "No. Upload and preview run in the browser. Files are sent over HTTPS."
+            "question": "Do I need to install anything to translate PDF online?",
+            "answer": "No. Upload, preview and download run in the browser when you translate PDF online. Files are transferred over HTTPS, so there is nothing to install or configure."
           },
           {
-            "question": "Which languages are supported?",
-            "answer": "The translate page lists available source and target languages (e.g. English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean). We add pairs over time."
+            "question": "Which languages can I translate PDF online into?",
+            "answer": "The translate page lists available source and target languages — English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German, Russian and more. We add pairs over time, so you can translate PDF online across an expanding set of languages."
           },
           {
-            "question": "How long does translation take?",
-            "answer": "Short PDFs often finish in minutes. Long or image-heavy files take longer. You can stay on the page or return later and open the task from History."
+            "question": "How long does it take to translate PDF online?",
+            "answer": "Short PDFs often finish in minutes. Long or image-heavy files take longer. You can stay on the page or return later and open the task from History, so translating a PDF online never blocks your workflow."
           },
           {
-            "question": "Is my document secure?",
-            "answer": "Traffic is encrypted. Stored objects follow the retention policy described in our docs (typically automatic deletion after about seven days unless stated otherwise)."
+            "question": "Is my document secure when I translate PDF online?",
+            "answer": "Traffic is encrypted. Stored objects follow the retention policy in our docs — typically automatic deletion after about seven days unless stated otherwise. So when you translate PDF online, your file does not linger."
           },
           {
-            "question": "Can I translate only specific pages?",
-            "answer": "Yes. Set a page range when you start the job to translate part of the document."
+            "question": "Can I translate only specific pages of a PDF online?",
+            "answer": "Yes. Set a page range when you start the job to translate only part of the document. This lets you translate a big PDF online faster and spend fewer credits on the pages you actually need."
           },
           {
-            "question": "How do I reopen or preview a translation I did earlier?",
-            "answer": "Open the translate page and use History. Pick a past job to see its status and preview the source and translated PDFs in the browser. You do not need to upload the file again while it is still available under our retention policy."
+            "question": "How do I reopen or preview a PDF I translated online earlier?",
+            "answer": "Open the translate page and use History. Pick a past job to see its status and preview the source and translated PDFs side by side in the browser. You do not need to upload the file again while it is still available under our retention policy, so every PDF you translate online stays reachable."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Translate your first PDF",
-        "description": "Upload on the translate page — use History to return to any recent job.",
+        "title": "Translate your first PDF online",
+        "description": "Upload on the translate page and translate PDF online now — use History to return to any recent job.",
         "buttons": [
           {
             "title": "Start translating",

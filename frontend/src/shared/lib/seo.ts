@@ -146,7 +146,7 @@ const defaultMetadataKey = 'common.metadata';
 
 async function getTranslatedMetadata(metadataKey: string, locale: string) {
   setRequestLocale(locale);
-  const t = await getTranslations(metadataKey);
+  const t = await getTranslations({ locale, namespace: metadataKey });
 
   return {
     title: t.has('title') ? t('title') : '',

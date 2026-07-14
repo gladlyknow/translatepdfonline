@@ -14,9 +14,9 @@
       "hero": {
         "id": "hero",
         "variant": "translateDark",
-        "title": "在线 PDF 翻译",
-        "highlight_text": "AI 精准翻译",
-        "description": "在保留版式的前提下翻译 PDF——分栏、表格、插图与字体尽量与原文一致。支持英语、中文、西班牙语、法语、意大利语、希腊语、日语、韩语等。浏览器内完成，无需安装。",
+        "title": "在线翻译 PDF",
+        "highlight_text": "免费 AI 驱动的在线 PDF 翻译",
+        "description": "在线翻译 PDF 并保留原始版式——分栏、表格、插图与字体尽量与原文一致。支持把 PDF 在线翻译成英语、中文、西班牙语、法语、意大利语、德语、希腊语、日语、韩语、俄语。全程在浏览器内完成，无需安装、无需配置，让你随时 translate pdf online。",
         "announcement": {
           "badge": "全新",
           "title": "专业级版式保留 PDF 翻译",
@@ -57,9 +57,9 @@
       "introduce": {
         "block": "features-list",
         "id": "introduce",
-        "title": "什么是在线 PDF 翻译",
+        "title": "什么是在线翻译 PDF",
         "label": "产品",
-        "description": "面向论文、手册、报告与书籍的网页翻译服务，在可行范围内保留原始版面设计，而不是输出纯文本。",
+        "description": "Translate PDF Online 是一项网页翻译服务，可在线翻译 PDF 文档并保留原始设计。它面向论文、手册、报告与书籍，而非纯文本堆砌——因此当你在线翻译 PDF 时，得到的是忠实可读、与原文版式对应的结果。",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -69,7 +69,7 @@
         "items": [
           {
             "title": "版式保留输出",
-            "description": "译文 PDF 尽量还原结构：多栏、表格、图片与标题与源文件对齐。",
+            "description": "在线翻译 PDF 时，译文 PDF 会还原原始结构：多栏文字、表格、图片与标题与源文件页面对齐。",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -78,7 +78,7 @@
           },
           {
             "title": "多语言对",
-            "description": "从不断增长的语言列表中选择源语言与目标语言，适合学术与专业文档。",
+            "description": "从不断扩展的语言列表中选择源语言与目标语言来在线翻译 PDF，适合跨地区的学术、法律与专业文档。",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -87,7 +87,7 @@
           },
           {
             "title": "安全与临时存储",
-            "description": "通过 HTTPS 传输，处理完成后按固定保留策略从服务器删除。",
+            "description": "在线翻译 PDF 时，文件通过 HTTPS 传输，并在处理完成后按固定留存策略删除，文档不会长期滞留。",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -96,7 +96,7 @@
           },
           {
             "title": "历史与任务恢复",
-            "description": "「历史」栏列出上传与翻译任务，可重新打开任务，无需重复上传同一 PDF。",
+            "description": "「历史」栏列出你在线翻译过的每一份 PDF，可在文件仍留存期间重新打开任务，无需重复上传。",
             "icon": "RiHistoryLine",
             "image": {
               "src": "/imgs/features/4.webp",
@@ -109,13 +109,13 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "为什么选择我们",
+        "title": "为什么团队选择在我们这里在线翻译 PDF",
         "label": "优势",
-        "description": "专注文档本身，而不是翻译后再手工修版式。",
+        "description": "在线翻译 PDF 时，你想要的是一份完整还原的文档，而不是一堆需要手工修复的乱版格式——这正是我们的核心价值。",
         "items": [
           {
             "title": "为复杂 PDF 优化",
-            "description": "面向学术与技术排版——在流水线支持的范围内处理公式、插图与表格。",
+            "description": "面向学术与技术排版——公式、插图与表格——在流水线支持的范围内，让你在线翻译复杂 PDF 时不丢结构。",
             "icon": "RiFilePdf2Line",
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
@@ -126,7 +126,7 @@
           },
           {
             "title": "并排预览",
-            "description": "浏览器内左右对照原文与译文，同步滚动后再下载。",
+            "description": "下载前在浏览器内左右对照原文与译文，同步滚动，让你评判在线翻译的每一份 PDF 的质量。",
             "icon": "RiSplitCellsHorizontal",
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
@@ -136,8 +136,8 @@
             }
           },
           {
-            "title": "可选页范围",
-            "description": "整本翻译或仅翻译指定页面，节省时间与积分。",
+            "title": "可选页码范围",
+            "description": "整本翻译或只翻译需要的页面。设置页码范围能让你更快地在线翻译大 PDF，同时节省积分。",
             "icon": "RiBookReadLine",
             "image": {
               "src": "/imgs/features/page_range.png",
@@ -153,8 +153,8 @@
         "id": "usage",
         "carousel": true,
         "label": "",
-        "title": "如何翻译 PDF",
-        "description": "从上传到下载与历史记录：",
+        "title": "如何在线翻译 PDF",
+        "description": "从上传到下载——五步在线翻译 PDF：",
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
@@ -166,7 +166,7 @@
         "items": [
           {
             "title": "上传",
-            "description": "拖入 PDF 或选择文件。大文档请在翻译页查看当前限制说明。",
+            "description": "拖入 PDF 或选择文件。翻译页所示限制内支持大文档，让你一次性在线翻译大 PDF。",
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "上传 PDF 文件",
@@ -176,7 +176,7 @@
           },
           {
             "title": "源语言",
-            "description": "选择文档语言，确保从正确的源文进行翻译。",
+            "description": "选择文档语言，确保在线翻译 PDF 时引擎从正确的源文开始翻译。",
             "image": {
               "src": "/imgs/features/choose_language_source.png",
               "alt": "选择源语言",
@@ -186,7 +186,7 @@
           },
           {
             "title": "目标语言",
-            "description": "选择要翻译成的语言，然后开始翻译任务。",
+            "description": "选择要把 PDF 翻译成的语言——英语、中文、德语、日语、挪威语等——然后开始任务。",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "选择目标语言",
@@ -196,7 +196,7 @@
           },
           {
             "title": "下载",
-            "description": "完成后在同一界面下载译文 PDF。",
+            "description": "任务完成后在同一界面下载译文 PDF。结果在支持范围内保留原始版式。",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "下载翻译后的 PDF",
@@ -206,7 +206,7 @@
           },
           {
             "title": "历史记录",
-            "description": "在文件仍可用期间，可随时从历史重新打开已完成的任务。",
+            "description": "在文件仍可用期间，可随时从历史重新打开已完成的翻译，绝不丢失在线翻译过的 PDF。",
             "image": {
               "src": "/imgs/features/history.png",
               "alt": "翻译历史记录",
@@ -219,37 +219,37 @@
       },
       "features": {
         "id": "features",
-        "title": "你能获得什么",
-        "description": "面向真实 PDF 工作流的实用能力。",
+        "title": "在线翻译 PDF 时你能获得什么",
+        "description": "面向真实 PDF 翻译工作流的实用能力。",
         "items": [
           {
             "title": "矢量友好流水线",
-            "description": "采用类 BabelDOC 路径，在支持时将文本写回 PDF 结构。",
+            "description": "采用类 BabelDOC 路径，在支持时把译文写回 PDF 结构——这正是在线翻译的 PDF 能保留版式的原因。",
             "icon": "RiStackLine"
           },
           {
             "title": "积分与计费",
-            "description": "按页与产品规则计费，用积分支付实际翻译量。",
+            "description": "按页数与产品设置用积分计费，让在线翻译 PDF 的成本可预期。",
             "icon": "RiCoinsLine"
           },
           {
             "title": "账号或访客",
-            "description": "登录可跨设备查看账单与历史；也可在单次会话内体验流程。",
+            "description": "登录可跨设备查看账单与历史；也可在单次会话内先体验流程，再决定是否在线翻译 PDF。",
             "icon": "RiUserLine"
           },
           {
             "title": "边缘托管界面",
-            "description": "Cloudflare 边缘加速首屏；预览与下载在浏览器完成。",
+            "description": "Cloudflare 边缘加速首屏加载；预览与下载在浏览器完成，让在线翻译 PDF 全程流畅。",
             "icon": "RiCloudy2Fill"
           },
           {
             "title": "公开文档",
-            "description": "/docs 提供架构、保留策略与合规说明。",
+            "description": "/docs 提供架构、留存策略与合规说明，让你透明了解在线翻译 PDF 时发生了什么。",
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "可维护技术栈",
-            "description": "Next.js 应用，UI、存储与翻译 Worker 之间 API 清晰。",
+            "title": "开发者友好技术栈",
+            "description": "Next.js 应用，UI、存储与翻译 Worker 之间 API 清晰——正是让你稳定在线翻译 PDF 的同一套技术栈。",
             "icon": "RiCodeSSlashLine"
           }
         ]
@@ -257,7 +257,7 @@
       "stats": {
         "id": "stats",
         "title": "为严肃文档而造",
-        "description": "从单篇论文到大部头手册。",
+        "description": "从单篇论文到大部头手册——任意规模都能在线翻译 PDF。",
         "items": [
           {
             "title": "8+",
@@ -276,43 +276,59 @@
       },
       "faq": {
         "id": "faq",
-        "title": "常见问题",
-        "description": "更多说明见文档或邮件 hello@translatepdfonline.com。",
+        "title": "在线翻译 PDF 的常见问题",
+        "description": "在线翻译 PDF 前的快速解答。更多细节见 /docs，或邮件 hello@translatepdfonline.com。",
         "items": [
           {
-            "question": "什么是在线 PDF 翻译？怎么用？",
-            "answer": "上传 PDF，选择源语言与目标语言，我们运行版式感知翻译流水线，您下载尽量保留结构的新 PDF。"
+            "question": "怎么免费在线翻译一个很大的 PDF 文件？",
+            "answer": "想免费在线翻译很大的 PDF 文件，打开翻译页上传 PDF，选择源语言和目标语言，若只需部分内容可设置页码范围。大文件在页面所示限制内均可处理；设置页码范围能让你更快地在线翻译大 PDF，同时消耗更少积分。整个过程在浏览器内完成，无需安装。"
           },
           {
-            "question": "需要安装软件吗？",
-            "answer": "不需要。上传与预览在浏览器完成，文件经 HTTPS 传输。"
+            "question": "怎么在线翻译 PDF 才能得到高质量的译文？",
+            "answer": "想在线翻译 PDF 获得高质量译文，关键在于选对源语言让引擎准确识别，并使用保留版式的翻译流水线，使标题、表格、分栏原位保留。基于 DeepSeek 的翻译会保持原始结构，译文自然流畅、忠实于原文，而不是输出一堆散乱的纯文本。"
           },
           {
-            "question": "支持哪些语言？",
-            "answer": "翻译页下拉框列出当前可用的源/目标语言（如英、中、西、法、意、希、日、韩等），会持续增加。"
+            "question": "怎么免费在线把 PDF 从德语翻译成英语？",
+            "answer": "想免费在线把 PDF 从德语翻译成英语，在翻译页把源语言设为德语、目标语言设为英语，上传 PDF 后开始任务。保留版式的流水线在把德语 PDF 翻译成英语的同时保留原始字体、表格与分栏，让你在线翻译德语 PDF 后得到一份干净的英文结果。"
           },
           {
-            "question": "翻译要多久？",
-            "answer": "短文档通常数分钟内完成；长文档或扫描件更久。可留在页面等待，或稍后从历史打开任务。"
+            "question": "怎么在线把 PDF 文档翻译成挪威语？",
+            "answer": "想在线把 PDF 文档翻译成挪威语，在翻译页把目标语言选为挪威语，选择文档的源语言，再上传 PDF。引擎会把文档翻译成挪威语并在支持的范围内保留版式，让你在线把 PDF 文档翻译成挪威语后下载到一份可读、忠实的结果。"
           },
           {
-            "question": "文档安全吗？",
-            "answer": "传输加密。存储对象按文档所述保留策略处理（通常约 7 天后自动删除，除非另有说明）。"
+            "question": "Translate PDF Online 是什么，怎么工作？",
+            "answer": "你上传 PDF，选择源语言和目标语言，我们运行保留版式的翻译流水线，然后你下载一份在技术支持范围内还原原始结构的新 PDF。在线翻译 PDF 的全过程都在浏览器内完成，无需安装。"
           },
           {
-            "question": "能只翻译部分页面吗？",
-            "answer": "可以。开始任务时设置页码范围即可。"
+            "question": "在线翻译 PDF 需要安装什么吗？",
+            "answer": "不需要。上传、预览、下载都在浏览器内完成，在线翻译 PDF 时文件通过 HTTPS 传输，无需安装或配置任何东西。"
           },
           {
-            "question": "如何查看或预览以前翻译过的文件？",
-            "answer": "打开翻译页，点击「历史」打开历史列表，选择之前的翻译任务即可重新进入：可查看状态，并在浏览器中预览原文与译文的 PDF，无需再次上传（在保留期限内文件仍可用）。"
+            "question": "在线翻译 PDF 支持哪些语言？",
+            "answer": "翻译页会列出可用的源语言和目标语言——英语、中文、西班牙语、法语、意大利语、希腊语、日语、韩语、德语、俄语等。我们持续增加语言对，让你能跨越来越多语言在线翻译 PDF。"
+          },
+          {
+            "question": "在线翻译 PDF 要多久？",
+            "answer": "短篇 PDF 通常几分钟完成，长篇或图片密集型文件耗时更久。你可以留在页面，也可以稍后从历史记录打开任务，在线翻译 PDF 不会阻塞你的工作流。"
+          },
+          {
+            "question": "在线翻译 PDF 时我的文档安全吗？",
+            "answer": "传输全程加密。存储的对象遵循文档中的留存策略——通常约七天后自动删除（另有说明除外）。所以在线翻译 PDF 时，你的文件不会长期留存。"
+          },
+          {
+            "question": "能只在线翻译 PDF 的指定页面吗？",
+            "answer": "可以。开始任务时设置页码范围即可只翻译部分内容，这让你更快地在线翻译大 PDF，并只为所需页面消耗积分。"
+          },
+          {
+            "question": "怎么重新打开或预览之前在线翻译过的 PDF？",
+            "answer": "打开翻译页使用历史记录，选择过往任务即可查看状态并在浏览器内左右对照预览源文件与译文 PDF。在留存策略有效期内无需重新上传，所以你在线翻译过的每一份 PDF 都可再次访问。"
           }
         ]
       },
       "cta": {
         "id": "cta",
         "title": "翻译你的第一份 PDF",
-        "description": "在翻译页上传——用「历史」随时回到最近的任务。",
+        "description": "在翻译页上传，立即在线翻译 PDF——用「历史」随时回到最近的任何任务。",
         "buttons": [
           {
             "title": "开始翻译",

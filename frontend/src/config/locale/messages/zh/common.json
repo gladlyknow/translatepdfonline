@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "在线 PDF 翻译 | 浏览器内版式保留的多语言 PDF 翻译工具",
-    "description": "在浏览器中在线翻译 PDF，保留原版式、字体与表格。支持多语言互译，全程 HTTPS 加密传输，文件按策略限时安全删除，适合学术论文、技术报告与商务合同。无需安装客户端，上传文件即可开始翻译，失败任务不扣费。",
-    "keywords": "pdf 翻译, 在线 pdf, 保留版式, 多语言 pdf, 学术论文翻译, 布局保留"
+    "title": "Translate PDF Online — 免费在线 PDF 翻译，保留原始版式",
+    "description": "免费在线翻译 PDF，保留原始版式、字体、表格与分栏。支持中英、中日、中德等多语言 PDF 互译，浏览器内直接完成，无需安装。",
+    "keywords": "translate pdf online,在线翻译pdf,pdf翻译,免费pdf翻译,在线pdf翻译器,保留版式pdf翻译,pdf翻译成中文,pdf德语翻译英语,pdf翻译挪威语,多语言pdf翻译"
   },
   "sign": {
     "sign_in_title": "登录",

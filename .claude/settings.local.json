@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx lighthouse *)",
+      "Bash(chmod +x *)",
+      "Bash(bash -n /android/claude/translatepdfonline/frontend/scripts/perf-test.sh)",
+      "Bash(URL=https://translatepdfonline-dev.gladlyknow.workers.dev bash scripts/perf-test.sh)",
+      "Bash(lighthouse https://translatepdfonline-dev.gladlyknow.workers.dev --chrome-flags=\"--headless --no-sandbox\" --preset=mobile --only-categories=performance --output=json --output-path=/tmp/lh-test.json)",
+      "Bash(bash /android/claude/translatepdfonline/frontend/scripts/optimize-images.sh --dry-run)",
+      "Bash(bash *)",
+      "Bash(node *)",
+      "Bash(python3 *)",
+      "Bash(mv src/app/\\\\[locale\\\\]/\\\\\\(translate\\\\\\)/pdf-to-text src/app/\\\\[locale\\\\]/\\\\\\(landing\\\\\\)/pdf-to-text)",
+      "Bash(mv src/app/\\\\[locale\\\\]/\\\\\\(translate\\\\\\)/image-to-text src/app/\\\\[locale\\\\]/\\\\\\(landing\\\\\\)/image-to-text)",
+      "Bash(pnpm run *)",
+      "Bash(grep *)",
+      "WebFetch(domain:translatepdfonline-dev.gladlyknow.workers.dev)",
+      "Bash(pip install *)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

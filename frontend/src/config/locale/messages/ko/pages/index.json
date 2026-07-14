@@ -15,8 +15,8 @@
         "id": "hero",
         "variant": "translateDark",
         "title": "Translate PDF Online",
-        "highlight_text": "AI 기반 PDF 번역",
-        "description": "레이아웃을 유지한 채 PDF를 번역합니다. 단, 표, 그림, 글꼴도 원본에 가깝게 유지됩니다. 영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어 등을 지원합니다. 브라우저에서 동작하며 설치가 필요 없습니다.",
+        "highlight_text": "무료 AI 온라인 PDF 번역",
+        "description": "PDF 번역 온라인으로 원본 레이아웃을 유지하세요 — 단, 표, 그림, 글꼴이 원본에 충실하게 유지됩니다. 영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 독일어, 그리스어, 일본어, 한국어, 러시아어로 PDF를 온라인 번역하세요. 브라우저에서 바로 실행되어 설치나 설정 없이 translate pdf online을 이용할 수 있습니다.",
         "announcement": {
           "badge": "신규",
           "title": "레이아웃을 보존하는 전문 PDF 번역",
@@ -59,7 +59,7 @@
         "id": "introduce",
         "title": "Translate PDF Online이란",
         "label": "제품",
-        "description": "원본 디자인을 유지하며 PDF 문서를 번역하는 웹 서비스입니다. 논문, 매뉴얼, 보고서, 도서에 적합하며 단순 텍스트 덤프가 아닙니다.",
+        "description": "Translate PDF Online은 원본 디자인을 유지하며 PDF 문서를 온라인에서 번역하는 웹 서비스입니다. 논문, 매뉴얼, 보고서, 도서에 맞춰 설계되었으며 단순 텍스트 덤프가 아니므로, PDF를 온라인 번역할 때 원본을 충실히 반영한 읽기 편한 결과를 받습니다.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -68,8 +68,8 @@
         },
         "items": [
           {
-            "title": "레이아웃 보존 출력",
-            "description": "번역 PDF는 구조를 반영합니다. 다단 본문, 표, 이미지, 제목이 원본과 맞춰집니다.",
+            "title": "레이아웃 유지 출력",
+            "description": "PDF 번역 온라인을 이용하면 번역된 PDF가 원본 구조를 그대로 반영합니다. 다단 본문, 표, 이미지, 제목이 원본 페이지에 정렬된 채 유지됩니다.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -78,7 +78,7 @@
           },
           {
             "title": "다양한 언어 쌍",
-            "description": "출발어와 도착어를 계속 늘어나는 목록에서 선택합니다. 학술·업무 문서에 적합합니다.",
+            "description": "점점 늘어나는 언어 목록에서 원본과 대상 언어를 선택해 PDF 번역 온라인을 이용하세요. 학술, 법률, 업무 문서를 지역에 맞게 번역하기에 좋습니다.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -87,7 +87,7 @@
           },
           {
             "title": "안전한 임시 저장",
-            "description": "파일은 HTTPS로 전송되며 처리 후 정해진 보존 정책에 따라 삭제됩니다.",
+            "description": "PDF 번역 온라인을 이용할 때 파일은 HTTPS로 전송되고 처리 후 정해진 보존 일정에 따라 삭제되어 문서가 남지 않습니다.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -96,7 +96,7 @@
           },
           {
             "title": "기록 및 작업 복구",
-            "description": "기록 패널에 업로드와 작업이 나열되어 같은 PDF를 다시 올리지 않고 작업을 다시 열 수 있습니다.",
+            "description": "기록 패널에 온라인으로 번역한 모든 PDF가 나열되어, 보존 기간 안에는 같은 파일을 다시 올리지 않고 작업을 다시 열 수 있습니다.",
             "icon": "RiHistoryLine",
             "image": {
               "src": "/imgs/features/4.webp",
@@ -109,13 +109,13 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "팀이 선택하는 이유",
+        "title": "팀이 우리와 함께 PDF를 온라인 번역하는 이유",
         "label": "혜택",
-        "description": "문서에 집중하고, 번역 후 서식 수정에 쫓기지 마세요.",
+        "description": "PDF를 온라인 번역할 때 원하는 것은 문서가 온전히 돌아오는 것입니다. 서식이 깨진 결과를 손으로 고치는 게 목적이 아니죠.",
         "items": [
           {
             "title": "밀도 높은 PDF에 맞춤",
-            "description": "학술·기술 레이아웃에 맞게 조정했습니다. 수식, 그림, 표는 파이프라인이 지원하는 범위에서 처리합니다.",
+            "description": "학술·기술 레이아웃(수식, 그림, 표)에 맞게 조정되어, 파이프라인이 지원하는 범위에서 밀도 높은 PDF를 온라인 번역해도 구조를 잃지 않습니다.",
             "icon": "RiFilePdf2Line",
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
@@ -126,7 +126,7 @@
           },
           {
             "title": "나란히 미리보기",
-            "description": "다운로드 전 브라우저에서 원문과 번역 페이지를 동기 스크롤로 비교합니다.",
+            "description": "다운로드 전 브라우저에서 동기 스크롤로 원본과 번역 페이지를 비교해 온라인으로 번역한 모든 PDF의 품질을 판단할 수 있습니다.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
@@ -137,7 +137,7 @@
           },
           {
             "title": "선택적 페이지 범위",
-            "description": "전체 파일 또는 필요한 페이지만 번역해 시간과 크레딧을 절약합니다.",
+            "description": "전체 파일 또는 필요한 페이지만 번역하세요. 페이지 범위를 설정하면 큰 PDF를 온라인 번역할 때 더 빠르고 크레딧도 절약됩니다.",
             "icon": "RiBookReadLine",
             "image": {
               "src": "/imgs/features/page_range.png",
@@ -153,8 +153,8 @@
         "id": "usage",
         "carousel": true,
         "label": "",
-        "title": "PDF 번역 방법",
-        "description": "업로드부터 다운로드와 기록까지:",
+        "title": "PDF를 온라인으로 번역하는 방법",
+        "description": "업로드부터 다운로드까지 — 다섯 단계로 PDF 번역 온라인을 이용하세요:",
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
@@ -166,7 +166,7 @@
         "items": [
           {
             "title": "업로드",
-            "description": "PDF를 끌어다 놓거나 파일을 선택합니다. 큰 문서는 번역 페이지에 표시된 한도 내에서 지원됩니다.",
+            "description": "PDF를 끌어다 놓거나 파일을 선택하세요. 번역 페이지에 표시된 한도 내에서 큰 문서도 지원되어 큰 PDF도 한 번에 온라인 번역할 수 있습니다.",
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "PDF 업로드",
@@ -175,8 +175,8 @@
             }
           },
           {
-            "title": "출발어",
-            "description": "문서 언어를 선택해 올바른 원문에서 번역되도록 합니다.",
+            "title": "원본 언어",
+            "description": "문서 언어를 선택해 PDF 번역 온라인 시 엔진이 올바른 원본에서 번역하도록 합니다.",
             "image": {
               "src": "/imgs/features/choose_language_source.png",
               "alt": "출발어 선택",
@@ -185,8 +185,8 @@
             }
           },
           {
-            "title": "도착어",
-            "description": "번역할 언어를 고른 뒤 작업을 시작합니다.",
+            "title": "대상 언어",
+            "description": "PDF를 번역할 언어(영어, 중국어, 독일어, 일본어, 노르웨이어 등)를 고른 뒤 작업을 시작하세요.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "도착어 선택",
@@ -196,7 +196,7 @@
           },
           {
             "title": "다운로드",
-            "description": "완료되면 같은 화면에서 번역된 PDF를 다운로드합니다.",
+            "description": "작업이 끝나면 같은 화면에서 번역된 PDF를 다운로드합니다. 결과는 지원되는 범위에서 원본 레이아웃을 유지합니다.",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "번역 PDF 다운로드",
@@ -206,7 +206,7 @@
           },
           {
             "title": "기록",
-            "description": "파일이 남아 있는 동안 기록에서 완료된 번역을 다시 열 수 있습니다.",
+            "description": "파일이 남아 있는 동안 기록에서 완료된 번역을 다시 열어 온라인으로 번역한 PDF를 잃지 않습니다.",
             "image": {
               "src": "/imgs/features/history.png",
               "alt": "번역 기록",
@@ -219,37 +219,37 @@
       },
       "features": {
         "id": "features",
-        "title": "제공 기능",
-        "description": "실제 PDF 워크플로를 위한 실용 기능입니다.",
+        "title": "PDF 번역 온라인으로 얻는 것",
+        "description": "실제 PDF 번역 워크플로를 위한 실용 기능입니다.",
         "items": [
           {
             "title": "벡터 친화 파이프라인",
-            "description": "BabelDOC 스타일 경로로 지원되는 곳에 텍스트를 PDF 구조에 다시 넣습니다.",
+            "description": "BabelDOC 스타일 경로를 사용해 지원되는 곳에 번역된 텍스트를 PDF 구조에 다시 넣습니다. 이것이 온라인으로 번역된 PDF가 레이아웃을 유지하는 방식입니다.",
             "icon": "RiStackLine"
           },
           {
-            "title": "크레딧 및 결제",
-            "description": "페이지와 제품 설정에 묶인 크레딧 모델로 번역한 만큼만 결제합니다.",
+            "title": "크레딧과 결제",
+            "description": "페이지와 제품 설정에 연결된 크레딧 모델로 번역한 만큼만 결제하여 PDF 온라인 번역 비용을 예측 가능하게 유지합니다.",
             "icon": "RiCoinsLine"
           },
           {
             "title": "계정 또는 게스트",
-            "description": "로그인으로 결제와 기기 간 기록, 또는 한 세션에서 시도.",
+            "description": "기기 간 결제와 기록을 위해 로그인하거나, PDF 번역 온라인을 이용하기 전 한 세션에서 흐름을 시도해 보세요.",
             "icon": "RiUserLine"
           },
           {
             "title": "엣지 호스팅 UI",
-            "description": "Cloudflare에서 빠른 첫 로드, 미리보기와 다운로드는 브라우저가 담당.",
+            "description": "Cloudflare에서 빠른 첫 로드, 미리보기와 다운로드는 브라우저가 담당해 온라인으로 번역하는 PDF를 반응성 있게 유지합니다.",
             "icon": "RiCloudy2Fill"
           },
           {
             "title": "문서",
-            "description": "아키텍처, 보존, 컴플라이언스 안내는 /docs에서 투명하게 제공합니다.",
+            "description": "/docs에서 아키텍처, 보존, 컴플라이언스 안내를 제공해 PDF 번역 온라인 시 일어나는 일을 투명하게 공개합니다.",
             "icon": "RiBookOpenLine"
           },
           {
             "title": "개발자 친화 스택",
-            "description": "UI·스토리지·번역 워커 사이 API가 분명한 Next.js 앱.",
+            "description": "UI, 스토리지, 번역 워커 사이에 명확한 API를 둔 Next.js 앱 — translate pdf online을 안정적으로 이용하게 하는 같은 스택입니다.",
             "icon": "RiCodeSSlashLine"
           }
         ]
@@ -257,7 +257,7 @@
       "stats": {
         "id": "stats",
         "title": "진지한 문서를 위해",
-        "description": "단일 논문부터 대형 매뉴얼까지.",
+        "description": "단일 논문부터 대형 매뉴얼까지 — 어떤 규모든 PDF 번역 온라인을 이용하세요.",
         "items": [
           {
             "title": "8+",
@@ -276,43 +276,59 @@
       },
       "faq": {
         "id": "faq",
-        "title": "자주 묻는 질문",
-        "description": "자세한 내용은 문서를 보거나 hello@translatepdfonline.com으로 문의하세요.",
+        "title": "온라인 PDF 번역에 대한 자주 묻는 질문",
+        "description": "온라인으로 PDF를 번역하기 전 빠른 답변. 자세한 내용은 /docs 또는 hello@translatepdfonline.com.",
         "items": [
           {
-            "question": "Translate PDF Online은 무엇이며 어떻게 동작하나요?",
-            "answer": "PDF를 업로드하고 출발어·도착어를 선택하면 레이아웃을 고려한 번역 파이프라인이 실행됩니다. 기술이 지원하는 범위에서 원본 구조를 반영한 새 PDF를 받습니다."
+            "question": "큰 PDF 파일을 온라인에서 무료로 번역하려면?",
+            "answer": "큰 PDF를 무료로 온라인 번역하려면 번역 페이지를 열어 PDF를 올리고, 원본과 대상 언어를 선택한 뒤 필요한 부분만이라면 페이지 범위를 지정하세요. 큰 문서도 페이지에 표시된 한도 내에서 처리되며, 페이지 범위를 지정하면 큰 PDF를 더 빠르고 크레딧을 적게 쓰면서 온라인 번역할 수 있습니다. 모두 브라우저에서, 설치 없이."
           },
           {
-            "question": "설치가 필요한가요?",
-            "answer": "아니요. 업로드와 미리보기는 브라우저에서 이루어지며 파일은 HTTPS로 전송됩니다."
+            "question": "온라인에서 PDF를 번역할 때 매우 좋은 번역 품질을 얻으려면?",
+            "answer": "온라인 번역에서 매우 좋은 품질을 얻으려면 엔진이 정확히 읽도록 올바른 원본 언어를 선택하고, 제목·표·단을 제자리에 유지하는 레이아웃 유지 파이프라인을 사용하세요. DeepSeek 기반 번역은 원본 구조를 보존해 평면 텍스트가 아닌 자연스럽고 충실한 결과를 제공합니다."
           },
           {
-            "question": "어떤 언어를 지원하나요?",
-            "answer": "번역 페이지에 사용 가능한 출발어·도착어가 표시됩니다(예: 영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어). 쌍은 계속 추가합니다."
+            "question": "PDF를 독일어에서 영어로 무료로 온라인 번역하려면?",
+            "answer": "PDF를 독일어에서 영어로 무료로 온라인 번역하려면 번역 페이지에서 원본을 독일어, 대상을 영어로 설정하고 PDF를 올려 작업을 시작하세요. 레이아웃 유지 파이프라인이 글꼴·표·단을 유지하며 독일어 PDF를 영어로 번역해 깔끔한 영어 결과를 제공합니다."
           },
           {
-            "question": "번역에 얼마나 걸리나요?",
-            "answer": "짧은 PDF는 몇 분 안에 끝나는 경우가 많습니다. 길거나 이미지가 많은 파일은 더 걸립니다. 페이지를 유지하거나 나중에 기록에서 작업을 여세요."
+            "question": "PDF 문서를 노르웨이어로 온라인 번역하려면?",
+            "answer": "PDF 문서를 노르웨이어로 온라인 번역하려면 번역 페이지에서 대상 언어를 노르웨이어로 선택하고, 문서의 원본 언어를 고른 뒤 PDF를 올리세요. 엔진은 지원되는 범위에서 레이아웃을 유지하며 노르웨이어로 번역해 읽기 쉽고 충실한 결과를 다운로드할 수 있게 합니다."
           },
           {
-            "question": "문서는 안전한가요?",
-            "answer": "트래픽은 암호화됩니다. 저장 객체는 문서에 설명된 보존 정책을 따릅니다(보통 약 7일 후 자동 삭제 등)."
+            "question": "Translate PDF Online은 무엇이고 어떻게 작동하나요?",
+            "answer": "PDF를 올리고 원본·대상 언어를 선택하면 레이아웃 유지 번역 파이프라인이 실행됩니다. 그런 다음 기술이 지원하는 범위에서 원본 구조를 반영한 새 PDF를 다운로드할 수 있습니다. PDF 번역 온라인의 모든 과정은 브라우저에서 이루어지며 설치가 필요 없습니다."
           },
           {
-            "question": "특정 페이지만 번역할 수 있나요?",
-            "answer": "네. 작업 시작 시 페이지 범위를 설정해 문서 일부만 번역할 수 있습니다."
+            "question": "PDF를 온라인 번역하려면 설치해야 하나요?",
+            "answer": "아니요. 업로드, 미리보기, 다운로드는 모두 브라우저에서 이뤄지고 파일은 HTTPS로 전송되어 설치나 설정이 필요 없습니다."
           },
           {
-            "question": "이전에 번역한 파일을 다시 보거나 미리보려면 어떻게 하나요?",
-            "answer": "번역 페이지에서 기록(History)을 열고 이전 작업을 선택하세요. 상태를 확인하고 브라우저에서 원본·번역 PDF를 미리 볼 수 있으며, 보존 기간 안이면 파일을 다시 업로드할 필요가 없습니다."
+            "question": "온라인 PDF 번역이 가능한 언어는?",
+            "answer": "번역 페이지에 사용 가능한 원본·대상 언어가 표시됩니다(영어, 중국어, 스페인어, 프랑스어, 이탈리아어, 그리스어, 일본어, 한국어, 독일어, 러시아어 등). 언어 쌍은 계속 추가됩니다."
+          },
+          {
+            "question": "온라인 PDF 번역은 얼마나 걸리나요?",
+            "answer": "짧은 PDF는 보통 몇 분 내에 끝납니다. 길거나 이미지가 많은 파일은 더 오래 걸립니다. 페이지에 머물러도 되고, 나중에 기록에서 작업을 열어도 됩니다."
+          },
+          {
+            "question": "온라인으로 PDF를 번역할 때 문서는 안전한가요?",
+            "answer": "트래픽은 암호화됩니다. 저장된 객체는 문서의 보존 정책을 따르며, 보통 약 7일 후 자동 삭제됩니다."
+          },
+          {
+            "question": "PDF의 특정 페이지만 온라인 번역할 수 있나요?",
+            "answer": "네. 작업 시작 시 페이지 범위를 지정하면 일부만 번역할 수 있어 더 빠르고 크레딧도 절약됩니다."
+          },
+          {
+            "question": "이전에 온라인으로 번역한 PDF를 다시 열거나 미리 보려면?",
+            "answer": "번역 페이지를 열고 기록을 사용하세요. 과거 작업을 선택해 상태를 확인하고 원본과 번역 PDF를 나란히 미리 볼 수 있으며, 보존 기간 중에는 다시 올리지 않아도 됩니다."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "첫 PDF 번역하기",
-        "description": "번역 페이지에서 업로드 — 최근 작업은 기록에서 다시 엽니다.",
+        "title": "첫 PDF를 온라인으로 번역하세요",
+        "description": "번역 페이지에서 업로드하고 지금 바로 PDF 번역 온라인을 이용하세요 — 최근 작업은 기록에서 다시 엽니다.",
         "buttons": [
           {
             "title": "번역 시작",

@@ -15,8 +15,8 @@
         "id": "hero",
         "variant": "translateDark",
         "title": "Translate PDF Online",
-        "highlight_text": "Traduction PDF assistée par IA",
-        "description": "Traduisez des PDF en préservant la mise en page : colonnes, tableaux, figures et polices. Langues : anglais, chinois, espagnol, français, italien, grec, japonais, coréen, etc. Dans le navigateur, sans installation.",
+        "highlight_text": "Traduction PDF en ligne gratuite par IA",
+        "description": "Traduisez un PDF en ligne en gardant la mise en page d'origine : colonnes, tableaux, figures et polices restent fidèles. Traduire un PDF en ligne vers l'anglais, le français, l'espagnol, l'allemand, l'italien, le grec, le japonais, le coréen, le chinois et le russe. Tout se passe dans votre navigateur : traduisez un PDF en ligne sans installation ni configuration.",
         "announcement": {
           "badge": "Nouveau",
           "title": "Traduction PDF professionnelle qui préserve la mise en page",
@@ -57,9 +57,9 @@
       "introduce": {
         "block": "features-list",
         "id": "introduce",
-        "title": "Qu’est-ce que Translate PDF Online",
+        "title": "Qu'est-ce que Translate PDF Online",
         "label": "Produit",
-        "description": "Service web pour traduire des PDF tout en conservant la mise en page d’origine. Conçu pour articles, manuels, rapports et livres.",
+        "description": "Translate PDF Online est un service web qui traduit vos documents PDF en ligne tout en conservant la mise en page d'origine. Il est conçu pour les articles, manuels, rapports et livres — pas pour produire du texte brut — afin que, quand vous traduisez un PDF en ligne, vous obteniez un résultat fidèle et lisible qui reflète la source.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -68,8 +68,8 @@
         },
         "items": [
           {
-            "title": "Sortie à mise en page préservée",
-            "description": "Les PDF traduits reflètent la structure : texte multi-colonnes, tableaux, images et titres alignés sur la source.",
+            "title": "Résultat fidèle à la mise en page",
+            "description": "Quand vous traduisez un PDF en ligne, le PDF traduit reproduit la structure d'origine : texte sur plusieurs colonnes, tableaux, images et titres restent alignés sur la page source.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -77,8 +77,8 @@
             }
           },
           {
-            "title": "Nombreuses paires de langues",
-            "description": "Choisissez la langue source et cible parmi un ensemble croissant, adapté aux documents académiques et professionnels.",
+            "title": "De nombreuses paires de langues",
+            "description": "Choisissez la source et la cible parmi un ensemble de langues en croissance pour traduire un PDF en ligne — adapté aux documents académiques, juridiques et professionnels de toutes régions.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -86,8 +86,8 @@
             }
           },
           {
-            "title": "Stockage sécurisé et temporaire",
-            "description": "Les fichiers transitent en HTTPS et sont supprimés selon la politique de rétention après traitement.",
+            "title": "Stockage sécurisé et éphémère",
+            "description": "Quand vous traduisez un PDF en ligne, les fichiers transitent par HTTPS et sont supprimés selon un délai de rétention fixe après traitement, pour qu'ils ne s'attardent pas.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -96,7 +96,7 @@
           },
           {
             "title": "Historique et reprise des tâches",
-            "description": "Le panneau Historique liste vos envois et tâches pour rouvrir un travail sans retéléverser le même PDF.",
+            "description": "Le panneau Historique liste chaque PDF que vous traduisez en ligne, pour rouvrir une tâche sans retéléverser le même fichier tant qu'il est conservé.",
             "icon": "RiHistoryLine",
             "image": {
               "src": "/imgs/features/4.webp",
@@ -109,13 +109,13 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Pourquoi les équipes nous choisissent",
+        "title": "Pourquoi les équipes traduisent leurs PDF en ligne ici",
         "label": "Avantages",
-        "description": "Concentrez-vous sur le document, pas sur la correction du format après traduction.",
+        "description": "Quand vous traduisez un PDF en ligne, vous voulez récupérer le document intact — pas une mise en page cassée à réparer à la main. C'est tout l'intérêt.",
         "items": [
           {
             "title": "Conçu pour les PDF denses",
-            "description": "Optimisé pour les mises en page académiques et techniques — équations, figures et tables lorsque le pipeline le permet.",
+            "description": "Optimisé pour les mises en page académiques et techniques — équations, figures et tableaux — pour traduire des PDF denses en ligne sans perdre la structure là où le pipeline le permet.",
             "icon": "RiFilePdf2Line",
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
@@ -126,7 +126,7 @@
           },
           {
             "title": "Aperçu côte à côte",
-            "description": "Comparez source et traduction dans le navigateur avec défilement synchronisé avant téléchargement.",
+            "description": "Avant de télécharger, comparez les pages source et traduites dans le navigateur avec défilement synchronisé, pour juger la qualité de chaque PDF que vous traduisez en ligne.",
             "icon": "RiSplitCellsHorizontal",
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
@@ -137,7 +137,7 @@
           },
           {
             "title": "Plages de pages optionnelles",
-            "description": "Traduisez tout le fichier ou seulement les pages nécessaires pour gagner du temps et des crédits.",
+            "description": "Traduisez tout le fichier ou seulement les pages utiles. Définir une plage de pages permet de traduire un gros PDF en ligne plus vite tout en économisant des crédits.",
             "icon": "RiBookReadLine",
             "image": {
               "src": "/imgs/features/page_range.png",
@@ -153,8 +153,8 @@
         "id": "usage",
         "carousel": true,
         "label": "",
-        "title": "Comment traduire votre PDF",
-        "description": "Du téléversement au téléchargement et à l’historique :",
+        "title": "Comment traduire un PDF en ligne",
+        "description": "Du téléversement au téléchargement — traduisez un PDF en ligne en cinq étapes :",
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
@@ -166,7 +166,7 @@
         "items": [
           {
             "title": "Téléverser",
-            "description": "Déposez un PDF ou choisissez un fichier. Les gros documents respectent les limites indiquées sur la page de traduction.",
+            "description": "Déposez un PDF ou choisissez un fichier. Les gros documents sont pris en charge dans les limites indiquées sur la page de traduction, pour traduire un gros PDF en ligne en une seule fois.",
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "Téléverser un PDF",
@@ -176,7 +176,7 @@
           },
           {
             "title": "Langue source",
-            "description": "Indiquez la langue du document pour que le moteur traduise depuis la bonne source.",
+            "description": "Sélectionnez la langue du document pour que le moteur traduise depuis la bonne source quand vous traduisez un PDF en ligne.",
             "image": {
               "src": "/imgs/features/choose_language_source.png",
               "alt": "Choisir la langue source",
@@ -186,7 +186,7 @@
           },
           {
             "title": "Langue cible",
-            "description": "Choisissez la langue cible, puis lancez la tâche.",
+            "description": "Choisissez la langue vers laquelle traduire le PDF — anglais, chinois, allemand, japonais, norvégien et plus — puis lancez la tâche.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Choisir la langue cible",
@@ -196,7 +196,7 @@
           },
           {
             "title": "Télécharger",
-            "description": "Une fois terminé, téléchargez le PDF traduit sur la même page.",
+            "description": "Une fois la tâche terminée, téléchargez le PDF traduit depuis le même écran. Le résultat conserve la mise en page d'origine là où c'est possible.",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "Télécharger le PDF traduit",
@@ -206,7 +206,7 @@
           },
           {
             "title": "Historique",
-            "description": "Rouvrez les traductions terminées depuis l’historique tant que le fichier est disponible.",
+            "description": "Rouvrez les traductions terminées depuis l'Historique tant que le fichier est encore disponible, pour ne jamais perdre un PDF que vous avez traduit en ligne.",
             "image": {
               "src": "/imgs/features/history.png",
               "alt": "Historique des traductions",
@@ -219,49 +219,49 @@
       },
       "features": {
         "id": "features",
-        "title": "Ce que vous obtenez",
-        "description": "Des capacités concrètes pour vos flux PDF.",
+        "title": "Ce que vous obtenez quand vous traduisez un PDF en ligne",
+        "description": "Des capacités concrètes pour de vrais flux de traduction PDF.",
         "items": [
           {
             "title": "Pipeline compatible vecteurs",
-            "description": "Approche de type BabelDOC pour replacer le texte dans la structure PDF lorsque c’est possible.",
+            "description": "Utilise un chemin de type BabelDOC pour replacer le texte traduit dans la structure PDF là où c'est possible — c'est ainsi qu'un PDF traduit en ligne garde sa mise en page.",
             "icon": "RiStackLine"
           },
           {
             "title": "Crédits et facturation",
-            "description": "Payez à l’usage avec un modèle de crédits lié aux pages et aux produits.",
+            "description": "Payez ce que vous traduisez avec un modèle de crédits lié aux pages et aux réglages produit, pour qu'une traduction de PDF en ligne reste prévisible.",
             "icon": "RiCoinsLine"
           },
           {
             "title": "Compte ou invité",
-            "description": "Connectez-vous pour la facturation et l’historique multi-appareils, ou essayez en une session.",
+            "description": "Connectez-vous pour la facturation et l'historique entre appareils, ou essayez le flux en une seule session avant de traduire un PDF en ligne.",
             "icon": "RiUserLine"
           },
           {
-            "title": "Interface hébergée en périphérie",
-            "description": "Chargement initial rapide sur Cloudflare ; aperçu et téléchargement dans le navigateur.",
+            "title": "Interface en périphérie",
+            "description": "Premier chargement rapide sur Cloudflare ; votre navigateur gère l'aperçu et le téléchargement, pour garder le PDF que vous traduisez en ligne réactif.",
             "icon": "RiCloudy2Fill"
           },
           {
             "title": "Documentation",
-            "description": "Architecture, rétention et conformité dans /docs.",
+            "description": "Architecture, rétention et conformité dans /docs pour la transparence sur ce qui se passe quand vous traduisez un PDF en ligne.",
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Stack lisible",
-            "description": "Application Next.js avec des API claires entre UI, stockage et worker de traduction.",
+            "title": "Stack favorable aux développeurs",
+            "description": "Une application Next.js avec des API claires entre UI, stockage et worker de traduction — la même pile qui vous permet de traduire un PDF en ligne fiablement.",
             "icon": "RiCodeSSlashLine"
           }
         ]
       },
       "stats": {
         "id": "stats",
-        "title": "Pour les documents exigeants",
-        "description": "D’un article aux manuels volumineux.",
+        "title": "Conçu pour les documents exigeants",
+        "description": "D'un article seul aux gros manuels — traduisez un PDF en ligne à toute échelle.",
         "items": [
           {
             "title": "8+",
-            "description": "Langues d’interface"
+            "description": "Langues d'interface"
           },
           {
             "title": "7",
@@ -276,43 +276,59 @@
       },
       "faq": {
         "id": "faq",
-        "title": "Questions fréquentes",
-        "description": "Plus de détails dans la documentation ou par e-mail hello@translatepdfonline.com.",
+        "title": "Questions fréquentes sur la traduction de PDF en ligne",
+        "description": "Réponses rapides avant de traduire un PDF en ligne. Plus de détails dans /docs ou par email hello@translatepdfonline.com.",
         "items": [
           {
-            "question": "Qu’est-ce que Translate PDF Online et comment ça marche ?",
-            "answer": "Vous téléversez un PDF, choisissez les langues source et cible, nous exécutons un pipeline de traduction qui respecte la mise en page. Vous téléchargez un nouveau PDF qui reflète la structure d’origine lorsque la technologie le permet."
+            "question": "Comment traduire un gros fichier PDF en ligne gratuitement ?",
+            "answer": "Pour traduire un gros PDF en ligne gratuitement, ouvrez la page de traduction, téléversez votre PDF, choisissez les langues source et cible, et définissez une plage de pages si nécessaire. Les gros documents sont pris en charge dans les limites indiquées, et la plage de pages permet de traduire un gros PDF en ligne plus vite en consommant moins de crédits. Le tout dans le navigateur, sans installation."
           },
           {
-            "question": "Dois-je installer un logiciel ?",
-            "answer": "Non. Téléversement et aperçu dans le navigateur. Les fichiers sont envoyés en HTTPS."
+            "question": "Comment traduire un PDF en ligne avec une très bonne qualité de traduction ?",
+            "answer": "Pour une très bonne qualité en traduisant un PDF en ligne, choisissez la bonne langue source pour une lecture précise et utilisez un pipeline qui conserve la mise en page, gardant titres, tableaux et colonnes en place. La traduction powered by DeepSeek préserve la structure, pour un résultat naturel et fidèle plutôt qu'un texte brut."
           },
           {
-            "question": "Quelles langues sont prises en charge ?",
-            "answer": "La page de traduction liste les langues disponibles (p. ex. anglais, chinois, espagnol, français, italien, grec, japonais, coréen). Nous ajoutons des paires au fil du temps."
+            "question": "Comment traduire un PDF de l'allemand vers l'anglais gratuitement en ligne ?",
+            "answer": "Pour traduire un PDF de l'allemand vers l'anglais gratuitement en ligne, définissez l'allemand comme langue source et l'anglais comme cible, téléversez votre PDF et lancez la tâche. Le pipeline conservant la mise en page traduit le PDF de l'allemand vers l'anglais en gardant polices, tableaux et colonnes."
           },
           {
-            "question": "Combien de temps prend la traduction ?",
-            "answer": "Les PDF courts finissent souvent en quelques minutes ; les longs ou très illustrés prennent plus de temps. Restez sur la page ou revenez plus tard et ouvrez la tâche depuis l’historique."
+            "question": "Comment traduire des documents PDF en norvégien en ligne ?",
+            "answer": "Pour traduire des documents PDF en norvégien en ligne, choisissez le norvégien comme langue cible, sélectionnez la langue source du document et téléversez le PDF. Le moteur traduit le document en norvégien en conservant la mise en page là où c'est possible, pour un résultat lisible et fidèle."
           },
           {
-            "question": "Mon document est-il sécurisé ?",
-            "answer": "Le trafic est chiffré. Les fichiers stockés suivent la politique de rétention décrite dans la documentation (en général suppression automatique après environ sept jours sauf mention contraire)."
+            "question": "Qu'est-ce que Translate PDF Online et comment ça marche ?",
+            "answer": "Vous téléversez un PDF, choisissez les langues source et cible, et nous lançons un pipeline de traduction conservant la mise en page. Vous téléchargez ensuite un nouveau PDF qui reproduit la structure d'origine là où la technologie le permet."
           },
           {
-            "question": "Puis-je traduire seulement certaines pages ?",
-            "answer": "Oui. Indiquez une plage de pages au démarrage du travail."
+            "question": "Faut-il installer quelque chose pour traduire un PDF en ligne ?",
+            "answer": "Non. Le téléversement, l'aperçu et le téléchargement se font dans le navigateur. Les fichiers transitent par HTTPS, rien à installer ni configurer."
           },
           {
-            "question": "Comment rouvrir ou prévisualiser une traduction antérieure ?",
-            "answer": "Ouvrez la page de traduction et utilisez l’historique. Choisissez une tâche passée pour voir son état et prévisualiser les PDF source et traduits dans le navigateur. Inutile de téléverser à nouveau tant que les fichiers sont encore disponibles selon notre politique de rétention."
+            "question": "Vers quelles langues puis-je traduire un PDF en ligne ?",
+            "answer": "La page de traduction liste les langues source et cible disponibles : anglais, chinois, espagnol, français, italien, grec, japonais, coréen, allemand, russe et plus. Nous ajoutons des paires au fil du temps."
+          },
+          {
+            "question": "Combien de temps prend la traduction d'un PDF en ligne ?",
+            "answer": "Les PDF courts finissent souvent en quelques minutes ; les longs ou riches en images prennent plus de temps. Vous pouvez rester sur la page ou revenir plus tard via l'historique."
+          },
+          {
+            "question": "Mon document est-il sécurisé quand je traduis un PDF en ligne ?",
+            "answer": "Le trafic est chiffré. Les objets stockés suivent la politique de rétention de la documentation, généralement une suppression automatique après environ sept jours."
+          },
+          {
+            "question": "Puis-je traduire seulement certaines pages d'un PDF en ligne ?",
+            "answer": "Oui. Définissez une plage de pages au lancement pour ne traduire qu'une partie, plus vite et en consommant moins de crédits."
+          },
+          {
+            "question": "Comment rouvrir ou prévisualiser un PDF traduit en ligne précédemment ?",
+            "answer": "Ouvrez la page de traduction et utilisez l'historique. Choisissez une tâche passée pour voir son statut et prévisualiser le PDF source et traduit côte à côte, sans le retéléverser tant qu'il est disponible."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Traduisez votre premier PDF",
-        "description": "Téléversez depuis la page de traduction — utilisez l’historique pour retrouver les tâches récentes.",
+        "title": "Traduisez votre premier PDF en ligne",
+        "description": "Téléversez sur la page de traduction et traduisez un PDF en ligne dès maintenant — utilisez l'Historique pour revenir à toute tâche récente.",
         "buttons": [
           {
             "title": "Commencer à traduire",
