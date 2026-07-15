@@ -36,6 +36,8 @@
     "a5": "Sí. Su foto se sube por HTTPS, se almacena cifrada y solo usted descarga el Word resultante. Puede reintentar o eliminar trabajos desde el historial."
   },
   "exploreMoreHeading": "Explorar más convertidores",
+  "explorePhotoToWordLabel": "Foto a Word",
+  "explorePhotoToWordDesc": "Convierte fotos del móvil a Word editable.",
   "exploreImageToTextLabel": "Imagen a Texto",
   "exploreImageToTextDesc": "Extraiga texto plano de cualquier imagen con OCR con IA.",
   "explorePdfToTextLabel": "PDF a Texto",

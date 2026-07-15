@@ -7,7 +7,7 @@ import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
 import { buildAlternates } from '@/shared/lib/hreflang';
 
-import { JpgToWordClient } from './JpgToWordClient';
+import { JpgToWordClient } from '../jpg-to-word/JpgToWordClient';
 
 export const dynamic = 'force-static';
 
@@ -22,11 +22,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.jpg-to-word' });
+  const t = await getTranslations({ locale, namespace: 'pages.photo-to-word' });
   const canonical =
     locale === envConfigs.locale
-      ? `${envConfigs.app_url}/jpg-to-word`
-      : `${envConfigs.app_url}/${locale}/jpg-to-word`;
+      ? `${envConfigs.app_url}/photo-to-word`
+      : `${envConfigs.app_url}/${locale}/photo-to-word`;
 
   return {
     title: t('metaTitle'),
@@ -34,19 +34,19 @@ export async function generateMetadata({
     keywords: t('keywords') || undefined,
     alternates: {
       canonical,
-      languages: buildAlternates('/jpg-to-word', locale).languages,
+      languages: buildAlternates('/photo-to-word', locale).languages,
     },
   };
 }
 
-export default async function JpgToWordPage({
+export default async function PhotoToWordPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.jpg-to-word' });
+  const t = await getTranslations({ locale, namespace: 'pages.photo-to-word' });
 
   const heroTitle = t('heroTitle');
   const heroText = t('heroText');
@@ -57,8 +57,10 @@ export default async function JpgToWordPage({
   const howItWorksTitle = t('howItWorks');
   const whyHeading = t('whyHeading');
   const exploreHeading = t('exploreMoreHeading');
+  const introLead = t('introLead');
+  const useCasesHeading = t('useCasesHeading');
 
-  const faqItems = [1, 2, 3, 4, 5]
+  const faqItems = [1, 2, 3, 4, 5, 6]
     .map((n) => {
       const q = t(`seoFaq.q${n}` as any);
       const a = t(`seoFaq.a${n}` as any);
@@ -73,13 +75,20 @@ export default async function JpgToWordPage({
     }))
     .filter((w) => w.title);
 
+  const useCaseItems = [1, 2, 3, 4, 5]
+    .map((n) => ({
+      title: t(`useCase${n}Title` as any),
+      desc: t(`useCase${n}Desc` as any),
+    }))
+    .filter((u) => u.title);
+
   return (
     <>
       <HomeFaqJsonLd items={faqItems} />
       <div className="min-h-dvh w-full bg-background pt-14 lg:pt-18">
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
           {/* Hero + Upload Area */}
-          <JpgToWordClient>
+          <JpgToWordClient namespace="pages.photo-to-word">
             <section className="text-center pb-2">
               <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
                 {heroTitle}
@@ -107,6 +116,15 @@ export default async function JpgToWordPage({
             </section>
           </JpgToWordClient>
         </div>
+
+        {/* Intro */}
+        {introLead ? (
+          <section className="mx-auto w-full max-w-3xl mt-10 px-4">
+            <p className="text-base text-muted-foreground leading-relaxed">
+              {introLead}
+            </p>
+          </section>
+        ) : null}
 
         {/* How It Works */}
         <section className="mx-auto w-full max-w-5xl mt-10 px-4">
@@ -167,6 +185,30 @@ export default async function JpgToWordPage({
           </section>
         ) : null}
 
+        {/* Use Cases */}
+        {useCaseItems.length > 0 ? (
+          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+            <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
+              {useCasesHeading}
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {useCaseItems.map((u, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border-2 border bg-card p-6"
+                >
+                  <h3 className="text-base font-semibold text-foreground mb-2">
+                    {u.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {u.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {/* FAQ */}
         {faqItems.length > 0 ? (
           <section className="mx-auto max-w-5xl px-4 mt-10 border-t pt-8 pb-8">
@@ -193,10 +235,10 @@ export default async function JpgToWordPage({
           heading={exploreHeading}
           links={[
             {
-              href: '/photo-to-word',
+              href: '/jpg-to-word',
               icon: 'pdf.png',
-              label: t('explorePhotoToWordLabel') || 'Photo to Word',
-              desc: t('explorePhotoToWordDesc'),
+              label: t('exploreJpgToWordLabel') || 'JPG to Word',
+              desc: t('exploreJpgToWordDesc'),
             },
             {
               href: '/image-to-text',
@@ -215,12 +257,6 @@ export default async function JpgToWordPage({
               icon: 'pdf.png',
               label: t('exploreTranslateLabel') || 'PDF Translation',
               desc: t('exploreTranslateDesc'),
-            },
-            {
-              href: '/contract-comparison',
-              icon: 'pdf.png',
-              label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
-              desc: t('exploreContractCompareDesc'),
             },
           ]}
         />

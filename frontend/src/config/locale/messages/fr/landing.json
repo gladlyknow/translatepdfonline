@@ -35,6 +35,11 @@
               "title": "JPG en Word",
               "url": "/jpg-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "Photo en Word",
+              "url": "/photo-to-word",
+              "icon": "Image"
             }
           ]
         },

@@ -51,8 +51,14 @@ type HistoryJob = {
 
 const POLL_INTERVAL_MS = 7_000;
 
-export function JpgToWordClient({ children }: { children?: ReactNode }) {
-  const t = useTranslations('pages.jpg-to-word');
+export function JpgToWordClient({
+  children,
+  namespace = 'pages.jpg-to-word',
+}: {
+  children?: ReactNode;
+  namespace?: string;
+}) {
+  const t = useTranslations(namespace);
   const router = useRouter();
 
   const [file, setFile] = useState<File | null>(null);

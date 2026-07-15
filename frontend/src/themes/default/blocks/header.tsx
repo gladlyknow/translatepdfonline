@@ -83,7 +83,7 @@ export function Header({ header }: { header: HeaderType }) {
   const pathname = usePathname();
   const pathSegments = pathname.split('/').filter(Boolean);
   const historyDrawer = useTranslateHistoryDrawerOptional();
-  const solidPages = ['pdf-to-text', 'image-to-text', 'jpg-to-word', 'contract-comparison', 'upload', 'translate', 'ocrtranslator'];
+  const solidPages = ['pdf-to-text', 'image-to-text', 'jpg-to-word', 'photo-to-word', 'contract-comparison', 'upload', 'translate', 'ocrtranslator'];
   const isHomePage =
     pathSegments.length === 0 ||
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));

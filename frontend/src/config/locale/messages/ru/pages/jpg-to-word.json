@@ -36,6 +36,8 @@
     "a5": "Да. Фото загружается по HTTPS, хранится в зашифрованном виде, и только вы скачиваете итоговый Word. Задачи можно перезапустить или удалить из истории."
   },
   "exploreMoreHeading": "Другие конвертеры",
+  "explorePhotoToWordLabel": "Фото в Word",
+  "explorePhotoToWordDesc": "Конвертируйте фото с телефона в редактируемый Word.",
   "exploreImageToTextLabel": "Изображение в текст",
   "exploreImageToTextDesc": "Извлекайте простой текст из любого изображения через ИИ-OCR.",
   "explorePdfToTextLabel": "PDF в текст",

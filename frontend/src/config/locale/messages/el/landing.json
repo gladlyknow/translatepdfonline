@@ -35,6 +35,11 @@
               "title": "JPG σε Word",
               "url": "/jpg-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "Φωτογραφία σε Word",
+              "url": "/photo-to-word",
+              "icon": "Image"
             }
           ]
         },

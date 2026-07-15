@@ -36,6 +36,8 @@
     "a5": "Ναι. Η φωτογραφία μεταφορτώνεται μέσω HTTPS, αποθηκεύεται κρυπτογραφημένα και μόνο εσείς κατεβάζετε το Word. Μπορείτε να επαναλάβετε ή να διαγράψετε εργασίες από το ιστορικό."
   },
   "exploreMoreHeading": "Εξερευνήστε περισσότερους μετατροπείς",
+  "explorePhotoToWordLabel": "Φωτογραφία σε Word",
+  "explorePhotoToWordDesc": "Μετατρέψτε φωτογραφίες κινητού σε επεξεργάσιμο Word.",
   "exploreImageToTextLabel": "Εικόνα σε κείμενο",
   "exploreImageToTextDesc": "Εξάγετε απλό κείμενο από οποιαδήποτε εικόνα με AI OCR.",
   "explorePdfToTextLabel": "PDF σε κείμενο",

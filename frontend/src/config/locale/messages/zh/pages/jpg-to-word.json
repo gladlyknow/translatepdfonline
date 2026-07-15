@@ -36,6 +36,8 @@
     "a5": "安全。照片经 HTTPS 上传、加密存储，仅本人可下载转换后的 Word，可从历史记录重试或删除任务。"
   },
   "exploreMoreHeading": "探索更多转换工具",
+  "explorePhotoToWordLabel": "照片转 Word",
+  "explorePhotoToWordDesc": "把手机照片转成可编辑 Word。",
   "exploreImageToTextLabel": "图片转文字",
   "exploreImageToTextDesc": "用 AI OCR 从任意图片提取纯文字。",
   "explorePdfToTextLabel": "PDF 转文字",

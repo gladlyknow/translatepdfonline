@@ -35,6 +35,11 @@
               "title": "JPG to Word 変換",
               "url": "/jpg-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "写真を Word に",
+              "url": "/photo-to-word",
+              "icon": "Image"
             }
           ]
         },

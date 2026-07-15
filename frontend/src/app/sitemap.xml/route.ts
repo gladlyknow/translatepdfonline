@@ -8,6 +8,7 @@ const PUBLIC_PATHS = [
   '/pdf-to-text',
   '/image-to-text',
   '/jpg-to-word',
+  '/photo-to-word',
   '/docs',
   '/contract-comparison',
   '/privacy-policy',

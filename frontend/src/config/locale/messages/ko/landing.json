@@ -35,6 +35,11 @@
               "title": "JPG to Word 변환",
               "url": "/jpg-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "사진 워드 변환",
+              "url": "/photo-to-word",
+              "icon": "Image"
             }
           ]
         },
