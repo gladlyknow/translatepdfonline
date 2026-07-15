@@ -31,8 +31,11 @@ export async function POST(
     const job = await findDocConvertTaskForUser(id, user.id);
     if (!job) return respErr('job not found');
 
-    if (job.status !== DocConvertTaskStatus.uploaded) {
-      return respErr('job already started or not in uploaded state');
+    if (
+      job.status !== DocConvertTaskStatus.uploaded &&
+      job.status !== DocConvertTaskStatus.failed
+    ) {
+      return respErr('job already started or not in uploaded/failed state');
     }
 
     let body: { sourceFormat?: string; targetFormat?: string };
@@ -85,6 +88,8 @@ export async function POST(
       targetFormat,
       baiduTaskId: taskId,
       status: DocConvertTaskStatus.submitted,
+      percent: 0,
+      errorMessage: null,
     });
 
     // 入队轮询

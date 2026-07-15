@@ -28,6 +28,8 @@ export interface DocConvertQueryResult {
   resultData: { word: string; excel: string };
   taskId: string;
   raw: Record<string, unknown>;
+  /** 百度顶层返回的失败信息（error_code/error_msg/error），非空代表任务失败，应快速失败 */
+  errorMsg?: string;
 }
 
 function normalizeBaiduAuthorizationHeader(raw: string): string {
@@ -156,6 +158,17 @@ export async function queryDocConvert(
     result_data?: { word?: string; excel?: string };
   };
 
+  // 百度顶层错误（鉴权/配额/拒绝等）：error_code(非0) / error_msg / error
+  const topLevelErrorCode = raw.error_code;
+  const errorMsg =
+    (typeof topLevelErrorCode === 'number' && topLevelErrorCode !== 0) ||
+    typeof raw.error === 'string' ||
+    typeof raw.error_msg === 'string'
+      ? String(
+          raw.error_msg || raw.error || `baidu error_code=${topLevelErrorCode}`
+        )
+      : undefined;
+
   return {
     taskId: result.task_id || taskId,
     retCode: result.ret_code ?? 0,
@@ -166,6 +179,7 @@ export async function queryDocConvert(
       excel: result.result_data?.excel || '',
     },
     raw,
+    errorMsg,
   };
 }
 

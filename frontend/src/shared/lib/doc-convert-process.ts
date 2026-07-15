@@ -46,9 +46,12 @@ export async function processDocConvertJob(taskId: string): Promise<void> {
 
   const startedAt = Date.now();
   let finalResultData: { word: string; excel: string } | null = null;
+  let failureMessage: string | null = null;
+  let lastQr: { retCode: number; retMsg: string } | null = null;
 
   while (Date.now() - startedAt < POLL_TIMEOUT_MS) {
     const qr = await queryDocConvert(job.baiduTaskId);
+    lastQr = { retCode: qr.retCode, retMsg: qr.retMsg };
 
     await updateDocConvertTask(taskId, {
       percent: Math.max(0, Math.min(100, qr.percent)),
@@ -59,15 +62,33 @@ export async function processDocConvertJob(taskId: string): Promise<void> {
       break;
     }
 
+    // 百度顶层错误（鉴权/配额/拒绝等）→ 快速失败，透出真实原因
+    if (qr.errorMsg) {
+      failureMessage = qr.errorMsg;
+      console.warn(
+        '[doc-convert/poll] baidu_error',
+        JSON.stringify({
+          task_id: taskId,
+          baidu_task_id: job.baiduTaskId,
+          error_msg: qr.errorMsg,
+          ret_code: qr.retCode,
+        })
+      );
+      break;
+    }
+
     await sleep(POLL_INTERVAL_MS);
   }
 
   if (!finalResultData) {
+    const errorMessage =
+      failureMessage ||
+      `doc_convert poll timeout (last retCode=${lastQr?.retCode}, msg=${lastQr?.retMsg || ''})`;
     await updateDocConvertTask(taskId, {
       status: DocConvertTaskStatus.failed,
-      errorMessage: 'doc_convert poll timeout',
+      errorMessage,
     });
-    throw new Error('doc_convert poll timeout');
+    throw new Error(errorMessage);
   }
 
   // 下载百度结果 → R2

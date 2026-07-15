@@ -16,11 +16,11 @@ import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/components/ui/sheet';
 import { cn } from '@/shared/lib/utils';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 
@@ -306,6 +306,44 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
     window.open(`/api/doc-convert/jobs/${id}/download`, '_blank');
   }, []);
 
+  const retryHistoryJob = useCallback(
+    async (id: string) => {
+      try {
+        const res = await fetch(`/api/doc-convert/jobs/${id}/start`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sourceFormat: 'jpg', targetFormat: 'word' }),
+          credentials: 'include',
+        });
+        const json = await res.json().catch(() => ({}));
+        if (json.code !== 0) {
+          const msg = String(json.message || '');
+          if (msg.includes('no auth') || msg.includes('sign in')) {
+            setHistoryOpen(false);
+            redirectToSignIn();
+            return;
+          }
+          if (
+            msg.toLowerCase().includes('insufficient credits') ||
+            msg.toLowerCase().includes('credits')
+          ) {
+            toast.error(t('errorInsufficientCredits'));
+            setHistoryOpen(false);
+            router.push('/pricing');
+            return;
+          }
+          toast.error(msg || t('errorGeneric'));
+          return;
+        }
+        toast.success(t('logConverting'));
+        await loadHistory();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : t('errorGeneric'));
+      }
+    },
+    [redirectToSignIn, t, router, loadHistory]
+  );
+
   const statusLabel = useCallback(
     (s: JobStatus) => {
       if (s === 'ready') return t('historyStatusReady');
@@ -321,10 +359,11 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
   const isFailed = job?.status === 'failed';
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-10 pb-6">
+    <>
       {children}
-      <div className="mt-8 rounded-2xl border-2 border bg-card p-6">
-        <div className="mb-4 flex justify-end">
+      <div className="mx-auto mt-10 w-full max-w-3xl px-4">
+        <div className="rounded-2xl border-2 border bg-card p-6 shadow-sm sm:p-8">
+          <div className="mb-4 flex justify-end">
           <button
             type="button"
             onClick={openHistory}
@@ -511,13 +550,16 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
         )}
       </div>
 
-      {/* History dialog */}
-      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{t('historyTitle')}</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto">
+      {/* History drawer */}
+      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+        <SheetContent
+          side="right"
+          className="flex w-full flex-col overflow-hidden sm:max-w-lg"
+        >
+          <SheetHeader>
+            <SheetTitle>{t('historyTitle')}</SheetTitle>
+          </SheetHeader>
+          <div className="max-h-[70vh] flex-1 overflow-y-auto px-4 pb-6">
             {historyLoading ? (
               <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
@@ -532,7 +574,7 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
                 {historyJobs.map((j) => (
                   <li
                     key={j.id}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5"
+                    className="flex items-start gap-3 rounded-xl border border-border bg-card px-3 py-3 transition-colors hover:border-sky-300/80 hover:bg-accent/40"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground">
@@ -542,6 +584,11 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
                         {statusLabel(j.status)} ·{' '}
                         {new Date(j.createdAt).toLocaleString()}
                       </p>
+                      {j.status === 'failed' && j.errorMessage ? (
+                        <p className="mt-1 truncate text-xs text-rose-600">
+                          {j.errorMessage}
+                        </p>
+                      ) : null}
                     </div>
                     <span
                       className={cn(
@@ -565,14 +612,25 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
                         {t('btnDownload')}
                       </button>
                     ) : null}
+                    {j.status === 'failed' ? (
+                      <button
+                        type="button"
+                        onClick={() => retryHistoryJob(j.id)}
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-sky-700 hover:bg-accent transition-colors"
+                      >
+                        <RotateCcw className="size-3.5" />
+                        {t('btnRetry')}
+                      </button>
+                    ) : null}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
+    </>
   );
 }
 
