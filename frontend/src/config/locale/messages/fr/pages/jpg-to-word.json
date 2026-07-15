@@ -64,5 +64,13 @@
   "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
   "errorInsufficientCredits": "Crédits insuffisants. Redirection vers les tarifs...",
   "exploreContractCompareLabel": "Comparaison de Contrats IA",
-  "exploreContractCompareDesc": "Comparez des contrats avec detection de clauses par IA."
+  "exploreContractCompareDesc": "Comparez des contrats avec detection de clauses par IA.",
+  "historyBtn": "Historique",
+  "historyTitle": "Historique des conversions",
+  "historyEmpty": "Aucune conversion pour l'instant.",
+  "historyLoading": "Chargement...",
+  "historyStatusReady": "Prêt",
+  "historyStatusFailed": "Échec",
+  "historyStatusProcessing": "En cours",
+  "historyStatusUploaded": "Téléversé"
 }

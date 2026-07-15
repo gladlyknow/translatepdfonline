@@ -64,5 +64,13 @@
   "errorGeneric": "Qualcosa è andato storto. Riprova.",
   "errorInsufficientCredits": "Crediti insufficienti. Reindirizzamento ai prezzi...",
   "exploreContractCompareLabel": "Confronto Contratti IA",
-  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA."
+  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA.",
+  "historyBtn": "Cronologia",
+  "historyTitle": "Cronologia conversioni",
+  "historyEmpty": "Nessuna conversione ancora.",
+  "historyLoading": "Caricamento...",
+  "historyStatusReady": "Pronto",
+  "historyStatusFailed": "Fallito",
+  "historyStatusProcessing": "In corso",
+  "historyStatusUploaded": "Caricato"
 }

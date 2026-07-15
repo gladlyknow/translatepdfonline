@@ -64,5 +64,13 @@
   "errorGeneric": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
   "errorInsufficientCredits": "Nicht genügend Credits. Weiterleitung zur Preisseite...",
   "exploreContractCompareLabel": "KI-Vertragsvergleich",
-  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung."
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung.",
+  "historyBtn": "Verlauf",
+  "historyTitle": "Umwandlungsverlauf",
+  "historyEmpty": "Noch keine Umwandlungen.",
+  "historyLoading": "Wird geladen...",
+  "historyStatusReady": "Fertig",
+  "historyStatusFailed": "Fehlgeschlagen",
+  "historyStatusProcessing": "In Bearbeitung",
+  "historyStatusUploaded": "Hochgeladen"
 }

@@ -11,10 +11,16 @@ import {
 } from 'react';
 import { useRouter } from '@/core/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { CloudUpload, Download, Loader2, RotateCcw, FileText } from 'lucide-react';
+import { CloudUpload, Download, Loader2, RotateCcw, FileText, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/components/ui/dialog';
 import { cn } from '@/shared/lib/utils';
 import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 
@@ -33,6 +39,16 @@ type Job = {
   errorMessage?: string | null;
 };
 
+type HistoryJob = {
+  id: string;
+  status: JobStatus;
+  sourceFilename: string;
+  percent: number;
+  hasDownload: boolean;
+  errorMessage?: string | null;
+  createdAt: string;
+};
+
 const POLL_INTERVAL_MS = 7_000;
 
 export function JpgToWordClient({ children }: { children?: ReactNode }) {
@@ -46,6 +62,9 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
   const [downloading, setDownloading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyJobs, setHistoryJobs] = useState<HistoryJob[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const jobIdRef = useRef<string | null>(null);
@@ -252,6 +271,51 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
     stopPoll();
   }, [stopPoll]);
 
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch('/api/doc-convert/jobs?limit=20', {
+        credentials: 'include',
+      });
+      const json = await res.json().catch(() => ({}));
+      if (json.code !== 0) {
+        const msg = String(json.message || '');
+        if (msg.includes('no auth') || msg.includes('sign in')) {
+          setHistoryOpen(false);
+          redirectToSignIn();
+          return;
+        }
+        toast.error(msg || t('errorGeneric'));
+        setHistoryJobs([]);
+        return;
+      }
+      setHistoryJobs((json.data?.jobs ?? []) as HistoryJob[]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('errorGeneric'));
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [redirectToSignIn, t]);
+
+  const openHistory = useCallback(() => {
+    setHistoryOpen(true);
+    void loadHistory();
+  }, [loadHistory]);
+
+  const downloadHistoryJob = useCallback((id: string) => {
+    window.open(`/api/doc-convert/jobs/${id}/download`, '_blank');
+  }, []);
+
+  const statusLabel = useCallback(
+    (s: JobStatus) => {
+      if (s === 'ready') return t('historyStatusReady');
+      if (s === 'failed') return t('historyStatusFailed');
+      if (s === 'processing' || s === 'submitted') return t('historyStatusProcessing');
+      return t('historyStatusUploaded');
+    },
+    [t]
+  );
+
   const percent = job?.percent ?? 0;
   const isReady = job?.status === 'ready';
   const isFailed = job?.status === 'failed';
@@ -260,6 +324,15 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
     <div className="mx-auto w-full max-w-3xl px-4 pt-10 pb-6">
       {children}
       <div className="mt-8 rounded-2xl border-2 border bg-card p-6">
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={openHistory}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          >
+            <Clock className="h-4 w-4" /> {t('historyBtn')}
+          </button>
+        </div>
         {/* Dropzone */}
         {!file ? (
           <label
@@ -437,6 +510,68 @@ export function JpgToWordClient({ children }: { children?: ReactNode }) {
           </div>
         )}
       </div>
+
+      {/* History dialog */}
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t('historyTitle')}</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            {historyLoading ? (
+              <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                {t('historyLoading')}
+              </div>
+            ) : historyJobs.length === 0 ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {t('historyEmpty')}
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {historyJobs.map((j) => (
+                  <li
+                    key={j.id}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {j.sourceFilename}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {statusLabel(j.status)} ·{' '}
+                        {new Date(j.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+                        j.status === 'ready'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : j.status === 'failed'
+                            ? 'bg-rose-100 text-rose-700'
+                            : 'bg-muted text-muted-foreground'
+                      )}
+                    >
+                      {statusLabel(j.status)}
+                    </span>
+                    {j.hasDownload ? (
+                      <button
+                        type="button"
+                        onClick={() => downloadHistoryJob(j.id)}
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-sky-700 hover:bg-accent transition-colors"
+                      >
+                        <Download className="size-3.5" />
+                        {t('btnDownload')}
+                      </button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

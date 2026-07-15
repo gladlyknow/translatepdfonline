@@ -64,5 +64,13 @@
   "errorGeneric": "Something went wrong. Please try again.",
   "errorInsufficientCredits": "Insufficient credits. Redirecting to pricing...",
   "exploreContractCompareLabel": "AI Contract Comparison",
-  "exploreContractCompareDesc": "Compare contracts with AI-powered clause detection and side-by-side diff."
+  "exploreContractCompareDesc": "Compare contracts with AI-powered clause detection and side-by-side diff.",
+  "historyBtn": "History",
+  "historyTitle": "Conversion History",
+  "historyEmpty": "No conversions yet.",
+  "historyLoading": "Loading...",
+  "historyStatusReady": "Ready",
+  "historyStatusFailed": "Failed",
+  "historyStatusProcessing": "Processing",
+  "historyStatusUploaded": "Uploaded"
 }

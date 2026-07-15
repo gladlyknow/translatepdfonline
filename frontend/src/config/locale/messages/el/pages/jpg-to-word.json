@@ -64,5 +64,13 @@
   "errorGeneric": "Κάτι πήγε στραβά. Δοκιμάστε ξανά.",
   "errorInsufficientCredits": "Ανεπαρκή credits. Ανακατεύθυνση στις τιμές...",
   "exploreContractCompareLabel": "Συγκριση Συμβολαιων ΤΝ",
-  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ."
+  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ.",
+  "historyBtn": "Ιστορικό",
+  "historyTitle": "Ιστορικό μετατροπών",
+  "historyEmpty": "Δεν υπάρχουν μετατροπές ακόμη.",
+  "historyLoading": "Φόρτωση...",
+  "historyStatusReady": "Έτοιμο",
+  "historyStatusFailed": "Αποτυχία",
+  "historyStatusProcessing": "Επεξεργασία",
+  "historyStatusUploaded": "Ανέβηκε"
 }

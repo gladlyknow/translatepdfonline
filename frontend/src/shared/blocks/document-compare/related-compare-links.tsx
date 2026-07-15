@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { Link } from '@/core/i18n/navigation';
+
+import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
 
 const FALLBACKS: Record<string, string> = {
   exploreMoreHeading: 'Explore More Document Tools',
@@ -56,29 +56,14 @@ export default function RelatedCompareLinks() {
   ];
 
   return (
-    <section className="mt-10 border-t pt-8">
-      <h2 className="text-lg font-semibold text-center mb-4 text-foreground">{pt('exploreMoreHeading')}</h2>
-      <div className="flex flex-wrap justify-center gap-3">
-        {LINKS.map((link) => (
-          <Link
-            key={link.slug}
-            href={`/${link.slug}`}
-            className="inline-flex items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-          >
-            <Image
-              src={`/brand/icons/${link.icon}`}
-              alt=""
-              width={32}
-              height={32}
-              className="size-8 shrink-0"
-            />
-            <div className="flex flex-col items-start">
-              <span className="font-medium text-foreground">{link.label}</span>
-              <span className="text-xs text-muted-foreground mt-0.5">{link.desc}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <ExploreMoreLinks
+      heading={pt('exploreMoreHeading')}
+      links={LINKS.map((l) => ({
+        href: `/${l.slug}`,
+        icon: l.icon,
+        label: l.label,
+        desc: l.desc,
+      }))}
+    />
   );
 }

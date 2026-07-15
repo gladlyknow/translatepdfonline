@@ -1,11 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import { Link } from '@/core/i18n/navigation';
 
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
+import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
 import { buildAlternates } from '@/shared/lib/hreflang';
 
 import { PdfToTextClient } from './PdfToTextClient';
@@ -139,29 +138,15 @@ export default async function PdfToTextPage({
         ) : null}
 
         {/* Explore More */}
-        <section className="mx-auto max-w-5xl px-4 border-t pt-8 pb-16">
-          <h3 className="text-lg font-semibold text-center mb-4 text-foreground">{exploreHeading}</h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { href: '/image-to-text', icon: 'generalocr.svg', label: t('exploreImageToTextLabel') || 'Image to Text', desc: t('exploreImageToTextDesc') },
-              { href: '/translate', icon: 'pdf.png', label: t('exploreTranslateLabel') || 'PDF Translate', desc: t('exploreTranslateDesc') },
-              { href: '/contract-comparison', icon: 'pdf.png', label: t('exploreContractCompareLabel') || 'AI Contract Comparison', desc: t('exploreContractCompareDesc') },
-              { href: '/jpg-to-word', icon: 'generalocr.svg', label: t('exploreJpgToWordLabel') || 'JPG to Word', desc: t('exploreJpgToWordDesc') },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="inline-flex items-center gap-3 rounded-lg border border bg-card px-4 py-3 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Image src={`/brand/icons/${link.icon}`} alt="" width={32} height={32} className="size-8 shrink-0" />
-                <div className="flex flex-col items-start">
-                  <span className="font-medium text-foreground">{link.label}</span>
-                  <span className="text-xs text-muted-foreground mt-0.5">{link.desc}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <ExploreMoreLinks
+          heading={exploreHeading}
+          links={[
+            { href: '/image-to-text', icon: 'generalocr.svg', label: t('exploreImageToTextLabel') || 'Image to Text', desc: t('exploreImageToTextDesc') },
+            { href: '/translate', icon: 'pdf.png', label: t('exploreTranslateLabel') || 'PDF Translate', desc: t('exploreTranslateDesc') },
+            { href: '/contract-comparison', icon: 'pdf.png', label: t('exploreContractCompareLabel') || 'AI Contract Comparison', desc: t('exploreContractCompareDesc') },
+            { href: '/jpg-to-word', icon: 'generalocr.svg', label: t('exploreJpgToWordLabel') || 'JPG to Word', desc: t('exploreJpgToWordDesc') },
+          ]}
+        />
       </div>
     </>
   );

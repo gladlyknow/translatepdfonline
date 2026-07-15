@@ -64,5 +64,13 @@
   "errorGeneric": "Algo salió mal. Inténtelo de nuevo.",
   "errorInsufficientCredits": "Créditos insuficientes. Redirigiendo a precios...",
   "exploreContractCompareLabel": "Comparacion de Contratos IA",
-  "exploreContractCompareDesc": "Compare contratos con deteccion de clausulas por IA."
+  "exploreContractCompareDesc": "Compare contratos con deteccion de clausulas por IA.",
+  "historyBtn": "Historial",
+  "historyTitle": "Historial de conversión",
+  "historyEmpty": "Aún no hay conversiones.",
+  "historyLoading": "Cargando...",
+  "historyStatusReady": "Listo",
+  "historyStatusFailed": "Falló",
+  "historyStatusProcessing": "Procesando",
+  "historyStatusUploaded": "Subido"
 }

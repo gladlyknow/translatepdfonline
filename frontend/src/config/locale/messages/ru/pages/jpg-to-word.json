@@ -64,5 +64,13 @@
   "errorGeneric": "Что-то пошло не так. Попробуйте снова.",
   "errorInsufficientCredits": "Недостаточно кредитов. Переход к ценам...",
   "exploreContractCompareLabel": "Сравнение контрактов ИИ",
-  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий."
+  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий.",
+  "historyBtn": "История",
+  "historyTitle": "История конвертаций",
+  "historyEmpty": "Конвертаций пока нет.",
+  "historyLoading": "Загрузка...",
+  "historyStatusReady": "Готово",
+  "historyStatusFailed": "Ошибка",
+  "historyStatusProcessing": "Обработка",
+  "historyStatusUploaded": "Загружено"
 }

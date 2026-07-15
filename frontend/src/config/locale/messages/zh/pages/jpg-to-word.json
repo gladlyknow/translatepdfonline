@@ -64,5 +64,13 @@
   "errorGeneric": "出错了，请重试。",
   "errorInsufficientCredits": "积分不足，正在跳转到定价页...",
   "exploreContractCompareLabel": "AI 合同对比",
-  "exploreContractCompareDesc": "使用 AI 驱动的条款检测和并排差异对比合同。"
+  "exploreContractCompareDesc": "使用 AI 驱动的条款检测和并排差异对比合同。",
+  "historyBtn": "历史记录",
+  "historyTitle": "转换历史",
+  "historyEmpty": "暂无转换记录。",
+  "historyLoading": "加载中...",
+  "historyStatusReady": "已完成",
+  "historyStatusFailed": "失败",
+  "historyStatusProcessing": "转换中",
+  "historyStatusUploaded": "已上传"
 }
