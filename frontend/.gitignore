@@ -2,6 +2,11 @@
 
 # dependencies
 /node_modules
+
+# pnpm 10/11 在存在 ignored build scripts 时会自动生成 pnpm-workspace.yaml 占位文件
+# （仅含 allowBuilds 提示、无 packages 字段），会导致 Cloudflare `pnpm install --frozen-lockfile`
+# 报 "packages field missing or empty"。本项目为单包，不需要 workspace 文件，忽略其本地再生。
+/pnpm-workspace.yaml
 /.pnp
 .pnp.*
 .yarn/*
