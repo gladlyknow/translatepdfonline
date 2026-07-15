@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "Сравнение контрактов ИИ",
   "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий.",
   "exploreJpgToWordLabel": "JPG в Word",
-  "exploreJpgToWordDesc": "Конвертируйте фото JPG в редактируемый Word(.docx) через ИИ-OCR."
+  "exploreJpgToWordDesc": "Конвертируйте фото JPG в редактируемый Word(.docx) через ИИ-OCR.",
+  "explorePhotoToWordLabel": "Фото в Word",
+  "explorePhotoToWordDesc": "Конвертируйте фото с телефона в редактируемый Word."
 }

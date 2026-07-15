@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "Comparacion de Contratos IA",
   "exploreContractCompareDesc": "Compare contratos con deteccion de clausulas por IA.",
   "exploreJpgToWordLabel": "JPG a Word",
-  "exploreJpgToWordDesc": "Convierte fotos JPG a Word(.docx) editable con OCR IA."
+  "exploreJpgToWordDesc": "Convierte fotos JPG a Word(.docx) editable con OCR IA.",
+  "explorePhotoToWordLabel": "Foto a Word",
+  "explorePhotoToWordDesc": "Convierte fotos del móvil a Word editable."
 }

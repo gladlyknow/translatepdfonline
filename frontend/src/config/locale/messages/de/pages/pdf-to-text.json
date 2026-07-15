@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "KI-Vertragsvergleich",
   "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung.",
   "exploreJpgToWordLabel": "JPG zu Word",
-  "exploreJpgToWordDesc": "JPG-Fotos mit KI-OCR in bearbeitbares Word(.docx) umwandeln."
+  "exploreJpgToWordDesc": "JPG-Fotos mit KI-OCR in bearbeitbares Word(.docx) umwandeln.",
+  "explorePhotoToWordLabel": "Foto in Word",
+  "explorePhotoToWordDesc": "Wandeln Sie Handyfotos in bearbeitbares Word um."
 }

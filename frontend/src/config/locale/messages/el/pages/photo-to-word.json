@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "Εξάγετε επιλέξιμο κείμενο από οποιοδήποτε PDF.",
   "exploreTranslateLabel": "Μετάφραση PDF",
   "exploreTranslateDesc": "Μεταφράστε έγγραφα PDF σε 10 γλώσσες.",
+  "exploreContractCompareLabel": "Συγκριση Συμβολαιων ΤΝ",
+  "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ.",
   "uploadHint": "Αφήστε μια φωτογραφία κινητού εδώ ή κάντε κλικ για αναζήτηση",
   "uploadSubHint": "Φωτογραφία JPG / JPEG, έως 10MB —το AI OCR ανακατασκευάζει ένα επεξεργάσιμο έγγραφο Word.",
   "btnChange": "Αλλαγή",

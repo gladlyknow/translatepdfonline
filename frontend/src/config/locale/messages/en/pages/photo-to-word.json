@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "Pull selectable text out of any PDF.",
   "exploreTranslateLabel": "PDF Translation",
   "exploreTranslateDesc": "Translate PDF documents into 10 languages.",
+  "exploreContractCompareLabel": "AI Contract Comparison",
+  "exploreContractCompareDesc": "Compare contracts with AI-powered clause detection and side-by-side diff.",
   "uploadHint": "Drop a phone photo here or click to browse",
   "uploadSubHint": "JPG / JPEG photo, up to 10MB — AI OCR rebuilds an editable Word document.",
   "btnChange": "Change",

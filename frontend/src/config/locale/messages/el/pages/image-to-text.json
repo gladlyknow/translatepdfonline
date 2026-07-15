@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "Συγκριση Συμβολαιων ΤΝ",
   "exploreContractCompareDesc": "Συγκρινετε συμβολαια με ανιχνευση ρητρων ΤΝ.",
   "exploreJpgToWordLabel": "JPG σε Word",
-  "exploreJpgToWordDesc": "Μετατρέψτε φωτογραφίες JPG σε επεξεργάσιμο Word(.docx) με AI OCR."
+  "exploreJpgToWordDesc": "Μετατρέψτε φωτογραφίες JPG σε επεξεργάσιμο Word(.docx) με AI OCR.",
+  "explorePhotoToWordLabel": "Φωτογραφία σε Word",
+  "explorePhotoToWordDesc": "Μετατρέψτε φωτογραφίες κινητού σε επεξεργάσιμο Word."
 }

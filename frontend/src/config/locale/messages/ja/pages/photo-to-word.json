@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "あらゆる PDF から選択可能なテキストを抽出。",
   "exploreTranslateLabel": "PDF 翻訳",
   "exploreTranslateDesc": "PDF 文書を10言語に翻訳。",
+  "exploreContractCompareLabel": "AI契約比較",
+  "exploreContractCompareDesc": "AIによる条項検出と並列差分で契約を比較。",
   "uploadHint": "スマホ写真をここにドロップ、またはクリックして選択",
   "uploadSubHint": "JPG / JPEG 写真、最大10MB——AI OCR が編集可能な Word 文書に再構築。",
   "btnChange": "変更",

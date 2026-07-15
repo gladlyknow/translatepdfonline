@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "Extrahieren Sie auswählbaren Text aus jedem PDF.",
   "exploreTranslateLabel": "PDF-Übersetzung",
   "exploreTranslateDesc": "Übersetzen Sie PDF-Dokumente in 10 Sprachen.",
+  "exploreContractCompareLabel": "KI-Vertragsvergleich",
+  "exploreContractCompareDesc": "Vergleichen Sie Vertrage mit KI-gestutzter Klauselerkennung.",
   "uploadHint": "Legen Sie ein Handyfoto hier ab oder klicken Sie zum Durchsuchen",
   "uploadSubHint": "JPG / JPEG-Foto, bis 10MB —KI-OCR rekonstruiert ein bearbeitbares Word-Dokument.",
   "btnChange": "Ändern",

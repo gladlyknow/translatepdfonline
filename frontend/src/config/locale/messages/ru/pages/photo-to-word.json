@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "Извлекайте выделяемый текст из любого PDF.",
   "exploreTranslateLabel": "Перевод PDF",
   "exploreTranslateDesc": "Переводите PDF-документы на 10 языков.",
+  "exploreContractCompareLabel": "Сравнение контрактов ИИ",
+  "exploreContractCompareDesc": "Сравнивайте контракты с ИИ-обнаружением условий.",
   "uploadHint": "Перетащите фото с телефона сюда или нажмите для выбора",
   "uploadSubHint": "JPG / JPEG фото, до 10МБ —ИИ OCR реконструирует редактируемый документ Word.",
   "btnChange": "Изменить",

@@ -258,6 +258,12 @@ export default async function PhotoToWordPage({
               label: t('exploreTranslateLabel') || 'PDF Translation',
               desc: t('exploreTranslateDesc'),
             },
+            {
+              href: '/contract-comparison',
+              icon: 'pdf.png',
+              label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
+              desc: t('exploreContractCompareDesc'),
+            },
           ]}
         />
       </div>

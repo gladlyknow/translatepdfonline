@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "AI契約比較",
   "exploreContractCompareDesc": "AIによる条項検出と並列差分で契約を比較。",
   "exploreJpgToWordLabel": "JPG to Word 変換",
-  "exploreJpgToWordDesc": "AI OCR で JPG 写真を編集可能な Word(.docx) に変換。"
+  "exploreJpgToWordDesc": "AI OCR で JPG 写真を編集可能な Word(.docx) に変換。",
+  "explorePhotoToWordLabel": "写真を Word に",
+  "explorePhotoToWordDesc": "スマホ写真を編集可能な Word に変換。"
 }

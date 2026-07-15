@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "Estrai testo selezionabile da qualsiasi PDF.",
   "exploreTranslateLabel": "Traduzione PDF",
   "exploreTranslateDesc": "Traduci documenti PDF in 10 lingue.",
+  "exploreContractCompareLabel": "Confronto Contratti IA",
+  "exploreContractCompareDesc": "Confronta contratti con rilevamento clausole IA.",
   "uploadHint": "Trascina qui una foto del cellulare o clicca per sfogliare",
   "uploadSubHint": "Foto JPG / JPEG, fino a 10MB —l'OCR AI ricostruisce un documento Word modificabile.",
   "btnChange": "Cambia",

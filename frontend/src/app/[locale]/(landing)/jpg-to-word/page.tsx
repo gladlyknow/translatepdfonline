@@ -194,7 +194,7 @@ export default async function JpgToWordPage({
           links={[
             {
               href: '/photo-to-word',
-              icon: 'pdf.png',
+              icon: 'generalocr.svg',
               label: t('explorePhotoToWordLabel') || 'Photo to Word',
               desc: t('explorePhotoToWordDesc'),
             },

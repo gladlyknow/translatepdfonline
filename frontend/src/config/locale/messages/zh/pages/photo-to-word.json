@@ -58,6 +58,8 @@
   "explorePdfToTextDesc": "从任意 PDF 中提取可选择的文字。",
   "exploreTranslateLabel": "PDF 翻译",
   "exploreTranslateDesc": "把 PDF 文档翻译成 10 种语言。",
+  "exploreContractCompareLabel": "AI 合同对比",
+  "exploreContractCompareDesc": "使用 AI 驱动的条款检测和并排差异对比合同。",
   "uploadHint": "把手机照片拖到这里，或点击选择",
   "uploadSubHint": "JPG / JPEG 照片，最大 10MB——AI OCR 重建为可编辑 Word 文档。",
   "btnChange": "更换",

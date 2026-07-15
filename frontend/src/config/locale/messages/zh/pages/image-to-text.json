@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "AI 合同对比",
   "exploreContractCompareDesc": "使用 AI 驱动的条款检测和并排差异对比合同。",
   "exploreJpgToWordLabel": "JPG 转 Word",
-  "exploreJpgToWordDesc": "用 AI OCR 把 JPG 照片转成可编辑 Word(.docx)。"
+  "exploreJpgToWordDesc": "用 AI OCR 把 JPG 照片转成可编辑 Word(.docx)。",
+  "explorePhotoToWordLabel": "照片转 Word",
+  "explorePhotoToWordDesc": "把手机照片转成可编辑 Word。"
 }

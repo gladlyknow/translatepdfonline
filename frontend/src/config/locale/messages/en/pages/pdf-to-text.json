@@ -56,5 +56,7 @@
   "exploreContractCompareLabel": "AI Contract Comparison",
   "exploreContractCompareDesc": "Compare contracts with AI-powered clause detection and side-by-side diff.",
   "exploreJpgToWordLabel": "JPG to Word",
-  "exploreJpgToWordDesc": "Convert JPG photos to editable Word (.docx) with AI OCR."
+  "exploreJpgToWordDesc": "Convert JPG photos to editable Word (.docx) with AI OCR.",
+  "explorePhotoToWordLabel": "Photo to Word",
+  "explorePhotoToWordDesc": "Convert phone photos to editable Word."
 }
