@@ -131,11 +131,12 @@ export default async function PhotoToWordPage({
           <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
             {howItWorksTitle}
           </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc'), img: '/imgs/features/upload-photo.png' },
-              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc'), img: '/imgs/features/convert-to-word.png' },
-              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc'), img: '/imgs/features/download-word.png' },
+              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc'), img: '/imgs/features/drop-photo.png' },
+              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc'), img: '/imgs/features/upload-convert.png' },
+              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc'), img: '/imgs/features/converting-word.png' },
+              { step: '4', title: t('howStep4Title'), desc: t('howStep4Desc'), img: '/imgs/features/download-word-photo.png' },
             ].map((s) => (
               <div
                 key={s.step}
@@ -145,7 +146,7 @@ export default async function PhotoToWordPage({
                   src={s.img}
                   alt={s.title}
                   loading="lazy"
-                  className="mx-auto mb-3 h-40 w-full rounded-lg border border-border object-cover"
+                  className="mx-auto mb-3 h-36 w-full rounded-lg border border-border object-cover"
                 />
                 <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-bold">
                   {s.step}
