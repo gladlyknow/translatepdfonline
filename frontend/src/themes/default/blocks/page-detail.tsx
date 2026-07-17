@@ -1,6 +1,6 @@
 import { CalendarIcon, TimerIcon } from 'lucide-react';
 
-import { MarkdownPreview } from '@/shared/blocks/common';
+import { MarkdownPreview } from '@/shared/blocks/common/markdown-preview';
 // BlogPostType is used for static pages (privacy-policy, terms-of-service)
 type PostType = {
   id: string;
@@ -11,7 +11,8 @@ type PostType = {
   content?: string;
 };
 
-import '@/config/style/docs.css';
+// 注意：docs.css（fumadocs 样式）已移至路由级 [...slug]/page.tsx 导入。
+// 此前在此处 import 会被 getThemeBlock 动态 context 急切打包进首页 CSS（~34KB gzip）。
 
 export async function PageDetail({ post }: { post: PostType }) {
   return (

@@ -19,10 +19,10 @@ export * from './section-header';
 export * from './empty';
 export * from './lazy-image';
 export * from './image-uploader';
-export * from './markdown-preview';
-export * from './markdown-content';
-export * from './markdown-editor';
-export * from './mdx-content';
+// markdown-preview / markdown-content / markdown-editor / mdx-content 已从 barrel 移除：
+// 它们经 @/mdx-components → fumadocs-ui/mdx（CSS 副作用）把 fumadocs CSS（~34KB gzip）
+// 泄漏进每个 import barrel 的页面（含首页）。改用直接 import 子模块路径。
+// 例：import { MarkdownPreview } from '@/shared/blocks/common/markdown-preview';
 
 export * from '../sign/sign-user';
 

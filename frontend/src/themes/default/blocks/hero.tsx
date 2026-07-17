@@ -15,6 +15,19 @@ import { Section } from '@/shared/types/blocks/landing';
 import { SocialAvatars } from './social-avatars';
 import { TranslateHeroHighlighter } from './translate-hero-highlighter';
 
+/**
+ * 为本地 LCP 图生成响应式 srcset。
+ * 命名约定：`foo.webp` → `foo-672.webp 672w, foo.webp 1000w, foo-1344.webp 1344w`。
+ * 需预生成对应尺寸（见 public/imgs/features/landing-page_new-*.webp）。
+ * 远程图（http）返回 undefined，回退到单 src。
+ */
+function responsiveSrcset(src: string): string | undefined {
+  if (!src || src.startsWith('http')) return undefined;
+  const m = src.match(/^(.*?)(\.\w+)$/);
+  if (!m) return undefined;
+  return `${m[1]}-672${m[2]} 672w, ${src} 1000w, ${m[1]}-1344${m[2]} 1344w`;
+}
+
 export function Hero({
   section,
   className,
@@ -258,35 +271,32 @@ export function Hero({
               />
               {isTranslateDark ? (
                 (section.image_invert?.src || section.image?.src) && (
-                  <Image
+                  <img
                     className="relative z-2 block h-auto w-full max-w-full border border-zinc-200 dark:border-white/10"
                     src={
-                      section.image_invert?.src ||
-                      section.image?.src ||
-                      ''
+                      section.image_invert?.src || section.image?.src || ''
+                    }
+                    srcSet={responsiveSrcset(
+                      section.image_invert?.src || section.image?.src || ''
+                    )}
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    width={
+                      section.image_invert?.width ||
+                      section.image?.width ||
+                      1000
+                    }
+                    height={
+                      section.image_invert?.height ||
+                      section.image?.height ||
+                      610
                     }
                     alt={
                       section.image_invert?.alt ||
                       section.image?.alt ||
                       heroImageAltFallback
                     }
-                    width={
-                      section.image_invert?.width ||
-                      section.image?.width ||
-                      3840
-                    }
-                    height={
-                      section.image_invert?.height ||
-                      section.image?.height ||
-                      2424
-                    }
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                    priority
                     fetchPriority="high"
-                    quality={75}
-                    unoptimized={(
-                      section.image_invert?.src || section.image?.src || ''
-                    ).startsWith('http')}
+                    decoding="async"
                   />
                 )
               ) : (

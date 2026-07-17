@@ -32,11 +32,34 @@ export default async function LandingPage({
     .map((it: any) => ({ question: it?.question, answer: it?.answer }))
     .filter((it: any) => it.question && it.answer);
 
+  // LCP 图预加载：hero 改为原生 <img srcset> 后，需在 <head> 显式 preload
+  // （用 imagesrcset/imagesizes 匹配 srcset，让浏览器按视口选最优尺寸尽早下载）。
+  const heroImg =
+    (page as any).sections?.hero?.image_invert?.src ||
+    (page as any).sections?.hero?.image?.src ||
+    '';
+  const heroSrcset = (() => {
+    if (!heroImg || heroImg.startsWith('http')) return undefined;
+    const m = heroImg.match(/^(.*?)(\.\w+)$/);
+    if (!m) return undefined;
+    return `${m[1]}-672${m[2]} 672w, ${heroImg} 1000w, ${m[1]}-1344${m[2]} 1344w`;
+  })();
+
   // load page component
   const Page = await getThemePage('dynamic-page');
 
   return (
     <>
+      {heroSrcset ? (
+        <link
+          rel="preload"
+          as="image"
+          href={heroImg}
+          imageSrcSet={heroSrcset}
+          imageSizes="(max-width: 768px) 100vw, 1200px"
+          fetchPriority="high"
+        />
+      ) : null}
       <HomeFaqJsonLd items={faqItems} />
       <Page locale={locale} page={page} />
     </>

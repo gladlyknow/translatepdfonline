@@ -5,6 +5,9 @@ import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
 import { getLocalPage } from '@/shared/models/post';
 import { buildAlternates } from '@/shared/lib/hreflang';
+// 路由级导入 fumadocs 样式：仅 [...slug] 静态页（privacy-policy/terms 等 MDX）需要。
+// 放路由级而非 page-detail block 内，避免被 getThemeBlock 动态 context 急切打包进首页 CSS。
+import '@/config/style/docs.css';
 
 export const revalidate = 3600;
 

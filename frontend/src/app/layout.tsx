@@ -13,7 +13,9 @@ const notoSansMono = Noto_Sans_Mono({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  preload: true,
+  // 关闭 preload：LCP 元素是 hero 图片而非文字，字体 preload（~40KB woff2）
+  // 在 PSI 关键路径上与 LCP 图争带宽。改 display:swap，正文先用 system-ui 回退。
+  preload: false,
   fallback: ['system-ui', 'sans-serif'],
 });
 
@@ -64,14 +66,6 @@ export default async function RootLayout({
             __html:
               "document.documentElement.classList.add('js')",
           }}
-        />
-
-        {/* Google Fonts 预连接，减少字体下载 DNS/TLS 延迟 */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
         />
 
         {/* 标签页图标：优先 logo.webp，附带 png 回退。 */}

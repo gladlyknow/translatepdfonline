@@ -18,6 +18,12 @@
     "ai-saas-framework",
     "ai-saas-development"
   ],
+  "browserslist": [
+    "defaults and fully supports es6-module",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "node scripts/run-next-build.js",
