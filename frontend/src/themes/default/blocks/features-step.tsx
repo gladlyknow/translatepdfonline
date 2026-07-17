@@ -1,5 +1,3 @@
-'use client';
-
 import { ArrowBigRight } from 'lucide-react';
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';

@@ -1,5 +1,3 @@
-'use client';
-
 import { Link } from '@/core/i18n/navigation';
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';

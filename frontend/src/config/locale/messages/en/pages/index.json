@@ -322,6 +322,14 @@
           {
             "question": "How do I reopen or preview a PDF I translated online earlier?",
             "answer": "Open the translate page and use History. Pick a past job to see its status and preview the source and translated PDFs side by side in the browser. You do not need to upload the file again while it is still available under our retention policy, so every PDF you translate online stays reachable."
+          },
+          {
+            "question": "Can I translate a scanned or image-only PDF online?",
+            "answer": "Yes. For scanned or image-only PDFs, Translate PDF Online runs an OCR pass first to extract the text, then translates it while keeping the original layout. You get a translated PDF you can read and search, with no extra setup required."
+          },
+          {
+            "question": "Will the translated PDF keep the original layout, tables, and fonts?",
+            "answer": "Yes. Layout preservation is a core goal of the service: columns, tables, figures, and font styling are kept as close to the source as possible, so the translated PDF looks like the original, only in your language."
           }
         ]
       },

@@ -22,7 +22,8 @@ const merriweather = Merriweather({
   weight: ['400', '700'],
   variable: '--font-serif',
   display: 'swap',
-  preload: true,
+  // font-serif 在首页 block 未使用，关闭 preload 避免阻塞首屏渲染。
+  preload: false,
   fallback: ['Georgia', 'Times New Roman', 'serif'],
 });
 
@@ -56,6 +57,15 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* 标记 JS 可用：ScrollAnimation 等渐进增强组件据此启用初始隐藏态。
+            无 JS 时内容直接展示，保证 SEO/可访问性。需在 head 最早执行。 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.documentElement.classList.add('js')",
+          }}
+        />
+
         {/* Google Fonts 预连接，减少字体下载 DNS/TLS 延迟 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

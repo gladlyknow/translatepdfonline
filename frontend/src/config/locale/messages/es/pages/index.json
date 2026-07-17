@@ -322,6 +322,14 @@
           {
             "question": "¿Cómo reabro o veo un PDF que traduje en línea antes?",
             "answer": "Abre la página de traducción y usa el historial. Elige una tarea pasada para ver su estado y previsualizar el PDF original y el traducido en paralelo, sin volver a subirlo mientras esté disponible."
+          },
+          {
+            "question": "¿Puedo traducir un PDF escaneado o que solo tiene imágenes online?",
+            "answer": "Sí. Para PDFs escaneados o que solo contienen imágenes, Translate PDF Online aplica primero un reconocimiento óptico de caracteres (OCR) para extraer el texto y luego lo traduce manteniendo el diseño original. Obtendrás un PDF traducido legible y searchable, sin configuración adicional."
+          },
+          {
+            "question": "¿El PDF traducido mantendrá el diseño, las tablas y las fuentes originales?",
+            "answer": "Sí. La preservación del diseño es uno de los objetivos centrales del servicio: columnas, tablas, figuras y estilos de fuente se mantienen lo más fieles posible al original, de modo que el PDF traducido se ve como el original, solo que en tu idioma."
           }
         ]
       },

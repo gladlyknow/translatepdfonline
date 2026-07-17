@@ -322,6 +322,14 @@
           {
             "question": "Wie öffne oder sehe ich ein PDF, das ich früher online übersetzt habe?",
             "answer": "Öffnen Sie die Übersetzungsseite und nutzen Sie den Verlauf. Wählen Sie einen vergangenen Auftrag, um den Status zu sehen und Quell- und übersetztes PDF nebeneinander anzuzeigen, ohne die Datei erneut hochzuladen, solange sie verfügbar ist."
+          },
+          {
+            "question": "Kann ich einen eingescannten oder nur aus Bildern bestehenden PDF online übersetzen?",
+            "answer": "Ja. Für eingescannte oder rein bildbasierte PDFs führt Translate PDF Online zuerst eine OCR-Erkennung durch, um den Text zu extrahieren, und übersetzt ihn anschließend unter Beibehaltung des Originallayouts. Sie erhalten ein lesbares und durchsuchbares übersetztes PDF, ohne zusätzliche Einrichtung."
+          },
+          {
+            "question": "Behält das übersetzte PDF das originale Layout, die Tabellen und Schriftarten?",
+            "answer": "Ja. Die Layouterhaltung ist ein Kernziel des Dienstes: Spalten, Tabellen, Abbildungen und Schriftstile bleiben so originalgetreu wie möglich erhalten, sodass das übersetzte PDF wie das Original aussieht, nur in Ihrer Sprache."
           }
         ]
       },

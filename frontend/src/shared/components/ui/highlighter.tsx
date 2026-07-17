@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import type React from "react"
-import { useInView } from "motion/react"
 import { annotate } from "rough-notation"
 import { type RoughAnnotation } from "rough-notation/lib/model"
 
@@ -41,10 +40,31 @@ export function Highlighter({
   const elementRef = useRef<HTMLSpanElement>(null)
   const annotationRef = useRef<RoughAnnotation | null>(null)
 
-  const isInView = useInView(elementRef, {
-    once: true,
-    margin: "-10%",
-  })
+  // 原生 IntersectionObserver 替代 motion/react 的 useInView，避免把 motion 库拉入首页 bundle。
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    if (!isView) return // isView=false 时无需观测，始终展示
+    const el = elementRef.current
+    if (!el) return
+    if (typeof IntersectionObserver === "undefined") {
+      setIsInView(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setIsInView(true)
+            observer.disconnect()
+          }
+        }
+      },
+      { rootMargin: "-10%" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [isView])
 
   // If isView is false, always show. If isView is true, wait for inView
   const shouldShow = !isView || isInView

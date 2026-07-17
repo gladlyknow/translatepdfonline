@@ -1,5 +1,3 @@
-'use client';
-
 import { Link } from '@/core/i18n/navigation';
 import {
   TRANSLATE_PRIMARY_CTA_CLASSNAME,

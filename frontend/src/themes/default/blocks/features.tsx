@@ -1,5 +1,3 @@
-'use client';
-
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';

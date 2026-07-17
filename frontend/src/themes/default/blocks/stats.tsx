@@ -1,5 +1,3 @@
-'use client';
-
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { Section } from '@/shared/types/blocks/landing';
 

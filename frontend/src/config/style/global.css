@@ -134,6 +134,53 @@ pre {
   mix-blend-mode: normal;
 }
 
+/*
+ * ScrollAnimation：原生 IntersectionObserver 驱动，零 JS 动画库。
+ * 仅在 html.js（客户端 JS 可用）时隐藏初始态；无 JS 时直接展示内容（SEO/可访问性兜底）。
+ */
+.js .scroll-anim,
+.js .scroll-anim-item {
+  opacity: 0;
+  transform: translate3d(var(--sa-x, 0), var(--sa-y, 30px), 0);
+  filter: blur(4px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--sa-delay, 0s);
+  will-change: opacity, transform, filter;
+}
+.js .scroll-anim-item {
+  transition-delay: calc(var(--sa-i, 0) * 0.1s + var(--sa-delay, 0s));
+}
+.js .scroll-anim.is-visible,
+.js .scroll-anim.is-visible .scroll-anim-item {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .scroll-anim,
+  .js .scroll-anim-item {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+/*
+ * BorderBeam：CSS offset-distance 动画驱动光束沿边框环绕，替代 motion.div。
+ */
+@keyframes border-beam-move {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -322,6 +322,14 @@
           {
             "question": "Comment rouvrir ou prévisualiser un PDF traduit en ligne précédemment ?",
             "answer": "Ouvrez la page de traduction et utilisez l'historique. Choisissez une tâche passée pour voir son statut et prévisualiser le PDF source et traduit côte à côte, sans le retéléverser tant qu'il est disponible."
+          },
+          {
+            "question": "Puis-je traduire un PDF numérisé ou composé uniquement d'images en ligne ?",
+            "answer": "Oui. Pour les PDF numérisés ou composés uniquement d'images, Translate PDF Online applique d'abord une reconnaissance de caractères (OCR) pour extraire le texte, puis le traduit en conservant la mise en page d'origine. Vous obtenez un PDF traduit lisible et consultable, sans configuration supplémentaire."
+          },
+          {
+            "question": "Le PDF traduit conservera-t-il la mise en page, les tableaux et les polices d'origine ?",
+            "answer": "Oui. La préservation de la mise en page est un objectif central du service : colonnes, tableaux, figures et styles de police sont conservés au plus près de la source, afin que le PDF traduit ressemble à l'original, simplement dans votre langue."
           }
         ]
       },

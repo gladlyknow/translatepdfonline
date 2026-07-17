@@ -13,5 +13,8 @@
 /logo.png
   Cache-Control: public,max-age=3600,must-revalidate
 
+/preview.png
+  Cache-Control: public,max-age=86400,must-revalidate
+
 /brand/*
-  Cache-Control: public,max-age=3600,must-revalidate
+  Cache-Control: public,max-age=86400,must-revalidate

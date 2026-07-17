@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
 import { BorderBeam } from '@/shared/components/magicui/border-beam';
@@ -23,19 +22,6 @@ export function FeaturesAccordion({
   className?: string;
 }) {
   const [activeItem, setActiveItem] = useState<string>('item-1');
-
-  const images: Record<string, { image: string; alt: string }> = {};
-  section.items?.forEach((item, idx) => {
-    images[`item-${idx + 1}`] = {
-      image: item.image?.src ?? '',
-      alt: item.image?.alt || item.title || '',
-    };
-  });
-
-  const activeMeta = images[activeItem] ?? {
-    image: '',
-    alt: '',
-  };
 
   return (
     // overflow-x-hidden to prevent horizontal scroll
@@ -93,23 +79,28 @@ export function FeaturesAccordion({
                   'h-[min(52vw,13.5rem)] sm:h-[15rem] md:h-[17rem]'
                 )}
               >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`${activeItem}-id`}
-                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute inset-0 min-h-0 overflow-hidden rounded-[inherit]"
-                  >
-                    <LazyImage
-                      src={activeMeta.image}
-                      alt={activeMeta.alt}
-                      className="h-full w-full object-contain object-center dark:mix-blend-lighten"
-                      responsive
-                    />
-                  </motion.div>
-                </AnimatePresence>
+                {/* 所有图片堆叠绝对定位，按 activeItem 切换 opacity 实现 CSS 交叉淡入，零动画库。 */}
+                {section.items?.map((item, idx) => {
+                  const itemKey = `item-${idx + 1}`;
+                  const isActive = itemKey === activeItem;
+                  return (
+                    <div
+                      key={itemKey}
+                      className={cn(
+                        'absolute inset-0 min-h-0 overflow-hidden rounded-[inherit] transition-opacity duration-200 ease-out',
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      )}
+                      aria-hidden={!isActive}
+                    >
+                      <LazyImage
+                        src={item.image?.src ?? ''}
+                        alt={item.image?.alt || item.title || ''}
+                        className="h-full w-full object-contain object-center dark:mix-blend-lighten"
+                        responsive
+                      />
+                    </div>
+                  );
+                })}
               </div>
               <BorderBeam
                 duration={6}

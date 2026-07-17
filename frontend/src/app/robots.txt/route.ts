@@ -11,6 +11,7 @@ const DISALLOW = [
   '/no-permission',
   '/chat',
   '/chat/',
+  '/*?recent=', // pure UI param, canonical already points to the no-query version
 ];
 
 function buildRobotsTxt(sitemapUrl: string): string {

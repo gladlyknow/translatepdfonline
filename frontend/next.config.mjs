@@ -84,25 +84,27 @@ const nextConfig = {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         cacheGroups: {
-          // PDF 相关（仅在 translate 页使用）
+          // PDF 相关（仅 translate 页异步使用）
           pdfjs: {
             test: /[\\/]node_modules[\\/](pdfjs-dist|react-pdf|@pdf-lib)[\\/]/,
             name: 'vendor-pdf',
-            chunks: 'all',
+            chunks: 'async',
             priority: 30,
           },
-          // 动画库（landing 页使用）
+          // 动画库（仅 features-media/flow 等异步 block 使用）
+          // 用 chunks:'async' 避免被动态 import context 提为 entry 级依赖，
+          // 否则首页会保守加载 vendor-animation（framer-motion ~50KB）。
           framerMotion: {
             test: /[\\/]node_modules[\\/](framer-motion|motion)[\\/]/,
             name: 'vendor-animation',
-            chunks: 'all',
+            chunks: 'async',
             priority: 25,
           },
-          // 文档框架
+          // 文档框架（仅文档/MDX 异步页面使用）
           fumadocs: {
             test: /[\\/]node_modules[\\/](fumadocs|next-mdx-remote|shiki|rehype|remark)[\\/]/,
             name: 'vendor-docs',
-            chunks: 'all',
+            chunks: 'async',
             priority: 20,
           },
           // UI 组件库
@@ -112,11 +114,13 @@ const nextConfig = {
             chunks: 'all',
             priority: 15,
           },
-          // 通用 vendor
+          // 通用 vendor：用 chunks:'async' 避免把懒加载/异步重型依赖
+          //（react-icons/ri 整包 ~2MB、@shikijs/langs 语法 ~3MB、cytoscape ~419KB）
+          // 提为同步共享块，否则每页（含首页）都会加载。
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendor-common',
-            chunks: 'all',
+            chunks: 'async',
             priority: 10,
             minChunks: 2,
           },

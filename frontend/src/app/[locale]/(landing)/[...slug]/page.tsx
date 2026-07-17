@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
 import { getLocalPage } from '@/shared/models/post';
+import { buildAlternates } from '@/shared/lib/hreflang';
 
 export const revalidate = 3600;
 
@@ -64,6 +65,7 @@ export async function generateMetadata({
       description,
       alternates: {
         canonical: canonicalUrl,
+        languages: buildAlternates(`/${staticPageSlug}`, locale).languages,
       },
     };
   }
@@ -98,6 +100,7 @@ export async function generateMetadata({
         description,
         alternates: {
           canonical: canonicalUrl,
+          languages: buildAlternates(`/${staticPageSlug}`, locale).languages,
         },
       };
     }
@@ -116,6 +119,7 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: canonicalUrl,
+      languages: buildAlternates(`/${staticPageSlug}`, locale).languages,
     },
   };
 }
