@@ -114,16 +114,25 @@ const nextConfig = {
             chunks: 'all',
             priority: 15,
           },
-          // 通用 vendor：用 chunks:'async' 避免把懒加载/异步重型依赖
-          //（react-icons/ri 整包 ~2MB、@shikijs/langs 语法 ~3MB、cytoscape ~419KB）
-          // 提为同步共享块，否则每页（含首页）都会加载。
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendor-common',
-            chunks: 'async',
-            priority: 10,
+          // 关键工具库：被几乎所有首屏组件使用，分离避免混入异步重型依赖。
+          // chunks:'all' 从初始+异步 chunk 共同提取，确保首屏不额外加载异步依赖。
+          vendorCritical: {
+            test: /[\\/]node_modules[\\/](class-variance-authority|clsx|tailwind-merge|lucide-react|@radix-ui\/react-slot)[\\/]/,
+            name: 'vendor-critical',
+            chunks: 'all',
+            priority: 12,
             minChunks: 2,
           },
+          // 通用 vendor：完全禁用。将共享 node_modules 提升到单一 chunk
+          // 会使首页加载大量未使用 JS。改为让各异步 chunk 自行内联依赖，
+          // 首页仅加载其实际需要的代码。
+          // vendor: {
+          //   test: /[\\/]node_modules[\\/]/,
+          //   name: 'vendor-common',
+          //   chunks: 'async',
+          //   priority: 10,
+          //   minChunks: 2,
+          // },
         },
       };
     }

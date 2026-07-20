@@ -2,6 +2,7 @@ import { Link } from '@/core/i18n/navigation';
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { responsiveSrcset, smallImageVariant } from '@/shared/lib/image-srcset';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -49,9 +50,11 @@ export function FeaturesList({
                     }
                   >
                     <LazyImage
-                      src={section.image?.src ?? ''}
+                      src={smallImageVariant(section.image?.src ?? '')}
                       alt={section.image?.alt ?? ''}
                       className="absolute inset-0 h-full w-full object-cover"
+                      srcSet={responsiveSrcset(section.image?.src ?? '')}
+                      sizes="500px"
                     />
                   </div>
                 );

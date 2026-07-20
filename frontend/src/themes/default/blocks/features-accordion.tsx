@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { responsiveSrcset, smallImageVariant } from '@/shared/lib/image-srcset';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -93,9 +94,11 @@ export function FeaturesAccordion({
                       aria-hidden={!isActive}
                     >
                       <LazyImage
-                        src={item.image?.src ?? ''}
+                        src={smallImageVariant(item.image?.src ?? '')}
                         alt={item.image?.alt || item.title || ''}
                         className="h-full w-full object-contain object-center dark:mix-blend-lighten"
+                        srcSet={responsiveSrcset(item.image?.src ?? '')}
+                        sizes="(max-width: 768px) 52vw, 443px"
                         responsive
                       />
                     </div>

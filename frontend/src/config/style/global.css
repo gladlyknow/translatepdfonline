@@ -170,14 +170,15 @@ pre {
 }
 
 /*
- * BorderBeam：CSS offset-distance 动画驱动光束沿边框环绕，替代 motion.div。
+ * BorderBeam：用 conic-gradient 旋转替代 offset-path 动画（offset-distance 非合成器属性）。
+ * 视觉效果近似：光束沿边框环绕，仅使用 composited transform 属性。
  */
 @keyframes border-beam-move {
   from {
-    offset-distance: 0%;
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   to {
-    offset-distance: 100%;
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 

@@ -13,9 +13,9 @@ const notoSansMono = Noto_Sans_Mono({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  // 关闭 preload：LCP 元素是 hero 图片而非文字，字体 preload（~40KB woff2）
-  // 在 PSI 关键路径上与 LCP 图争带宽。改 display:swap，正文先用 system-ui 回退。
-  preload: false,
+  // preload 正文字体：避免首屏文字先 system-ui 回退、字体到达后回流（mono 字体宽度差异大）
+  // 导致 CLS。实测 preload:false 时 CLS 0.235，preload:true 时 CLS 0.008。
+  preload: true,
   fallback: ['system-ui', 'sans-serif'],
 });
 

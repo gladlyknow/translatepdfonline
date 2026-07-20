@@ -18,7 +18,8 @@ export function LazyImage({
   title,
   fill: _fill,
   priority,
-  sizes: _sizes,
+  sizes,
+  srcSet,
   /** Omit width/height on DOM so parent aspect-ratio box controls layout (e.g. features-list). */
   responsive,
   wrapperClassName: wrapperClassNameProp,
@@ -33,6 +34,7 @@ export function LazyImage({
   fill?: boolean;
   priority?: boolean;
   sizes?: string;
+  srcSet?: string;
   responsive?: boolean;
   /** When not `responsive`, optional wrapper (e.g. `block w-full` for intrinsic img layout). */
   wrapperClassName?: string;
@@ -44,6 +46,8 @@ export function LazyImage({
       title={title}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
+      {...(srcSet ? { srcSet } : {})}
+      {...(sizes ? { sizes } : {})}
       // responsive 模式下由外层 aspect-ratio 容器控制尺寸，不写 width/height。
       {...(responsive ? {} : { width, height })}
       className={className}

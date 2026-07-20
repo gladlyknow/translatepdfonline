@@ -45,6 +45,10 @@ interface BorderBeamProps {
   borderWidth?: number;
 }
 
+/**
+ * 光束沿边框环绕的装饰组件。
+ * 使用 transform: rotate() 动画（composited），替代 offset-path（非合成）。
+ */
 export const BorderBeam = ({
   className,
   size = 50,
@@ -57,8 +61,6 @@ export const BorderBeam = ({
   initialOffset = 0,
   borderWidth = 1,
 }: BorderBeamProps) => {
-  // 用 CSS offset-distance 动画替代 motion.div，避免把 motion 库拉入首页 bundle。
-  // 起始相位由 initialOffset 与 delay 决定（负 animation-delay = 立即从该相位开始）。
   const phase = reverse ? 100 - initialOffset : initialOffset;
   const animationDelay = -(phase / 100) * duration - delay;
 
@@ -80,9 +82,12 @@ export const BorderBeam = ({
         style={
           {
             width: size,
-            offsetPath: `rect(0 auto auto 0 round ${size}px)`,
             "--color-from": colorFrom,
             "--color-to": colorTo,
+            // 将 beam 置于容器中心，通过 rotate 绕中心旋转，配合 mask 露出边框部分
+            top: "50%",
+            left: "50%",
+            transformOrigin: "center center",
             animation: `border-beam-move ${duration}s linear infinite`,
             animationDirection: reverse ? "reverse" : "normal",
             animationDelay: `${animationDelay}s`,

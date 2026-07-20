@@ -44,6 +44,14 @@ export default async function LandingPage({
     if (!m) return undefined;
     return `${m[1]}-672${m[2]} 672w, ${heroImg} 1000w, ${m[1]}-1344${m[2]} 1344w`;
   })();
+  // preload 的 href 用 672 变体（移动端默认尺寸）。若用基图 1000px 作 href，
+  // 浏览器会预加载 1000px 并被 <img src=1000> 复用，绕过 srcset 的 672w 选择。
+  const heroImg672 = (() => {
+    if (!heroImg || heroImg.startsWith('http')) return heroImg;
+    const m = heroImg.match(/^(.*?)(\.\w+)$/);
+    if (!m) return heroImg;
+    return `${m[1]}-672${m[2]}`;
+  })();
 
   // load page component
   const Page = await getThemePage('dynamic-page');
@@ -54,7 +62,7 @@ export default async function LandingPage({
         <link
           rel="preload"
           as="image"
-          href={heroImg}
+          href={heroImg672}
           imageSrcSet={heroSrcset}
           imageSizes="(max-width: 768px) 100vw, 1200px"
           fetchPriority="high"

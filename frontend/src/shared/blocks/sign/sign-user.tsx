@@ -121,9 +121,7 @@ export function SignUser({
   return (
     <>
       {isCheckSign || !mounted ? (
-        <div>
-          <Loader2 className="size-4 animate-spin" />
-        </div>
+        <div className="ml-4 h-9 w-[80px]" aria-hidden="true" />
       ) : displayUser ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

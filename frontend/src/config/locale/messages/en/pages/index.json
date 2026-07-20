@@ -44,14 +44,14 @@
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF translation preview",
-          "width": 1820,
-          "height": 1111
+          "width": 1000,
+          "height": 610
         },
         "image_invert": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "PDF translation preview",
-          "width": 1820,
-          "height": 1111
+          "width": 1000,
+          "height": 610
         }
       },
       "introduce": {
@@ -63,8 +63,8 @@
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
-          "width": 1820,
-          "height": 1111
+          "width": 1000,
+          "height": 610
         },
         "items": [
           {
@@ -120,8 +120,8 @@
             "image": {
               "src": "/imgs/features/landing-page_new.webp",
               "alt": "benefits",
-              "width": 1820,
-              "height": 1111
+              "width": 1000,
+              "height": 610
             }
           },
           {
@@ -131,8 +131,8 @@
             "image": {
               "src": "/imgs/features/dense_PDFs.webp",
               "alt": "benefits",
-              "width": 2511,
-              "height": 1233
+              "width": 630,
+              "height": 309
             }
           },
           {
@@ -140,10 +140,10 @@
             "description": "Translate the whole file or only the pages you need. Setting a page range lets you translate a big PDF online faster while saving credits.",
             "icon": "RiBookReadLine",
             "image": {
-              "src": "/imgs/features/page_range.png",
+              "src": "/imgs/features/page_range.webp",
               "alt": "benefits",
-              "width": 295,
-              "height": 439
+              "width": 360,
+              "height": 540
             }
           }
         ]
@@ -158,8 +158,8 @@
         "image": {
           "src": "/imgs/features/upload_pdf.png",
           "alt": "usage",
-          "width": 863,
-          "height": 256
+          "width": 382,
+          "height": 113
         },
         "image_position": "left",
         "text_align": "center",
@@ -170,8 +170,8 @@
             "image": {
               "src": "/imgs/features/upload_pdf.png",
               "alt": "Upload a PDF file",
-              "width": 863,
-              "height": 256
+              "width": 382,
+              "height": 113
             }
           },
           {
