@@ -14,6 +14,10 @@ type BaiduAuth = {
 export interface DocConvertSubmitParams {
   /** base64-encoded image content (without data URI header) */
   image?: string;
+  /** base64-encoded PDF file content (without data URI header) */
+  pdfFile?: string;
+  /** optional: PDF page numbers to convert, e.g. "1,3,5-8" */
+  pdfFileNum?: string;
 }
 
 export interface DocConvertSubmitResult {
@@ -106,8 +110,13 @@ export async function submitDocConvert(
   const body = new URLSearchParams();
   if (params.image) {
     body.set('image', params.image);
+  } else if (params.pdfFile) {
+    body.set('pdf_file', params.pdfFile);
+    if (params.pdfFileNum) {
+      body.set('pdf_file_num', params.pdfFileNum);
+    }
   } else {
-    throw new Error('doc_convert: image is required');
+    throw new Error('doc_convert: image or pdf_file is required');
   }
 
   const res = await fetch(`${SUBMIT_URL}${req.withToken}`, {

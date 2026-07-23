@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "Vector-friendly pipeline",
-            "description": "Uses a BabelDOC-style path so translated text is placed back into the PDF structure where supported — that is how a PDF translated online keeps its layout.",
+            "description": "Uses an advanced AI text-placement path so translated text is placed back into the PDF structure where supported — that is how a PDF translated online keeps its layout.",
             "icon": "RiStackLine"
           },
           {

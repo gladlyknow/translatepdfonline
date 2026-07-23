@@ -35,6 +35,6 @@
   "failedOcrOfferTitle": "翻译未完成，试试 OCR？",
   "failedOcrOfferBody": "扫描件或文字层较薄时，建议先用 OCR 从页面图像重建文字，再用同一文档与语种继续。",
   "scanDetectedFailedTitle": "检测到扫描件 — 请使用 OCR 翻译",
-  "scanDetectedFailedBody": "系统检测到该 PDF 为扫描文档，缺少可提取的文字层，BabelDOC 文字翻译不适用。OCR 可从页面图像重建文字后再翻译。",
+  "scanDetectedFailedBody": "系统检测到该 PDF 为扫描文档，缺少可提取的文字层，标准文字翻译不适用。OCR 可从页面图像重建文字后再翻译。",
   "scanDetectedFailedCta": "前往 OCR 翻译"
 }

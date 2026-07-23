@@ -35,6 +35,6 @@
   "failedOcrOfferBody": "En escaneos o capas de texto débiles, primero OCR para reconstruir el texto desde las imágenes de página; mismo PDF e idiomas.",
   "cancelled": "Cancelado",
   "scanDetectedFailedTitle": "PDF escaneado detectado",
-  "scanDetectedFailedBody": "Este PDF es un escaneo sin capa de texto extraíble. La traducción de texto BabelDOC no es aplicable. OCR puede reconstruir el texto de las imágenes y luego traducir.",
+  "scanDetectedFailedBody": "Este PDF es un escaneo sin capa de texto extraíble. La traducción de texto estándar no es aplicable. OCR puede reconstruir el texto de las imágenes y luego traducir.",
   "scanDetectedFailedCta": "Ir a traducción OCR"
 }

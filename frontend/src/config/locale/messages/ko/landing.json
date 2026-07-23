@@ -40,6 +40,11 @@
               "title": "사진 워드 변환",
               "url": "/photo-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "PDF를 Word 문서로 변환",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
             }
           ]
         },
@@ -49,14 +54,14 @@
           "icon": "GitCompare"
         },
         {
+          "title": "블로그",
+          "url": "/blog",
+          "icon": "BookOpen"
+        },
+        {
           "title": "요금",
           "url": "/pricing",
           "icon": "DollarSign"
-        },
-        {
-          "title": "문서",
-          "url": "/docs",
-          "icon": "BookOpen"
         }
       ]
     },

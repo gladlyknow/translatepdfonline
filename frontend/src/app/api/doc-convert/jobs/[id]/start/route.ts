@@ -14,7 +14,7 @@ import {
 } from '@/shared/lib/translate-billing';
 import { getRemainingCredits } from '@/shared/models/credit';
 
-const VALID_SOURCES = new Set(['jpg', 'jpeg']);
+const VALID_SOURCES = new Set(['jpg', 'jpeg', 'pdf']);
 const VALID_TARGETS = new Set(['word']);
 
 export const runtime = 'nodejs';
@@ -38,11 +38,12 @@ export async function POST(
       return respErr('job already started or not in uploaded/failed state');
     }
 
-    let body: { sourceFormat?: string; targetFormat?: string };
+    let body: { sourceFormat?: string; targetFormat?: string; pdfFileNum?: string };
     try {
       body = (await req.json()) as {
         sourceFormat?: string;
         targetFormat?: string;
+        pdfFileNum?: string;
       };
     } catch {
       body = {};
@@ -80,8 +81,12 @@ export async function POST(
     }
     const base64 = Buffer.from(fileBytes).toString('base64');
 
-    // 提交百度 doc_convert
-    const { taskId } = await submitDocConvert({ image: base64 });
+    // 提交百度 doc_convert — PDF 和图片使用不同参数
+    const isPdf = sourceFormat === 'pdf';
+    const submitParams = isPdf
+      ? { pdfFile: base64, pdfFileNum: body.pdfFileNum || undefined }
+      : { image: base64 };
+    const { taskId } = await submitDocConvert(submitParams);
 
     await updateDocConvertTask(id, {
       sourceFormat,

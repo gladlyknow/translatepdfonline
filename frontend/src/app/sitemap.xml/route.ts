@@ -9,8 +9,10 @@ const PUBLIC_PATHS = [
   '/image-to-text',
   '/jpg-to-word',
   '/photo-to-word',
+  '/pdf-to-word-doc',
   '/docs',
   '/contract-comparison',
+  '/blog',
   '/privacy-policy',
   '/terms-of-service',
 ] as const;

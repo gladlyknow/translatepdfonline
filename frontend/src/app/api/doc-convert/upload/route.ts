@@ -10,6 +10,7 @@ import { putObject } from '@/shared/lib/translate-r2';
 
 const ALLOWED = {
   'image/jpeg': 'jpg',
+  'application/pdf': 'pdf',
 } as Record<string, string>;
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
     if (!file || !(file instanceof File)) return respErr('file is required');
 
     const ext = ALLOWED[file.type];
-    if (!ext) return respErr('only JPG / JPEG images are allowed');
+    if (!ext) return respErr('only JPG, JPEG images and PDF files are allowed');
 
     if (file.size > MAX_BYTES) return respErr('file too large (max 10MB)');
 

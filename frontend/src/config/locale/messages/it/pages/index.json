@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "Pipeline adatta al vettoriale",
-            "description": "Usa un percorso in stile BabelDOC per reinserire il testo tradotto nella struttura del PDF dove supportato — è così che un PDF tradotto online mantiene il layout.",
+            "description": "Usa un percorso avanzato di IA per il posizionamento del testo, reinserendo il testo tradotto nella struttura del PDF dove supportato — è così che un PDF tradotto online mantiene il layout.",
             "icon": "RiStackLine"
           },
           {

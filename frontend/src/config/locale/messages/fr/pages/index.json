@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "Pipeline compatible vecteurs",
-            "description": "Utilise un chemin de type BabelDOC pour replacer le texte traduit dans la structure PDF là où c'est possible — c'est ainsi qu'un PDF traduit en ligne garde sa mise en page.",
+            "description": "Utilise un chemin avancé d'IA de placement de texte pour replacer le texte traduit dans la structure PDF là où c'est possible — c'est ainsi qu'un PDF traduit en ligne garde sa mise en page.",
             "icon": "RiStackLine"
           },
           {

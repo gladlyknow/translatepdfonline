@@ -10,7 +10,7 @@
   "compareAfterLabel": "翻译后",
   "compareSliderAria": "对比翻译前后效果",
   "homeOcrBridgeTitle": "扫描件或图片很多的 PDF？",
-  "homeOcrBridgeBody": "BabelDOC 在「能选中文字」的 PDF 上效果最好。OCR Translator 先识别扫描页与图片里的文字再翻译，补足仅靠版式解析时的短板。",
+  "homeOcrBridgeBody": "基于文字层的 PDF 翻译在「能选中文字」的 PDF 上效果最好。OCR Translator 先识别扫描页与图片里的文字再翻译，补足仅靠版式解析时的短板。",
   "homeOcrBridgeCta": "打开 OCR Translator",
   "homeUploadCta": "上传 PDF",
   "formatPdf": "PDF",

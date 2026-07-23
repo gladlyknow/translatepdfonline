@@ -40,6 +40,11 @@
               "title": "Φωτογραφία σε Word",
               "url": "/photo-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "PDF σε Word Doc",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
             }
           ]
         },
@@ -49,14 +54,14 @@
           "icon": "GitCompare"
         },
         {
+          "title": "Ιστολόγιο",
+          "url": "/blog",
+          "icon": "BookOpen"
+        },
+        {
           "title": "Τιμές",
           "url": "/pricing",
           "icon": "DollarSign"
-        },
-        {
-          "title": "Τεκμηρίωση",
-          "url": "/docs",
-          "icon": "BookOpen"
         }
       ]
     },

@@ -35,6 +35,6 @@
   "failedOcrOfferBody": "Pour les scans ou textes pauvres, l’OCR reconstruit d’abord le texte à partir des images de page ; même PDF et langues.",
   "cancelled": "Annulé",
   "scanDetectedFailedTitle": "PDF numérisé détecté",
-  "scanDetectedFailedBody": "Ce PDF est une numérisation sans couche de texte extractible. La traduction textuelle BabelDOC n'est pas applicable. L'OCR peut reconstruire le texte à partir des images, puis traduire.",
+  "scanDetectedFailedBody": "Ce PDF est une numérisation sans couche de texte extractible. La traduction textuelle standard n'est pas adaptée à ce type de document. L'OCR peut reconstruire le texte à partir des images, puis traduire.",
   "scanDetectedFailedCta": "Aller vers la traduction OCR"
 }

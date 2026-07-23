@@ -40,6 +40,11 @@
               "title": "Фото в Word",
               "url": "/photo-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "PDF в Word Doc",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
             }
           ]
         },
@@ -49,14 +54,14 @@
           "icon": "GitCompare"
         },
         {
+          "title": "Блог",
+          "url": "/blog",
+          "icon": "BookOpen"
+        },
+        {
           "title": "Тарифы",
           "url": "/pricing",
           "icon": "DollarSign"
-        },
-        {
-          "title": "Документация",
-          "url": "/docs",
-          "icon": "BookOpen"
         }
       ]
     },

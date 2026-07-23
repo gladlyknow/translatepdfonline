@@ -40,6 +40,11 @@
               "title": "照片转 Word",
               "url": "/photo-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "PDF 转 Word 文档",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
             }
           ]
         },
@@ -49,14 +54,14 @@
           "icon": "GitCompare"
         },
         {
+          "title": "博客",
+          "url": "/blog",
+          "icon": "BookOpen"
+        },
+        {
           "title": "价格",
           "url": "/pricing",
           "icon": "DollarSign"
-        },
-        {
-          "title": "文档",
-          "url": "/docs",
-          "icon": "BookOpen"
         }
       ]
     },

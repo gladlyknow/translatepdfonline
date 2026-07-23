@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "Pipeline compatible con vectores",
-            "description": "Usa un enfoque tipo BabelDOC para colocar el texto traducido de nuevo en la estructura del PDF donde se admite — así un PDF traducido en línea conserva su formato.",
+            "description": "Usa un avanzado enfoque de IA para la colocación de texto, colocando el texto traducido de nuevo en la estructura del PDF donde se admite — así un PDF traducido en línea conserva su formato.",
             "icon": "RiStackLine"
           },
           {

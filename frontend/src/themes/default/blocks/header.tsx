@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { HelpCircle, Menu, X } from 'lucide-react';
 
 import { Link, usePathname } from '@/core/i18n/navigation';
 import { locales } from '@/config/locale';
@@ -83,7 +83,7 @@ export function Header({ header }: { header: HeaderType }) {
   const pathname = usePathname();
   const pathSegments = pathname.split('/').filter(Boolean);
   const historyDrawer = useTranslateHistoryDrawerOptional();
-  const solidPages = ['pdf-to-text', 'image-to-text', 'jpg-to-word', 'photo-to-word', 'contract-comparison', 'upload', 'translate', 'ocrtranslator'];
+  const solidPages = ['pdf-to-text', 'image-to-text', 'jpg-to-word', 'photo-to-word', 'pdf-to-word-doc', 'contract-comparison', 'blog', 'upload', 'translate', 'ocrtranslator'];
   const isHomePage =
     pathSegments.length === 0 ||
     (pathSegments.length === 1 && locales.includes(pathSegments[0] as (typeof locales)[number]));
@@ -387,6 +387,14 @@ export function Header({ header }: { header: HeaderType }) {
                       </Link>
                     ))}
 
+                  <Link
+                    href="/docs"
+                    className="inline-flex items-center justify-center size-9 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                    title="Help"
+                    aria-label="Help & Documentation"
+                  >
+                    <HelpCircle className="size-5" />
+                  </Link>
                   {header.show_theme ? <ThemeToggler /> : null}
                   {header.show_locale ? <LocaleSelector /> : null}
                   <div className="flex-1 md:hidden"></div>

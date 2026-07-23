@@ -35,6 +35,6 @@
   "failedOcrOfferBody": "Bei Scans oder schwacher Textebene OCR zuerst: Text aus Seitenbildern neu aufbauen, dann mit derselben Datei und Sprachen weitermachen.",
   "cancelled": "Abgebrochen",
   "scanDetectedFailedTitle": "Gescanntes PDF erkannt",
-  "scanDetectedFailedBody": "Dieses PDF ist ein Scan ohne extrahierbare Textebene. BabelDOC-Textübersetzung ist nicht anwendbar. OCR kann Text aus Seitenbildern rekonstruieren und dann übersetzen.",
+  "scanDetectedFailedBody": "Dieses PDF ist ein Scan ohne extrahierbare Textebene. Die Standard-Textübersetzung ist für diesen Dokumenttyp nicht geeignet. OCR kann Text aus Seitenbildern rekonstruieren und dann übersetzen.",
   "scanDetectedFailedCta": "Zur OCR-Übersetzung"
 }

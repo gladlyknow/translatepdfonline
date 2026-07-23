@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "Vektor-freundliche Pipeline",
-            "description": "Nutzt einen BabelDOC-ähnlichen Pfad, sodass übersetzter Text dort in die PDF-Struktur zurückgelegt wird, wo unterstützt — so behält ein online übersetztes PDF sein Layout.",
+            "description": "Nutzt einen fortschrittlichen KI-Textplatzierungspfad, sodass übersetzter Text dort in die PDF-Struktur zurückgelegt wird, wo unterstützt — so behält ein online übersetztes PDF sein Layout.",
             "icon": "RiStackLine"
           },
           {

@@ -40,6 +40,11 @@
               "title": "写真を Word に",
               "url": "/photo-to-word",
               "icon": "Image"
+            },
+            {
+              "title": "PDF を Word 文書に変換",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
             }
           ]
         },
@@ -49,14 +54,14 @@
           "icon": "GitCompare"
         },
         {
+          "title": "ブログ",
+          "url": "/blog",
+          "icon": "BookOpen"
+        },
+        {
           "title": "料金",
           "url": "/pricing",
           "icon": "DollarSign"
-        },
-        {
-          "title": "ドキュメント",
-          "url": "/docs",
-          "icon": "BookOpen"
         }
       ]
     },

@@ -224,7 +224,7 @@
         "items": [
           {
             "title": "矢量友好流水线",
-            "description": "采用类 BabelDOC 路径，在支持时把译文写回 PDF 结构——这正是在线翻译的 PDF 能保留版式的原因。",
+            "description": "采用先进 AI 文字排版路径，在支持时把译文写回 PDF 结构——这正是在线翻译的 PDF 能保留版式的原因。",
             "icon": "RiStackLine"
           },
           {

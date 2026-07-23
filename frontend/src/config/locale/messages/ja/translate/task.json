@@ -35,6 +35,6 @@
   "failedOcrOfferBody": "スキャンや薄い文字層では、先にページ画像から OCR でテキストを再構築するとよいことがあります。同じ PDF と言語で続行できます。",
   "cancelled": "キャンセル済み",
   "scanDetectedFailedTitle": "スキャンPDFが検出されました",
-  "scanDetectedFailedBody": "このPDFはスキャン文書で、抽出可能なテキストレイヤーがありません。BabelDOCの文字翻訳は適用できません。OCRでページ画像から文字を再構成してから翻訳します。",
+  "scanDetectedFailedBody": "このPDFはスキャン文書で、抽出可能なテキストレイヤーがありません。標準のテキスト翻訳はこの種類の文書に適していません。OCRでページ画像から文字を再構成してから翻訳します。",
   "scanDetectedFailedCta": "OCR翻訳へ"
 }

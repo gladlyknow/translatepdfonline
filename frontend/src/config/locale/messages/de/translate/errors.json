@@ -4,6 +4,6 @@
   "font_subset_corrupt": "Möglicherweise beschädigte Schrift-Teilmengen. PDF neu exportieren oder OCR ausführen.",
   "no_paragraphs": "In diesem PDF wurde kein lesbarer Text gefunden. Es könnte gescannt, nur Bild oder ein noch nicht voll unterstütztes Layout sein. Wir verbessern die Unterstützung fortlaufend. Versuchen Sie „Mit OCR vorverarbeiten“ oder ein PDF, in dem Sie Text markieren können.",
   "ocr_preprocess_failed": "OCR-Vorverarbeitung fehlgeschlagen. OCRmyPDF und Tesseract müssen installiert sein, oder später erneut versuchen.",
-  "scan_detected_use_ocr": "Diese Datei wirkt wie ein gescanntes PDF. Wir empfehlen OCR Translator, um wiederholte BabelDOC-Fehlschläge zu vermeiden.",
+  "scan_detected_use_ocr": "Diese Datei wirkt wie ein gescanntes PDF. Wir empfehlen OCR Translator, um unnötige Wiederholungen in der Standard-Text-Pipeline zu vermeiden.",
   "fc_service_unavailable": "Übersetzungsdienst vorübergehend nicht verfügbar. Dieses PDF könnte ein Scan sein. Verwenden Sie OCR für bildbasierte Dokumente."
 }
