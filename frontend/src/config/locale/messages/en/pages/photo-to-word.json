@@ -51,7 +51,7 @@
     "q6": "Is my photo safe when converting photo to word?",
     "a6": "Yes. Your photo is uploaded over HTTPS, processed for the conversion, and stored encrypted. Only you can download the resulting Word document, and you can retry or delete jobs from your history."
   },
-  "exploreMoreHeading": "Explore more converters",
+  "exploreMoreHeading": "Explore More AI Tools",
   "exploreJpgToWordLabel": "JPG to Word",
   "exploreJpgToWordDesc": "Convert JPG scans and images to editable Word.",
   "exploreImageToTextLabel": "Image to Text",

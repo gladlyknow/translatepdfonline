@@ -35,7 +35,7 @@
     "q5": "怎么把PDF转换成Word文档还能保留页码和页眉？",
     "a5": "我们的PDF转Word文档转换器在转换过程中完整保留页眉、页脚、页码和文档结构。上传PDF后可选指定页码范围（如「1,3,5-8」），生成的Word文档会保持原始编号和页眉格式。如果PDF使用复杂多栏页眉或水印，AI文字提取也能一并处理。"
   },
-  "exploreMoreHeading": "探索更多转换工具",
+  "exploreMoreHeading": "探索更多 AI 工具",
   "explorePhotoToWordLabel": "图片转Word",
   "explorePhotoToWordDesc": "将手机照片和扫描件转为可编辑的Word文档。",
   "exploreJpgToWordLabel": "JPG 转 Word",

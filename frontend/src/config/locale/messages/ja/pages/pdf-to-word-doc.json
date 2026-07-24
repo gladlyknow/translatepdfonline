@@ -35,7 +35,7 @@
     "q5": "PDFをWord文書に変換するとき、ページ番号やヘッダーは保持されますか？",
     "a5": "当社のPDF→Word文書変換ツールは、ヘッダー、フッター、ページ番号、文書構造を変換中に保持します。PDFをアップロードする際に変換するページを指定（例：「1,3,5-8」）することも可能で、生成されたWord文書は元の番号とヘッダー書式を維持します。複雑な段組ヘッダーや透かしがある場合も、AI文字抽出が適切に処理します。"
   },
-  "exploreMoreHeading": "その他の変換ツール",
+  "exploreMoreHeading": "もっとAIツールを見る",
   "explorePhotoToWordLabel": "写真→Word",
   "explorePhotoToWordDesc": "スマホ写真やスキャンを編集可能なWord文書に変換。",
   "exploreJpgToWordLabel": "JPGをWordに変換",

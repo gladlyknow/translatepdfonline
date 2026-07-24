@@ -35,7 +35,7 @@
     "q5": "¿Cómo convertir un PDF a Word con números de página y encabezados intactos?",
     "a5": "Nuestro conversor de PDF a Word documento conserva encabezados, pies de página, números de página y la estructura del documento durante la conversión. Sube tu PDF, especifica opcionalmente qué páginas convertir (ej. '1,3,5-8') y el Word resultante mantendrá la numeración original y el formato de encabezados. Si tu PDF usa encabezados complejos de múltiples columnas o marcas de agua, el OCR con IA también los maneja."
   },
-  "exploreMoreHeading": "Explora más conversores",
+  "exploreMoreHeading": "Explorar más herramientas de IA",
   "explorePhotoToWordLabel": "Foto a Word",
   "explorePhotoToWordDesc": "Convierte fotos del móvil y escaneos a documentos Word editables.",
   "exploreJpgToWordLabel": "JPG a Word",

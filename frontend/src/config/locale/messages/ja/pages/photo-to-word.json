@@ -51,7 +51,7 @@
     "q6": "写真をアップロードするのは安全ですか？",
     "a6": "はい。写真は HTTPS でアップロードされ、変換処理後に暗号化保存されます。生成された Word 文書はあなただけがダウンロードでき、履歴から再試行や削除も可能です。"
   },
-  "exploreMoreHeading": "他の変換ツールを探す",
+  "exploreMoreHeading": "もっとAIツールを見る",
   "exploreJpgToWordLabel": "JPG を Word に",
   "exploreJpgToWordDesc": "JPG スキャンや画像を編集可能な Word に変換。",
   "exploreImageToTextLabel": "画像から文字を抽出",

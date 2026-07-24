@@ -51,7 +51,7 @@
     "q6": "사진을 Word로 변환할 때 안전한가요?",
     "a6": "네. 사진은 HTTPS로 업로드되어 변환에만 처리되고 암호화 저장됩니다. 결과 Word 문서는 본인만 다운로드할 수 있으며 기록에서 재시도하거나 삭제할 수 있습니다."
   },
-  "exploreMoreHeading": "더 많은 변환기 살펴보기",
+  "exploreMoreHeading": "더 많은 AI 도구 살펴보기",
   "exploreJpgToWordLabel": "JPG를 Word로",
   "exploreJpgToWordDesc": "JPG 스캔과 이미지를 편집 가능한 Word로 변환.",
   "exploreImageToTextLabel": "이미지 텍스트 변환",

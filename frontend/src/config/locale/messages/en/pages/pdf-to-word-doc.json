@@ -35,7 +35,7 @@
     "q5": "How to convert a PDF to Word doc with page numbers and headers intact?",
     "a5": "Our PDF to Word Doc converter preserves headers, footers, page numbers, and document structure during conversion. Upload your PDF, optionally specify which pages to convert (e.g., '1,3,5-8'), and the resulting Word doc will keep the original numbering and header formatting. If your PDF uses complex multi-column headers or watermarks, the AI OCR handles those as well."
   },
-  "exploreMoreHeading": "Explore more converters",
+  "exploreMoreHeading": "Explore More AI Tools",
   "explorePhotoToWordLabel": "Photo to Word",
   "explorePhotoToWordDesc": "Convert phone photos and scans to editable Word docs.",
   "exploreJpgToWordLabel": "JPG to Word",

@@ -35,7 +35,7 @@
     "q5": "写真は安全ですか？",
     "a5": "安全です。写真は HTTPS で暗号化送信・保存され、本人のみ Word をダウンロード可能。履歴から再試行や削除もできます。"
   },
-  "exploreMoreHeading": "他の変換ツールを見る",
+  "exploreMoreHeading": "もっとAIツールを見る",
   "explorePhotoToWordLabel": "写真を Word に",
   "explorePhotoToWordDesc": "スマホ写真を編集可能な Word に変換。",
   "exploreImageToTextLabel": "画像 to テキスト",

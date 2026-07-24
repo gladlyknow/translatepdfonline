@@ -51,7 +51,7 @@
     "q6": "照片上传安全吗？",
     "a6": "安全。照片通过 HTTPS 上传，仅用于本次转换并加密存储。只有你能下载生成的 Word 文档，也可以在历史记录里重试或删除任务。"
   },
-  "exploreMoreHeading": "探索更多转换器",
+  "exploreMoreHeading": "探索更多 AI 工具",
   "exploreJpgToWordLabel": "JPG 转 Word",
   "exploreJpgToWordDesc": "把 JPG 扫描件和图片转成可编辑 Word。",
   "exploreImageToTextLabel": "图片转文字",

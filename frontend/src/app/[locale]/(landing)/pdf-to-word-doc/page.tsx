@@ -73,11 +73,6 @@ export default async function PdfToWordDocPage({
     }))
     .filter((w) => w.title);
 
-  // Split heroTitle on  " — " or  " | " for two-line display
-  const titleParts = heroTitle.split(/ (?:—|\|) /);
-  const mainTitle = titleParts[0] || heroTitle;
-  const subTitle = titleParts.slice(1).join(' — ');
-
   return (
     <>
       <HomeFaqJsonLd items={faqItems} />
@@ -85,16 +80,11 @@ export default async function PdfToWordDocPage({
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
           {/* Hero + Upload Area */}
           <PdfToWordClient>
-            <section className="text-center pb-2 pt-4 sm:pt-8">
-              <h1 className="mx-auto max-w-4xl text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
-                {mainTitle}
+            <section className="text-center pb-2">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+                {heroTitle}
               </h1>
-              {subTitle ? (
-                <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
-                  {subTitle}
-                </p>
-              ) : null}
-              <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground leading-relaxed sm:text-base">
+              <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground leading-relaxed sm:text-lg">
                 {heroText}
               </p>
               {geoDescription ? (
@@ -118,8 +108,8 @@ export default async function PdfToWordDocPage({
           </PdfToWordClient>
         </div>
 
-        {/* How It Works — no production images yet; clean numbered steps */}
-        <section className="mx-auto w-full max-w-5xl mt-16 px-4">
+        {/* How It Works */}
+        <section className="mx-auto w-full max-w-5xl mt-10 px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
             {howItWorksTitle}
           </h2>
@@ -133,7 +123,7 @@ export default async function PdfToWordDocPage({
                 key={s.step}
                 className="rounded-2xl border-2 border bg-card p-6 text-center"
               >
-                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
+                <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-bold">
                   {s.step}
                 </div>
                 <h3 className="text-base font-semibold text-foreground mb-2">
@@ -149,7 +139,7 @@ export default async function PdfToWordDocPage({
 
         {/* Why */}
         {whyItems.length > 0 ? (
-          <section className="mx-auto w-full max-w-5xl mt-16 px-4">
+          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
             <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
               {whyHeading}
             </h2>
@@ -173,7 +163,7 @@ export default async function PdfToWordDocPage({
 
         {/* FAQ */}
         {faqItems.length > 0 ? (
-          <section className="mx-auto max-w-5xl px-4 mt-16 border-t pt-8 pb-8">
+          <section className="mx-auto max-w-5xl px-4 mt-10 border-t pt-8 pb-8">
             <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
               {t('faqHeading')}
             </h2>
@@ -192,7 +182,7 @@ export default async function PdfToWordDocPage({
           </section>
         ) : null}
 
-        {/* Explore More */}
+        {/* Explore More AI Tools */}
         <ExploreMoreLinks
           heading={exploreHeading}
           links={[
