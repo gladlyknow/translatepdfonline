@@ -36,6 +36,19 @@ export async function generateMetadata({
       canonical,
       languages: buildAlternates('/pdf-to-word-doc', locale).languages,
     },
+    openGraph: {
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+      url: canonical,
+      siteName: 'TranslatePDFOnline',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+    },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -108,18 +121,40 @@ export default async function PdfToWordDocPage({
           </PdfToWordClient>
         </div>
 
-        {/* How It Works */}
+        {/* Key Features — structured list for AI extractability */}
+        <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+          <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
+            {t('whyHeading')}
+          </h2>
+          <ul className="mx-auto max-w-3xl space-y-3">
+            {whyItems.map((w, i) => (
+              <li
+                key={i}
+                className="rounded-xl border border-border bg-card px-5 py-4"
+              >
+                <h3 className="text-base font-semibold text-foreground">
+                  {w.title}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                  {w.desc}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* How It Works — ordered list for AI extractability */}
         <section className="mx-auto w-full max-w-5xl mt-10 px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
             {howItWorksTitle}
           </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+          <ol className="grid gap-6 md:grid-cols-3 list-none">
             {[
               { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc') },
               { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc') },
               { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc') },
             ].map((s) => (
-              <div
+              <li
                 key={s.step}
                 className="rounded-2xl border-2 border bg-card p-6 text-center"
               >
@@ -132,34 +167,10 @@ export default async function PdfToWordDocPage({
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {s.desc}
                 </p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
-
-        {/* Why */}
-        {whyItems.length > 0 ? (
-          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
-            <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
-              {whyHeading}
-            </h2>
-            <div className="grid gap-6 md:grid-cols-3">
-              {whyItems.map((w, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border-2 border bg-card p-6 text-center"
-                >
-                  <h3 className="text-base font-semibold text-foreground mb-2">
-                    {w.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {w.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
 
         {/* FAQ */}
         {faqItems.length > 0 ? (
