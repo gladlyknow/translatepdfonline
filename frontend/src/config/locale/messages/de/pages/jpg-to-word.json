@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "Ziehen Sie auswählbaren Text aus jedem PDF.",
   "exploreTranslateLabel": "PDF-Übersetzung",
   "exploreTranslateDesc": "Übersetzen Sie PDF-Dokumente in 10 Sprachen.",
+  "explorePdfToWordDocLabel": "PDF in Word-Dokument",
+  "explorePdfToWordDocDesc": "Konvertieren Sie PDF-Dateien online in bearbeitbare Word-Dokumente.",
   "uploadHint": "Legen Sie ein JPG-Foto hier ab oder klicken Sie zum Auswählen",
   "uploadSubHint": "JPG / JPEG, bis 10MB — KI-OCR erstellt ein bearbeitbares Word-Dokument.",
   "btnChange": "Ändern",

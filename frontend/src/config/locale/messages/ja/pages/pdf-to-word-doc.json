@@ -38,6 +38,8 @@
   "exploreMoreHeading": "その他の変換ツール",
   "explorePhotoToWordLabel": "写真→Word",
   "explorePhotoToWordDesc": "スマホ写真やスキャンを編集可能なWord文書に変換。",
+  "exploreJpgToWordLabel": "JPGをWordに変換",
+  "exploreJpgToWordDesc": "JPG画像や写真を編集可能なWord文書に変換します。",
   "exploreImageToTextLabel": "画像→テキスト",
   "exploreImageToTextDesc": "AI文字抽出で画像からプレーンテキストを抽出。",
   "explorePdfToTextLabel": "PDF→テキスト",

@@ -38,6 +38,8 @@
   "exploreMoreHeading": "探索更多转换工具",
   "explorePhotoToWordLabel": "图片转Word",
   "explorePhotoToWordDesc": "将手机照片和扫描件转为可编辑的Word文档。",
+  "exploreJpgToWordLabel": "JPG 转 Word",
+  "exploreJpgToWordDesc": "将 JPG 图片和照片转换为可编辑的 Word 文档。",
   "exploreImageToTextLabel": "图片转文字",
   "exploreImageToTextDesc": "用AI文字提取从任意图片中提取纯文本。",
   "explorePdfToTextLabel": "PDF转文字",

@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "Εξάγετε επιλέξιμο κείμενο από οποιοδήποτε PDF.",
   "exploreTranslateLabel": "Μετάφραση PDF",
   "exploreTranslateDesc": "Μεταφράστε έγγραφα PDF σε 10 γλώσσες.",
+  "explorePdfToWordDocLabel": "PDF σε Word Doc",
+  "explorePdfToWordDocDesc": "Μετατροπή αρχείων PDF σε επεξεργάσιμα έγγραφα Word online.",
   "uploadHint": "Σύρετε μια φωτογραφία JPG εδώ ή κάντε κλικ για επιλογή",
   "uploadSubHint": "JPG / JPEG, έως 10MB — το AI OCR δημιουργεί επεξεργάσιμο Word.",
   "btnChange": "Αλλαγή",

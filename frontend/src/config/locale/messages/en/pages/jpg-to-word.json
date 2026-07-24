@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "Pull selectable text out of any PDF.",
   "exploreTranslateLabel": "PDF Translation",
   "exploreTranslateDesc": "Translate PDF documents into 10 languages.",
+  "explorePdfToWordDocLabel": "PDF to Word Doc",
+  "explorePdfToWordDocDesc": "Convert PDF files to editable Word documents online.",
   "uploadHint": "Drop a JPG photo here or click to browse",
   "uploadSubHint": "JPG / JPEG, up to 10MB — AI OCR rebuilds an editable Word document.",
   "btnChange": "Change",

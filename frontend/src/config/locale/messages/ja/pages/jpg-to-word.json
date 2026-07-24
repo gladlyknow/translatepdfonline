@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "任意の PDF から選択可能なテキストを取り出す。",
   "exploreTranslateLabel": "PDF 翻訳",
   "exploreTranslateDesc": "PDF 文書を10言語に翻訳。",
+  "explorePdfToWordDocLabel": "PDFをWord文書に変換",
+  "explorePdfToWordDocDesc": "PDFファイルを編集可能なWord文書にオンラインで変換します。",
   "uploadHint": "JPG 写真をここにドラッグ、またはクリックして選択",
   "uploadSubHint": "JPG / JPEG、最大10MB — AI OCR が編集可能な Word を再構築。",
   "btnChange": "変更",

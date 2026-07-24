@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "从任意 PDF 中提取可选中文字。",
   "exploreTranslateLabel": "PDF 翻译",
   "exploreTranslateDesc": "把 PDF 文档翻译成 10 种语言。",
+  "explorePdfToWordDocLabel": "PDF 转 Word 文档",
+  "explorePdfToWordDocDesc": "在线将 PDF 文件转换为可编辑的 Word 文档。",
   "uploadHint": "把 JPG 照片拖到此处，或点击选择",
   "uploadSubHint": "JPG / JPEG，最大 10MB — AI OCR 重建可编辑 Word 文档。",
   "btnChange": "更换",

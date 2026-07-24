@@ -44,6 +44,8 @@
   "explorePdfToTextDesc": "Tirez du texte sélectionnable de tout PDF.",
   "exploreTranslateLabel": "Traduction PDF",
   "exploreTranslateDesc": "Traduisez des documents PDF en 10 langues.",
+  "explorePdfToWordDocLabel": "PDF en Word Doc",
+  "explorePdfToWordDocDesc": "Convertissez des fichiers PDF en documents Word modifiables en ligne.",
   "uploadHint": "Déposez une photo JPG ici ou cliquez pour choisir",
   "uploadSubHint": "JPG / JPEG, jusqu'à 10 Mo — l'OCR IA crée un Word modifiable.",
   "btnChange": "Changer",

@@ -38,6 +38,8 @@
   "exploreMoreHeading": "Εξερευνήστε περισσότερους μετατροπείς",
   "explorePhotoToWordLabel": "Φωτογραφία σε Word",
   "explorePhotoToWordDesc": "Μετατρέψτε φωτογραφίες κινητού και σαρώσεις σε επεξεργάσιμα έγγραφα Word.",
+  "exploreJpgToWordLabel": "JPG σε Word",
+  "exploreJpgToWordDesc": "Μετατροπή εικόνων και φωτογραφιών JPG σε επεξεργάσιμα έγγραφα Word.",
   "exploreImageToTextLabel": "Εικόνα σε κείμενο",
   "exploreImageToTextDesc": "Εξάγετε κείμενο από οποιαδήποτε εικόνα με AI OCR.",
   "explorePdfToTextLabel": "PDF σε κείμενο",

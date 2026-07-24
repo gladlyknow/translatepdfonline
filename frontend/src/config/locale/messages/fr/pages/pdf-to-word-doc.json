@@ -38,6 +38,8 @@
   "exploreMoreHeading": "Découvrez d'autres convertisseurs",
   "explorePhotoToWordLabel": "Photo vers Word",
   "explorePhotoToWordDesc": "Convertissez les photos du téléphone et les scans en documents Word modifiables.",
+  "exploreJpgToWordLabel": "JPG en Word",
+  "exploreJpgToWordDesc": "Convertissez des images et photos JPG en documents Word modifiables.",
   "exploreImageToTextLabel": "Image vers Texte",
   "exploreImageToTextDesc": "Extrayez le texte brut de n'importe quelle image avec l'OCR IA.",
   "explorePdfToTextLabel": "PDF vers Texte",

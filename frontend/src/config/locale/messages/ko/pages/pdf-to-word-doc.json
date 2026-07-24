@@ -38,6 +38,8 @@
   "exploreMoreHeading": "더 많은 변환 도구 살펴보기",
   "explorePhotoToWordLabel": "사진→Word",
   "explorePhotoToWordDesc": "휴대폰 사진과 스캔 이미지를 편집 가능한 Word 문서로 변환합니다.",
+  "exploreJpgToWordLabel": "JPG를 Word로 변환",
+  "exploreJpgToWordDesc": "JPG 이미지와 사진을 편집 가능한 Word 문서로 변환합니다.",
   "exploreImageToTextLabel": "이미지→텍스트",
   "exploreImageToTextDesc": "AI 문자 추출로 모든 이미지에서 일반 텍스트를 추출합니다.",
   "explorePdfToTextLabel": "PDF→텍스트",

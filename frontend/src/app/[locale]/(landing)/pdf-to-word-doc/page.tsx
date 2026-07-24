@@ -73,6 +73,11 @@ export default async function PdfToWordDocPage({
     }))
     .filter((w) => w.title);
 
+  // Split heroTitle on  " — " or  " | " for two-line display
+  const titleParts = heroTitle.split(/ (?:—|\|) /);
+  const mainTitle = titleParts[0] || heroTitle;
+  const subTitle = titleParts.slice(1).join(' — ');
+
   return (
     <>
       <HomeFaqJsonLd items={faqItems} />
@@ -80,11 +85,16 @@ export default async function PdfToWordDocPage({
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
           {/* Hero + Upload Area */}
           <PdfToWordClient>
-            <section className="text-center pb-2">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-                {heroTitle}
+            <section className="text-center pb-2 pt-4 sm:pt-8">
+              <h1 className="mx-auto max-w-4xl text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+                {mainTitle}
               </h1>
-              <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground leading-relaxed sm:text-lg">
+              {subTitle ? (
+                <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+                  {subTitle}
+                </p>
+              ) : null}
+              <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground leading-relaxed sm:text-base">
                 {heroText}
               </p>
               {geoDescription ? (
@@ -108,28 +118,22 @@ export default async function PdfToWordDocPage({
           </PdfToWordClient>
         </div>
 
-        {/* How It Works */}
-        <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+        {/* How It Works — no production images yet; clean numbered steps */}
+        <section className="mx-auto w-full max-w-5xl mt-16 px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
             {howItWorksTitle}
           </h2>
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc'), img: '/imgs/features/upload-photo.png' },
-              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc'), img: '/imgs/features/convert-to-word.png' },
-              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc'), img: '/imgs/features/download-word.png' },
+              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc') },
+              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc') },
+              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc') },
             ].map((s) => (
               <div
                 key={s.step}
                 className="rounded-2xl border-2 border bg-card p-6 text-center"
               >
-                <img
-                  src={s.img}
-                  alt={s.title}
-                  loading="lazy"
-                  className="mx-auto mb-3 h-40 w-full rounded-lg border border-border object-cover"
-                />
-                <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-bold">
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
                   {s.step}
                 </div>
                 <h3 className="text-base font-semibold text-foreground mb-2">
@@ -145,7 +149,7 @@ export default async function PdfToWordDocPage({
 
         {/* Why */}
         {whyItems.length > 0 ? (
-          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+          <section className="mx-auto w-full max-w-5xl mt-16 px-4">
             <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
               {whyHeading}
             </h2>
@@ -169,7 +173,7 @@ export default async function PdfToWordDocPage({
 
         {/* FAQ */}
         {faqItems.length > 0 ? (
-          <section className="mx-auto max-w-5xl px-4 mt-10 border-t pt-8 pb-8">
+          <section className="mx-auto max-w-5xl px-4 mt-16 border-t pt-8 pb-8">
             <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
               {t('faqHeading')}
             </h2>
@@ -192,6 +196,12 @@ export default async function PdfToWordDocPage({
         <ExploreMoreLinks
           heading={exploreHeading}
           links={[
+            {
+              href: '/jpg-to-word',
+              icon: 'generalocr.svg',
+              label: t('exploreJpgToWordLabel') || 'JPG to Word',
+              desc: t('exploreJpgToWordDesc'),
+            },
             {
               href: '/photo-to-word',
               icon: 'generalocr.svg',

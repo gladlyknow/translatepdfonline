@@ -38,6 +38,8 @@
   "exploreMoreHeading": "Другие конвертеры",
   "explorePhotoToWordLabel": "Фото в Word",
   "explorePhotoToWordDesc": "Преобразуйте фото с телефона и сканы в редактируемые документы Word.",
+  "exploreJpgToWordLabel": "JPG в Word",
+  "exploreJpgToWordDesc": "Конвертируйте JPG изображения и фото в редактируемые документы Word.",
   "exploreImageToTextLabel": "Изображение в текст",
   "exploreImageToTextDesc": "Извлекайте текст из любого изображения с помощью AI OCR.",
   "explorePdfToTextLabel": "PDF в текст",
