@@ -15,7 +15,7 @@
       "items": [
         {
           "title": "PDF Translate",
-          "url": "/translate?recent=1",
+          "url": "/ocrtranslator",
           "icon": "FileText"
         },
         {

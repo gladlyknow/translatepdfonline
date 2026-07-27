@@ -20,7 +20,7 @@
         "announcement": {
           "badge": "New",
           "title": "Professional layout-preserving PDF translation",
-          "url": "/upload"
+          "url": "/ocrtranslator"
         },
         "tip": "Special launch pricing for early users",
         "buttons": [
@@ -34,7 +34,7 @@
           {
             "title": "Get Started",
             "icon": "Zap",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "variant": "outline"
           }
@@ -340,7 +340,7 @@
         "buttons": [
           {
             "title": "Start translating",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "icon": "Zap"
           },

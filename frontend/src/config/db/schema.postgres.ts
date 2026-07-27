@@ -371,6 +371,7 @@ export const apikey = table(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
     deletedAt: timestamp('deleted_at'),
+    lastUsedAt: timestamp('last_used_at'),
   },
   (table) => [
     // Composite: Query user's API keys by status
@@ -379,6 +380,33 @@ export const apikey = table(
     // Composite: Validate active API key (most common for auth)
     // Can also be used for: WHERE key = ? (left-prefix)
     index('idx_apikey_key_status').on(table.key, table.status),
+  ]
+);
+
+// API Usage Log — tracks each API key call for rate limiting & analytics
+export const apiUsageLog = table(
+  'api_usage_log',
+  {
+    id: text('id').primaryKey(),
+    apikeyId: text('apikey_id')
+      .notNull()
+      .references(() => apikey.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    taskId: text('task_id'),
+    endpoint: text('endpoint').notNull(),
+    method: text('method').notNull(),
+    statusCode: integer('status_code').notNull(),
+    creditsConsumed: integer('credits_consumed').default(0),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    responseTimeMs: integer('response_time_ms'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_api_usage_apikey').on(table.apikeyId, table.createdAt),
+    index('idx_api_usage_user').on(table.userId, table.createdAt),
   ]
 );
 

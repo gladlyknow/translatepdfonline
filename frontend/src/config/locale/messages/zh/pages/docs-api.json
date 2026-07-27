@@ -1,0 +1,32 @@
+{
+  "metaTitle": "API 文档 — 程序化 PDF 翻译接口 | TranslatePDFOnline",
+  "metaDescription": "通过 REST API 将 PDF 翻译集成到你的工作流中。使用 API Key 程序化翻译 PDF，提供 cURL、Python、Node.js 代码示例。",
+  "keywords": "PDF翻译API, REST API, 程序化翻译PDF, OCR API, 文档翻译接口",
+  "heroTitle": "API 文档",
+  "heroText": "使用简洁的 REST API 程序化翻译 PDF。在设置中获取 API Key，几分钟内即可开始翻译 PDF。",
+  "authentication": "认证方式",
+  "authenticationDesc": "在请求中通过 Authorization 头（Bearer token）或 X-API-Key 头携带你的 API Key。在 设置 → API 密钥 中创建和管理密钥。",
+  "rateLimiting": "速率限制",
+  "rateLimitingDesc": "每个 API Key 每分钟最多 60 次请求。每次响应均包含 X-RateLimit-Limit 和 X-RateLimit-Remaining 头。",
+  "pricing": "定价说明",
+  "pricingDesc": "每页翻译消耗 10 积分。在 设置 → 积分 中查看余额。可购买积分包或订阅以定期获取积分。",
+  "endpoint": "接口地址",
+  "requestBody": "请求体",
+  "curlExample": "cURL",
+  "pythonExample": "Python",
+  "nodeExample": "Node.js",
+  "responseExample": "响应",
+  "faqHeading": "常见问题",
+  "seoFaq": {
+    "q1": "如何获取 PDF 翻译的 API Key？",
+    "a1": "在 translatepdfonline.com 注册账号，前往 设置 → API 密钥，点击「创建 API 密钥」。请立即复制密钥——关闭后将不再显示。",
+    "q2": "翻译 API 支持哪些语言？",
+    "a2": "API 支持 10 种语言：英语 (en)、中文 (zh)、西班牙语 (es)、法语 (fr)、意大利语 (it)、希腊语 (el)、日语 (ja)、韩语 (ko)、德语 (de)、俄语 (ru)。",
+    "q3": "使用 API 需要多少费用？",
+    "a3": "每页翻译消耗 10 积分。新用户赠送免费试用积分。可购买积分包或订阅月度套餐。",
+    "q4": "如何查询翻译任务状态？",
+    "a4": "提交翻译后你会获得 task_id。轮询 GET /api/tasks/{task_id} 查看状态（queued → processing → completed/failed）。",
+    "q5": "API 有速率限制吗？",
+    "a5": "是的，每个 API Key 每分钟限 60 次请求。超限将返回 429 响应。如需更高限额请联系我们。"
+  }
+}

@@ -11,6 +11,7 @@ const PUBLIC_PATHS = [
   '/photo-to-word',
   '/pdf-to-word-doc',
   '/docs',
+  '/docs/api',
   '/contract-comparison',
   '/blog',
   '/privacy-policy',

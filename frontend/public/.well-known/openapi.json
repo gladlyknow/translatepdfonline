@@ -1,0 +1,171 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TranslatePDFOnline API",
+    "version": "1.0.0",
+    "description": "REST API for translating PDF documents using OCR-powered AI translation. Supports 10 languages.",
+    "contact": {
+      "email": "support@translatepdfonline.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.translatepdfonline.com",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": [],
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Your API key from Settings → API Keys."
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Your API key as Bearer token from Settings → API Keys."
+      }
+    },
+    "schemas": {
+      "TranslateRequest": {
+        "type": "object",
+        "required": ["document_id", "source_lang", "target_lang"],
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "description": "Document ID from the upload endpoint."
+          },
+          "source_lang": {
+            "type": "string",
+            "enum": ["en", "zh", "es", "fr", "it", "el", "ja", "ko", "de", "ru"],
+            "description": "Source language code."
+          },
+          "target_lang": {
+            "type": "string",
+            "enum": ["en", "zh", "es", "fr", "it", "el", "ja", "ko", "de", "ru"],
+            "description": "Target language code."
+          },
+          "page_range": {
+            "type": "string",
+            "description": "Optional page range, e.g. '1-10' or '5'."
+          }
+        }
+      },
+      "TranslateResponse": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "Unique task identifier."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued"],
+            "description": "Task status."
+          },
+          "page_range_effective": {
+            "type": "string",
+            "description": "Effective page range used for translation."
+          },
+          "credits_estimated": {
+            "type": "integer",
+            "description": "Estimated credits to be consumed."
+          }
+        }
+      },
+      "TaskStatus": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["queued", "processing", "completed", "failed"] },
+          "source_lang": { "type": "string" },
+          "target_lang": { "type": "string" },
+          "page_range": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/translate": {
+      "post": {
+        "summary": "Translate a PDF document",
+        "description": "Submit a PDF document for OCR-powered AI translation. Returns a task_id for status polling.",
+        "operationId": "translatePdf",
+        "tags": ["Translation"],
+        "security": [
+          { "ApiKeyAuth": [] },
+          { "BearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TranslateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translation task created successfully.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TranslateResponse" }
+              }
+            },
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": { "type": "integer" },
+                "description": "Max requests per minute."
+              },
+              "X-RateLimit-Remaining": {
+                "schema": { "type": "integer" },
+                "description": "Remaining requests this minute."
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient credits.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

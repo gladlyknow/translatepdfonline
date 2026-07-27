@@ -1,23 +1,59 @@
 {
-  "fields": { "title": "Τίτλος", "key": "Κλειδί", "created_at": "Δημιουργήθηκε", "action": "Ενέργεια" },
+  "fields": {
+    "title": "Τίτλος",
+    "key": "Κλειδί",
+    "created_at": "Δημιουργήθηκε",
+    "action": "Ενέργεια",
+    "last_used_at": "Τελευταία χρήση"
+  },
   "list": {
     "title": "Κλειδιά API",
     "empty_message": "Χωρίς κλειδιά API",
-    "buttons": { "add": "Δημιουργία κλειδιού API", "edit": "Επεξεργασία", "delete": "Διαγραφή" }
+    "buttons": {
+      "add": "Δημιουργία κλειδιού API",
+      "edit": "Επεξεργασία",
+      "delete": "Διαγραφή"
+    }
   },
   "add": {
     "title": "Δημιουργία κλειδιού API",
-    "crumbs": { "apikeys": "Κλειδιά API", "add": "Δημιουργία κλειδιού API" },
-    "buttons": { "submit": "Δημιουργία" }
+    "crumbs": {
+      "apikeys": "Κλειδιά API",
+      "add": "Δημιουργία κλειδιού API"
+    },
+    "buttons": {
+      "submit": "Δημιουργία"
+    }
   },
   "edit": {
     "title": "Επεξεργασία κλειδιού API",
-    "crumbs": { "apikeys": "Κλειδιά API", "edit": "Επεξεργασία κλειδιού API" },
-    "buttons": { "submit": "Ενημέρωση" }
+    "crumbs": {
+      "apikeys": "Κλειδιά API",
+      "edit": "Επεξεργασία κλειδιού API"
+    },
+    "buttons": {
+      "submit": "Ενημέρωση"
+    }
   },
   "delete": {
     "title": "Διαγραφή κλειδιού API",
-    "crumbs": { "apikeys": "Κλειδιά API", "delete": "Διαγραφή κλειδιού API" },
-    "buttons": { "submit": "Επιβεβαίωση διαγραφής" }
+    "crumbs": {
+      "apikeys": "Κλειδιά API",
+      "delete": "Διαγραφή κλειδιού API"
+    },
+    "buttons": {
+      "submit": "Επιβεβαίωση διαγραφής"
+    }
+  },
+  "usage": {
+    "title": "Χρήση API",
+    "total_calls": "Συνολικές κλήσεις",
+    "credits_consumed": "Πιστώσεις που καταναλώθηκαν"
+  },
+  "create_success": {
+    "title": "Το API Key δημιουργήθηκε",
+    "message": "Αντιγράψτε και αποθηκεύστε με ασφάλεια το κλειδί API σας. Δεν θα εμφανιστεί ξανά.",
+    "copy_key": "Αντιγραφή κλειδιού",
+    "copied": "Αντιγράφηκε"
   }
 }

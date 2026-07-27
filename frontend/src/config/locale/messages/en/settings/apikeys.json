@@ -3,7 +3,8 @@
     "title": "Title",
     "key": "Key",
     "created_at": "Created At",
-    "action": "Action"
+    "action": "Action",
+    "last_used_at": "Last Used"
   },
   "list": {
     "title": "API Keys",
@@ -43,5 +44,16 @@
     "buttons": {
       "submit": "Confirm Delete"
     }
+  },
+  "usage": {
+    "title": "API Usage",
+    "total_calls": "Total Calls",
+    "credits_consumed": "Credits Consumed"
+  },
+  "create_success": {
+    "title": "API Key Created",
+    "message": "Please copy and store your API key securely. It will not be shown again.",
+    "copy_key": "Copy Key",
+    "copied": "Copied"
   }
 }

@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "新着",
           "title": "レイアウトを維持するプロ品質の PDF 翻訳",
-          "url": "/upload"
+          "url": "/ocrtranslator"
         },
         "tip": "早期ユーザー向けのローンチ価格",
         "buttons": [
           {
             "title": "始める",
             "icon": "Zap",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "variant": "dark"
           },
@@ -340,7 +340,7 @@
         "buttons": [
           {
             "title": "翻訳を始める",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "icon": "Zap"
           },

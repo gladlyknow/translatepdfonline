@@ -1,10 +1,8 @@
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { eq, and } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { db } from '@/core/db';
 import { documents, translationTasks } from '@/config/db/schema';
 import { getTranslateAuth } from './auth';
-import { getAllConfigs } from '@/shared/models/config';
 import {
   createPresignedGet,
   getObjectByteRange,
@@ -17,12 +15,7 @@ import {
   scanFromMetadata,
   scanFromPdfHeadBytes,
 } from '@/shared/lib/translate-scan-precheck';
-import { isCloudflareWorker } from '@/shared/lib/env';
-import {
-  getWorkerBindingMeta,
-  getWorkerBindingString,
-  getWorkerEnvDebugKeyHints,
-} from '@/shared/lib/worker-env';
+import { getWorkerBindingString } from '@/shared/lib/worker-env';
 import { getRemainingCredits } from '@/shared/models/credit';
 import {
   estimateTranslatedPages,
@@ -34,7 +27,6 @@ import {
 } from '@/shared/lib/translate-billing';
 import { isSupportedUiLang } from '@/shared/lib/translate-langs';
 import { ensureDocumentPageCount } from '@/shared/lib/document-page-count';
-import { invokeTranslateFcForTask } from './invoke-fc';
 
 /** 日志用：不输出完整预签名 URL（含凭证 query）。 */
 function summarizeUrlForLog(url: string) {
@@ -86,19 +78,6 @@ function isPgMissingColumnError(e: unknown): boolean {
           : undefined;
   }
   return false;
-}
-
-function summarizeFcEndpoint(fcUrl: string) {
-  try {
-    const u = new URL(fcUrl);
-    return {
-      host: u.host,
-      pathname: u.pathname,
-      href_length: fcUrl.length,
-    };
-  } catch {
-    return { raw: fcUrl.slice(0, 120) };
-  }
 }
 
 export async function POST(req: Request) {
@@ -492,143 +471,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Dashboard 变量在 Worker 上挂在 getCloudflareContext().env；仅读 process.env 在 OpenNext 打包后常为空的。
-    const u1 = getWorkerBindingMeta('TRANSLATE_FC_URL');
-    const u2 = getWorkerBindingMeta('BABELDOC_FC_URL');
-    const envFcUrl = u1.value || u2.value;
-    const envFcUrlTrace = u1.value
-      ? `TRANSLATE_FC_URL@${u1.from}`
-      : u2.value
-        ? `BABELDOC_FC_URL@${u2.from}`
-        : '';
-
-    const s1 = getWorkerBindingMeta('TRANSLATE_FC_SECRET');
-    const s2 = getWorkerBindingMeta('BABELDOC_FC_SECRET');
-    const envFcSecret = s1.value || s2.value;
-    const envFcSecretTrace = s1.value
-      ? `TRANSLATE_FC_SECRET@${s1.from}`
-      : s2.value
-        ? `BABELDOC_FC_SECRET@${s2.from}`
-        : '';
-
-    let FC_URL = envFcUrl;
-    let FC_SECRET = envFcSecret;
-    let translateFcUrlInDb = false;
-    let translateFcSecretInDb = false;
-    if (!FC_URL || !FC_SECRET) {
-      const configs = await getAllConfigs();
-      translateFcUrlInDb = Boolean(String(configs.translate_fc_url ?? '').trim());
-      translateFcSecretInDb = Boolean(String(configs.translate_fc_secret ?? '').trim());
-      if (!FC_URL) FC_URL = String(configs.translate_fc_url ?? '').trim();
-      if (!FC_SECRET) FC_SECRET = String(configs.translate_fc_secret ?? '').trim();
-    }
-
-    const fcUrlResolvedTrace = envFcUrlTrace
-      ? envFcUrlTrace
-      : FC_URL
-        ? 'translate_fc_url@database'
-        : 'none';
-    const fcSecretResolvedTrace = envFcSecretTrace
-      ? envFcSecretTrace
-      : FC_SECRET
-        ? 'translate_fc_secret@database'
-        : 'none';
-
+    // FC 翻译流程已移除，翻译统一走 OCR 流水线（/api/ocr/tasks）
     console.log(
-      '[translate] fc_env',
-      JSON.stringify({
-        task_id: taskId,
-        fc_url_trace: fcUrlResolvedTrace,
-        fc_secret_trace: fcSecretResolvedTrace,
-        fc_url_configured: Boolean(FC_URL),
-      })
+      '[translate] task_created (FC removed)',
+      JSON.stringify({ task_id: taskId, document_id: documentId, source_lang: sourceLang, target_lang: targetLang })
     );
 
-    if (!FC_URL?.trim()) {
-      const hint = getWorkerEnvDebugKeyHints();
-      console.warn(
-        '[translate] FC skipped: no FC URL. Fix: (1) 部署用 `npx wrangler deploy --keep-vars` 保留控制台变量。(2) 或在后台 General → PDF translate (FC) 填 URL。(3) 变量须为「运行时」非仅 Build。',
-        JSON.stringify({
-          ...hint,
-          translate_fc_url_in_database: translateFcUrlInDb,
-          translate_fc_secret_in_database: translateFcSecretInDb,
-        })
-      );
-    } else if (!sourcePdfUrl) {
-      console.warn(
-        '[translate] FC skipped: no source_pdf_url (R2 not configured or presigned GET failed). task_id=',
-        taskId
-      );
-    } else {
-      const authHeaderName =
-        getWorkerBindingString('TRANSLATE_FC_AUTH_HEADER') || 'X-Babeldoc-Secret';
-      const { value: publicAppUrl } = getWorkerBindingMeta('NEXT_PUBLIC_APP_URL');
-      const base =
-        publicAppUrl ||
-        (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
-        'http://localhost:3000';
-      const callbackUrl = `${base}/api/translate/callback`;
-      const fcEndpoint = summarizeFcEndpoint(FC_URL);
-      console.log(
-        '[translate] fc.request',
-        JSON.stringify({
-          phase: 'start',
-          task_id: taskId,
-          document_id: documentId,
-          fc_endpoint: fcEndpoint,
-          callback_url: callbackUrl,
-          auth_header_name: authHeaderName,
-          secret_configured: Boolean(FC_SECRET),
-          includes_page_range: Boolean(pageRange && String(pageRange).trim()),
-          source_pdf_url: summarizeUrlForLog(sourcePdfUrl),
-          worker_runtime: isCloudflareWorker,
-        })
-      );
-
-      const fcDispatchPromise = invokeTranslateFcForTask(taskId);
-      if (isCloudflareWorker) {
-        try {
-          const ctx = getCloudflareContext() as unknown as {
-            ctx?: { waitUntil?: (p: Promise<unknown>) => void };
-          };
-          if (ctx?.ctx?.waitUntil) {
-            ctx.ctx.waitUntil(fcDispatchPromise);
-            console.log(
-              '[translate] fc.wait_until_registered',
-              JSON.stringify({ task_id: taskId })
-            );
-          } else {
-            void fcDispatchPromise;
-            console.warn(
-              '[translate] fc.wait_until_missing',
-              JSON.stringify({
-                task_id: taskId,
-                hint: 'FC subrequest may be cancelled; use Cron dispatch-pending',
-              })
-            );
-          }
-        } catch (ctxErr) {
-          void fcDispatchPromise;
-          console.warn(
-            '[translate] fc.get_cloudflare_context_failed',
-            JSON.stringify({
-              task_id: taskId,
-              error:
-                ctxErr instanceof Error ? ctxErr.message : String(ctxErr),
-            })
-          );
-        }
-      } else {
-        void fcDispatchPromise;
-        console.log(
-          '[translate] fc.note_non_worker',
-          JSON.stringify({
-            task_id: taskId,
-            hint: 'Node/local: FC invoke without waitUntil; use Cron if needed',
-          })
-        );
-      }
-    }
     const successBody: Record<string, unknown> = {
       task_id: taskId,
       page_range_effective: pageRange,

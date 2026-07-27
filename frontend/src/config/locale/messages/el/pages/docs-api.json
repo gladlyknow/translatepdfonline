@@ -1,0 +1,32 @@
+{
+  "metaTitle": "API Documentation — Translate PDFs Programmatically | TranslatePDFOnline",
+  "metaDescription": "Integrate PDF translation into your workflow with our REST API. Use API keys to translate PDFs programmatically. Code examples in cURL, Python, and Node.js.",
+  "keywords": "pdf translation api, rest api, translate pdf programmatically, ocr api, document translation api",
+  "heroTitle": "API Documentation",
+  "heroText": "Translate PDFs programmatically with our simple REST API. Get an API key from your settings and start translating PDFs in minutes.",
+  "authentication": "Authentication",
+  "authenticationDesc": "Include your API key in requests using either an Authorization header (Bearer token) or an X-API-Key header. Create and manage your keys in Settings → API Keys.",
+  "rateLimiting": "Rate Limiting",
+  "rateLimitingDesc": "Each API key is limited to 60 requests per minute. Rate limit headers (X-RateLimit-Limit, X-RateLimit-Remaining) are included in every response.",
+  "pricing": "Pricing",
+  "pricingDesc": "Translation consumes 10 credits per page. Check your credit balance in Settings → Credits. Purchase more credits or subscribe for regular top-ups.",
+  "endpoint": "Endpoint",
+  "requestBody": "Request Body",
+  "curlExample": "cURL",
+  "pythonExample": "Python",
+  "nodeExample": "Node.js",
+  "responseExample": "Response",
+  "faqHeading": "Frequently Asked Questions",
+  "seoFaq": {
+    "q1": "How do I get an API key for PDF translation?",
+    "a1": "Sign up at translatepdfonline.com, go to Settings → API Keys, and click \"Create API Key\". Copy your key immediately — it will not be shown again.",
+    "q2": "What languages does the translation API support?",
+    "a2": "The API supports 10 languages: English (en), Chinese (zh), Spanish (es), French (fr), Italian (it), Greek (el), Japanese (ja), Korean (ko), German (de), and Russian (ru).",
+    "q3": "How much does it cost to use the API?",
+    "a3": "Each translated page costs 10 credits. New users receive free trial credits. You can purchase credits or subscribe for monthly top-ups.",
+    "q4": "How do I check the status of my translation?",
+    "a4": "After submitting a translation, you receive a task_id. Poll GET /api/tasks/{task_id} to check the status (queued → processing → completed/failed).",
+    "q5": "Is there a rate limit on the API?",
+    "a5": "Yes, each API key is limited to 60 requests per minute. If you exceed this limit, you will receive a 429 response. Contact us if you need a higher limit."
+  }
+}

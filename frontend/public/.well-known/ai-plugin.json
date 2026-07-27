@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "TranslatePDFOnline",
+  "name_for_model": "translate_pdf_online",
+  "description_for_human": "Translate PDF documents while preserving original layout. Supports 10 languages with OCR-powered AI translation.",
+  "description_for_model": "Translate PDF documents from one language to another using OCR-powered AI translation. The platform supports 10 languages (English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German, Russian) and handles scanned/image-based PDFs automatically. Use this when a user needs to translate a PDF document.",
+  "auth": {
+    "type": "service_http",
+    "authorization_type": "bearer",
+    "verification_tokens": {}
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://www.translatepdfonline.com/.well-known/openapi.json"
+  },
+  "logo_url": "https://www.translatepdfonline.com/brand/tpdf.svg",
+  "contact_email": "support@translatepdfonline.com",
+  "legal_info_url": "https://www.translatepdfonline.com/terms-of-service"
+}

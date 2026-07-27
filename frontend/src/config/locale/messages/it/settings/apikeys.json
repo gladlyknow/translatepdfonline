@@ -3,7 +3,8 @@
     "title": "Titolo",
     "key": "Chiave",
     "created_at": "Creato il",
-    "action": "Azione"
+    "action": "Azione",
+    "last_used_at": "Ultimo utilizzo"
   },
   "list": {
     "title": "Chiavi API",
@@ -43,5 +44,16 @@
     "buttons": {
       "submit": "Conferma eliminazione"
     }
+  },
+  "usage": {
+    "title": "Utilizzo API",
+    "total_calls": "Chiamate totali",
+    "credits_consumed": "Crediti consumati"
+  },
+  "create_success": {
+    "title": "Chiave API creata",
+    "message": "Copia e conserva la chiave API in modo sicuro. Non verrà più mostrata.",
+    "copy_key": "Copia chiave",
+    "copied": "Copiato"
   }
 }

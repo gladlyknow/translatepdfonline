@@ -45,7 +45,6 @@ export function UploadPageClient() {
     router.push(`/sign-in?redirect=${encodeURIComponent(redirectTo)}`);
   }, [searchParams, pathname, router]);
 
-  const canStartTask = Boolean(uploadedDocumentId && sourceLang && targetLang);
   const canStartOcr = Boolean(uploadedDocumentId && targetLang);
 
   const resolveActiveDocumentId = useCallback(async (): Promise<string | null> => {
@@ -76,56 +75,6 @@ export function UploadPageClient() {
     },
     [tHome]
   );
-
-  const goTranslate = useCallback(async () => {
-    if (!uploadedDocumentId || !sourceLang || !targetLang || launchLockRef.current) return;
-    launchLockRef.current = true;
-    setLaunchingMode('translate');
-    setLaunchError(null);
-    try {
-      const resolvedDocumentId = await resolveActiveDocumentId();
-      if (!resolvedDocumentId) {
-        throw new Error(tHome('uploadFirstHint'));
-      }
-      if (resolvedDocumentId !== uploadedDocumentId) {
-        setUploadedDocumentId(resolvedDocumentId);
-      }
-      // 直接创建翻译任务，跳转到 workbench 并自动开始
-      const res = await translateApi.translate(
-        resolvedDocumentId,
-        sourceLang,
-        targetLang,
-        undefined, // pageRange
-        undefined, // sourceSliceObjectKey
-        false      // preprocessWithOcr
-      );
-      router.push(`/translate?task=${res.task_id}`);
-    } catch (error) {
-      const err = error as Error & { status?: number; body?: { code?: string } };
-      // 扫描件检测 (409) → 自动重定向到 OCR
-      if (err?.status === 409 || err?.body?.code === 'scan_detected_use_ocr') {
-        const qs = new URLSearchParams({
-          document: uploadedDocumentId,
-          source_lang: sourceLang,
-          target_lang: targetLang,
-        });
-        router.push(`/ocrtranslator?${qs.toString()}`);
-        return;
-      }
-      setLaunchError(toLaunchError(error));
-    } finally {
-      setLaunchingMode(null);
-      launchLockRef.current = false;
-    }
-  }, [
-    resolveActiveDocumentId,
-    router,
-    sourceLang,
-    tHome,
-    targetLang,
-    toLaunchError,
-    uploadedDocumentId,
-  ]);
 
   const goOcr = useCallback(async () => {
     if (!uploadedDocumentId || !targetLang || launchLockRef.current) return;
@@ -201,14 +150,6 @@ export function UploadPageClient() {
               {launchingMode === 'ocr'
                 ? tHome('downloading')
                 : tHome('uploadPdfOcrCta')}
-            </button>
-            <button
-              type="button"
-              className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              onClick={goTranslate}
-              disabled={!canStartTask || launchingMode !== null}
-            >
-              {launchingMode === 'translate' ? tHome('downloading') : tHome('uploadPdfTranslateCta')}
             </button>
           </div>
         }

@@ -20,14 +20,14 @@
         "announcement": {
           "badge": "Neu",
           "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
-          "url": "/upload"
+          "url": "/ocrtranslator"
         },
         "tip": "Einführungspreis für frühe Nutzer",
         "buttons": [
           {
             "title": "Loslegen",
             "icon": "Zap",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "variant": "dark"
           },
@@ -340,7 +340,7 @@
         "buttons": [
           {
             "title": "Jetzt übersetzen",
-            "url": "/upload",
+            "url": "/ocrtranslator",
             "target": "_self",
             "icon": "Zap"
           },

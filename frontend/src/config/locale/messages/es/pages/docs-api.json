@@ -1,0 +1,32 @@
+{
+  "metaTitle": "Documentación API — Traduce PDFs Programáticamente | TranslatePDFOnline",
+  "metaDescription": "Integra la traducción de PDFs en tu flujo de trabajo con nuestra API REST. Usa claves API para traducir PDFs. Ejemplos en cURL, Python y Node.js.",
+  "keywords": "api traducción pdf, rest api, traducir pdf programáticamente, api ocr",
+  "heroTitle": "Documentación API",
+  "heroText": "Traduce PDFs programáticamente con nuestra sencilla API REST. Obtén una clave API desde tu configuración y comienza a traducir PDFs en minutos.",
+  "authentication": "Autenticación",
+  "authenticationDesc": "Incluye tu clave API en las solicitudes usando el encabezado Authorization (Bearer token) o X-API-Key. Crea y gestiona tus claves en Configuración → API Keys.",
+  "rateLimiting": "Límite de velocidad",
+  "rateLimitingDesc": "Cada clave API está limitada a 60 solicitudes por minuto. Los encabezados de límite (X-RateLimit-Limit, X-RateLimit-Remaining) se incluyen en cada respuesta.",
+  "pricing": "Precios",
+  "pricingDesc": "La traducción consume 10 créditos por página. Consulta tu saldo en Configuración → Créditos. Compra más créditos o suscríbete.",
+  "endpoint": "Endpoint",
+  "requestBody": "Cuerpo de la solicitud",
+  "curlExample": "cURL",
+  "pythonExample": "Python",
+  "nodeExample": "Node.js",
+  "responseExample": "Respuesta",
+  "faqHeading": "Preguntas Frecuentes",
+  "seoFaq": {
+    "q1": "¿Cómo obtengo una clave API?",
+    "a1": "Regístrate en translatepdfonline.com, ve a Configuración → API Keys y haz clic en \"Create API Key\". Copia tu clave inmediatamente.",
+    "q2": "¿Qué idiomas soporta la API?",
+    "a2": "La API soporta 10 idiomas: inglés (en), chino (zh), español (es), francés (fr), italiano (it), griego (el), japonés (ja), coreano (ko), alemán (de) y ruso (ru).",
+    "q3": "¿Cuánto cuesta usar la API?",
+    "a3": "Cada página traducida consume 10 créditos. Los nuevos usuarios reciben créditos de prueba gratuitos.",
+    "q4": "¿Cómo verifico el estado de mi traducción?",
+    "a4": "Después de enviar una traducción, recibes un task_id. Consulta GET /api/tasks/{task_id} para verificar el estado.",
+    "q5": "¿Hay un límite de velocidad en la API?",
+    "a5": "Sí, cada clave API está limitada a 60 solicitudes por minuto. Si excedes este límite, recibirás una respuesta 429."
+  }
+}

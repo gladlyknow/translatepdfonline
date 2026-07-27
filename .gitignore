@@ -78,3 +78,4 @@ frontend/db_bak/
 **/__pycache__/
 *.md
 !/android/claude/translatepdfonline/README.md
+scripts/.env.r2

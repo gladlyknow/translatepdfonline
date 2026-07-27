@@ -3,7 +3,8 @@
     "title": "标题",
     "key": "密钥",
     "created_at": "创建时间",
-    "action": "操作"
+    "action": "操作",
+    "last_used_at": "最后使用时间"
   },
   "list": {
     "title": "API 密钥",
@@ -43,5 +44,16 @@
     "buttons": {
       "submit": "确认删除"
     }
+  },
+  "usage": {
+    "title": "API 使用统计",
+    "total_calls": "总调用次数",
+    "credits_consumed": "消耗积分"
+  },
+  "create_success": {
+    "title": "API Key 创建成功",
+    "message": "请立即复制并安全存储密钥。关闭后将无法再次查看完整密钥。",
+    "copy_key": "复制密钥",
+    "copied": "已复制"
   }
 }

@@ -1,23 +1,59 @@
 {
-  "fields": { "title": "Titre", "key": "Clé", "created_at": "Créé le", "action": "Action" },
+  "fields": {
+    "title": "Titre",
+    "key": "Clé",
+    "created_at": "Créé le",
+    "action": "Action",
+    "last_used_at": "Dernière utilisation"
+  },
   "list": {
     "title": "Clés API",
     "empty_message": "Aucune clé API",
-    "buttons": { "add": "Créer une clé API", "edit": "Modifier", "delete": "Supprimer" }
+    "buttons": {
+      "add": "Créer une clé API",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    }
   },
   "add": {
     "title": "Créer une clé API",
-    "crumbs": { "apikeys": "Clés API", "add": "Créer une clé API" },
-    "buttons": { "submit": "Créer" }
+    "crumbs": {
+      "apikeys": "Clés API",
+      "add": "Créer une clé API"
+    },
+    "buttons": {
+      "submit": "Créer"
+    }
   },
   "edit": {
     "title": "Modifier la clé API",
-    "crumbs": { "apikeys": "Clés API", "edit": "Modifier la clé API" },
-    "buttons": { "submit": "Mettre à jour" }
+    "crumbs": {
+      "apikeys": "Clés API",
+      "edit": "Modifier la clé API"
+    },
+    "buttons": {
+      "submit": "Mettre à jour"
+    }
   },
   "delete": {
     "title": "Supprimer la clé API",
-    "crumbs": { "apikeys": "Clés API", "delete": "Supprimer la clé API" },
-    "buttons": { "submit": "Confirmer la suppression" }
+    "crumbs": {
+      "apikeys": "Clés API",
+      "delete": "Supprimer la clé API"
+    },
+    "buttons": {
+      "submit": "Confirmer la suppression"
+    }
+  },
+  "usage": {
+    "title": "Utilisation API",
+    "total_calls": "Appels totaux",
+    "credits_consumed": "Crédits consommés"
+  },
+  "create_success": {
+    "title": "Clé API créée",
+    "message": "Veuillez copier et stocker votre clé API en lieu sûr. Elle ne sera plus affichée.",
+    "copy_key": "Copier la clé",
+    "copied": "Copié"
   }
 }
