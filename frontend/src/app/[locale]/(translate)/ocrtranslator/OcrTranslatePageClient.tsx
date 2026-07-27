@@ -1631,7 +1631,7 @@ export function OcrTranslatePageClient() {
               </p>
               <div className="flex min-h-0 min-w-0 max-w-full flex-col p-2">
                 <OcrParseWorkbench
-                  taskId={taskId ?? 'pending'}
+                  taskId={taskId || ''}
                   parseResultUrl={ocrParseResultUrl}
                   sourcePdfUrl={
                     taskId
