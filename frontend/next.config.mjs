@@ -45,7 +45,73 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return [];
+    return [
+      // Block leaked internal source paths
+      {
+        source: '/:locale*/src/config/:path*',
+        destination: '/:locale*',
+        permanent: true,
+      },
+      {
+        source: '/:locale*/docs/src/:path*',
+        destination: '/docs',
+        permanent: true,
+      },
+      {
+        source: '/src/config/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/docs/src/:path*',
+        destination: '/docs',
+        permanent: true,
+      },
+      // Non-existent routes → redirect to root
+      {
+        source: '/:locale*/updates',
+        destination: '/:locale*',
+        permanent: true,
+      },
+      {
+        source: '/updates',
+        destination: '/',
+        permanent: true,
+      },
+      // Deprecated translate sub-pages
+      {
+        source: '/:locale*/translate/upload',
+        destination: '/:locale*',
+        permanent: true,
+      },
+      {
+        source: '/translate/upload',
+        destination: '/',
+        permanent: true,
+      },
+      // Test blog slug → redirect to blog index
+      {
+        source: '/:locale*/blog/what-is-xxx',
+        destination: '/:locale*/blog',
+        permanent: true,
+      },
+      {
+        source: '/blog/what-is-xxx',
+        destination: '/blog',
+        permanent: true,
+      },
+      // Catch remaining deprecated translate paths
+      {
+        source: '/:locale*/translate/:path*',
+        destination: '/:locale*',
+        permanent: true,
+      },
+      {
+        source: '/translate/:path*',
+        destination: '/',
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

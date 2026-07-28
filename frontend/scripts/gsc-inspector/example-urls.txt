@@ -1,0 +1,72 @@
+# Example URL list for gsc-inspector
+# Lines starting with # are comments and will be ignored.
+# One URL per line. Empty lines are skipped.
+#
+# Usage:
+#   tsx src/index.ts inspect --site sc-domain:translatepdfonline.com --file example-urls.txt
+#
+# ============================================
+# GSC Crawl Errors (from manual export 2026-07)
+# ============================================
+
+# robots.txt blocked but indexed
+https://www.translatepdfonline.com/forgot-password
+
+# 404 — Non-existent routes (various locales)
+https://www.translatepdfonline.com/zh/updates
+https://www.translatepdfonline.com/es/updates
+https://www.translatepdfonline.com/fr/updates
+https://www.translatepdfonline.com/de/updates
+https://www.translatepdfonline.com/ko/updates
+https://www.translatepdfonline.com/ja/updates
+https://www.translatepdfonline.com/el/updates
+https://www.translatepdfonline.com/it/updates
+https://www.translatepdfonline.com/ru/updates
+
+# 404 — showrooms (various locales)
+https://www.translatepdfonline.com/el/showcases
+https://www.translatepdfonline.com/ko/showcases
+https://www.translatepdfonline.com/zh/showcases
+https://www.translatepdfonline.com/ja/showcases
+https://www.translatepdfonline.com/ru/showcases
+https://www.translatepdfonline.com/fr/showcases
+
+# 404 — Blog paths
+https://www.translatepdfonline.com/blog/what-is-xxx
+https://www.translatepdfonline.com/ko/blog/what-is-xxx
+https://www.translatepdfonline.com/de/blog/what-is-xxx
+https://www.translatepdfonline.com/el/blog/what-is-xxx
+https://www.translatepdfonline.com/ja/blog/what-is-xxx
+https://www.translatepdfonline.com/ko/blog
+https://www.translatepdfonline.com/fr/blog
+https://www.translatepdfonline.com/ja/blog
+
+# 404 — Leaked internal source paths (should NOT be accessible)
+https://www.translatepdfonline.com/src/config/db/schema.ts
+https://www.translatepdfonline.com/es/src/config/db/schema.ts
+https://www.translatepdfonline.com/ko/docs/src/config/db/schema.ts
+https://www.translatepdfonline.com/es/docs/src/config/db/schema.ts
+https://www.translatepdfonline.com/src/config/db/migrations_online
+https://www.translatepdfonline.com/zh/src/config/db/migrations
+https://www.translatepdfonline.com/ja/src/config/db/migrations
+https://www.translatepdfonline.com/es/src/config/db/migrations
+https://www.translatepdfonline.com/zh/docs/src/config/db/migrations_online
+https://www.translatepdfonline.com/es/docs/src/config/db/migrations_online
+https://www.translatepdfonline.com/de/docs/src/config/db/migrations_online
+https://www.translatepdfonline.com/fr/src/config/db/migrations_online
+https://www.translatepdfonline.com/ja/src/config/db/migrations_online
+https://www.translatepdfonline.com/ru/src/config/db/migrations_online
+https://www.translatepdfonline.com/el/src/config/db/migrations
+https://www.translatepdfonline.com/de/blog/src/config/db/migrations_online
+https://www.translatepdfonline.com/zh/src/config/db/schema.postgres.ts
+https://www.translatepdfonline.com/fr/src/config/db/schema.postgres.ts
+https://www.translatepdfonline.com/de/docs/src/config/db/schema.postgres.ts
+https://www.translatepdfonline.com/ko/src/config/db/schema.postgres.ts
+https://www.translatepdfonline.com/ja/src/config/db/schema.postgres.ts
+
+# 404 — Other paths
+https://www.translatepdfonline.com/translate/upload
+https://www.translatepdfonline.com/$
+https://www.translatepdfonline.com/favicon.ico?v=1.8.2
+https://www.translatepdfonline.com/updates//ru/logs/v1.0
+https://www.translatepdfonline.com/storage.translatepdfonline.com/

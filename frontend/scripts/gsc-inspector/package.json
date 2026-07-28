@@ -1,0 +1,14 @@
+{
+  "name": "gsc-inspector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Google Search Console crawl error inspector — standalone, reusable CLI script",
+  "type": "module",
+  "scripts": {
+    "inspect": "tsx src/index.ts inspect",
+    "analytics": "tsx src/index.ts search-analytics",
+    "sitemap-urls": "tsx src/index.ts list-sitemap-urls"
+  },
+  "keywords": ["google-search-console", "seo", "crawl-errors", "url-inspection"],
+  "license": "MIT"
+}

@@ -11,7 +11,11 @@ const DISALLOW = [
   '/no-permission',
   '/chat',
   '/chat/',
-  '/*?recent=', // pure UI param, canonical already points to the no-query version
+  '/src/',        // internal source paths leaked to crawlers
+  '/docs/src/',   // leaked documentation source paths
+  '/translate/',  // deprecated translate sub-pages (upload, etc.)
+  '/*?recent=',   // pure UI param, canonical already points to the no-query version
+  '/*$',          // unusual URL pattern (likely crawler error / js injection)
 ];
 
 function buildRobotsTxt(sitemapUrl: string): string {

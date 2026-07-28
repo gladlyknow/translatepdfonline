@@ -14,6 +14,7 @@ export async function generateMetadata({
 
   return {
     title: `${t('sign.forgot_password_title')} - ${t('metadata.title')}`,
+    robots: { index: false, follow: false },
     alternates: {
       canonical:
         locale !== defaultLocale
