@@ -1,4 +1,4 @@
-import { ArrowBigRight } from 'lucide-react';
+// ArrowBigRight → SmartIcon 懒加载
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
@@ -113,7 +113,7 @@ export function FeaturesStep({
                         )}
                       </div>
                       {idx < items.length - 1 && items.length <= 4 && (
-                        <ArrowBigRight className="fill-muted stroke-primary absolute inset-y-0 right-0 my-auto mt-1 hidden translate-x-[150%] drop-shadow @3xl:block" />
+                        <SmartIcon name="ArrowBigRight" size={24} className="fill-muted stroke-primary absolute inset-y-0 right-0 my-auto mt-1 hidden translate-x-[150%] drop-shadow @3xl:block" />
                       )}
                     </div>
                     <h3 className="text-foreground mb-4 text-lg font-semibold">

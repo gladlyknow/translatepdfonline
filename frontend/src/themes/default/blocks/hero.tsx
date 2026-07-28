@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+// ArrowRight → SmartIcon 懒加载，减少首屏同步 lucide-react chunk
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@/core/i18n/navigation';
@@ -107,17 +107,21 @@ export function Hero({
           >
             <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
               <span className="flex size-6">
-                <ArrowRight
+                <SmartIcon
+                  name="ArrowRight"
+                  size={12}
                   className={cn(
-                    'm-auto size-3',
+                    'm-auto',
                     isTranslateDark ? 'text-sky-600 dark:text-sky-200' : ''
                   )}
                 />
               </span>
               <span className="flex size-6">
-                <ArrowRight
+                <SmartIcon
+                  name="ArrowRight"
+                  size={12}
                   className={cn(
-                    'm-auto size-3',
+                    'm-auto',
                     isTranslateDark ? 'text-sky-600 dark:text-sky-200' : ''
                   )}
                 />

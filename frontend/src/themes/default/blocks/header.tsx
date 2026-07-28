@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { HelpCircle, Menu, X } from 'lucide-react';
+// HelpCircle/Menu/X → SmartIcon 懒加载，减少首屏同步 lucide-react chunk
 
 import { Link, usePathname } from '@/core/i18n/navigation';
 import { locales } from '@/config/locale';
@@ -349,8 +349,8 @@ export function Header({ header }: { header: HeaderType }) {
                   }
                   className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
                 >
-                  <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                  <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
+                  <SmartIcon name="Menu" size={20} className="m-auto duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
+                  <SmartIcon name="X" size={20} className="absolute inset-0 m-auto scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
                 </button>
               </div>
 
@@ -393,7 +393,7 @@ export function Header({ header }: { header: HeaderType }) {
                     title="Help"
                     aria-label="Help & Documentation"
                   >
-                    <HelpCircle className="size-5" />
+                    <SmartIcon name="HelpCircle" size={20} />
                   </Link>
                   {header.show_theme ? <ThemeToggler /> : null}
                   {header.show_locale ? <LocaleSelector /> : null}
