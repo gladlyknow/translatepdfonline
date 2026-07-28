@@ -64,8 +64,18 @@ export function cacheBustedPublicPath(path: string): string {
   return `${trimmed}${sep}v=${encodeURIComponent(v)}`;
 }
 
+// 静态生成 (force-static) 页面在构建时 baked in URL。CF 运行时变量不可见，
+// 若 NEXT_PUBLIC_APP_URL 缺失或回退成 localhost，兜底为生产域名。
+const resolveAppUrl = () => {
+  const u = (process.env.NEXT_PUBLIC_APP_URL ?? '').trim();
+  if (!u || u.startsWith('http://localhost') || u.startsWith('http://127.0.0.1')) {
+    return 'https://www.translatepdfonline.com';
+  }
+  return u.replace(/\/$/, '');
+};
+
 export const envConfigs: ConfigMap = {
-  app_url: process.env.NEXT_PUBLIC_APP_URL ?? '',
+  app_url: resolveAppUrl(),
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Translate PDF Online',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/brand/tpdf.svg',
