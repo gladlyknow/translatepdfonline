@@ -6,10 +6,9 @@ import { DynamicPage } from '@/shared/types/blocks/landing';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/shared/blocks/seo/organization-json-ld';
 
-// Landing 页内容完全来自 i18n JSON，无数据库查询 → 构建时静态生成，直接从 CDN 提供
-// 绕过 Cloudflare Worker，TTFB 从 >10s 降到 <100ms
-// metadata 继承自 [locale]/layout.tsx → getMetadata() → common.metadata
-export const dynamic = 'force-static';
+// Landing 页内容完全来自 i18n JSON，无数据库查询。
+// dynamic='auto' + revalidate=3600：首次请求动态生成（获取正确的 canonical/OG/hreflang URL），
+// 后续走 ISR 缓存。CF Worker 运行时变量在动态生成时可见，不再受 force-static 构建期限制。
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
