@@ -2,9 +2,7 @@ import '@/config/style/global.css';
 
 import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
-import dynamic from 'next/dynamic';
-
-const NextTopLoader = dynamic(() => import('nextjs-toploader'), { ssr: false });
+import NextTopLoaderClient from '@/shared/blocks/common/next-top-loader-client';
 
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
@@ -113,17 +111,7 @@ export default async function RootLayout({
         <ThirdPartyConfigTag configs={embeddedConfigs} />
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
-        <NextTopLoader
-          color="#0369a1"
-          initialPosition={0.08}
-          crawlSpeed={200}
-          height={2}
-          crawl={true}
-          showSpinner={false}
-          easing="ease"
-          speed={200}
-          shadow={false}
-        />
+        <NextTopLoaderClient />
 
         <UtmCapture />
 
