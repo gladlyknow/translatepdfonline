@@ -2,7 +2,9 @@ import '@/config/style/global.css';
 
 import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
-import NextTopLoader from 'nextjs-toploader';
+import dynamic from 'next/dynamic';
+
+const NextTopLoader = dynamic(() => import('nextjs-toploader'), { ssr: false });
 
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
