@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
 import { locales } from '@/config/locale';
+import { getMetadata } from '@/shared/lib/seo';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/shared/blocks/seo/organization-json-ld';
@@ -10,6 +11,10 @@ import { OrganizationJsonLd, WebSiteJsonLd } from '@/shared/blocks/seo/organizat
 // dynamic='auto' + revalidate=3600：首次请求动态生成（获取正确的 canonical/OG/hreflang URL），
 // 后续走 ISR 缓存。CF Worker 运行时变量在动态生成时可见，不再受 force-static 构建期限制。
 export const revalidate = 3600;
+
+// 首页使用 pages.index.metadata（含 "with AI" 等页面专属关键词），
+// 而非 common.metadata 通用回退值。
+export const generateMetadata = getMetadata({ metadataKey: 'pages.index.metadata' });
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
