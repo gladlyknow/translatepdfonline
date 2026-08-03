@@ -13,6 +13,8 @@ const ALLOWED = {
   'application/pdf': 'pdf',
 } as Record<string, string>;
 
+const VALID_TARGETS = new Set(['word', 'excel']);
+
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export const runtime = 'nodejs';
@@ -31,6 +33,11 @@ export async function POST(req: Request) {
 
     if (file.size > MAX_BYTES) return respErr('file too large (max 10MB)');
 
+    const targetFormat = String(formData.get('targetFormat') || 'word')
+      .toLowerCase()
+      .trim();
+    if (!VALID_TARGETS.has(targetFormat)) return respErr('invalid target format');
+
     const jobId = nanoid();
     const buf = new Uint8Array(await file.arrayBuffer());
     const key = `doc-convert/${user.id}/${jobId}/source.${ext}`;
@@ -41,7 +48,7 @@ export async function POST(req: Request) {
       id: jobId,
       userId: user.id,
       sourceFormat: ext,
-      targetFormat: 'word',
+      targetFormat,
       sourceR2Key: key,
       sourceFilename: file.name || `upload.${ext}`,
       status: DocConvertTaskStatus.uploaded,

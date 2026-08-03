@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG to Word",
   "exploreJpgToWordDesc": "Convert JPG photos to editable Word (.docx) with AI OCR.",
   "explorePhotoToWordLabel": "Photo to Word",
-  "explorePhotoToWordDesc": "Convert phone photos to editable Word."
+  "explorePhotoToWordDesc": "Convert phone photos to editable Word.",
+  "explorePdfToExcelLabel": "PDF to Excel",
+  "explorePdfToExcelDesc": "Convert PDF tables into editable Excel spreadsheets."
 }

@@ -76,5 +76,7 @@
   "historyStatusReady": "Pronto",
   "historyStatusFailed": "Fallito",
   "historyStatusProcessing": "In corso",
-  "historyStatusUploaded": "Caricato"
+  "historyStatusUploaded": "Caricato",
+  "explorePdfToExcelLabel": "PDF in Excel",
+  "explorePdfToExcelDesc": "Converti le tabelle PDF in fogli di calcolo Excel modificabili."
 }

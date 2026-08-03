@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG в Word",
   "exploreJpgToWordDesc": "Конвертируйте фото JPG в редактируемый Word(.docx) через ИИ-OCR.",
   "explorePhotoToWordLabel": "Фото в Word",
-  "explorePhotoToWordDesc": "Конвертируйте фото с телефона в редактируемый Word."
+  "explorePhotoToWordDesc": "Конвертируйте фото с телефона в редактируемый Word.",
+  "explorePdfToExcelLabel": "PDF в Excel",
+  "explorePdfToExcelDesc": "Преобразуйте таблицы PDF в редактируемые электронные таблицы Excel."
 }

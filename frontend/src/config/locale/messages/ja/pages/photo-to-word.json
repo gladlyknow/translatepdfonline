@@ -90,5 +90,7 @@
   "historyStatusReady": "完了",
   "historyStatusFailed": "失敗",
   "historyStatusProcessing": "処理中",
-  "historyStatusUploaded": "アップロード済み"
+  "historyStatusUploaded": "アップロード済み",
+  "explorePdfToExcelLabel": "PDFをExcelに変換",
+  "explorePdfToExcelDesc": "PDFの表を編集可能なExcelスプレッドシートに変換します。"
 }

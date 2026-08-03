@@ -45,6 +45,11 @@
               "title": "PDF を Word 文書に変換",
               "url": "/pdf-to-word-doc",
               "icon": "FileText"
+            },
+            {
+              "title": "PDFをExcelに変換",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
             }
           ]
         },

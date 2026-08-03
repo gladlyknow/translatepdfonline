@@ -76,5 +76,7 @@
   "historyStatusReady": "Готово",
   "historyStatusFailed": "Ошибка",
   "historyStatusProcessing": "Обработка",
-  "historyStatusUploaded": "Загружено"
+  "historyStatusUploaded": "Загружено",
+  "explorePdfToExcelLabel": "PDF в Excel",
+  "explorePdfToExcelDesc": "Преобразуйте таблицы PDF в редактируемые электронные таблицы Excel."
 }

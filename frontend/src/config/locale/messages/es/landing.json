@@ -45,6 +45,11 @@
               "title": "PDF a Word Doc",
               "url": "/pdf-to-word-doc",
               "icon": "FileText"
+            },
+            {
+              "title": "PDF a Excel",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
             }
           ]
         },

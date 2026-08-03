@@ -45,6 +45,11 @@
               "title": "PDF 转 Word 文档",
               "url": "/pdf-to-word-doc",
               "icon": "FileText"
+            },
+            {
+              "title": "PDF转Excel",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
             }
           ]
         },

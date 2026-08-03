@@ -78,5 +78,7 @@
   "historyStatusProcessing": "처리 중",
   "historyStatusUploaded": "업로드됨",
   "pageRangeLabel": "페이지 범위(선택사항)",
-  "pageRangePlaceholder": "전체 페이지 — 또는 예: 1,3,5-8"
+  "pageRangePlaceholder": "전체 페이지 — 또는 예: 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF를 엑셀로 변환",
+  "explorePdfToExcelDesc": "PDF 표를 편집 가능한 Excel 스프레드시트로 변환합니다."
 }

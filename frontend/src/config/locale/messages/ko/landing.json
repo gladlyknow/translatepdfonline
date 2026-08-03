@@ -45,6 +45,11 @@
               "title": "PDF를 Word 문서로 변환",
               "url": "/pdf-to-word-doc",
               "icon": "FileText"
+            },
+            {
+              "title": "PDF를 엑셀로 변환",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
             }
           ]
         },

@@ -76,5 +76,7 @@
   "historyStatusReady": "완료",
   "historyStatusFailed": "실패",
   "historyStatusProcessing": "변환 중",
-  "historyStatusUploaded": "업로드됨"
+  "historyStatusUploaded": "업로드됨",
+  "explorePdfToExcelLabel": "PDF를 엑셀로 변환",
+  "explorePdfToExcelDesc": "PDF 표를 편집 가능한 Excel 스프레드시트로 변환합니다."
 }

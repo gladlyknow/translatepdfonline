@@ -90,5 +90,7 @@
   "historyStatusReady": "已完成",
   "historyStatusFailed": "失败",
   "historyStatusProcessing": "处理中",
-  "historyStatusUploaded": "已上传"
+  "historyStatusUploaded": "已上传",
+  "explorePdfToExcelLabel": "PDF转Excel",
+  "explorePdfToExcelDesc": "将PDF中的表格提取为可编辑的Excel电子表格。"
 }

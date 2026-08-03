@@ -10,6 +10,7 @@ const PUBLIC_PATHS = [
   '/jpg-to-word',
   '/photo-to-word',
   '/pdf-to-word-doc',
+  '/pdf-to-excel',
   '/docs',
   '/docs/api',
   '/contract-comparison',

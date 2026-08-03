@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG σε Word",
   "exploreJpgToWordDesc": "Μετατρέψτε φωτογραφίες JPG σε επεξεργάσιμο Word(.docx) με AI OCR.",
   "explorePhotoToWordLabel": "Φωτογραφία σε Word",
-  "explorePhotoToWordDesc": "Μετατρέψτε φωτογραφίες κινητού σε επεξεργάσιμο Word."
+  "explorePhotoToWordDesc": "Μετατρέψτε φωτογραφίες κινητού σε επεξεργάσιμο Word.",
+  "explorePdfToExcelLabel": "PDF σε Excel",
+  "explorePdfToExcelDesc": "Μετατρέψτε πίνακες PDF σε επεξεργάσιμα φύλλα Excel."
 }

@@ -78,5 +78,7 @@
   "historyStatusProcessing": "Processing",
   "historyStatusUploaded": "Uploaded",
   "pageRangeLabel": "Pages (optional)",
-  "pageRangePlaceholder": "All pages — or e.g. 1,3,5-8"
+  "pageRangePlaceholder": "All pages — or e.g. 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF to Excel",
+  "explorePdfToExcelDesc": "Convert PDF tables into editable Excel spreadsheets."
 }

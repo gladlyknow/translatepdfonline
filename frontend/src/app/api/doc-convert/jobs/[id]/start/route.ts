@@ -15,7 +15,7 @@ import {
 import { getRemainingCredits } from '@/shared/models/credit';
 
 const VALID_SOURCES = new Set(['jpg', 'jpeg', 'pdf']);
-const VALID_TARGETS = new Set(['word']);
+const VALID_TARGETS = new Set(['word', 'excel']);
 
 export const runtime = 'nodejs';
 

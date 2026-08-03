@@ -7,7 +7,7 @@ import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
 import { buildAlternates } from '@/shared/lib/hreflang';
 
-import { JpgToWordClient } from '../jpg-to-word/JpgToWordClient';
+import { PdfToWordClient } from '../pdf-to-word-doc/PdfToWordClient';
 
 export const dynamic = 'force-static';
 
@@ -22,11 +22,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.photo-to-word' });
+  const t = await getTranslations({ locale, namespace: 'pages.pdf-to-excel' });
   const canonical =
     locale === envConfigs.locale
-      ? `${envConfigs.app_url}/photo-to-word`
-      : `${envConfigs.app_url}/${locale}/photo-to-word`;
+      ? `${envConfigs.app_url}/pdf-to-excel`
+      : `${envConfigs.app_url}/${locale}/pdf-to-excel`;
 
   return {
     title: t('metaTitle'),
@@ -34,19 +34,32 @@ export async function generateMetadata({
     keywords: t('keywords') || undefined,
     alternates: {
       canonical,
-      languages: buildAlternates('/photo-to-word', locale).languages,
+      languages: buildAlternates('/pdf-to-excel', locale).languages,
     },
+    openGraph: {
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+      url: canonical,
+      siteName: 'TranslatePDFOnline',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+    },
+    robots: { index: true, follow: true },
   };
 }
 
-export default async function PhotoToWordPage({
+export default async function PdfToExcelPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.photo-to-word' });
+  const t = await getTranslations({ locale, namespace: 'pages.pdf-to-excel' });
 
   const heroTitle = t('heroTitle');
   const heroText = t('heroText');
@@ -54,13 +67,13 @@ export default async function PhotoToWordPage({
   const features = [1, 2, 3]
     .map((n) => t(`seoFeature${n}` as any))
     .filter((f: string) => f);
+  const introLead = t('introLead');
   const howItWorksTitle = t('howItWorks');
   const whyHeading = t('whyHeading');
-  const exploreHeading = t('exploreMoreHeading');
-  const introLead = t('introLead');
   const useCasesHeading = t('useCasesHeading');
+  const exploreHeading = t('exploreMoreHeading');
 
-  const faqItems = [1, 2, 3, 4, 5, 6]
+  const faqItems = [1, 2, 3, 4, 5]
     .map((n) => {
       const q = t(`seoFaq.q${n}` as any);
       const a = t(`seoFaq.a${n}` as any);
@@ -88,7 +101,7 @@ export default async function PhotoToWordPage({
       <div className="min-h-dvh w-full bg-background pt-14 lg:pt-18">
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
           {/* Hero + Upload Area */}
-          <JpgToWordClient namespace="pages.photo-to-word">
+          <PdfToWordClient namespace="pages.pdf-to-excel" targetFormat="excel">
             <section className="text-center pb-2">
               <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
                 {heroTitle}
@@ -114,40 +127,55 @@ export default async function PhotoToWordPage({
                 </div>
               ) : null}
             </section>
-          </JpgToWordClient>
+          </PdfToWordClient>
         </div>
 
-        {/* Intro */}
+        {/* Intro Lead — SEO 长文段落 */}
         {introLead ? (
-          <section className="mx-auto w-full max-w-3xl mt-10 px-4">
-            <p className="text-base text-muted-foreground leading-relaxed">
+          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+            <p className="text-muted-foreground leading-relaxed text-base">
               {introLead}
             </p>
           </section>
         ) : null}
 
-        {/* How It Works */}
+        {/* Key Features — structured list for AI extractability */}
+        <section className="mx-auto w-full max-w-5xl mt-10 px-4">
+          <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
+            {whyHeading}
+          </h2>
+          <ul className="mx-auto max-w-3xl space-y-3">
+            {whyItems.map((w, i) => (
+              <li
+                key={i}
+                className="rounded-xl border border-border bg-card px-5 py-4"
+              >
+                <h3 className="text-base font-semibold text-foreground">
+                  {w.title}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                  {w.desc}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* How It Works — ordered list for AI extractability */}
         <section className="mx-auto w-full max-w-5xl mt-10 px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
             {howItWorksTitle}
           </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <ol className="grid gap-6 md:grid-cols-3 list-none">
             {[
-              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc'), img: '/imgs/features/drop-photo.png' },
-              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc'), img: '/imgs/features/upload-convert.png' },
-              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc'), img: '/imgs/features/converting-word.png' },
-              { step: '4', title: t('howStep4Title'), desc: t('howStep4Desc'), img: '/imgs/features/download-word-photo.png' },
+              { step: '1', title: t('howStep1Title'), desc: t('howStep1Desc') },
+              { step: '2', title: t('howStep2Title'), desc: t('howStep2Desc') },
+              { step: '3', title: t('howStep3Title'), desc: t('howStep3Desc') },
             ].map((s) => (
-              <div
+              <li
                 key={s.step}
                 className="rounded-2xl border-2 border bg-card p-6 text-center"
               >
-                <img
-                  src={s.img}
-                  alt={s.title}
-                  loading="lazy"
-                  className="mx-auto mb-3 h-36 w-full rounded-lg border border-border object-cover"
-                />
                 <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-bold">
                   {s.step}
                 </div>
@@ -157,36 +185,12 @@ export default async function PhotoToWordPage({
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {s.desc}
                 </p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
-        {/* Why */}
-        {whyItems.length > 0 ? (
-          <section className="mx-auto w-full max-w-5xl mt-10 px-4">
-            <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
-              {whyHeading}
-            </h2>
-            <div className="grid gap-6 md:grid-cols-3">
-              {whyItems.map((w, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border-2 border bg-card p-6 text-center"
-                >
-                  <h3 className="text-base font-semibold text-foreground mb-2">
-                    {w.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {w.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {/* Use Cases */}
+        {/* Use Cases — 条件渲染，覆盖搜索问题 */}
         {useCaseItems.length > 0 ? (
           <section className="mx-auto w-full max-w-5xl mt-10 px-4">
             <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
@@ -231,15 +235,27 @@ export default async function PhotoToWordPage({
           </section>
         ) : null}
 
-        {/* Explore More */}
+        {/* Explore More AI Tools */}
         <ExploreMoreLinks
           heading={exploreHeading}
           links={[
             {
-              href: '/jpg-to-word',
+              href: '/pdf-to-word-doc',
               icon: 'pdf.png',
+              label: t('explorePdfToWordLabel') || 'PDF to Word Doc',
+              desc: t('explorePdfToWordDesc'),
+            },
+            {
+              href: '/jpg-to-word',
+              icon: 'generalocr.svg',
               label: t('exploreJpgToWordLabel') || 'JPG to Word',
               desc: t('exploreJpgToWordDesc'),
+            },
+            {
+              href: '/photo-to-word',
+              icon: 'generalocr.svg',
+              label: t('explorePhotoToWordLabel') || 'Photo to Word',
+              desc: t('explorePhotoToWordDesc'),
             },
             {
               href: '/image-to-text',
@@ -258,18 +274,6 @@ export default async function PhotoToWordPage({
               icon: 'pdf.png',
               label: t('exploreTranslateLabel') || 'PDF Translation',
               desc: t('exploreTranslateDesc'),
-            },
-            {
-              href: '/contract-comparison',
-              icon: 'pdf.png',
-              label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
-              desc: t('exploreContractCompareDesc'),
-            },
-            {
-              href: '/pdf-to-excel',
-              icon: 'pdf.png',
-              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
-              desc: t('explorePdfToExcelDesc'),
             },
           ]}
         />

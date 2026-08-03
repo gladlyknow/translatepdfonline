@@ -76,5 +76,7 @@
   "historyStatusReady": "Fertig",
   "historyStatusFailed": "Fehlgeschlagen",
   "historyStatusProcessing": "In Bearbeitung",
-  "historyStatusUploaded": "Hochgeladen"
+  "historyStatusUploaded": "Hochgeladen",
+  "explorePdfToExcelLabel": "PDF in Excel",
+  "explorePdfToExcelDesc": "Wandeln Sie PDF-Tabellen in bearbeitbare Excel-Tabellen um."
 }

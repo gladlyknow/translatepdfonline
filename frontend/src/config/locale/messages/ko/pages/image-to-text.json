@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG to Word 변환",
   "exploreJpgToWordDesc": "AI OCR 로 JPG 사진을 편집 가능한 Word(.docx) 로 변환.",
   "explorePhotoToWordLabel": "사진 워드 변환",
-  "explorePhotoToWordDesc": "스마트폰 사진을 편집 가능한 Word로 변환."
+  "explorePhotoToWordDesc": "스마트폰 사진을 편집 가능한 Word로 변환.",
+  "explorePdfToExcelLabel": "PDF를 엑셀로 변환",
+  "explorePdfToExcelDesc": "PDF 표를 편집 가능한 Excel 스프레드시트로 변환합니다."
 }

@@ -90,5 +90,7 @@
   "historyStatusReady": "Έτοιμο",
   "historyStatusFailed": "Αποτυχία",
   "historyStatusProcessing": "Σε εξέλιξη",
-  "historyStatusUploaded": "Ανεβασμένο"
+  "historyStatusUploaded": "Ανεβασμένο",
+  "explorePdfToExcelLabel": "PDF σε Excel",
+  "explorePdfToExcelDesc": "Μετατρέψτε πίνακες PDF σε επεξεργάσιμα φύλλα Excel."
 }

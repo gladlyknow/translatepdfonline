@@ -78,5 +78,7 @@
   "historyStatusProcessing": "Обработка",
   "historyStatusUploaded": "Загружено",
   "pageRangeLabel": "Страницы (необязательно)",
-  "pageRangePlaceholder": "Все страницы — или, например, 1,3,5-8"
+  "pageRangePlaceholder": "Все страницы — или, например, 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF в Excel",
+  "explorePdfToExcelDesc": "Преобразуйте таблицы PDF в редактируемые электронные таблицы Excel."
 }

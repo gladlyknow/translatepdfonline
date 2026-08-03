@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG zu Word",
   "exploreJpgToWordDesc": "JPG-Fotos mit KI-OCR in bearbeitbares Word(.docx) umwandeln.",
   "explorePhotoToWordLabel": "Foto in Word",
-  "explorePhotoToWordDesc": "Wandeln Sie Handyfotos in bearbeitbares Word um."
+  "explorePhotoToWordDesc": "Wandeln Sie Handyfotos in bearbeitbares Word um.",
+  "explorePdfToExcelLabel": "PDF in Excel",
+  "explorePdfToExcelDesc": "Wandeln Sie PDF-Tabellen in bearbeitbare Excel-Tabellen um."
 }

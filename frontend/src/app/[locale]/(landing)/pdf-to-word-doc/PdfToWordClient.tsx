@@ -54,9 +54,11 @@ const POLL_INTERVAL_MS = 7_000;
 export function PdfToWordClient({
   children,
   namespace = 'pages.pdf-to-word-doc',
+  targetFormat = 'word',
 }: {
   children?: ReactNode;
   namespace?: string;
+  targetFormat?: 'word' | 'excel';
 }) {
   const t = useTranslations(namespace);
   const router = useRouter();
@@ -184,6 +186,7 @@ export function PdfToWordClient({
     try {
       const fd = new FormData();
       fd.append('file', file);
+      fd.append('targetFormat', targetFormat);
       const res = await fetch('/api/doc-convert/upload', {
         method: 'POST',
         body: fd,
@@ -215,7 +218,7 @@ export function PdfToWordClient({
       setUploading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, addLog, t, redirectToSignIn, pageRange]);
+  }, [file, addLog, t, redirectToSignIn, pageRange, targetFormat]);
 
   const handleStart = useCallback(
     async (jobId?: string) => {
@@ -226,7 +229,7 @@ export function PdfToWordClient({
       try {
         const startBody: Record<string, string> = {
           sourceFormat: 'pdf',
-          targetFormat: 'word',
+          targetFormat,
         };
         if (pageRange.trim()) {
           startBody.pdfFileNum = pageRange.trim();
@@ -261,7 +264,7 @@ export function PdfToWordClient({
         toast.error(e instanceof Error ? e.message : t('errorGeneric'));
       }
     },
-    [job, addLog, t, startPoll, redirectToSignIn, router, pageRange]
+    [job, addLog, t, startPoll, redirectToSignIn, router, pageRange, targetFormat]
   );
 
   const handleDownload = useCallback(() => {
@@ -321,7 +324,7 @@ export function PdfToWordClient({
         const res = await fetch(`/api/doc-convert/jobs/${id}/start`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sourceFormat: 'pdf', targetFormat: 'word' }),
+          body: JSON.stringify({ sourceFormat: 'pdf', targetFormat }),
           credentials: 'include',
         });
         const json = await res.json().catch(() => ({}));
@@ -350,7 +353,7 @@ export function PdfToWordClient({
         toast.error(e instanceof Error ? e.message : t('errorGeneric'));
       }
     },
-    [redirectToSignIn, t, router, loadHistory]
+    [redirectToSignIn, t, router, loadHistory, targetFormat]
   );
 
   const statusLabel = useCallback(

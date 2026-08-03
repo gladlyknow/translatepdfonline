@@ -76,5 +76,7 @@
   "historyStatusReady": "Ready",
   "historyStatusFailed": "Failed",
   "historyStatusProcessing": "Processing",
-  "historyStatusUploaded": "Uploaded"
+  "historyStatusUploaded": "Uploaded",
+  "explorePdfToExcelLabel": "PDF to Excel",
+  "explorePdfToExcelDesc": "Convert PDF tables into editable Excel spreadsheets."
 }

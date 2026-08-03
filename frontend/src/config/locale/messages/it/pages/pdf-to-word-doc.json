@@ -78,5 +78,7 @@
   "historyStatusProcessing": "Elaborazione",
   "historyStatusUploaded": "Caricato",
   "pageRangeLabel": "Pagine (opzionale)",
-  "pageRangePlaceholder": "Tutte le pagine — o es. 1,3,5-8"
+  "pageRangePlaceholder": "Tutte le pagine — o es. 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF in Excel",
+  "explorePdfToExcelDesc": "Converti le tabelle PDF in fogli di calcolo Excel modificabili."
 }

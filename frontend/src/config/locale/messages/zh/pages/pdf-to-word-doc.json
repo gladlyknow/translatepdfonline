@@ -78,5 +78,7 @@
   "historyStatusProcessing": "处理中",
   "historyStatusUploaded": "已上传",
   "pageRangeLabel": "页码范围（可选）",
-  "pageRangePlaceholder": "全部页——或输入如 1,3,5-8"
+  "pageRangePlaceholder": "全部页——或输入如 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF转Excel",
+  "explorePdfToExcelDesc": "将PDF中的表格提取为可编辑的Excel电子表格。"
 }

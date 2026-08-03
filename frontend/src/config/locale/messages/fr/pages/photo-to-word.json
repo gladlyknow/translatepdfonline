@@ -90,5 +90,7 @@
   "historyStatusReady": "Prêt",
   "historyStatusFailed": "Échec",
   "historyStatusProcessing": "En cours",
-  "historyStatusUploaded": "Téléversée"
+  "historyStatusUploaded": "Téléversée",
+  "explorePdfToExcelLabel": "PDF en Excel",
+  "explorePdfToExcelDesc": "Convertissez des tableaux PDF en feuilles de calcul Excel modifiables."
 }

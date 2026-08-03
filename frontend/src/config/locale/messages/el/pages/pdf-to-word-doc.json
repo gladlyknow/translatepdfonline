@@ -78,5 +78,7 @@
   "historyStatusProcessing": "Επεξεργασία",
   "historyStatusUploaded": "Ανεβηκε",
   "pageRangeLabel": "Σελίδες (προαιρετικό)",
-  "pageRangePlaceholder": "Όλες οι σελίδες — ή π.χ. 1,3,5-8"
+  "pageRangePlaceholder": "Όλες οι σελίδες — ή π.χ. 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF σε Excel",
+  "explorePdfToExcelDesc": "Μετατρέψτε πίνακες PDF σε επεξεργάσιμα φύλλα Excel."
 }

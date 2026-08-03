@@ -233,6 +233,12 @@ export default async function PdfToWordDocPage({
               label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
               desc: t('exploreContractCompareDesc'),
             },
+            {
+              href: '/pdf-to-excel',
+              icon: 'pdf.png',
+              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
+              desc: t('explorePdfToExcelDesc'),
+            },
           ]}
         />
       </div>

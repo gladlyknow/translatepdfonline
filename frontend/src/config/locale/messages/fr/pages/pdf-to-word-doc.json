@@ -78,5 +78,7 @@
   "historyStatusProcessing": "Traitement",
   "historyStatusUploaded": "Téléchargé",
   "pageRangeLabel": "Pages (optionnel)",
-  "pageRangePlaceholder": "Toutes les pages — ou ex. 1,3,5-8"
+  "pageRangePlaceholder": "Toutes les pages — ou ex. 1,3,5-8",
+  "explorePdfToExcelLabel": "PDF en Excel",
+  "explorePdfToExcelDesc": "Convertissez des tableaux PDF en feuilles de calcul Excel modifiables."
 }

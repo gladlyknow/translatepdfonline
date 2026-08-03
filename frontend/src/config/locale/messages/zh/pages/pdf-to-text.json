@@ -58,5 +58,7 @@
   "exploreJpgToWordLabel": "JPG 转 Word",
   "exploreJpgToWordDesc": "用 AI OCR 把 JPG 照片转成可编辑 Word(.docx)。",
   "explorePhotoToWordLabel": "照片转 Word",
-  "explorePhotoToWordDesc": "把手机照片转成可编辑 Word。"
+  "explorePhotoToWordDesc": "把手机照片转成可编辑 Word。",
+  "explorePdfToExcelLabel": "PDF转Excel",
+  "explorePdfToExcelDesc": "将PDF中的表格提取为可编辑的Excel电子表格。"
 }
