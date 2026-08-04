@@ -106,7 +106,7 @@ export function JpgToWordClient({
         toast.error(t('errorInvalidType'));
         return;
       }
-      if (f.size > 10 * 1024 * 1024) {
+      if (f.size > 50 * 1024 * 1024) {
         toast.error(t('errorTooLarge'));
         return;
       }

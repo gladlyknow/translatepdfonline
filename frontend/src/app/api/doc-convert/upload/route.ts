@@ -15,7 +15,7 @@ const ALLOWED = {
 
 const VALID_TARGETS = new Set(['word', 'excel']);
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 
 export const runtime = 'nodejs';
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const ext = ALLOWED[file.type];
     if (!ext) return respErr('only JPG, JPEG images and PDF files are allowed');
 
-    if (file.size > MAX_BYTES) return respErr('file too large (max 10MB)');
+    if (file.size > MAX_BYTES) return respErr('file too large (max 50MB)');
 
     const targetFormat = String(formData.get('targetFormat') || 'word')
       .toLowerCase()
