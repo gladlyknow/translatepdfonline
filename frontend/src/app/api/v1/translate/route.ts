@@ -13,11 +13,6 @@ import {
   insertTranslationTask,
   makeTaskId,
 } from '@/shared/lib/translate-core';
-import {
-  dispatchPendingOcrJobs,
-  ocrDispatchBatchSize,
-  scheduleOcrDispatchInBackground,
-} from '@/shared/lib/ocr-queue';
 
 export async function POST(req: Request) {
   const startTime = Date.now();
@@ -42,7 +37,7 @@ export async function POST(req: Request) {
 
     const { documentId, sourceLang, targetLang, pageRange, sourceSliceObjectKey, preprocessWithOcr } = validation.params;
 
-    // 3. 文档查找（API Key 关联 userId）
+    // 3. 文档查找
     const doc = await lookupDocument(documentId, userId);
     if (!doc) {
       void logApiUsage({ apikeyId, userId, endpoint: '/api/v1/translate', method: 'POST', statusCode: 404, responseTimeMs: Date.now() - startTime });
@@ -51,7 +46,7 @@ export async function POST(req: Request) {
 
     const docPages = doc.pageCount ?? null;
 
-    // 4. Page range intersection
+    // 4. Page range
     const rangeResult = preparePageRange(pageRange, docPages);
     if (pageRange != null && docPages != null && docPages > 0 && rangeResult.effective === null) {
       return Response.json({
@@ -88,14 +83,16 @@ export async function POST(req: Request) {
       return Response.json({ detail: msg || 'Failed to create translation task' }, { status: 500 });
     }
 
-    // 7. 触发 OCR 队列调度（fire-and-forget）
+    // 7. 触发 OCR 队列调度（动态 import，避免模块加载失败阻塞路由）
     try {
+      const { dispatchPendingOcrJobs, ocrDispatchBatchSize, scheduleOcrDispatchInBackground } =
+        await import('@/shared/lib/ocr-queue');
       scheduleOcrDispatchInBackground(() => dispatchPendingOcrJobs(ocrDispatchBatchSize()));
     } catch {
       // 队列调度失败不阻塞
     }
 
-    // 8. 记录 API 调用日志（fire-and-forget）
+    // 8. 记录用量
     void logApiUsage({
       apikeyId,
       userId,
