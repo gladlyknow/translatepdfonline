@@ -3,8 +3,7 @@
  * 认证：API Key（Bearer token 或 X-API-Key header）。
  * 翻译引擎：OCR 流水线。
  */
-import { authenticateWithApikey } from '@/shared/lib/apikey-auth';
-import { checkRateLimit } from '@/shared/lib/apikey-rate-limit';
+import { guardApikeyRequest, withRateLimitHeaders } from '@/shared/lib/apikey-guard';
 import { logApiUsage } from '@/shared/lib/api-usage-log';
 import {
   validateTranslateParams,
@@ -16,7 +15,6 @@ import {
 } from '@/shared/lib/translate-core';
 import {
   dispatchPendingOcrJobs,
-  enqueueOcrTask,
   ocrDispatchBatchSize,
   scheduleOcrDispatchInBackground,
 } from '@/shared/lib/ocr-queue';
@@ -24,123 +22,103 @@ import {
 export async function POST(req: Request) {
   const startTime = Date.now();
 
+  // 1. API Key 认证 + 限流
+  const guard = await guardApikeyRequest(req);
+  if (!guard.ok) return guard.response;
+
+  const { apikeyId, userId, rateCheck } = guard;
+
   try {
-    // 1. API Key 认证
-    const auth = await authenticateWithApikey(req);
-  if (!auth.authenticated) {
-    return Response.json({ error: auth.error, code: 'unauthorized' }, { status: 401 });
-  }
+    // 2. 参数校验
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return Response.json({ detail: 'Invalid JSON body' }, { status: 400 });
+    }
 
-  // 2. Rate limiting
-  const rateCheck = await checkRateLimit(auth.apikeyId);
-  if (!rateCheck.allowed) {
-    return Response.json(
-      { error: 'Rate limit exceeded. Try again shortly.', code: 'rate_limited' },
-      {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': String(rateCheck.limit),
-          'X-RateLimit-Remaining': String(rateCheck.remaining),
-        },
-      },
-    );
-  }
+    const validation = validateTranslateParams(body);
+    if (!validation.ok) return validation.error;
 
-  // 3. 参数校验
-  let body: any;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ detail: 'Invalid JSON body' }, { status: 400 });
-  }
+    const { documentId, sourceLang, targetLang, pageRange, sourceSliceObjectKey, preprocessWithOcr } = validation.params;
 
-  const validation = validateTranslateParams(body);
-  if (!validation.ok) return validation.error;
+    // 3. 文档查找（API Key 关联 userId）
+    const doc = await lookupDocument(documentId, userId);
+    if (!doc) {
+      void logApiUsage({ apikeyId, userId, endpoint: '/api/v1/translate', method: 'POST', statusCode: 404, responseTimeMs: Date.now() - startTime });
+      return Response.json({ detail: 'Document not found' }, { status: 404 });
+    }
 
-  const { documentId, sourceLang, targetLang, pageRange, sourceSliceObjectKey, preprocessWithOcr } = validation.params;
+    const docPages = doc.pageCount ?? null;
 
-  // 4. 文档查找（API Key 关联 userId）
-  const doc = await lookupDocument(documentId, auth.userId);
-  if (!doc) {
-    void logApiUsage({ apikeyId: auth.apikeyId, userId: auth.userId, endpoint: '/api/v1/translate', method: 'POST', statusCode: 404, responseTimeMs: Date.now() - startTime });
-    return Response.json({ detail: 'Document not found' }, { status: 404 });
-  }
+    // 4. Page range intersection
+    const rangeResult = preparePageRange(pageRange, docPages);
+    if (pageRange != null && docPages != null && docPages > 0 && rangeResult.effective === null) {
+      return Response.json({
+        detail: `The selected page range does not overlap with this document (${docPages} page(s)).`,
+        code: 'page_range_no_overlap',
+        document_page_count: docPages,
+      }, { status: 400 });
+    }
+    const effectiveRange = rangeResult.effective;
 
-  const docPages = doc.pageCount ?? null;
+    // 5. 积分检查
+    const creditCheck = await checkCreditsForTranslate(userId, effectiveRange, docPages);
+    if (!creditCheck.allowed) return creditCheck.error;
 
-  // 5. Page range intersection
-  const rangeResult = preparePageRange(pageRange, docPages);
-  if (pageRange != null && docPages != null && docPages > 0 && rangeResult.effective === null) {
-    return Response.json({
-      detail: `The selected page range does not overlap with this document (${docPages} page(s)).`,
-      code: 'page_range_no_overlap',
-      document_page_count: docPages,
-    }, { status: 400 });
-  }
-  const effectiveRange = rangeResult.effective;
+    // 6. 创建翻译任务
+    const taskId = makeTaskId();
+    try {
+      await insertTranslationTask({
+        taskId,
+        userId,
+        anonId: null,
+        documentId,
+        sourceLang,
+        targetLang,
+        pageRange: effectiveRange,
+        pageRangeUserInput: rangeResult.userInputToStore,
+        sourceSliceObjectKey,
+        preprocessWithOcr,
+        creditsEstimated: creditCheck.creditsNeeded,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      void logApiUsage({ apikeyId, userId, taskId, endpoint: '/api/v1/translate', method: 'POST', statusCode: 500, creditsConsumed: 0, responseTimeMs: Date.now() - startTime });
+      return Response.json({ detail: msg || 'Failed to create translation task' }, { status: 500 });
+    }
 
-  // 6. 积分检查
-  const creditCheck = await checkCreditsForTranslate(auth.userId, effectiveRange, docPages);
-  if (!creditCheck.allowed) return creditCheck.error;
+    // 7. 触发 OCR 队列调度（fire-and-forget）
+    try {
+      scheduleOcrDispatchInBackground(() => dispatchPendingOcrJobs(ocrDispatchBatchSize()));
+    } catch {
+      // 队列调度失败不阻塞
+    }
 
-  // 7. 创建翻译任务
-  const taskId = makeTaskId();
-  try {
-    await insertTranslationTask({
+    // 8. 记录 API 调用日志（fire-and-forget）
+    void logApiUsage({
+      apikeyId,
+      userId,
       taskId,
-      userId: auth.userId,
-      anonId: null,
-      documentId,
-      sourceLang,
-      targetLang,
-      pageRange: effectiveRange,
-      pageRangeUserInput: rangeResult.userInputToStore,
-      sourceSliceObjectKey,
-      preprocessWithOcr,
-      creditsEstimated: creditCheck.creditsNeeded,
+      endpoint: '/api/v1/translate',
+      method: 'POST',
+      statusCode: 200,
+      creditsConsumed: creditCheck.creditsNeeded,
+      ipAddress: req.headers.get('CF-Connecting-IP') || req.headers.get('x-forwarded-for') || undefined,
+      userAgent: req.headers.get('user-agent') || undefined,
+      responseTimeMs: Date.now() - startTime,
     });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    void logApiUsage({ apikeyId: auth.apikeyId, userId: auth.userId, taskId, endpoint: '/api/v1/translate', method: 'POST', statusCode: 500, creditsConsumed: 0, responseTimeMs: Date.now() - startTime });
-    return Response.json({ detail: msg || 'Failed to create translation task' }, { status: 500 });
-  }
 
-  // 8. 触发 OCR 队列调度（fire-and-forget）
-  try {
-    scheduleOcrDispatchInBackground(() => dispatchPendingOcrJobs(ocrDispatchBatchSize()));
-  } catch {
-    // 队列调度失败不阻塞
-  }
-
-  // 9. 记录 API 调用日志（fire-and-forget）
-  void logApiUsage({
-    apikeyId: auth.apikeyId,
-    userId: auth.userId,
-    taskId,
-    endpoint: '/api/v1/translate',
-    method: 'POST',
-    statusCode: 200,
-    creditsConsumed: creditCheck.creditsNeeded,
-    ipAddress: req.headers.get('CF-Connecting-IP') || req.headers.get('x-forwarded-for') || undefined,
-    userAgent: req.headers.get('user-agent') || undefined,
-    responseTimeMs: Date.now() - startTime,
-  });
-
-  // 10. 返回
-  return Response.json(
-    {
-      task_id: taskId,
-      status: 'queued',
-      page_range_effective: effectiveRange,
-      credits_estimated: creditCheck.creditsNeeded,
-    },
-    {
-      headers: {
-        'X-RateLimit-Limit': String(rateCheck.limit),
-        'X-RateLimit-Remaining': String(rateCheck.remaining),
-      },
-    },
-  );
+    // 9. 返回
+    return withRateLimitHeaders(
+      Response.json({
+        task_id: taskId,
+        status: 'queued',
+        page_range_effective: effectiveRange,
+        credits_estimated: creditCheck.creditsNeeded,
+      }),
+      rateCheck,
+    );
   } catch (e) {
     console.error('[v1/translate]', e);
     return Response.json(
