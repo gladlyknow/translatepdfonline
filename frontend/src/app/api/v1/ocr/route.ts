@@ -13,6 +13,11 @@ import {
   insertTranslationTask,
   makeTaskId,
 } from '@/shared/lib/translate-core';
+import {
+  dispatchPendingOcrJobs,
+  ocrDispatchBatchSize,
+  scheduleOcrDispatchInBackground,
+} from '@/shared/lib/ocr-queue';
 
 export async function POST(req: Request) {
   const startTime = Date.now();
@@ -72,8 +77,6 @@ export async function POST(req: Request) {
     }
 
     try {
-      const { dispatchPendingOcrJobs, ocrDispatchBatchSize, scheduleOcrDispatchInBackground } =
-        await import('@/shared/lib/ocr-queue');
       scheduleOcrDispatchInBackground(() => dispatchPendingOcrJobs(ocrDispatchBatchSize()));
     } catch { /* non-blocking */ }
 
