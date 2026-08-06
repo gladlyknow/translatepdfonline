@@ -24,8 +24,9 @@ import {
 export async function POST(req: Request) {
   const startTime = Date.now();
 
-  // 1. API Key 认证
-  const auth = await authenticateWithApikey(req);
+  try {
+    // 1. API Key 认证
+    const auth = await authenticateWithApikey(req);
   if (!auth.authenticated) {
     return Response.json({ error: auth.error, code: 'unauthorized' }, { status: 401 });
   }
@@ -140,4 +141,11 @@ export async function POST(req: Request) {
       },
     },
   );
+  } catch (e) {
+    console.error('[v1/translate]', e);
+    return Response.json(
+      { detail: e instanceof Error ? e.message : 'Internal error' },
+      { status: 500 },
+    );
+  }
 }
