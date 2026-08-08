@@ -14,8 +14,6 @@ const DISALLOW = [
   '/src/',
   '/docs/src/',
   '/translate/',
-  '/*?recent=',
-  // 注意: 不要用 /*$ 等模糊模式 — Google robots.txt 解析器可能误判为全局禁止
 ];
 
 function buildRobotsTxt(sitemapUrl: string): string {
@@ -43,9 +41,9 @@ export async function GET(request: Request) {
   return new Response(buildRobotsTxt(`${base}/sitemap.xml`), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
     },
   });
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;

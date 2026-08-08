@@ -1,11 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from 'next';
 
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
+import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { SoftwareApplicationJsonLd } from '@/shared/blocks/seo/software-json-ld';
-import { buildAlternates } from '@/shared/lib/hreflang';
 import { SeoCarouselSection } from '@/shared/blocks/seo/seo-carousel-section';
 import DocumentCompareClient from '@/shared/blocks/document-compare';
 import { Link } from '@/core/i18n/navigation';
@@ -16,29 +15,10 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({
-    locale,
-    namespace: 'pages.contract-comparison',
-  });
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/contract-comparison`
-      : `${envConfigs.app_url}/${locale}/contract-comparison`;
-
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t.has('keywords') ? t('keywords') : undefined,
-    alternates: { canonical, languages: buildAlternates('/contract-comparison', locale).languages },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.contract-comparison',
+  canonicalUrl: '/contract-comparison',
+});
 
 export default async function ContractComparisonPage({
   params,

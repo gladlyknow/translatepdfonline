@@ -1,11 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from 'next';
 
-import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
+import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
-import { buildAlternates } from '@/shared/lib/hreflang';
 
 import { PdfToTextClient } from './PdfToTextClient';
 
@@ -15,26 +13,10 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.pdf-to-text' });
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/pdf-to-text`
-      : `${envConfigs.app_url}/${locale}/pdf-to-text`;
-
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t('keywords') || undefined,
-    alternates: { canonical, languages: buildAlternates('/pdf-to-text', locale).languages },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.pdf-to-text',
+  canonicalUrl: '/pdf-to-text',
+});
 
 export default async function PdfToTextPage({
   params,

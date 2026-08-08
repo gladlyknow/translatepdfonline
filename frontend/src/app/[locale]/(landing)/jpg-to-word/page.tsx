@@ -1,11 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from 'next';
 
-import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
+import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
-import { buildAlternates } from '@/shared/lib/hreflang';
 
 import { JpgToWordClient } from './JpgToWordClient';
 
@@ -15,29 +13,10 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.jpg-to-word' });
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/jpg-to-word`
-      : `${envConfigs.app_url}/${locale}/jpg-to-word`;
-
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t('keywords') || undefined,
-    alternates: {
-      canonical,
-      languages: buildAlternates('/jpg-to-word', locale).languages,
-    },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.jpg-to-word',
+  canonicalUrl: '/jpg-to-word',
+});
 
 export default async function JpgToWordPage({
   params,

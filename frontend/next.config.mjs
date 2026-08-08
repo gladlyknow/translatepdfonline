@@ -78,6 +78,16 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/:locale*/showcases',
+        destination: '/:locale*',
+        permanent: true,
+      },
+      {
+        source: '/showcases',
+        destination: '/',
+        permanent: true,
+      },
       // Deprecated translate sub-pages
       {
         source: '/:locale*/translate/upload',

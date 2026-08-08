@@ -1,10 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from 'next';
 
-import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
+import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
-import { buildAlternates } from '@/shared/lib/hreflang';
 
 export const dynamic = 'force-static';
 
@@ -12,26 +10,10 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.docs-api' });
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/docs/api`
-      : `${envConfigs.app_url}/${locale}/docs/api`;
-
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t('keywords') || undefined,
-    alternates: { canonical, languages: buildAlternates('/docs/api', locale).languages },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.docs-api',
+  canonicalUrl: '/docs/api',
+});
 
 export default async function DocsApiPage({
   params,

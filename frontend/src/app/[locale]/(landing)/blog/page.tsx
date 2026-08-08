@@ -1,36 +1,15 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { envConfigs } from '@/config';
-import { locales } from '@/config/locale';
-import { buildAlternates } from '@/shared/lib/hreflang';
+import { getMetadata } from '@/shared/lib/seo';
 import { getPosts, getPostsCount, PostStatus, PostType } from '@/shared/models/post';
 
 export const revalidate = 3600;
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.blog' });
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/blog`
-      : `${envConfigs.app_url}/${locale}/blog`;
-
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    alternates: {
-      canonical,
-      languages: buildAlternates('/blog', locale).languages,
-    },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.blog',
+  canonicalUrl: '/blog',
+});
 
 export default async function BlogPage({
   params,

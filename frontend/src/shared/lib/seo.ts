@@ -161,8 +161,8 @@ async function getTranslatedMetadata(metadataKey: string, locale: string) {
   const t = await getTranslations({ locale, namespace: metadataKey });
 
   return {
-    title: t.has('title') ? t('title') : '',
-    description: t.has('description') ? t('description') : '',
+    title: t.has('title') ? t('title') : (t.has('metaTitle') ? t('metaTitle') : ''),
+    description: t.has('description') ? t('description') : (t.has('metaDescription') ? t('metaDescription') : ''),
     keywords: t.has('keywords') ? t('keywords') : '',
   };
 }
