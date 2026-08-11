@@ -7,6 +7,7 @@ import {
   queryDocConvert,
   queryDocConvertDownloadUrl,
 } from '@/shared/lib/doc-convert-baidu';
+import { unwrapNestedExcelZip } from '@/shared/lib/doc-convert-xlsx-merge';
 import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import {
   getTranslateCreditsPerPage,
@@ -102,18 +103,43 @@ export async function processDocConvertJob(taskId: string): Promise<void> {
     try {
       const dlRes = await fetch(downloadUrl);
       if (dlRes.ok) {
-        const buffer = new Uint8Array(await dlRes.arrayBuffer());
+        let buffer = new Uint8Array(await dlRes.arrayBuffer());
         const ext = job.targetFormat === 'excel' ? 'xlsx' : 'docx';
         resultR2Key = `doc-convert/${taskId}/result.${ext}`;
         const contentType =
           job.targetFormat === 'excel'
             ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+        // Excel: 百度多页 PDF 返回的是嵌套 ZIP（每页一个 xlsx），需要解包合并
+        if (job.targetFormat === 'excel') {
+          try {
+            buffer = await unwrapNestedExcelZip(buffer);
+          } catch (e) {
+            console.error(
+              '[doc-convert/xlsx-merge] unwrap failed, using raw buffer:',
+              e
+            );
+          }
+        }
+
         await putObject(resultR2Key, buffer, contentType);
       }
     } catch {
       // 下载失败，resultR2Key 保持 null
     }
+  }
+
+  // Excel 目标但百度未产出 Excel 结果（扫描件/复杂表格常见）
+  if (job.targetFormat === 'excel' && !resultR2Key) {
+    const errorMessage = downloadUrl
+      ? 'Excel download failed'
+      : 'Baidu did not produce an Excel result for this PDF (scan/complex tables may only yield Word output)';
+    await updateDocConvertTask(taskId, {
+      status: DocConvertTaskStatus.failed,
+      errorMessage,
+    });
+    throw new Error(errorMessage);
   }
 
   // 幂等扣费：creditConsumeId 已存在则跳过

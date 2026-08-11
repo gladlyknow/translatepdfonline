@@ -197,7 +197,10 @@ export function queryDocConvertDownloadUrl(
   targetFormat: string
 ): string {
   if (targetFormat === 'excel') {
-    return resultData.excel || resultData.word || '';
+    // 只返回 excel URL，不回退到 word。
+    // 百度对某些 PDF（如扫描件）可能只产出 word 结果，excel 字段为空。
+    // 回退到 word URL 会导致 DOCX 文件以 .xlsx 命名存盘，Excel 无法打开。
+    return resultData.excel || '';
   }
   return resultData.word || '';
 }
