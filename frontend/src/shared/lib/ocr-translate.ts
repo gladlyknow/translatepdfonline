@@ -671,6 +671,27 @@ function parseAssistantContentToJson(rawContent: string): unknown | null {
   return tryParseJsonCandidates(candidates);
 }
 
+/** 从文本中正则提取所有 JSON 双引号字符串并 unescape，作为 JSON 解析完全失败时的最后兜底 */
+function tryExtractStringArrayFromText(
+  text: string,
+  expectedLen: number
+): string[] | null {
+  const RE_JSON_STRING = /"((?:[^"\\]|\\.)*)"/g;
+  const matches: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = RE_JSON_STRING.exec(text)) !== null) {
+    try {
+      matches.push(JSON.parse(`"${m[1]!}"`) as string);
+    } catch {
+      matches.push(m[1]!);
+    }
+  }
+  if (matches.length >= expectedLen) {
+    return matches.slice(0, expectedLen);
+  }
+  return null;
+}
+
 type DeepSeekBatchParseFailReason = 'invalid_json' | 'coerce_null' | 'length_mismatch';
 
 /**
@@ -755,6 +776,19 @@ function parseDeepSeekBatchAssistantContent(
     } {
   const rawParsed = parseAssistantContentToJson(rawContent);
   if (rawParsed == null) {
+    // 最后兜底：正则提取双引号字符串（DeepSeek 偶发返回非 JSON 纯文本）
+    const regexFallback = tryExtractStringArrayFromText(rawContent, expectedLen);
+    if (regexFallback) {
+      console.warn(
+        '[ocr/deepseek_parse_batch] regex_fallback',
+        JSON.stringify({
+          expectedLen,
+          extracted: regexFallback.length,
+          raw_prefix: rawContent.slice(0, 300),
+        })
+      );
+      return { ok: true, strings: regexFallback, coerced: true };
+    }
     return {
       ok: false,
       reason: 'invalid_json',
