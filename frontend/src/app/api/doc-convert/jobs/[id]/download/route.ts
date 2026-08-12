@@ -21,7 +21,9 @@ export async function GET(
       return respErr('result not ready');
     }
 
-    const ext = job.targetFormat === 'excel' ? 'xlsx' : 'docx';
+    const ext = (job.resultR2Key ?? '').endsWith('.zip') ? 'zip'
+      : job.targetFormat === 'excel' ? 'xlsx'
+      : 'docx';
     const baseName = (job.sourceFilename || 'document').replace(/\.[^.]+$/, '');
     const filename = `${baseName}_converted.${ext}`;
 

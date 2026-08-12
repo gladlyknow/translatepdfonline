@@ -425,6 +425,24 @@ function getInnerFile(
 // ---------------------------------------------------------------------------
 
 /**
+ * 检测 buffer 是否是百度 doc_convert 嵌套 ZIP 格式。
+ * 百度多页 PDF 转 Excel 返回外层容器包含 BaiduOCRConverter_Excel_xxx/page-N.xlsx 条目。
+ */
+export function isBaiduNestedExcelZip(buffer: Uint8Array): boolean {
+  if (buffer.length < 4) return false;
+  if (
+    buffer[0] !== 0x50 ||
+    buffer[1] !== 0x4b ||
+    buffer[2] !== 0x03 ||
+    buffer[3] !== 0x04
+  ) {
+    return false;
+  }
+  const entries = findZipEntries(buffer);
+  return entries.some((e) => BAIDU_PAGE_RE.test(e.filename));
+}
+
+/**
  * 检测并合并百度 doc_convert Excel 嵌套 ZIP。
  * - 若 buffer 不是百度嵌套格式 → 原样返回
  * - 若只有 1 页 → 直接返回 inner XLSX

@@ -7,7 +7,7 @@ import {
   queryDocConvert,
   queryDocConvertDownloadUrl,
 } from '@/shared/lib/doc-convert-baidu';
-import { unwrapNestedExcelZip } from '@/shared/lib/doc-convert-xlsx-merge';
+import { isBaiduNestedExcelZip } from '@/shared/lib/doc-convert-xlsx-merge';
 import { getObjectBody, putObject } from '@/shared/lib/translate-r2';
 import {
   getTranslateCreditsPerPage,
@@ -103,26 +103,29 @@ export async function processDocConvertJob(taskId: string): Promise<void> {
     try {
       const dlRes = await fetch(downloadUrl);
       if (dlRes.ok) {
-        let buffer = new Uint8Array(await dlRes.arrayBuffer());
-        const ext = job.targetFormat === 'excel' ? 'xlsx' : 'docx';
-        resultR2Key = `doc-convert/${taskId}/result.${ext}`;
-        const contentType =
-          job.targetFormat === 'excel'
-            ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        const buffer = new Uint8Array(await dlRes.arrayBuffer());
 
-        // Excel: 百度多页 PDF 返回的是嵌套 ZIP（每页一个 xlsx），需要解包合并
+        let ext: string;
+        let contentType: string;
+
         if (job.targetFormat === 'excel') {
-          try {
-            buffer = await unwrapNestedExcelZip(buffer);
-          } catch (e) {
-            console.error(
-              '[doc-convert/xlsx-merge] unwrap failed, using raw buffer:',
-              e
-            );
+          // 百度多页 PDF 返回嵌套 ZIP（BaiduOCRConverter_Excel_xxx/page-N.xlsx）
+          // 不做合并，检测到嵌套 ZIP 直接以 .zip 交付
+          if (isBaiduNestedExcelZip(buffer)) {
+            ext = 'zip';
+            contentType = 'application/zip';
+          } else {
+            ext = 'xlsx';
+            contentType =
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
           }
+        } else {
+          ext = 'docx';
+          contentType =
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
         }
 
+        resultR2Key = `doc-convert/${taskId}/result.${ext}`;
         await putObject(resultR2Key, buffer, contentType);
       }
     } catch {
