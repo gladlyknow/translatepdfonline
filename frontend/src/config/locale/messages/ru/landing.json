@@ -27,6 +27,16 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF в Word Doc",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
+            },
+            {
+              "title": "PDF в Excel",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
+            },
+            {
               "title": "Изображение в Текст",
               "url": "/image-to-text",
               "icon": "Image"
@@ -40,16 +50,6 @@
               "title": "Фото в Word",
               "url": "/photo-to-word",
               "icon": "Image"
-            },
-            {
-              "title": "PDF в Word Doc",
-              "url": "/pdf-to-word-doc",
-              "icon": "FileText"
-            },
-            {
-              "title": "PDF в Excel",
-              "url": "/pdf-to-excel",
-              "icon": "FileSpreadsheet"
             }
           ]
         },

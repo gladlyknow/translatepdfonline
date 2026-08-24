@@ -69,7 +69,7 @@ export function cacheBustedPublicPath(path: string): string {
 const resolveAppUrl = () => {
   const u = (process.env.NEXT_PUBLIC_APP_URL ?? '').trim();
   if (!u || u.startsWith('http://localhost') || u.startsWith('http://127.0.0.1')) {
-    return 'https://www.translatepdfonline.com';
+    return 'https://translatepdfonline.com';
   }
   return u.replace(/\/$/, '');
 };

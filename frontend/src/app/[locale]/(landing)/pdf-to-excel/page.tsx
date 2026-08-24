@@ -206,10 +206,22 @@ export default async function PdfToExcelPage({
           heading={exploreHeading}
           links={[
             {
+              href: '/pdf-to-text',
+              icon: 'pdf.png',
+              label: t('explorePdfToTextLabel') || 'PDF to Text',
+              desc: t('explorePdfToTextDesc'),
+            },
+            {
               href: '/pdf-to-word-doc',
               icon: 'pdf.png',
               label: t('explorePdfToWordLabel') || 'PDF to Word Doc',
               desc: t('explorePdfToWordDesc'),
+            },
+            {
+              href: '/image-to-text',
+              icon: 'generalocr.svg',
+              label: t('exploreImageToTextLabel') || 'Image to Text',
+              desc: t('exploreImageToTextDesc'),
             },
             {
               href: '/jpg-to-word',
@@ -222,18 +234,6 @@ export default async function PdfToExcelPage({
               icon: 'generalocr.svg',
               label: t('explorePhotoToWordLabel') || 'Photo to Word',
               desc: t('explorePhotoToWordDesc'),
-            },
-            {
-              href: '/image-to-text',
-              icon: 'generalocr.svg',
-              label: t('exploreImageToTextLabel') || 'Image to Text',
-              desc: t('exploreImageToTextDesc'),
-            },
-            {
-              href: '/pdf-to-text',
-              icon: 'pdf.png',
-              label: t('explorePdfToTextLabel') || 'PDF to Text',
-              desc: t('explorePdfToTextDesc'),
             },
             {
               href: '/translate',

@@ -164,6 +164,24 @@ export default async function PdfToWordDocPage({
           heading={exploreHeading}
           links={[
             {
+              href: '/pdf-to-text',
+              icon: 'pdf.png',
+              label: t('explorePdfToTextLabel') || 'PDF to Text',
+              desc: t('explorePdfToTextDesc'),
+            },
+            {
+              href: '/pdf-to-excel',
+              icon: 'pdf.png',
+              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
+              desc: t('explorePdfToExcelDesc'),
+            },
+            {
+              href: '/image-to-text',
+              icon: 'generalocr.svg',
+              label: t('exploreImageToTextLabel') || 'Image to Text',
+              desc: t('exploreImageToTextDesc'),
+            },
+            {
               href: '/jpg-to-word',
               icon: 'generalocr.svg',
               label: t('exploreJpgToWordLabel') || 'JPG to Word',
@@ -176,18 +194,6 @@ export default async function PdfToWordDocPage({
               desc: t('explorePhotoToWordDesc'),
             },
             {
-              href: '/image-to-text',
-              icon: 'generalocr.svg',
-              label: t('exploreImageToTextLabel') || 'Image to Text',
-              desc: t('exploreImageToTextDesc'),
-            },
-            {
-              href: '/pdf-to-text',
-              icon: 'pdf.png',
-              label: t('explorePdfToTextLabel') || 'PDF to Text',
-              desc: t('explorePdfToTextDesc'),
-            },
-            {
               href: '/translate',
               icon: 'pdf.png',
               label: t('exploreTranslateLabel') || 'PDF Translation',
@@ -198,12 +204,6 @@ export default async function PdfToWordDocPage({
               icon: 'pdf.png',
               label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
               desc: t('exploreContractCompareDesc'),
-            },
-            {
-              href: '/pdf-to-excel',
-              icon: 'pdf.png',
-              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
-              desc: t('explorePdfToExcelDesc'),
             },
           ]}
         />

@@ -64,8 +64,20 @@ export async function middleware(request: NextRequest) {
     // Check if session cookie exists
     const sessionCookie = getSessionCookie(request);
 
+    // 搜索引擎爬虫访问 settings/activity 时放行渲染（页面输出 200 + noindex meta），
+    // 使 Google 能读到期 noindex 标签并移出历史收录；普通用户仍 302 到 sign-in。
+    const userAgent = request.headers.get('user-agent') ?? '';
+    const isSearchCrawler =
+      /Googlebot|Bingbot|AdsBot-Google|DuckDuckBot|YandexBot|Baiduspider/i.test(
+        userAgent
+      );
+    const allowCrawlerThrough =
+      isSearchCrawler &&
+      (pathWithoutLocale.startsWith('/settings') ||
+        pathWithoutLocale.startsWith('/activity'));
+
     // If no session token found, redirect to sign-in
-    if (!sessionCookie) {
+    if (!sessionCookie && !allowCrawlerThrough) {
       const signInUrl = new URL(
         isValidLocale ? `/${locale}/sign-in` : '/sign-in',
         request.url

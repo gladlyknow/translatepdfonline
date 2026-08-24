@@ -27,6 +27,16 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF in Word-Dokument",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
+            },
+            {
+              "title": "PDF in Excel",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
+            },
+            {
               "title": "Bild zu Text",
               "url": "/image-to-text",
               "icon": "Image"
@@ -40,16 +50,6 @@
               "title": "Foto in Word",
               "url": "/photo-to-word",
               "icon": "Image"
-            },
-            {
-              "title": "PDF in Word-Dokument",
-              "url": "/pdf-to-word-doc",
-              "icon": "FileText"
-            },
-            {
-              "title": "PDF in Excel",
-              "url": "/pdf-to-excel",
-              "icon": "FileSpreadsheet"
             }
           ]
         },

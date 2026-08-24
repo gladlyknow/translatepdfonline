@@ -123,12 +123,12 @@ export default async function PdfToTextPage({
         <ExploreMoreLinks
           heading={exploreHeading}
           links={[
+            { href: '/pdf-to-excel', icon: 'pdf.png', label: t('explorePdfToExcelLabel') || 'PDF to Excel', desc: t('explorePdfToExcelDesc') },
             { href: '/image-to-text', icon: 'generalocr.svg', label: t('exploreImageToTextLabel') || 'Image to Text', desc: t('exploreImageToTextDesc') },
-            { href: '/translate', icon: 'pdf.png', label: t('exploreTranslateLabel') || 'PDF Translate', desc: t('exploreTranslateDesc') },
-            { href: '/contract-comparison', icon: 'pdf.png', label: t('exploreContractCompareLabel') || 'AI Contract Comparison', desc: t('exploreContractCompareDesc') },
             { href: '/jpg-to-word', icon: 'generalocr.svg', label: t('exploreJpgToWordLabel') || 'JPG to Word', desc: t('exploreJpgToWordDesc') },
             { href: '/photo-to-word', icon: 'generalocr.svg', label: t('explorePhotoToWordLabel') || 'Photo to Word', desc: t('explorePhotoToWordDesc') },
-            { href: '/pdf-to-excel', icon: 'pdf.png', label: t('explorePdfToExcelLabel') || 'PDF to Excel', desc: t('explorePdfToExcelDesc') },
+            { href: '/translate', icon: 'pdf.png', label: t('exploreTranslateLabel') || 'PDF Translate', desc: t('exploreTranslateDesc') },
+            { href: '/contract-comparison', icon: 'pdf.png', label: t('exploreContractCompareLabel') || 'AI Contract Comparison', desc: t('exploreContractCompareDesc') },
           ]}
         />
       </div>

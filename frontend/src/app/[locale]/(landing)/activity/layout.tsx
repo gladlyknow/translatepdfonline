@@ -1,7 +1,13 @@
+import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { ConsoleLayout } from '@/shared/blocks/console/layout';
+
+// 账户页不允许被索引（历史已收录的 /activity/* 依赖此 noindex 被 Google 移出索引库）
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 export default async function ActivityLayout({
   children,

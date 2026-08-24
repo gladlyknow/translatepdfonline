@@ -32,7 +32,7 @@ export default async function DocsApiPage({
     })
     .filter(Boolean) as { question: string; answer: string }[];
 
-  const curlCode = `curl -X POST https://www.translatepdfonline.com/api/v1/translate \\
+  const curlCode = `curl -X POST https://translatepdfonline.com/api/v1/translate \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -44,7 +44,7 @@ export default async function DocsApiPage({
 
   const pythonCode = `import requests
 
-url = "https://www.translatepdfonline.com/api/v1/translate"
+url = "https://translatepdfonline.com/api/v1/translate"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -60,7 +60,7 @@ response = requests.post(url, json=data, headers=headers)
 print(response.json())  # {"task_id": "...", "status": "queued"}`;
 
   const nodeCode = `const response = await fetch(
-  "https://www.translatepdfonline.com/api/v1/translate",
+  "https://translatepdfonline.com/api/v1/translate",
   {
     method: "POST",
     headers: {
@@ -107,7 +107,7 @@ console.log(data); // { task_id: "...", status: "queued" }`;
               <span className="inline-flex items-center rounded-md bg-primary/10 px-3 py-1 text-sm font-mono font-semibold text-primary">
                 POST /api/v1/translate
               </span>
-              <p className="mt-3 text-sm text-muted-foreground">https://www.translatepdfonline.com/api/v1/translate</p>
+              <p className="mt-3 text-sm text-muted-foreground">https://translatepdfonline.com/api/v1/translate</p>
 
               <h3 className="mt-6 text-base font-semibold text-foreground">{t('requestBody')}</h3>
               <pre className="mt-2 overflow-x-auto rounded-lg bg-muted p-4 text-sm font-mono text-foreground">

@@ -172,16 +172,22 @@ export default async function JpgToWordPage({
           heading={exploreHeading}
           links={[
             {
+              href: '/pdf-to-text',
+              icon: 'pdf.png',
+              label: t('explorePdfToTextLabel') || 'PDF to Text',
+              desc: t('explorePdfToTextDesc'),
+            },
+            {
               href: '/pdf-to-word-doc',
               icon: 'pdf.png',
               label: t('explorePdfToWordDocLabel') || 'PDF to Word Doc',
               desc: t('explorePdfToWordDocDesc'),
             },
             {
-              href: '/photo-to-word',
-              icon: 'generalocr.svg',
-              label: t('explorePhotoToWordLabel') || 'Photo to Word',
-              desc: t('explorePhotoToWordDesc'),
+              href: '/pdf-to-excel',
+              icon: 'pdf.png',
+              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
+              desc: t('explorePdfToExcelDesc'),
             },
             {
               href: '/image-to-text',
@@ -190,10 +196,10 @@ export default async function JpgToWordPage({
               desc: t('exploreImageToTextDesc'),
             },
             {
-              href: '/pdf-to-text',
-              icon: 'pdf.png',
-              label: t('explorePdfToTextLabel') || 'PDF to Text',
-              desc: t('explorePdfToTextDesc'),
+              href: '/photo-to-word',
+              icon: 'generalocr.svg',
+              label: t('explorePhotoToWordLabel') || 'Photo to Word',
+              desc: t('explorePhotoToWordDesc'),
             },
             {
               href: '/translate',
@@ -206,12 +212,6 @@ export default async function JpgToWordPage({
               icon: 'pdf.png',
               label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
               desc: t('exploreContractCompareDesc'),
-            },
-            {
-              href: '/pdf-to-excel',
-              icon: 'pdf.png',
-              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
-              desc: t('explorePdfToExcelDesc'),
             },
           ]}
         />

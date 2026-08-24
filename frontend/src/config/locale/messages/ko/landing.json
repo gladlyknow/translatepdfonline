@@ -27,6 +27,16 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF를 Word 문서로 변환",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
+            },
+            {
+              "title": "PDF를 엑셀로 변환",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
+            },
+            {
               "title": "이미지→텍스트 변환",
               "url": "/image-to-text",
               "icon": "Image"
@@ -40,16 +50,6 @@
               "title": "사진 워드 변환",
               "url": "/photo-to-word",
               "icon": "Image"
-            },
-            {
-              "title": "PDF를 Word 문서로 변환",
-              "url": "/pdf-to-word-doc",
-              "icon": "FileText"
-            },
-            {
-              "title": "PDF를 엑셀로 변환",
-              "url": "/pdf-to-excel",
-              "icon": "FileSpreadsheet"
             }
           ]
         },

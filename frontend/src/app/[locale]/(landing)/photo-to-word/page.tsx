@@ -215,10 +215,16 @@ export default async function PhotoToWordPage({
           heading={exploreHeading}
           links={[
             {
-              href: '/jpg-to-word',
+              href: '/pdf-to-text',
               icon: 'pdf.png',
-              label: t('exploreJpgToWordLabel') || 'JPG to Word',
-              desc: t('exploreJpgToWordDesc'),
+              label: t('explorePdfToTextLabel') || 'PDF to Text',
+              desc: t('explorePdfToTextDesc'),
+            },
+            {
+              href: '/pdf-to-excel',
+              icon: 'pdf.png',
+              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
+              desc: t('explorePdfToExcelDesc'),
             },
             {
               href: '/image-to-text',
@@ -227,10 +233,10 @@ export default async function PhotoToWordPage({
               desc: t('exploreImageToTextDesc'),
             },
             {
-              href: '/pdf-to-text',
+              href: '/jpg-to-word',
               icon: 'pdf.png',
-              label: t('explorePdfToTextLabel') || 'PDF to Text',
-              desc: t('explorePdfToTextDesc'),
+              label: t('exploreJpgToWordLabel') || 'JPG to Word',
+              desc: t('exploreJpgToWordDesc'),
             },
             {
               href: '/translate',
@@ -243,12 +249,6 @@ export default async function PhotoToWordPage({
               icon: 'pdf.png',
               label: t('exploreContractCompareLabel') || 'AI Contract Comparison',
               desc: t('exploreContractCompareDesc'),
-            },
-            {
-              href: '/pdf-to-excel',
-              icon: 'pdf.png',
-              label: t('explorePdfToExcelLabel') || 'PDF to Excel',
-              desc: t('explorePdfToExcelDesc'),
             },
           ]}
         />

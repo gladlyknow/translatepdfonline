@@ -27,6 +27,16 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF σε Word Doc",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
+            },
+            {
+              "title": "PDF σε Excel",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
+            },
+            {
               "title": "Εικόνα σε Κείμενο",
               "url": "/image-to-text",
               "icon": "Image"
@@ -40,16 +50,6 @@
               "title": "Φωτογραφία σε Word",
               "url": "/photo-to-word",
               "icon": "Image"
-            },
-            {
-              "title": "PDF σε Word Doc",
-              "url": "/pdf-to-word-doc",
-              "icon": "FileText"
-            },
-            {
-              "title": "PDF σε Excel",
-              "url": "/pdf-to-excel",
-              "icon": "FileSpreadsheet"
             }
           ]
         },

@@ -1,14 +1,10 @@
+// 注意：Disallow 只阻止抓取，不能阻止索引。已被 Google 收录的登录/账户页
+// （settings、activity、auth 等）必须靠页面内的 meta noindex 清理，
+// 因此这些路径从 Disallow 移除，让 Googlebot 能抓取到 noindex 标签。
+// 仅保留从未被收录且绝无索引价值的路径（API、后台、聊天）。
 const DISALLOW = [
   '/api/',
   '/admin/',
-  '/settings/',
-  '/activity/',
-  '/sign-in',
-  '/sign-up',
-  '/forgot-password',
-  '/reset-password',
-  '/verify-email',
-  '/no-permission',
   '/chat',
   '/chat/',
   '/src/',

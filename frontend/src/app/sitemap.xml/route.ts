@@ -1,4 +1,11 @@
 import { defaultLocale, locales } from '@/config/locale';
+import { getPosts, PostStatus, PostType } from '@/shared/models/post';
+
+/**
+ * 静态页 lastmod 基线：固定为内容发布/大改日期，避免「每天滚动」的假新鲜度信号。
+ * 站点内容有实质更新时手动推进此日期。
+ */
+const STATIC_LASTMOD = '2026-08-24';
 
 /** 面向搜索引擎的公开路径（与 robots 允许范围一致） */
 const PUBLIC_PATHS: { path: string; priority: string; changefreq: string }[] = [
@@ -22,6 +29,15 @@ const PUBLIC_PATHS: { path: string; priority: string; changefreq: string }[] = [
   { path: '/terms-of-service', priority: '0.5', changefreq: 'monthly' },
 ];
 
+/** docs 站点子文档（content/docs/*.mdx，index 即 /docs 本身，不重复列出） */
+const DOCS_SUB_PATHS = [
+  'pdf-to-text',
+  'image-to-text',
+  'contract-comparison',
+  'ocr-workbench',
+  'upload',
+];
+
 function pathForLocale(pathname: string, locale: string): string {
   if (pathname === '/') {
     return locale === defaultLocale ? '/' : `/${locale}`;
@@ -29,30 +45,125 @@ function pathForLocale(pathname: string, locale: string): string {
   return locale === defaultLocale ? pathname : `/${locale}${pathname}`;
 }
 
-function buildSitemapXml(base: string): string {
-  const urls: string[] = [];
-  const today = new Date().toISOString().split('T')[0];
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
+/**
+ * 生成某个 path 在全部 locale 下的 hreflang 条目（10 locale + x-default）。
+ * href 与 <loc> 同源（均基于请求 Host），保证 sitemap 内部一致性。
+ */
+function buildHreflangLinks(base: string, pathname: string): string {
+  const lines: string[] = [];
+  for (const locale of locales) {
+    const href = `${base}${pathForLocale(pathname, locale)}`;
+    lines.push(
+      `    <xhtml:link rel="alternate" hreflang="${locale}" href="${escapeXml(href)}"/>`
+    );
+  }
+  const xDefault = `${base}${pathForLocale(pathname, defaultLocale)}`;
+  lines.push(
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(xDefault)}"/>`
+  );
+  return lines.join('\n') + '\n';
+}
+
+function buildUrlEntry(
+  base: string,
+  pathname: string,
+  lastmod: string,
+  changefreq: string,
+  priority: string
+): string {
+  const loc = `${base}${pathname}`;
+  return (
+    `  <url>\n` +
+    `    <loc>${escapeXml(loc)}</loc>\n` +
+    `    <lastmod>${lastmod}</lastmod>\n` +
+    `    <changefreq>${changefreq}</changefreq>\n` +
+    `    <priority>${priority}</priority>\n` +
+    buildHreflangLinks(base, pathname) +
+    `  </url>\n`
+  );
+}
+
+/** 从数据库取已发布文章；DB 不可用（构建期/连接失败）时降级为空数组。 */
+async function getPublishedBlogPosts(): Promise<{ slug: string; lastmod: string }[]> {
+  try {
+    const posts = await getPosts({
+      type: PostType.ARTICLE,
+      status: PostStatus.PUBLISHED,
+      limit: 100,
+    });
+    return posts.map((p) => ({
+      slug: p.slug,
+      lastmod: (p.updatedAt || p.createdAt).toISOString().slice(0, 10),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function buildSitemapXml(base: string): Promise<string> {
+  const urls: string[] = [];
+
+  // 1. 静态公开路径 × 10 locale
   for (const entry of PUBLIC_PATHS) {
     for (const locale of locales) {
-      const p = pathForLocale(entry.path, locale);
-      const loc = `${base}${p === '/' ? '/' : p}`;
       urls.push(
-        `  <url>\n` +
-        `    <loc>${loc}</loc>\n` +
-        `    <lastmod>${today}</lastmod>\n` +
-        `    <changefreq>${entry.changefreq}</changefreq>\n` +
-        `    <priority>${entry.priority}</priority>\n` +
-        `  </url>`
+        buildUrlEntry(
+          base,
+          pathForLocale(entry.path, locale),
+          STATIC_LASTMOD,
+          entry.changefreq,
+          entry.priority
+        )
+      );
+    }
+  }
+
+  // 2. docs 子文档 × 10 locale
+  for (const sub of DOCS_SUB_PATHS) {
+    for (const locale of locales) {
+      urls.push(
+        buildUrlEntry(
+          base,
+          pathForLocale(`/docs/${sub}`, locale),
+          STATIC_LASTMOD,
+          'weekly',
+          '0.7'
+        )
+      );
+    }
+  }
+
+  // 3. blog 已发布文章 × 10 locale（lastmod 用文章真实更新时间）
+  const blogPosts = await getPublishedBlogPosts();
+  for (const post of blogPosts) {
+    for (const locale of locales) {
+      urls.push(
+        buildUrlEntry(
+          base,
+          pathForLocale(`/blog/${post.slug}`, locale),
+          post.lastmod,
+          'monthly',
+          '0.6'
+        )
       );
     }
   }
 
   return (
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    urls.join('\n') +
-    `\n</urlset>\n`
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" ` +
+    `xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
+    urls.join('') +
+    `</urlset>\n`
   );
 }
 
@@ -62,7 +173,7 @@ export async function GET(request: Request) {
   const protocol = host.startsWith('localhost') || host.includes(':') ? 'http' : 'https';
   const base = `${protocol}://${host}`;
 
-  return new Response(buildSitemapXml(base), {
+  return new Response(await buildSitemapXml(base), {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',

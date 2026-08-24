@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { envConfigs } from '@/config';
+import { buildAlternates } from '@/shared/lib/hreflang';
 import { findPost, PostStatus } from '@/shared/models/post';
 import { MarkdownContent } from '@/shared/blocks/common/markdown-content';
 
@@ -22,10 +22,8 @@ export async function generateMetadata({
     return { title: 'Not Found' };
   }
 
-  const canonical =
-    locale === envConfigs.locale
-      ? `${envConfigs.app_url}/blog/${slug}`
-      : `${envConfigs.app_url}/${locale}/blog/${slug}`;
+  // canonical + 10 locale hreflang（与站内工具页一致，含 x-default）
+  const { canonical, languages } = buildAlternates(`/blog/${slug}`, locale);
 
   return {
     title: post.title || 'Blog Post',
@@ -35,6 +33,7 @@ export async function generateMetadata({
       : undefined,
     alternates: {
       canonical,
+      languages,
     },
     robots: { index: true, follow: true },
   };

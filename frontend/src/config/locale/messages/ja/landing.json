@@ -27,6 +27,16 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF を Word 文書に変換",
+              "url": "/pdf-to-word-doc",
+              "icon": "FileText"
+            },
+            {
+              "title": "PDFをExcelに変換",
+              "url": "/pdf-to-excel",
+              "icon": "FileSpreadsheet"
+            },
+            {
               "title": "画像→テキスト変換",
               "url": "/image-to-text",
               "icon": "Image"
@@ -40,16 +50,6 @@
               "title": "写真を Word に",
               "url": "/photo-to-word",
               "icon": "Image"
-            },
-            {
-              "title": "PDF を Word 文書に変換",
-              "url": "/pdf-to-word-doc",
-              "icon": "FileText"
-            },
-            {
-              "title": "PDFをExcelに変換",
-              "url": "/pdf-to-excel",
-              "icon": "FileSpreadsheet"
             }
           ]
         },
