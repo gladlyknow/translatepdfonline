@@ -32,6 +32,11 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF σε Markdown",
+              "url": "/pdf-to-md",
+              "icon": "FileText"
+            },
+            {
               "title": "PDF σε Excel",
               "url": "/pdf-to-excel",
               "icon": "FileSpreadsheet"

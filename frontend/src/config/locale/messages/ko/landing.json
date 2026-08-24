@@ -32,6 +32,11 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF를 Markdown으로",
+              "url": "/pdf-to-md",
+              "icon": "FileText"
+            },
+            {
               "title": "PDF를 엑셀로 변환",
               "url": "/pdf-to-excel",
               "icon": "FileSpreadsheet"

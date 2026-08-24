@@ -13,7 +13,7 @@ const ALLOWED = {
   'application/pdf': 'pdf',
 } as Record<string, string>;
 
-const VALID_TARGETS = new Set(['word', 'excel']);
+const VALID_TARGETS = new Set(['word', 'excel', 'md']);
 
 const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 

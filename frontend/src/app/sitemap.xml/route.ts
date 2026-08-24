@@ -17,6 +17,7 @@ const PUBLIC_PATHS: { path: string; priority: string; changefreq: string }[] = [
   { path: '/photo-to-word', priority: '0.9', changefreq: 'weekly' },
   { path: '/pdf-to-word-doc', priority: '0.9', changefreq: 'weekly' },
   { path: '/pdf-to-excel', priority: '0.9', changefreq: 'weekly' },
+  { path: '/pdf-to-md', priority: '0.9', changefreq: 'weekly' },
   { path: '/ocrtranslator', priority: '0.9', changefreq: 'weekly' },
   { path: '/contract-comparison', priority: '0.9', changefreq: 'weekly' },
   // 次级内容页

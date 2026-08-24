@@ -5,7 +5,7 @@ import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 import { ExploreMoreLinks } from '@/shared/blocks/explore-more-links';
 
-import { PdfToWordClient } from './PdfToWordClient';
+import { PdfToWordClient } from '../pdf-to-word-doc/PdfToWordClient';
 
 export const dynamic = 'force-static';
 
@@ -14,18 +14,18 @@ export async function generateStaticParams() {
 }
 
 export const generateMetadata = getMetadata({
-  metadataKey: 'pages.pdf-to-word-doc',
-  canonicalUrl: '/pdf-to-word-doc',
+  metadataKey: 'pages.pdf-to-md',
+  canonicalUrl: '/pdf-to-md',
 });
 
-export default async function PdfToWordDocPage({
+export default async function PdfToMdPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'pages.pdf-to-word-doc' });
+  const t = await getTranslations({ locale, namespace: 'pages.pdf-to-md' });
 
   const heroTitle = t('heroTitle');
   const heroText = t('heroText');
@@ -58,7 +58,7 @@ export default async function PdfToWordDocPage({
       <div className="min-h-dvh w-full bg-background pt-14 lg:pt-18">
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
           {/* Hero + Upload Area */}
-          <PdfToWordClient>
+          <PdfToWordClient namespace="pages.pdf-to-md" targetFormat="md">
             <section className="text-center pb-2">
               <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
                 {heroTitle}
@@ -164,10 +164,10 @@ export default async function PdfToWordDocPage({
           heading={exploreHeading}
           links={[
             {
-              href: '/pdf-to-md',
+              href: '/pdf-to-word-doc',
               icon: 'pdf.png',
-              label: t('explorePdfToMdLabel') || 'PDF to Markdown',
-              desc: t('explorePdfToMdDesc'),
+              label: t('explorePdfToWordDocLabel') || 'PDF to Word',
+              desc: t('explorePdfToWordDocDesc'),
             },
             {
               href: '/pdf-to-text',

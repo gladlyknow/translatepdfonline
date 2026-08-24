@@ -80,5 +80,7 @@
   "pageRangeLabel": "Σελίδες (προαιρετικό)",
   "pageRangePlaceholder": "Όλες οι σελίδες — ή π.χ. 1,3,5-8",
   "explorePdfToExcelLabel": "PDF σε Excel",
-  "explorePdfToExcelDesc": "Μετατρέψτε πίνακες PDF σε επεξεργάσιμα φύλλα Excel."
+  "explorePdfToExcelDesc": "Μετατρέψτε πίνακες PDF σε επεξεργάσιμα φύλλα Excel.",
+  "explorePdfToMdLabel": "PDF σε Markdown",
+  "explorePdfToMdDesc": "Μετατρέψτε PDF σε καθαρό Markdown με εξαγωγή πινάκων και εικόνων."
 }

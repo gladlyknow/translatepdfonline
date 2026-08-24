@@ -322,12 +322,73 @@ export type RewriteImagesResult = {
 };
 
 /**
- * 将百度外链 / data URL 图片写入 `translations/{taskId}/assets/`，并原地替换 JSON 中的字符串。
+ * 将一批 http URL 图片下载中转写入 R2（`{prefix}/{sha256前16}.{ext}`，幂等），
+ * 返回 url → R2 公网 URL 的 map；下载失败（重试耗尽 / fast-fail）的 URL 不进 map。
+ */
+async function mirrorUrlListToR2(
+  urls: string[],
+  opts: {
+    prefix: string;
+    maxConcurrent: number;
+    maxRetries: number;
+    perAttemptTimeoutMs: number;
+  }
+): Promise<{ map: Map<string, string>; failed: number }> {
+  const map = new Map<string, string>();
+  let failed = 0;
+
+  await runPool(urls, opts.maxConcurrent, async (url) => {
+    try {
+      const hash = await shortHash(url);
+      const ext = guessExtFromUrl(url);
+      const key = `${opts.prefix}/${hash}.${ext}`;
+      const exists = await r2ObjectExists(key);
+      if (!exists) {
+        const result = await fetchImageWithRetry(url, {
+          maxRetries: opts.maxRetries,
+          perAttemptTimeoutMs: opts.perAttemptTimeoutMs,
+        });
+        if (!result.ok) {
+          failed++;
+          return;
+        }
+        const buf = new Uint8Array(await result.res.arrayBuffer());
+        const hdrCt = result.res.headers
+          .get('content-type')
+          ?.split(';')[0]
+          .trim();
+        const ct = hdrCt || defaultContentType(ext);
+        await putObject(key, buf, ct);
+      }
+      map.set(url, await publicUrlForAssetKey(key));
+    } catch (err) {
+      failed++;
+      console.warn(
+        '[ocr/parse_image_mirror] error',
+        JSON.stringify({
+          url_host: safeUrlHost(url),
+          error_name: err instanceof Error ? err.name : 'Error',
+          error_message: (err instanceof Error ? err.message : String(err)).slice(
+            0,
+            300
+          ),
+        })
+      );
+    }
+  });
+
+  return { map, failed };
+}
+
+/**
+ * 将百度外链 / data URL 图片写入 `{assetKeyPrefix}`（默认 `translations/{taskId}/assets/`），并原地替换 JSON 中的字符串。
  * 同时改写「字段值即 URL」与「字段值含内嵌 URL（markdown / HTML）」两类。
  */
 export async function rewriteExternalImagesToR2(params: {
   json: Record<string, unknown>;
   taskId: string;
+  /** R2 asset 前缀。默认 `translations/${taskId}/assets`；doc-convert md 任务传 `doc-convert/${taskId}/assets` */
+  assetKeyPrefix?: string;
   /** 单图下载并发。默认 5；优先级：调用方 > env `OCR_IMAGE_MIRROR_CONCURRENCY` > 5 */
   maxConcurrent?: number;
   /** 单图下载最多重试次数（不含首次）。默认 3；优先级：调用方 > env `OCR_IMAGE_MIRROR_MAX_RETRIES` > 3 */
@@ -370,49 +431,15 @@ export async function rewriteExternalImagesToR2(params: {
     90_000
   );
 
-  const map = new Map<string, string>();
-  let failed = 0;
-  const prefix = `translations/${params.taskId}/assets`;
-
-  await runPool(list, concurrency, async (url) => {
-    try {
-      const hash = await shortHash(url);
-      const ext = guessExtFromUrl(url);
-      const key = `${prefix}/${hash}.${ext}`;
-      const exists = await r2ObjectExists(key);
-      if (!exists) {
-        const result = await fetchImageWithRetry(url, {
-          maxRetries,
-          perAttemptTimeoutMs,
-        });
-        if (!result.ok) {
-          failed++;
-          return;
-        }
-        const buf = new Uint8Array(await result.res.arrayBuffer());
-        const hdrCt = result.res.headers
-          .get('content-type')
-          ?.split(';')[0]
-          .trim();
-        const ct = hdrCt || defaultContentType(ext);
-        await putObject(key, buf, ct);
-      }
-      map.set(url, await publicUrlForAssetKey(key));
-    } catch (err) {
-      failed++;
-      console.warn(
-        '[ocr/parse_image_mirror] error',
-        JSON.stringify({
-          url_host: safeUrlHost(url),
-          error_name: err instanceof Error ? err.name : 'Error',
-          error_message: (err instanceof Error ? err.message : String(err)).slice(
-            0,
-            300
-          ),
-        })
-      );
-    }
+  const prefix = params.assetKeyPrefix ?? `translations/${params.taskId}/assets`;
+  const mirrored = await mirrorUrlListToR2(list, {
+    prefix,
+    maxConcurrent: concurrency,
+    maxRetries,
+    perAttemptTimeoutMs,
   });
+  const map = mirrored.map;
+  let failed = mirrored.failed;
 
   await runPool(dataList, concurrency, async (dataUrl) => {
     try {
@@ -441,6 +468,74 @@ export async function rewriteExternalImagesToR2(params: {
   replaceStringsInPlace(params.json, map);
   replaceInlineUrlsInPlace(params.json, map);
   return { replaced: map.size, failed, total };
+}
+
+export type RewriteMarkdownImagesResult = {
+  /** 替换后的 Markdown 文本 */
+  markdown: string;
+  /** 命中并成功改写为 R2 URL 的图片 URL 数 */
+  replaced: number;
+  /** 重试耗尽 / fast-fail 的图片 URL 数（其 URL 保持原百度 URL 不替换） */
+  failed: number;
+  /** Markdown 中扫描到的去重图片 URL 数 */
+  total: number;
+};
+
+/**
+ * 将 Markdown 文本中内嵌的百度图片 URL 下载中转写入 R2，并替换为 R2 公网 URL。
+ * 单图重试耗尽 / fast-fail（401/403/404/410）时该 URL 保持原百度 URL 不替换，不影响其他图片与任务整体。
+ * 语义：`fetchImageWithRetry` 为「1 次原始请求 + maxRetries 次重试」，md 场景传 `maxRetries: 2` 即严格 3 次尝试。
+ */
+export async function rewriteMarkdownImagesToR2(params: {
+  markdown: string;
+  taskId: string;
+  /** R2 asset 前缀。默认 `translations/${taskId}/assets`；doc-convert md 任务传 `doc-convert/${taskId}/assets` */
+  assetKeyPrefix?: string;
+  /** 单图下载并发。默认 5；优先级：调用方 > env `OCR_IMAGE_MIRROR_CONCURRENCY` > 5 */
+  maxConcurrent?: number;
+  /** 单图下载最多重试次数（不含首次）。默认 3；md 场景建议显式传 2（严格 3 次尝试） */
+  maxRetries?: number;
+  /** 单次 fetch 超时。默认 90s；优先级：调用方 > env `OCR_IMAGE_MIRROR_FETCH_TIMEOUT_MS` > 90000 */
+  fetchTimeoutMs?: number;
+}): Promise<RewriteMarkdownImagesResult> {
+  const urls = [...new Set(params.markdown.match(INLINE_BAIDU_URL_RE) ?? [])];
+  if (urls.length === 0) {
+    return { markdown: params.markdown, replaced: 0, failed: 0, total: 0 };
+  }
+
+  const concurrency = clampInt(
+    params.maxConcurrent ?? envNumber('OCR_IMAGE_MIRROR_CONCURRENCY') ?? 5,
+    1,
+    16,
+    5
+  );
+  const maxRetries = clampInt(
+    params.maxRetries ?? envNumber('OCR_IMAGE_MIRROR_MAX_RETRIES') ?? 3,
+    0,
+    5,
+    3
+  );
+  const perAttemptTimeoutMs = clampInt(
+    params.fetchTimeoutMs ??
+      envNumber('OCR_IMAGE_MIRROR_FETCH_TIMEOUT_MS') ??
+      90_000,
+    1_000,
+    600_000,
+    90_000
+  );
+
+  const prefix = params.assetKeyPrefix ?? `translations/${params.taskId}/assets`;
+  const { map, failed } = await mirrorUrlListToR2(urls, {
+    prefix,
+    maxConcurrent: concurrency,
+    maxRetries,
+    perAttemptTimeoutMs,
+  });
+  const markdown = params.markdown.replace(
+    INLINE_BAIDU_URL_RE,
+    (m) => map.get(m) ?? m
+  );
+  return { markdown, replaced: map.size, failed, total: urls.length };
 }
 
 export type MirrorBaiduImagesResult = RewriteImagesResult & {

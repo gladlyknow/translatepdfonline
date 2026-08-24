@@ -80,5 +80,7 @@
   "pageRangeLabel": "Páginas (opcional)",
   "pageRangePlaceholder": "Todas las páginas — o ej. 1,3,5-8",
   "explorePdfToExcelLabel": "PDF a Excel",
-  "explorePdfToExcelDesc": "Convierte tablas PDF en hojas de cálculo Excel editables."
+  "explorePdfToExcelDesc": "Convierte tablas PDF en hojas de cálculo Excel editables.",
+  "explorePdfToMdLabel": "PDF a Markdown",
+  "explorePdfToMdDesc": "Convierte PDF a Markdown limpio con tablas e imágenes extraídas."
 }

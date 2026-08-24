@@ -80,5 +80,7 @@
   "pageRangeLabel": "页码范围（可选）",
   "pageRangePlaceholder": "全部页——或输入如 1,3,5-8",
   "explorePdfToExcelLabel": "PDF转Excel",
-  "explorePdfToExcelDesc": "将PDF中的表格提取为可编辑的Excel电子表格。"
+  "explorePdfToExcelDesc": "将PDF中的表格提取为可编辑的Excel电子表格。",
+  "explorePdfToMdLabel": "PDF转Markdown",
+  "explorePdfToMdDesc": "将PDF转换为干净的Markdown文件，表格与图片完整提取。"
 }

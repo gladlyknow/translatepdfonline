@@ -32,6 +32,7 @@ export async function GET(request: Request) {
 - JPG to Word: ${base}/jpg-to-word
 - Photo to Word: ${base}/photo-to-word
 - PDF to Word: ${base}/pdf-to-word-doc
+- PDF to Markdown: ${base}/pdf-to-md
 - Contract Comparison: ${base}/contract-comparison
 
 ## Pricing

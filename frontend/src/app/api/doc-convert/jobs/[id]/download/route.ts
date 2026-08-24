@@ -23,6 +23,7 @@ export async function GET(
 
     const ext = (job.resultR2Key ?? '').endsWith('.zip') ? 'zip'
       : job.targetFormat === 'excel' ? 'xlsx'
+      : job.targetFormat === 'md' ? 'md'
       : 'docx';
     const baseName = (job.sourceFilename || 'document').replace(/\.[^.]+$/, '');
     const filename = `${baseName}_converted.${ext}`;

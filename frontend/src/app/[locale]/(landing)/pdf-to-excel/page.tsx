@@ -206,6 +206,12 @@ export default async function PdfToExcelPage({
           heading={exploreHeading}
           links={[
             {
+              href: '/pdf-to-md',
+              icon: 'pdf.png',
+              label: t('explorePdfToMdLabel') || 'PDF to Markdown',
+              desc: t('explorePdfToMdDesc'),
+            },
+            {
               href: '/pdf-to-text',
               icon: 'pdf.png',
               label: t('explorePdfToTextLabel') || 'PDF to Text',

@@ -80,5 +80,7 @@
   "pageRangeLabel": "ページ範囲（任意）",
   "pageRangePlaceholder": "全ページ —— または例：1,3,5-8",
   "explorePdfToExcelLabel": "PDFをExcelに変換",
-  "explorePdfToExcelDesc": "PDFの表を編集可能なExcelスプレッドシートに変換します。"
+  "explorePdfToExcelDesc": "PDFの表を編集可能なExcelスプレッドシートに変換します。",
+  "explorePdfToMdLabel": "PDF→Markdown変換",
+  "explorePdfToMdDesc": "PDFを表・画像抽出付きのきれいなMarkdownに変換。"
 }

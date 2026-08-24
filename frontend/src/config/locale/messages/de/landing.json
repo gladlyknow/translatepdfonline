@@ -32,6 +32,11 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF in Markdown",
+              "url": "/pdf-to-md",
+              "icon": "FileText"
+            },
+            {
               "title": "PDF in Excel",
               "url": "/pdf-to-excel",
               "icon": "FileSpreadsheet"

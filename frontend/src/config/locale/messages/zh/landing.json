@@ -32,6 +32,11 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF转Markdown",
+              "url": "/pdf-to-md",
+              "icon": "FileText"
+            },
+            {
               "title": "PDF转Excel",
               "url": "/pdf-to-excel",
               "icon": "FileSpreadsheet"

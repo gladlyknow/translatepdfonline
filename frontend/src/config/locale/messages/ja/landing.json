@@ -32,6 +32,11 @@
               "icon": "FileText"
             },
             {
+              "title": "PDF→Markdown",
+              "url": "/pdf-to-md",
+              "icon": "FileText"
+            },
+            {
               "title": "PDFをExcelに変換",
               "url": "/pdf-to-excel",
               "icon": "FileSpreadsheet"

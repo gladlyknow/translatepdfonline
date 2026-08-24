@@ -58,7 +58,7 @@ export function PdfToWordClient({
 }: {
   children?: ReactNode;
   namespace?: string;
-  targetFormat?: 'word' | 'excel';
+  targetFormat?: 'word' | 'excel' | 'md';
 }) {
   const t = useTranslations(namespace);
   const router = useRouter();
