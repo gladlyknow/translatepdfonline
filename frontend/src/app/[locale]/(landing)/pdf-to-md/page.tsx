@@ -32,7 +32,7 @@ export default async function PdfToMdPage({
   const geoDescription = t('geoDescription');
   const features = [1, 2, 3]
     .map((n) => t(`seoFeature${n}` as any))
-    .filter((f: string) => f);
+    .filter((f: string) => f && !f.startsWith('seoFeature'));
   const howItWorksTitle = t('howItWorks');
   const whyHeading = t('whyHeading');
   const exploreHeading = t('exploreMoreHeading');
@@ -50,7 +50,7 @@ export default async function PdfToMdPage({
       title: t(`why${n}Title` as any),
       desc: t(`why${n}Desc` as any),
     }))
-    .filter((w) => w.title);
+    .filter((w) => w.title && !w.title.startsWith('why'));
 
   return (
     <>
