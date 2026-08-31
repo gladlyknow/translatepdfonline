@@ -44,85 +44,10 @@ const nextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      // Block leaked internal source paths
-      {
-        source: '/:locale*/src/config/:path*',
-        destination: '/:locale*',
-        permanent: true,
-      },
-      {
-        source: '/:locale*/docs/src/:path*',
-        destination: '/docs',
-        permanent: true,
-      },
-      {
-        source: '/src/config/:path*',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/docs/src/:path*',
-        destination: '/docs',
-        permanent: true,
-      },
-      // Non-existent routes → redirect to root
-      {
-        source: '/:locale*/updates',
-        destination: '/:locale*',
-        permanent: true,
-      },
-      {
-        source: '/updates',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/:locale*/showcases',
-        destination: '/:locale*',
-        permanent: true,
-      },
-      {
-        source: '/showcases',
-        destination: '/',
-        permanent: true,
-      },
-      // Deprecated translate sub-pages
-      {
-        source: '/:locale*/translate/upload',
-        destination: '/:locale*',
-        permanent: true,
-      },
-      {
-        source: '/translate/upload',
-        destination: '/',
-        permanent: true,
-      },
-      // Test blog slug → redirect to blog index
-      {
-        source: '/:locale*/blog/what-is-xxx',
-        destination: '/:locale*/blog',
-        permanent: true,
-      },
-      {
-        source: '/blog/what-is-xxx',
-        destination: '/blog',
-        permanent: true,
-      },
-      // Catch remaining deprecated translate paths
-      {
-        source: '/:locale*/translate/:path*',
-        destination: '/:locale*',
-        permanent: true,
-      },
-      {
-        source: '/translate/:path*',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
+  // redirects() 已移除：旧页面（updates/showcases 等）重定向规则在 Next 15.5
+  // path-to-regexp v8 下把 `:locale*` 模板字面量泄漏进 Location 头（308 -> /:locale*），
+  // 且 Google 早已放弃抓取这些 URL（URL Inspection 全部 NOT_CRAWLED_BY_GOOGLE），
+  // 故统一改为 404 由 [...slug] catch-all 处理。
   async headers() {
     return [
       {
