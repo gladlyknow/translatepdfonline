@@ -45,6 +45,20 @@ export async function middleware(request: NextRequest) {
     return apiResponse;
   }
 
+  // 已删除的历史路径（旧版 landing 页）一律返回 410 Gone。
+  // 否则 next-intl 会重定向到字面量 `/:locale*`（→404）或 locale 首页（Google 判软 404）
+  const segments = pathname.split('/').filter(Boolean);
+  const headPath =
+    segments.length > 0 && routing.locales.includes(segments[0])
+      ? segments[1]
+      : segments[0];
+  if (headPath === 'showcases' || headPath === 'updates') {
+    return new NextResponse(
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>410 Gone</title></head><body><h1>410 Gone</h1><p>This page has been permanently removed.</p></body></html>',
+      { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    );
+  }
+
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
 

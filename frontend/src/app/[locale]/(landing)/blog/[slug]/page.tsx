@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { defaultLocale } from '@/config/locale';
 import { buildAlternates } from '@/shared/lib/hreflang';
 import { findPost, PostStatus } from '@/shared/models/post';
 import { MarkdownContent } from '@/shared/blocks/common/markdown-content';
@@ -17,13 +18,19 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
+  // 文章仅有默认语言版本；非默认 locale 的 /blog/<slug> 一律 404，
+  // 避免「语言声明 ≠ 内容语言」被 Google 判为重复内容/软 404
+  if (locale !== defaultLocale) {
+    notFound();
+  }
+
   const post = await findPost({ slug: slug as string, status: PostStatus.PUBLISHED });
   if (!post) {
     return { title: 'Not Found' };
   }
 
-  // canonical + 10 locale hreflang（与站内工具页一致，含 x-default）
-  const { canonical, languages } = buildAlternates(`/blog/${slug}`, locale);
+  // 文章仅有默认语言版本：canonical + hreflang 均只含默认 locale（与 sitemap 一致）
+  const { canonical } = buildAlternates(`/blog/${slug}`, locale);
 
   return {
     title: post.title || 'Blog Post',
@@ -33,7 +40,7 @@ export async function generateMetadata({
       : undefined,
     alternates: {
       canonical,
-      languages,
+      languages: { en: canonical, 'x-default': canonical },
     },
     robots: { index: true, follow: true },
   };
@@ -46,6 +53,10 @@ export default async function BlogPostPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+
+  if (locale !== defaultLocale) {
+    notFound();
+  }
 
   const t = await getTranslations({ locale, namespace: 'pages.blog' });
   const post = await findPost({ slug: slug as string, status: PostStatus.PUBLISHED });

@@ -31,19 +31,13 @@ export function OrganizationJsonLd() {
 }
 
 export function WebSiteJsonLd() {
+  // 注意：不输出 SearchAction —— 站点不存在 /search 页面，指向 404 的
+  // 结构化数据会被 GSC 判为错误（曾列入问题清单）
   const payload = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'TranslatePDFOnline',
     url: siteUrl,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${siteUrl}/search?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 
   return (

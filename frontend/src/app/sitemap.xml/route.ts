@@ -56,12 +56,16 @@ function escapeXml(text: string): string {
 }
 
 /**
- * 生成某个 path 在全部 locale 下的 hreflang 条目（10 locale + x-default）。
- * href 与 <loc> 同源（均基于请求 Host），保证 sitemap 内部一致性。
+ * 生成某个 path 在指定 locale 集合下的 hreflang 条目（默认 10 locale + x-default）。
+ * href 与 <loc> 同源（均基于 base），保证 sitemap 内部一致性。
  */
-function buildHreflangLinks(base: string, pathname: string): string {
+function buildHreflangLinks(
+  base: string,
+  pathname: string,
+  hreflangLocales: string[] = locales
+): string {
   const lines: string[] = [];
-  for (const locale of locales) {
+  for (const locale of hreflangLocales) {
     const href = `${base}${pathForLocale(pathname, locale)}`;
     lines.push(
       `    <xhtml:link rel="alternate" hreflang="${locale}" href="${escapeXml(href)}"/>`
@@ -79,7 +83,8 @@ function buildUrlEntry(
   pathname: string,
   lastmod: string,
   changefreq: string,
-  priority: string
+  priority: string,
+  hreflangLocales: string[] = locales
 ): string {
   const loc = `${base}${pathname}`;
   return (
@@ -88,7 +93,7 @@ function buildUrlEntry(
     `    <lastmod>${lastmod}</lastmod>\n` +
     `    <changefreq>${changefreq}</changefreq>\n` +
     `    <priority>${priority}</priority>\n` +
-    buildHreflangLinks(base, pathname) +
+    buildHreflangLinks(base, pathname, hreflangLocales) +
     `  </url>\n`
   );
 }
@@ -143,20 +148,20 @@ async function buildSitemapXml(base: string): Promise<string> {
     }
   }
 
-  // 3. blog 已发布文章 × 10 locale（lastmod 用文章真实更新时间）
+  // 3. blog 已发布文章：仅默认 locale（文章无多语言版本，非默认 locale 的
+  //    /blog/<slug> 由页面返回 404；hreflang 仅含默认 locale + x-default）
   const blogPosts = await getPublishedBlogPosts();
   for (const post of blogPosts) {
-    for (const locale of locales) {
-      urls.push(
-        buildUrlEntry(
-          base,
-          pathForLocale(`/blog/${post.slug}`, locale),
-          post.lastmod,
-          'monthly',
-          '0.6'
-        )
-      );
-    }
+    urls.push(
+      buildUrlEntry(
+        base,
+        pathForLocale(`/blog/${post.slug}`, defaultLocale),
+        post.lastmod,
+        'monthly',
+        '0.6',
+        [defaultLocale]
+      )
+    );
   }
 
   return (
@@ -168,11 +173,15 @@ async function buildSitemapXml(base: string): Promise<string> {
   );
 }
 
+/** sitemap 规范域名：与页面 canonical（envConfigs.app_url）保持一致，不受请求 Host 影响 */
+const SITE_BASE = 'https://translatepdfonline.com';
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const host = url.host;
-  const protocol = host.startsWith('localhost') || host.includes(':') ? 'http' : 'https';
-  const base = `${protocol}://${host}`;
+  // 本地开发保留请求 Host（便于本地预览）；生产一律输出规范 apex 域名
+  const isLocal = host.startsWith('localhost') || host.includes(':');
+  const base = isLocal ? `${url.protocol}//${host}` : SITE_BASE;
 
   return new Response(await buildSitemapXml(base), {
     headers: {

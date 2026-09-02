@@ -9,8 +9,6 @@ export type SoftwareAppProps = {
   operatingSystem?: string;
   price?: string;
   priceCurrency?: string;
-  ratingValue?: string;
-  ratingCount?: string;
   url?: string;
 };
 
@@ -21,10 +19,10 @@ export function SoftwareApplicationJsonLd({
   operatingSystem = 'Web',
   price = '0',
   priceCurrency = 'USD',
-  ratingValue = '4.8',
-  ratingCount = '127',
   url,
 }: SoftwareAppProps = {}) {
+  // 注意：不输出 aggregateRating —— 无真实评价来源的硬编码评分会被
+  // Google 判为结构化数据造假，存在处罚风险
   const payload: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -36,11 +34,6 @@ export function SoftwareApplicationJsonLd({
       '@type': 'Offer',
       price,
       priceCurrency,
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue,
-      ratingCount,
     },
   };
   if (url) {
