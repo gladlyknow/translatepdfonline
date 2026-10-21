@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { locales } from '@/config/locale';
+import { defaultLocale, locales } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
 import { HomeFaqJsonLd } from '@/shared/blocks/seo/home-faq-json-ld';
 
@@ -13,6 +13,7 @@ export async function generateStaticParams() {
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.docs-api',
   canonicalUrl: '/docs/api',
+  indexLocales: [defaultLocale],
 });
 
 export default async function DocsApiPage({

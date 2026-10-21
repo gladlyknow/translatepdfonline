@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { cacheBustedPublicPath, envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
+import { isCanonicalSiteUrl } from '@/config/seo-routes';
 import { buildAlternates } from '@/shared/lib/hreflang';
 
 // get metadata for page component
@@ -15,6 +16,8 @@ export function getMetadata(
     imageUrl?: string;
     appName?: string;
     noIndex?: boolean;
+    indexLocales?: readonly string[];
+    hreflangLocales?: readonly string[];
   } = {}
 ) {
   return async function generateMetadata({
@@ -58,10 +61,19 @@ export function getMetadata(
       options.canonicalUrl && !options.canonicalUrl.startsWith('http')
         ? options.canonicalUrl
         : '/';
+    const alternateLocales = options.hreflangLocales || options.indexLocales;
     const { languages: alternatesLanguages } = buildAlternates(
       alternatesPath,
-      locale || defaultLocale
+      locale || defaultLocale,
+      alternateLocales
     );
+
+    const isIndexableLocale =
+      !options.indexLocales || options.indexLocales.includes(locale);
+    const shouldIndex =
+      !options.noIndex &&
+      isIndexableLocale &&
+      isCanonicalSiteUrl(envConfigs.app_url);
 
     const title =
       passedMetadata.title || translatedMetadata.title || defaultMetadata.title;
@@ -147,8 +159,8 @@ export function getMetadata(
       },
 
       robots: {
-        index: options.noIndex ? false : true,
-        follow: options.noIndex ? false : true,
+        index: shouldIndex,
+        follow: true,
       },
     };
   };
@@ -161,8 +173,16 @@ async function getTranslatedMetadata(metadataKey: string, locale: string) {
   const t = await getTranslations({ locale, namespace: metadataKey });
 
   return {
-    title: t.has('title') ? t('title') : (t.has('metaTitle') ? t('metaTitle') : ''),
-    description: t.has('description') ? t('description') : (t.has('metaDescription') ? t('metaDescription') : ''),
+    title: t.has('title')
+      ? t('title')
+      : t.has('metaTitle')
+        ? t('metaTitle')
+        : '',
+    description: t.has('description')
+      ? t('description')
+      : t.has('metaDescription')
+        ? t('metaDescription')
+        : '',
     keywords: t.has('keywords') ? t('keywords') : '',
   };
 }

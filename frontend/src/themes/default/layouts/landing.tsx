@@ -29,7 +29,12 @@ export default async function LandingLayout({
         </HeaderWithTranslateBehavior>
         <main className="w-full flex-1">{children}</main>
         <FooterWithTranslateBehavior>
-          <Footer footer={footer} />
+          <Footer
+            footer={{
+              ...footer,
+              nav: footer.nav?.items?.length ? footer.nav : header.nav,
+            }}
+          />
         </FooterWithTranslateBehavior>
       </div>
     </TranslateHistoryDrawerProvider>

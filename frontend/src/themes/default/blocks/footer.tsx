@@ -82,9 +82,19 @@ export function Footer({ footer }: { footer: FooterType }) {
                 key={idx}
                 className="min-w-0 space-y-2 text-sm break-words"
               >
-                <span className="block font-medium break-words">
-                  {item.title}
-                </span>
+                {item.url ? (
+                  <Link
+                    href={item.url}
+                    target={item.target || ''}
+                    className="hover:text-primary block font-medium break-words"
+                  >
+                    {item.title}
+                  </Link>
+                ) : (
+                  <span className="block font-medium break-words">
+                    {item.title}
+                  </span>
+                )}
 
                 <div className="flex min-w-0 flex-wrap gap-2 sm:flex-col">
                   {item.children?.map((subItem, iidx) => (
@@ -111,30 +121,6 @@ export function Footer({ footer }: { footer: FooterType }) {
 
         {/* 居中分行：法律链接 → Support / 支付 → 社交 → 版权（SaaS 合规常见版式） */}
         <div className="mx-auto max-w-2xl space-y-5 pb-2 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="hover:text-foreground transition-colors duration-150">
-              Translate PDF Online
-            </Link>
-            <Link
-              href="/translate?recent=1"
-              className="hover:text-foreground transition-colors duration-150"
-            >
-              PDF Translate
-            </Link>
-            <Link
-              href="/ocrtranslator"
-              className="hover:text-foreground transition-colors duration-150"
-            >
-              PDF OCR
-            </Link>
-            <Link
-              href="/pricing"
-              className="hover:text-foreground transition-colors duration-150"
-            >
-              Pricing
-            </Link>
-          </div>
-
           {footer.agreement?.items?.length ? (
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-muted-foreground">
               {footer.agreement.items.map((item: NavItem, index: number) => (

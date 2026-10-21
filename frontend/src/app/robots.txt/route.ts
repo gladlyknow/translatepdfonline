@@ -1,3 +1,5 @@
+import { canonicalSiteOrigin, isCanonicalSiteHost } from '@/config/seo-routes';
+
 // 注意：Disallow 只阻止抓取，不能阻止索引。已被 Google 收录的登录/账户页
 // （settings、activity、auth 等）必须靠页面内的 meta noindex 清理，
 // 因此这些路径从 Disallow 移除，让 Googlebot 能抓取到 noindex 标签。
@@ -12,7 +14,7 @@ const DISALLOW = [
   '/translate/',
 ];
 
-function buildRobotsTxt(sitemapUrl: string): string {
+export function buildRobotsTxt(sitemapUrl: string): string {
   const agents = ['*', 'Googlebot', 'Googlebot-Image', 'Bingbot'];
   const lines: string[] = [];
   for (const agent of agents) {
@@ -30,11 +32,17 @@ function buildRobotsTxt(sitemapUrl: string): string {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const host = url.host;
-  const protocol = host.startsWith('localhost') || host.includes(':') ? 'http' : 'https';
-  const base = `${protocol}://${host}`;
 
-  return new Response(buildRobotsTxt(`${base}/sitemap.xml`), {
+  if (!isCanonicalSiteHost(url.hostname)) {
+    return new Response('User-agent: *\nDisallow: /\n', {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'public, s-maxage=300',
+      },
+    });
+  }
+
+  return new Response(buildRobotsTxt(`${canonicalSiteOrigin}/sitemap.xml`), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',

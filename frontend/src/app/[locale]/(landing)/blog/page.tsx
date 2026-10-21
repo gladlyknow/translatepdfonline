@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 
+import { defaultLocale } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
 import { getPosts, getPostsCount, PostStatus, PostType } from '@/shared/models/post';
 
@@ -9,6 +10,7 @@ export const revalidate = 3600;
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.blog',
   canonicalUrl: '/blog',
+  indexLocales: [defaultLocale],
 });
 
 export default async function BlogPage({

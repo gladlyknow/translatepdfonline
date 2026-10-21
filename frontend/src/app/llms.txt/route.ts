@@ -1,11 +1,11 @@
+import { canonicalSiteOrigin } from '@/config/seo-routes';
+
 /**
  * GET /llms.txt — 按 llmstxt.org 标准提供项目结构化描述供 LLM 读取。
  */
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const host = url.host;
-  const protocol = host.startsWith('localhost') || host.includes(':') ? 'http' : 'https';
-  const base = `${protocol}://${host}`;
+  void request;
+  const base = canonicalSiteOrigin;
 
   const content = `# TranslatePDFOnline — AI-Powered PDF Translation
 
@@ -15,7 +15,8 @@ export async function GET(request: Request) {
 
 - **OCR PDF Translation**: Upload scanned/image-based PDFs, automatic OCR → translate → export translated PDF with preserved formatting.
 - **10 Language Support**: Full bidirectional translation between all supported languages (zh, en, es, fr, it, el, ja, ko, de, ru).
-- **Credit-based Billing**: Pay per page. New users receive free trial credits.
+- **Account-based Processing**: Users sign in to process documents, manage credits, and access available job history.
+- **Data Retention**: Uploaded and generated objects are normally scheduled for deletion after approximately seven days, subject to the published policy and legal requirements.
 
 ## REST API
 
@@ -23,7 +24,6 @@ export async function GET(request: Request) {
   - Authentication: Bearer token (\`Authorization: Bearer <key>\`) or \`X-API-Key\` header.
   - Request body: \`{ "document_id": "...", "source_lang": "en", "target_lang": "zh", "page_range": "1-10" }\`
   - Response: \`{ "task_id": "...", "status": "queued" }\`
-  - Rate limit: 60 requests/minute per API key.
 
 ## Tools
 
@@ -32,14 +32,13 @@ export async function GET(request: Request) {
 - JPG to Word: ${base}/jpg-to-word
 - Photo to Word: ${base}/photo-to-word
 - PDF to Word: ${base}/pdf-to-word-doc
+- PDF to Excel: ${base}/pdf-to-excel
 - PDF to Markdown: ${base}/pdf-to-md
 - Contract Comparison: ${base}/contract-comparison
 
 ## Pricing
 
-- Pay-per-page: 10 credits/page.
-- Subscription plans: monthly, quarterly, semi-annual, annual.
-- Free trial credits for new users.
+- Processing uses credits. Current plan details and any introductory credits are shown on the pricing page.
 
 ## Links
 

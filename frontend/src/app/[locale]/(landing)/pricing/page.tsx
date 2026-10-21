@@ -1,6 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
+import { defaultLocale } from '@/config/locale';
+import { currentPricingLocales } from '@/config/seo-routes';
 import { getMetadata } from '@/shared/lib/seo';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
@@ -11,6 +13,7 @@ export const revalidate = 3600;
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.pricing.metadata',
   canonicalUrl: '/pricing',
+  indexLocales: currentPricingLocales,
 });
 
 export default async function PricingPage({
@@ -34,13 +37,25 @@ export default async function PricingPage({
 
   // get pricing data
   const t = await getTranslations('pages.pricing');
+  let pricingSection;
+  if (t.has('page.sections.pricing')) {
+    pricingSection = t.raw('page.sections.pricing');
+  } else {
+    // de/es/ru still use the legacy pricing schema. Keep those routes usable
+    // with the current English product data while they remain noindex.
+    const fallback = await getTranslations({
+      locale: defaultLocale,
+      namespace: 'pages.pricing',
+    });
+    pricingSection = fallback.raw('page.sections.pricing');
+  }
 
   // build page sections
   const page: DynamicPage = {
     title: t.raw('page.title'),
     sections: {
       pricing: {
-        ...t.raw('page.sections.pricing'),
+        ...pricingSection,
         data: {
           currentSubscription,
         },

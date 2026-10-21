@@ -977,6 +977,13 @@ export const publicSettingNames = [
   'promotekit_enabled',
   'crisp_enabled',
   'tawk_enabled',
+  // Public browser identifiers used by analytics/ads integrations. Keep
+  // credentials and server-side provider secrets out of this allowlist.
+  'google_analytics_id',
+  'clarity_id',
+  'plausible_domain',
+  'plausible_src',
+  'adsense_code',
 ];
 
 export async function getAllSettingNames() {

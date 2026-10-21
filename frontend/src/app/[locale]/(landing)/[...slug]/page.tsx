@@ -19,6 +19,8 @@ const RESERVED_SLUGS = new Set([
   'en', 'zh', 'es', 'fr', 'it', 'el', 'ja', 'ko', 'de', 'ru',
 ]);
 
+const NOINDEX_STATIC_SLUGS = new Set(['privacy-policy', 'terms-of-service']);
+
 // dynamic page metadata
 export async function generateMetadata({
   params,
@@ -62,13 +64,20 @@ export async function generateMetadata({
   if (staticPage) {
     title = staticPage.title || '';
     description = staticPage.description || '';
+    const shouldIndex = !NOINDEX_STATIC_SLUGS.has(staticPageSlug);
 
     return {
       title,
       description,
       alternates: {
         canonical: canonicalUrl,
-        languages: buildAlternates(`/${staticPageSlug}`, locale).languages,
+        languages: shouldIndex
+          ? buildAlternates(`/${staticPageSlug}`, locale).languages
+          : undefined,
+      },
+      robots: {
+        index: shouldIndex,
+        follow: true,
       },
     };
   }

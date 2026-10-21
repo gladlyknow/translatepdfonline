@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Translate PDF Online — Free AI PDF Translator",
-    "description": "Free online PDF translation that preserves original layout. Supports Chinese, Spanish, German, Japanese & more. No sign-up, instant results.",
+    "description": "Translate text-based and scanned PDFs online while retaining page structure where supported. Choose from 10 languages, preview the result, and download the translated PDF.",
     "keywords": "translate pdf online, free pdf translator, translate pdf, pdf translation, translate pdf to english, translate scanned pdf"
   },
   "page": {
@@ -21,7 +21,7 @@
         "variant": "translateDark",
         "title": "Translate PDF Online",
         "highlight_text": "Free AI-powered PDF translation online",
-        "description": "Translate PDF online and keep the original layout — columns, tables, figures and fonts stay faithful. Translate PDFs online into English, Chinese, Spanish, French, Italian, German, Greek, Japanese, Korean and Russian. It runs in your browser, so you can translate a PDF online with no install and no setup.",
+        "description": "Translate text-based and scanned PDFs into English, Chinese, Spanish, French, Italian, German, Greek, Japanese, Korean or Russian. The service reconstructs page structure where supported and provides an in-browser preview before download.",
         "announcement": {
           "badge": "New",
           "title": "Professional layout-preserving PDF translation",
@@ -191,7 +191,7 @@
           },
           {
             "title": "Target language",
-            "description": "Pick the language you want the PDF translated into — English, Chinese, German, Japanese, Norwegian and more — then start the job.",
+            "description": "Pick the language you want the PDF translated into — English, Chinese, Spanish, French, Italian, German, Greek, Japanese, Korean or Russian — then start the job.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Choose target language",
@@ -238,13 +238,13 @@
             "icon": "RiCoinsLine"
           },
           {
-            "title": "Account or guest flow",
-            "description": "Sign in for billing and history across devices, or try the flow in a single session before you translate a PDF online.",
+            "title": "Account-based processing",
+            "description": "Sign in to process documents, use credits and reopen available jobs from your history across devices.",
             "icon": "RiUserLine"
           },
           {
-            "title": "Edge-hosted UI",
-            "description": "Fast first load on Cloudflare; your browser handles preview and download, keeping the PDF you translate online responsive.",
+            "title": "Preview before download",
+            "description": "Review source and translated pages in the browser before downloading the result.",
             "icon": "RiCloudy2Fill"
           },
           {
@@ -253,9 +253,9 @@
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Developer-friendly stack",
-            "description": "A Next.js app with clear APIs between UI, storage and the translation worker — the same stack that lets you translate PDF online reliably.",
-            "icon": "RiCodeSSlashLine"
+            "title": "Scanned PDF support",
+            "description": "OCR extracts text from supported scanned PDFs before translation; accuracy depends on scan quality, language and page complexity.",
+            "icon": "RiFilePdf2Line"
           }
         ]
       },

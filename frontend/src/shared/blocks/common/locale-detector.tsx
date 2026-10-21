@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
 
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
@@ -16,7 +16,7 @@ const DISMISSED_KEY = 'locale-suggestion-dismissed';
 const DISMISSED_EXPIRY_DAYS = 1; // Expiry in days
 const PREFERRED_LOCALE_KEY = 'locale';
 
-export function LocaleDetector() {
+function LocaleDetectorInner() {
   if (envConfigs.locale_detect_enabled !== 'true') {
     return null;
   }
@@ -84,7 +84,8 @@ export function LocaleDetector() {
     // Check if user has dismissed the banner or already set a preference
     const dismissed = isDismissed();
     // Check both keys for backward compatibility
-    const preferredLocale = cacheGet(PREFERRED_LOCALE_KEY) || cacheGet('user-locale-preference');
+    const preferredLocale =
+      cacheGet(PREFERRED_LOCALE_KEY) || cacheGet('user-locale-preference');
 
     // If user has previously clicked to switch locale, auto-switch to that preference
     if (
@@ -244,7 +245,7 @@ export function LocaleDetector() {
         <div className="container py-2.5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-1 items-center gap-3">
-              <span className="text-sm text-foreground">
+              <span className="text-foreground text-sm">
                 {browserLocale === 'zh'
                   ? `检测到浏览器语言是: ${targetLocaleName}，是否切换？`
                   : `We detected your browser language is ${targetLocaleName}. Switch to it?`}
@@ -276,5 +277,13 @@ export function LocaleDetector() {
         className="pointer-events-none"
       />
     </>
+  );
+}
+
+export function LocaleDetector() {
+  return (
+    <Suspense fallback={null}>
+      <LocaleDetectorInner />
+    </Suspense>
   );
 }

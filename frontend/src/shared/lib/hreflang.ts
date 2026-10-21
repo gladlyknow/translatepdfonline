@@ -8,7 +8,8 @@ import { defaultLocale, locales } from '@/config/locale';
  */
 export function localeUrl(path: string, loc: string): string {
   const base = (envConfigs.app_url || '').replace(/\/+$/, '');
-  const cleanPath = path === '/' ? '' : path.startsWith('/') ? path : `/${path}`;
+  const cleanPath =
+    path === '/' ? '' : path.startsWith('/') ? path : `/${path}`;
   if (loc === defaultLocale) {
     return `${base}${cleanPath || '/'}`;
   }
@@ -20,13 +21,17 @@ export function localeUrl(path: string, loc: string): string {
  * 用于 metadata.alternates，使每个页面输出指向「该页」各语言版本的 hreflang，
  * 而非统一指向首页。
  */
-export function buildAlternates(path: string, locale: string): {
+export function buildAlternates(
+  path: string,
+  locale: string,
+  alternateLocales: readonly string[] = locales
+): {
   canonical: string;
   languages: Record<string, string>;
 } {
   const canonical = localeUrl(path || '/', locale);
   const languages: Record<string, string> = {};
-  for (const loc of locales) {
+  for (const loc of alternateLocales) {
     languages[loc] = localeUrl(path || '/', loc);
   }
   languages['x-default'] = localeUrl(path || '/', defaultLocale);

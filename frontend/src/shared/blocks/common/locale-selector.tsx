@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Check, Globe, Languages } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
 
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { localeNames } from '@/config/locale';
@@ -16,11 +16,38 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { cacheSet } from '@/shared/lib/cache';
 
-export function LocaleSelector({
-  type = 'icon',
-}: {
+type LocaleSelectorProps = {
   type?: 'icon' | 'button';
+};
+
+function LocaleSelectorPlaceholder({
+  type,
+  currentLocale,
+}: {
+  type: 'icon' | 'button';
+  currentLocale: string;
 }) {
+  return (
+    <Button
+      variant={type === 'icon' ? 'ghost' : 'outline'}
+      size={type === 'icon' ? 'icon' : 'sm'}
+      className={type === 'icon' ? 'h-auto w-auto p-0' : 'hover:bg-primary/10'}
+      disabled
+      aria-label="Switch language"
+    >
+      {type === 'icon' ? (
+        <Languages size={18} />
+      ) : (
+        <>
+          <Globe size={16} />
+          {localeNames[currentLocale]}
+        </>
+      )}
+    </Button>
+  );
+}
+
+function LocaleSelectorInner({ type = 'icon' }: LocaleSelectorProps) {
   const currentLocale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -52,24 +79,7 @@ export function LocaleSelector({
   // Return a placeholder during SSR to avoid hydration mismatch
   if (!mounted) {
     return (
-      <Button
-        variant={type === 'icon' ? 'ghost' : 'outline'}
-        size={type === 'icon' ? 'icon' : 'sm'}
-        className={
-          type === 'icon' ? 'h-auto w-auto p-0' : 'hover:bg-primary/10'
-        }
-        disabled
-        aria-label="Switch language"
-      >
-        {type === 'icon' ? (
-          <Languages size={18} />
-        ) : (
-          <>
-            <Globe size={16} />
-            {localeNames[currentLocale]}
-          </>
-        )}
-      </Button>
+      <LocaleSelectorPlaceholder type={type} currentLocale={currentLocale} />
     );
   }
 
@@ -77,7 +87,12 @@ export function LocaleSelector({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {type === 'icon' ? (
-          <Button variant="ghost" size="icon" className="h-auto w-auto p-0" aria-label="Switch language">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-auto w-auto p-0"
+            aria-label="Switch language"
+          >
             <Languages size={18} />
           </Button>
         ) : (
@@ -101,5 +116,18 @@ export function LocaleSelector({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function LocaleSelector({ type = 'icon' }: LocaleSelectorProps) {
+  const currentLocale = useLocale();
+  return (
+    <Suspense
+      fallback={
+        <LocaleSelectorPlaceholder type={type} currentLocale={currentLocale} />
+      }
+    >
+      <LocaleSelectorInner type={type} />
+    </Suspense>
   );
 }

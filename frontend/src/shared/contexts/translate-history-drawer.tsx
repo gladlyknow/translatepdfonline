@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -9,8 +10,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { usePathname } from '@/core/i18n/navigation';
 
+import { usePathname } from '@/core/i18n/navigation';
 import { TranslateHistoryDrawerPanel } from '@/shared/components/translate/TranslateHistoryDrawerPanel';
 
 type TranslateHistoryDrawerContextValue = {
@@ -73,7 +74,12 @@ export function TranslateHistoryDrawerProvider({
   return (
     <TranslateHistoryDrawerContext.Provider value={value}>
       {children}
-      <TranslateHistoryDrawerPanel open={open} onOpenChange={handleOpenChange} />
+      <Suspense fallback={null}>
+        <TranslateHistoryDrawerPanel
+          open={open}
+          onOpenChange={handleOpenChange}
+        />
+      </Suspense>
     </TranslateHistoryDrawerContext.Provider>
   );
 }
@@ -85,7 +91,9 @@ export function useTranslateHistoryDrawerOptional() {
 export function useTranslateHistoryDrawer(): TranslateHistoryDrawerContextValue {
   const v = useContext(TranslateHistoryDrawerContext);
   if (!v) {
-    throw new Error('useTranslateHistoryDrawer must be used within TranslateHistoryDrawerProvider');
+    throw new Error(
+      'useTranslateHistoryDrawer must be used within TranslateHistoryDrawerProvider'
+    );
   }
   return v;
 }
