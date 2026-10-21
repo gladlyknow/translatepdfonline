@@ -11,6 +11,7 @@
 | 计划中           | 已定义范围和验收条件，尚未执行                  |
 | 执行中           | 正在修改或验证                                  |
 | 等待部署         | 本地验证通过，尚未进入目标环境                  |
+| 等待生产         | develop 已验证，尚未发布到生产环境              |
 | 等待外部刷新     | 代码和生产验证完成，但依赖 Google 重抓/报表刷新 |
 | 需站点所有者操作 | 需要 GSC / GCP / Cloudflare 等账号内操作        |
 | 已完成           | 所有验收条件和证据均齐全                        |
@@ -138,7 +139,7 @@
 
 - 日期：2026-10-21
 - 关联任务：CNT-FACT、CNT-001、CNT-003、CNT-004、CNT-005、SEO-002、SEO-006、SEO-007、SEO-008、I18N-001、I18N-002、GEO-004
-- 状态：等待部署
+- 状态：等待生产
 - 本次范围：产品事实基线、10 个 locale 的 OCR/首页/工具/定价内容、合同对比页、博客、docs、legal 内链和 SEO 内容契约。
 - 明确不包含：Google 重抓结果、母语人工审校、品牌 About/Methodology/Security 页面、业务漏斗埋点、PDF 压缩/合并功能、de/es/ru pricing 旧 schema 完整迁移。
 - 修改前证据：OCR 10 个 locale 无服务端 H1；9 个首页无页面级 metadata；4 个 docs description 为空；博客双 H1/OG 不完整；`www` 内链、Norwegian、免登录、固定赠送积分、固定费率和合同 CLM 夸大陈述仍存在。
@@ -154,27 +155,28 @@
 - 本地验证：locale JSON 全量解析通过；`pnpm test:seo` 13/13；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过，203/203 静态页面生成成功。
 - 实际 HTML 抽查：`/zh/ocrtranslator`、`/fr/ocrtranslator`、`/zh/pricing`、`/ru/contract-comparison` 均只有 1 个 H1；title/canonical 存在；可见正文无未替换 `{creditsPerPage}`，无抽样免登录陈述。
 - 工具链备注：独立 ESLint 命令因仓库缺少 ESLint 9 配置而无法启动；生产构建内置 lint/type 阶段与 TypeScript 检查通过。新增 ENG-003 跟踪，不伪报 lint 通过。
-- 分支 / 提交：本地 `develop`，待提交。
-- Cloudflare 部署证据：待 push 后由关联的 dev 环境自动构建。
+- 分支 / 提交：`develop` / `2c9e859f`（`fix: align SEO content with product facts`），已推送到 `origin/develop`。
+- Cloudflare 部署证据：dev Worker 于 2026-10-21 07:57:31 UTC 生成新部署并切换流量；部署前最后版本时间为 05:48:38 UTC。
+- dev 验证：`/zh/ocrtranslator`、`/fr/ocrtranslator`、`/ru/contract-comparison`、`/zh/pricing` 均返回新内容、自引用 dev canonical 和单一 H1；OCR title 已独立；无可见 `{creditsPerPage}`、免登录承诺或旧 CLM 营销定位。俄语页保留“本工具不替代 CLM 或法律复核”的限制说明，属于事实边界而非能力宣称。
 - 生产验证：未执行；不得标记为生产完成。
 - GSC 验证：未执行；需生产发布且 Google 重抓后判断。
-- 验收结论：本地完成，等待部署。
+- 验收结论：本地与 Cloudflare dev 完成，等待生产发布。
 - 回滚方式：回滚本批独立提交；不得回滚上一批 canonical/sitemap/robots 安全修复。
-- 下一动作：提交并 push `develop`，验证 Cloudflare dev；确认后进入生产发布与 GSC D1/D3/D7/D14。
+- 下一动作：确认 dev 功能和母语抽样后进入生产发布，再执行生产 HTML 审计与 GSC D1/D3/D7/D14。
 
 ## 待执行队列
 
-| 顺序 | 任务 ID           | 下一步                                     | 状态             | 负责人 | 目标时间  |
-| ---: | ----------------- | ------------------------------------------ | ---------------- | ------ | --------- |
-|    1 | SEC-001           | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | SEO-005           | GSC 重新提交当前 sitemap，实时测试代表 URL | 需站点所有者操作 | 待指定 | D0        |
-|    3 | CNT-FACT          | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
-|    4 | EXEC-011          | 提交并 push develop，验证 Cloudflare dev   | 等待部署         | Codex  | D0        |
-|    5 | I18N-001          | 完成德/西/俄 pricing 现行 schema 本地化     | 执行中           | 待指定 | 第 1 周   |
-|    6 | SEO-001           | 运行 D1/D3/D7/D14 GSC 只读审计             | 等待外部刷新     | 待指定 | 见计划    |
-|    7 | SEO-003           | Google 重抓后处理未收录内容聚类            | 计划中           | 待指定 | 第 1–2 周 |
-|    8 | ENG-003           | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
-|    9 | PROD-001          | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
+| 顺序 | 任务 ID  | 下一步                                     | 状态             | 负责人 | 目标时间  |
+| ---: | -------- | ------------------------------------------ | ---------------- | ------ | --------- |
+|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
+|    2 | SEO-005  | GSC 重新提交当前 sitemap，实时测试代表 URL | 需站点所有者操作 | 待指定 | D0        |
+|    3 | CNT-FACT | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
+|    4 | EXEC-011 | 审核 dev 后决定生产发布                    | 等待生产         | 待指定 | D0–D1     |
+|    5 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化    | 执行中           | 待指定 | 第 1 周   |
+|    6 | SEO-001  | 运行 D1/D3/D7/D14 GSC 只读审计             | 等待外部刷新     | 待指定 | 见计划    |
+|    7 | SEO-003  | Google 重抓后处理未收录内容聚类            | 计划中           | 待指定 | 第 1–2 周 |
+|    8 | ENG-003  | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
+|    9 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
 
 ## 新记录模板
 
