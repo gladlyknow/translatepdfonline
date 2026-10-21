@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "Traducir PDF online con OCR para documentos escaneados",
+    "description": "Traduce PDF digitales o escaneados entre 10 idiomas compatibles y conserva la estructura cuando sea posible. Es necesario iniciar sesión para procesar archivos."
+  },
   "page": {
     "show_sections": [
       "hero",
@@ -186,7 +190,7 @@
           },
           {
             "title": "Idioma de destino",
-            "description": "Elige el idioma al que quieres traducir el PDF — inglés, chino, alemán, japonés, noruego y más — e inicia el trabajo.",
+            "description": "Elige un idioma de destino compatible — inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán o ruso — e inicia el trabajo.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Elegir idioma de destino",
@@ -292,8 +296,8 @@
             "answer": "En la página de traducción, define el alemán como idioma de origen y el español como destino, sube tu PDF e inicia la tarea. El proceso que conserva el formato traduce el PDF manteniendo fuentes, tablas y columnas intactas, para un resultado limpio."
           },
           {
-            "question": "¿Cómo traducir documentos PDF al noruego en línea?",
-            "answer": "Elige noruego como idioma de destino en la página de traducción, selecciona el idioma de origen del documento y sube el PDF. El motor traduce al noruego conservando el formato donde es compatible, para un resultado legible y fiel."
+            "question": "¿Qué combinaciones de idiomas admite la traducción de PDF?",
+            "answer": "Puedes elegir inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán o ruso. Antes de subir el PDF, selecciona un idioma de origen y destino compatibles."
           },
           {
             "question": "¿Qué es Translate PDF Online y cómo funciona?",

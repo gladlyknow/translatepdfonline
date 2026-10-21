@@ -1,6 +1,6 @@
 {
   "metaTitle": "Image to Text Converter — Free Online OCR for Photos & Screenshots",
-  "metaDescription": "Extract text from images online free. AI OCR converts photos, screenshots, and scanned documents to editable text. Supports PNG, JPG, BMP, WebP. No sign-up needed.",
+  "metaDescription": "Extract editable text from PNG, JPG, BMP, and WebP images with AI OCR. Sign in before uploading; usage follows the current credit settings.",
   "keywords": "image to text, extract text from image, photo to text, ocr image, image to text converter, screenshot to text, picture to text, free ocr online, image ocr, convert image to text",
   "heroTitle": "Image to Text",
   "heroText": "AI-powered OCR extracts text from any image — photos, screenshots, or scanned documents. Support for PNG, JPG, BMP, WebP. Export to Word, TXT, or Markdown.",
@@ -24,7 +24,7 @@
     "q3": "What image formats are supported for OCR?",
     "a3": "We support PNG, JPG/JPEG, BMP, and WebP image formats. The maximum file size is 50MB per image. For best results, use clear, well-lit images with readable text.",
     "q4": "Is the image to text converter free to use?",
-    "a4": "New users receive free credits to try the image to text OCR converter. Premium features include higher resolution processing, batch image upload, and priority processing speed.",
+    "a4": "Sign-in is required. Starter credits may be available when enabled in the current product configuration; check the pricing and credit screens before processing files.",
     "q5": "Can I translate the extracted text to another language?",
     "a5": "Yes. After the OCR extracts text from your image, you can use the built-in translation feature to translate the extracted text to any of our 10+ supported languages right in the workbench editor."
   },

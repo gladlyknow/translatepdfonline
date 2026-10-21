@@ -1,6 +1,6 @@
 {
   "metaTitle": "PDF in Markdown umwandeln kostenlos — online mit KI OCR",
-  "metaDescription": "PDF in Markdown umwandeln online kostenlos. KI-OCR extrahiert Text, Tabellen und Bilder und baut sie als saubere .md-Dateien neu auf. Ohne Anmeldung.",
+  "metaDescription": "Digitale oder gescannte PDFs mit KI-OCR in strukturiertes Markdown umwandeln. Anmeldung vor dem Upload erforderlich.",
   "keywords": "PDF in Markdown umwandeln, PDF in Markdown konvertieren, PDF zu Markdown Konverter, PDF zu MD kostenlos, PDF in MD, PDF zu Markdown online kostenlos, KI PDF zu Markdown, PDF Markdown Konverter, PDF in md Datei umwandeln, kostenloser PDF zu Markdown Konverter",
   "heroTitle": "PDF in Markdown Konverter — PDF online in .md-Dateien umwandeln",
   "heroText": "Verwandle jedes PDF in Sekundenschnelle in sauberes, strukturiertes Markdown. Unser PDF-zu-Markdown-Konverter nutzt KI-OCR, um Text, Tabellen und Bilder aus deinem PDF zu extrahieren und als saubere .md-Dateien neu aufzubauen — bereit für Blogs, Dokumentationsseiten und statische Websites. PDF in Markdown umwandeln kostenlos direkt im Browser, ganz ohne Software-Installation oder Anmeldung.",
@@ -21,7 +21,7 @@
   "why2Title": "Gescannte PDFs inklusive",
   "why2Desc": "Funktioniert mit gescannten Dokumenten und bildbasierten PDFs, nicht nur mit digitalen Dateien.",
   "why3Title": "Kostenlos und sicher",
-  "why3Desc": "Kostenlose Umwandlungs-Credits zum Start, kein Abo. Deine Dateien werden sicher verarbeitet und nur für deine Umwandlung verwendet.",
+  "why3Desc": "Für die Umwandlung ist eine Anmeldung erforderlich. Startguthaben kann verfügbar sein, wenn es aktuell aktiviert ist. Deine Dateien werden sicher und nur für die Umwandlung verarbeitet.",
   "faqHeading": "PDF zu Markdown Konverter FAQ",
   "seoFaq": {
     "q1": "Wie kann ich ein PDF in Markdown umwandeln ohne Formatierungsverlust?",
@@ -29,7 +29,7 @@
     "q2": "Kann ich ein gescanntes PDF in Markdown umwandeln?",
     "a2": "Ja. Der Konverter verfügt über integriertes KI-OCR, das Text aus gescannten Seiten und bildbasierten PDFs liest, einschließlich handschriftlicher Notizen und Stempel. Ein fotografierter Vertrag oder eine gescannte Lehrbuchseite wird zu durchsuchbarem, bearbeitbarem Markdown — die meisten Konverter scheitern an Scans, unserer wurde genau dafür entwickelt.",
     "q3": "Ist der PDF-zu-Markdown-Konverter kostenlos nutzbar?",
-    "a3": "Ja. Jeder neue Nutzer erhält kostenlose Umwandlungs-Credits für die PDF-zu-Markdown-Umwandlung. Jede Umwandlung verbraucht je nach Seitenzahl wenige Credits — du kannst sie also kostenlos ausprobieren, bevor du weitere kaufst. Kein Abo, Bezahlung nach Verbrauch.",
+    "a3": "Eine Anmeldung ist erforderlich. Startguthaben kann verfügbar sein, wenn es in der aktuellen Produktkonfiguration aktiviert ist. Prüfe vor der Umwandlung die aktuelle Rate und dein Guthaben unter Einstellungen → Credits.",
     "q4": "Was kann ich mit dem aus PDF konvertierten Markdown machen?",
     "a4": "Markdown eignet sich perfekt für Blogs, Dokumentationsseiten und statische Seitengeneratoren wie Hugo, Jekyll oder Next.js. Nach dem Herunterladen der .md-Datei fügst du sie einfach in einen beliebigen Markdown-Editor, ein CMS oder ein Git-Repository ein — Überschriften, Tabellen und Bilder bleiben erhalten und bearbeitbar.",
     "q5": "Bleiben Bilder und Tabellen bei der PDF-zu-Markdown-Umwandlung erhalten?",

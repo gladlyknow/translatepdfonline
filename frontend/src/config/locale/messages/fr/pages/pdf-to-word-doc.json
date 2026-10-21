@@ -21,7 +21,7 @@
   "why2Title": "Gère les PDF scannés, pas seulement les documents textuels",
   "why2Desc": "La plupart des convertisseurs PDF en Word échouent sur les documents scannés. Notre convertisseur PDF en document Word inclut un OCR IA qui reconnaît le texte dans les images scannées, les notes manuscrites, les tampons et les filigranes — convertissant même les PDF issus de photos en documents Word entièrement modifiables et recherchables.",
   "why3Title": "Conversion PDF en Word gratuite, privée et en ligne",
-  "why3Desc": "Aucun logiciel à installer, aucun compte requis pour essayer. Votre PDF est téléchargé via HTTPS chiffré, traité pour la conversion PDF en document Word, et vous seul pouvez télécharger le document Word résultant. Convertissez un PDF en Word doc gratuitement avec les crédits de démarrage, depuis n'importe quel appareil avec un navigateur.",
+  "why3Desc": "Aucun logiciel à installer, mais la connexion est obligatoire avant l'envoi. Le PDF est transféré via HTTPS chiffré et traité uniquement pour la conversion.",
   "faqHeading": "FAQ sur le convertisseur PDF en Word doc",
   "seoFaq": {
     "q1": "Comment convertir un PDF en Word sans perdre la mise en forme ?",
@@ -29,7 +29,7 @@
     "q2": "Puis-je convertir un PDF scanné en un Word modifiable ?",
     "a2": "Oui. Le convertisseur PDF en document Word inclut un OCR IA qui lit le texte des images scannées, notes manuscrites, tampons et filigranes. Même un PDF issu d'une photo — comme un contrat signé ou une page de manuel scannée — devient un document Word entièrement modifiable et recherchable. La plupart des convertisseurs échouent sur les PDF scannés ; le nôtre les traite par conception.",
     "q3": "Est-ce que le convertisseur PDF en Word doc est gratuit ?",
-    "a3": "Oui. Chaque nouvel utilisateur reçoit des crédits de démarrage gratuits pour convertir un PDF en Word doc. Chaque conversion PDF en document Word coûte un petit nombre de crédits par page, vous pouvez donc essayer le convertisseur gratuitement avant de décider d'acheter des crédits supplémentaires. Aucun abonnement obligatoire — vous payez uniquement pour ce que vous convertissez.",
+    "a3": "La connexion est obligatoire. Des crédits de démarrage peuvent être disponibles s'ils sont activés dans la configuration actuelle. Vérifiez le tarif et votre solde dans Réglages → Crédits avant la conversion.",
     "q4": "Comment éditer un PDF dans Word après conversion en doc ?",
     "a4": "Après avoir converti votre PDF en Word doc avec notre convertisseur, téléchargez le fichier .docx et ouvrez-le dans Microsoft Word, Google Docs ou LibreOffice. Le document Word est entièrement modifiable — vous pouvez changer le texte, ajuster le formatage, ajouter ou supprimer des images, mettre à jour les tableaux et enregistrer vos modifications. Il n'y a ni filigrane ni verrouillage en lecture seule sur le résultat.",
     "q5": "Comment convertir un PDF en Word avec les numéros de page et en-têtes intacts ?",

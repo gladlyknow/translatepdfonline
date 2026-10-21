@@ -21,11 +21,11 @@
   "why2Title": "Gère tampons, filigranes et manuscrit",
   "why2Desc": "Les tampons officiels, les filigranes prononcés et les annotations manuscrites qui défont l'OCR ordinaire sont reconnus par le convertisseur photo en word et placés à leur position d'origine dans le fichier Word, conservant le sens et l'autorité du document source.",
   "why3Title": "Gratuit, privé et en ligne",
-  "why3Desc": "Rien à installer. Votre photo est téléversée en HTTPS, traitée uniquement pour la conversion, et vous seul pouvez télécharger le Word résultant. Les nouveaux utilisateurs reçoivent des crédits gratuits et convertissent JPG en Word depuis tout appareil doté d'un navigateur.",
+  "why3Desc": "Rien à installer. La connexion est obligatoire avant l'envoi ; la photo est transférée par HTTPS et traitée uniquement pour la conversion. Vous seul pouvez télécharger le document Word.",
   "faqHeading": "FAQ du convertisseur JPG en Word",
   "seoFaq": {
     "q1": "Ce convertisseur JPG en Word est-il gratuit ?",
-    "a1": "Oui. Le convertisseur JPG en Word fonctionne en ligne et chaque nouvel utilisateur reçoit des crédits gratuits. Chaque conversion photo en word coûte quelques crédits, vous pouvez donc tester gratuitement.",
+    "a1": "Le convertisseur JPG en Word fonctionne en ligne et nécessite une connexion. Des crédits de démarrage peuvent être disponibles s'ils sont activés ; vérifiez le tarif et votre solde avant la conversion.",
     "q2": "Conserve-t-il la mise en page d'origine ?",
     "a2": "Oui. L'OCR IA préserve paragraphes, tableaux, colonnes, tampons et manuscrit et produit un Word fidèle à la page originale — pas un simple texte brut.",
     "q3": "Puis-je convertir une photo avec texte manuscrit ?",

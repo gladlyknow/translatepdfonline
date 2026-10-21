@@ -297,8 +297,8 @@
             "answer": "To translate a PDF from German to English for free online, set the source language to German and the target language to English on the translate page, then upload your PDF and start the job. The layout-preserving pipeline translates German PDFs into English while keeping the original fonts, tables and columns, so you can translate a German PDF online and get a clean English result."
           },
           {
-            "question": "How do I translate PDF documents to Norwegian online?",
-            "answer": "To translate PDF documents to Norwegian online, choose Norwegian as the target language on the translate page, select the source language of your document, and upload the PDF. The engine translates the document into Norwegian while preserving the layout where supported, so you can translate PDF documents to Norwegian online and download a readable, faithful result."
+            "question": "Which language pairs can I use for PDF translation?",
+            "answer": "You can choose among the 10 supported languages shown in the selector: English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German, and Russian. Select a supported source and target language before uploading."
           },
           {
             "question": "What is Translate PDF Online and how does it work?",

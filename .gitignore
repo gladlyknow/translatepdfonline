@@ -79,4 +79,9 @@ frontend/db_bak/
 **/__pycache__/
 *.md
 !/android/claude/translatepdfonline/README.md
+!frontend/docs/project-seo-gsc-remediation-plan.md
+!frontend/docs/remediation-execution-log.md
+!frontend/docs/gsc-console-operation-guide.md
+!frontend/docs/seo-geo-multilingual-audit-plan.md
+!frontend/docs/product-facts.md
 scripts/.env.r2

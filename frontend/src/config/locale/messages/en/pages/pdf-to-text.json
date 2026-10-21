@@ -1,6 +1,6 @@
 {
   "metaTitle": "PDF to Text — Free Online OCR to Extract Text from PDF | AI-Powered",
-  "metaDescription": "Convert PDF to editable text online free. AI OCR extracts text from scanned PDFs, images, and documents. Support for 10+ languages. No sign-up required.",
+  "metaDescription": "Convert digital or scanned PDFs to editable text with AI OCR and support for 10 languages. Sign in before uploading; current credit settings apply.",
   "keywords": "pdf to text, extract text from pdf, pdf ocr, ocr pdf to text, free pdf to text converter, pdf text extractor online, convert pdf to text, ai pdf to text, online ocr",
   "heroTitle": "PDF to Text",
   "heroText": "AI-powered OCR extracts text from any PDF — scanned, image-based, or digital. Preserve layout. Export to Word, TXT, or Markdown.",
@@ -24,7 +24,7 @@
     "q3": "What languages does the PDF to text converter support?",
     "a3": "It supports English, Chinese, Spanish, French, German, Japanese, Korean, Russian, Greek, Italian, and more. The OCR engine automatically detects the document language for best recognition accuracy.",
     "q4": "Is the PDF to text conversion free?",
-    "a4": "New users receive free credits to try the PDF to text OCR converter. Premium features include larger file sizes, batch processing, and priority processing speed.",
+    "a4": "Sign-in is required. Starter credits may be available when enabled in the current product configuration; check the pricing and credit screens before processing files.",
     "q5": "What file formats can I export after OCR?",
     "a5": "You can export the extracted text to TXT plain text, Microsoft Word (DOCX), HTML formatted text, or Markdown. Choose the format that best fits your workflow."
   },

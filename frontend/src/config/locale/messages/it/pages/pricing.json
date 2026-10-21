@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "Prezzi",
-        "description": "Pagamento con Creem. 10 crediti per pagina PDF tradotta. Ricarica $5 / 500 crediti in qualsiasi momento.",
+        "description": "Pagamento con Creem. {creditsPerPage} crediti per pagina PDF tradotta. Ricarica $5 / 500 crediti in qualsiasi momento.",
         "footnote_usd": "Tutti i prezzi sono in USD.",
         "footnote_summary": "Gli abbonamenti sono annullabili in qualsiasi momento. Nessun rimborso dopo l’uso dei crediti.",
         "terms_link_text": "Norme complete: Termini di servizio",
@@ -44,7 +44,7 @@
             "features_title": "Include",
             "features": [
               "500 crediti di traduzione",
-              "10 crediti per pagina tradotta",
+              "{creditsPerPage} crediti per pagina tradotta",
               "I crediti non scadono mai"
             ],
             "interval": "one-time",
@@ -72,7 +72,7 @@
             "features_title": "Include",
             "features": [
               "550 crediti a ogni ciclo di fatturazione",
-              "10 crediti per pagina tradotta",
+              "{creditsPerPage} crediti per pagina tradotta",
               "I crediti dell’abbonamento scadono a fine periodo; le ricariche non scadono mai"
             ],
             "interval": "month",
@@ -102,7 +102,7 @@
             "features_title": "Include",
             "features": [
               "1600 crediti a ogni ciclo di fatturazione",
-              "10 crediti per pagina tradotta",
+              "{creditsPerPage} crediti per pagina tradotta",
               "Annulla in qualsiasi momento dalla fatturazione"
             ],
             "interval": "quarter",
@@ -131,7 +131,7 @@
             "features_title": "Include",
             "features": [
               "3300 crediti a ogni ciclo di fatturazione",
-              "10 crediti per pagina tradotta",
+              "{creditsPerPage} crediti per pagina tradotta",
               "Annulla in qualsiasi momento dalla fatturazione"
             ],
             "interval": "six-months",
@@ -160,7 +160,7 @@
             "features_title": "Include",
             "features": [
               "6500 crediti ogni anno",
-              "10 crediti per pagina tradotta",
+              "{creditsPerPage} crediti per pagina tradotta",
               "Annulla in qualsiasi momento dalla fatturazione"
             ],
             "interval": "year",

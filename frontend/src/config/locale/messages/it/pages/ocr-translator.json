@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "title": "Traduttore OCR per PDF scansionati",
+    "description": "Riconosci il testo nei PDF scansionati, controlla i blocchi, traduci nelle lingue supportate ed esporta il risultato. È necessario accedere."
+  },
+  "eyebrow": "Flusso per PDF scansionati",
+  "h1": "Traduci PDF scansionati con OCR",
+  "intro": "Carica un PDF scansionato o composto da immagini, verifica il testo e i blocchi rilevati, quindi traduci il contenuto in una lingua supportata prima dell’esportazione.",
+  "useCasesTitle": "Utile per",
+  "useCases": "Articoli accademici scansionati, documenti di fornitori, manuali e altri PDF in cui il testo non è selezionabile o copiabile.",
+  "limitsTitle": "Prima di iniziare",
+  "limits": "È necessario accedere. Scansioni sfocate, scrittura a mano, tabelle complesse, font insoliti e PDF protetti possono richiedere una revisione manuale."
+}

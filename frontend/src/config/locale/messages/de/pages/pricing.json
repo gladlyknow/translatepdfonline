@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Preise — PDF Online Übersetzer",
-    "description": "Preise und Tarife des PDF-Online-Übersetzers. Credits, Monats-, Quartals- und Jahresabos. Kostenloser Test für neue Nutzer."
+    "description": "Preise und Tarife des PDF-Online-Übersetzers mit Credits sowie Monats-, Quartals- und Jahresabos."
   },
   "page": {
     "title": "PDF Online Übersetzer — Preise"
@@ -9,7 +9,7 @@
   "sections": {
     "pricing": {
       "title": "Preise",
-      "description": "Zahlung mit Creem. 10 Credits pro übersetzter PDF-Seite. Jederzeit $5 / 500 Credits aufladen."
+      "description": "Zahlung mit Creem. {creditsPerPage} Credits pro übersetzter PDF-Seite. Jederzeit $5 / 500 Credits aufladen."
     }
   },
   "groups": [
@@ -44,7 +44,7 @@
       },
       "features": [
         "500 Übersetzungs-Credits",
-        "10 Credits pro übersetzter Seite",
+        "{creditsPerPage} Credits pro übersetzter Seite",
         "Kein Abo — nur das bezahlen, was Sie nutzen",
         "Credits verfallen nicht"
       ]
@@ -58,7 +58,7 @@
       },
       "features": [
         "550 Übersetzungs-Credits pro Monat",
-        "10 Credits pro übersetzter Seite",
+        "{creditsPerPage} Credits pro übersetzter Seite",
         "Abo-Credits: verfallen am Periodenende",
         "Jederzeit kündbar"
       ]
@@ -72,7 +72,7 @@
       },
       "features": [
         "600 Übersetzungs-Credits pro Monat",
-        "10 Credits pro übersetzter Seite",
+        "{creditsPerPage} Credits pro übersetzter Seite",
         "Abo-Credits: verfallen am Periodenende",
         "10 % Ersparnis gegenüber Monatsabo"
       ]
@@ -86,7 +86,7 @@
       },
       "features": [
         "650 Übersetzungs-Credits pro Monat",
-        "10 Credits pro übersetzter Seite",
+        "{creditsPerPage} Credits pro übersetzter Seite",
         "Abo-Credits: verfallen am Periodenende",
         "20 % Ersparnis gegenüber Monatsabo"
       ]
@@ -100,7 +100,7 @@
       },
       "features": [
         "700 Übersetzungs-Credits pro Monat",
-        "10 Credits pro übersetzter Seite",
+        "{creditsPerPage} Credits pro übersetzter Seite",
         "Abo-Credits: verfallen am Periodenende",
         "30 % Ersparnis gegenüber Monatsabo"
       ]

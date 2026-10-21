@@ -1,6 +1,6 @@
 {
   "metaTitle": "PDF in Text umwandeln — Kostenloser Online OCR zum Textextrahieren aus PDF",
-  "metaDescription": "PDF in Text umwandeln online kostenlos. KI-OCR extrahiert Text aus gescannten PDFs und Dokumenten. Unterstützt 10+ Sprachen. Ohne Anmeldung.",
+  "metaDescription": "Bearbeitbaren Text mit KI-OCR aus digitalen oder gescannten PDFs in 10 unterstützten Sprachen extrahieren. Anmeldung vor dem Upload erforderlich.",
   "keywords": "pdf in text umwandeln,text aus pdf extrahieren,ocr online,pdf in word kostenlos,pdf zu text konvertieren,texterkennung pdf,ocr pdf",
   "heroTitle": "PDF in Text",
   "heroText": "KI-gestütztes OCR extrahiert Text aus jedem PDF — gescannt, bildbasiert oder digital. Layout bleibt erhalten. Export als Word, TXT oder Markdown.",
@@ -24,7 +24,7 @@
     "q3": "Welche Sprachen unterstützt der PDF-zu-Text-Konverter?",
     "a3": "Er unterstützt Englisch, Chinesisch, Spanisch, Französisch, Deutsch, Japanisch, Koreanisch, Russisch, Griechisch, Italienisch und mehr. Die OCR-Engine erkennt die Dokumentsprache automatisch.",
     "q4": "Ist die PDF-zu-Text-Konvertierung kostenlos?",
-    "a4": "Neue Benutzer erhalten kostenlose Credits zum Testen des PDF-zu-Text-OCR-Konverters. Premium-Funktionen umfassen größere Dateien, Stapelverarbeitung und priorisierte Geschwindigkeit.",
+    "a4": "Eine Anmeldung ist erforderlich. Startguthaben kann verfügbar sein, wenn es in der aktuellen Produktkonfiguration aktiviert ist. Den aktuellen Satz und Ihr Guthaben sehen Sie unter Einstellungen → Credits.",
     "q5": "In welche Formate kann ich nach dem OCR exportieren?",
     "a5": "Sie können den extrahierten Text als TXT (reiner Text), Microsoft Word (DOCX), HTML oder Markdown exportieren. Wählen Sie das Format, das am besten zu Ihrem Workflow passt."
   },

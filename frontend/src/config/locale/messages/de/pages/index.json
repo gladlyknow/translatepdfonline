@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "PDF online übersetzen – OCR für gescannte Dokumente",
+    "description": "Übersetzen Sie digitale und gescannte PDFs in 10 unterstützte Sprachen. Das Layout bleibt erhalten, soweit es technisch möglich ist. Anmeldung erforderlich."
+  },
   "page": {
     "show_sections": [
       "hero",
@@ -186,7 +190,7 @@
           },
           {
             "title": "Zielsprache",
-            "description": "Wählen Sie die Sprache, in die das PDF übersetzt werden soll — Englisch, Chinesisch, Deutsch, Japanisch, Norwegisch und mehr — und starten Sie den Auftrag.",
+            "description": "Wählen Sie eine der unterstützten Zielsprachen — Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch oder Russisch — und starten Sie den Auftrag.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Zielsprache wählen",
@@ -292,8 +296,8 @@
             "answer": "Auf der Übersetzungsseite Deutsch als Quellsprache und Englisch als Zielsprache einstellen, PDF hochladen und Auftrag starten. Die Layout-erhaltende Pipeline übersetzt das Dokument und behält dabei Schriftarten, Tabellen und Spalten bei – Sie erhalten ein sauberes englisches Ergebnis."
           },
           {
-            "question": "Wie übersetze ich PDF-Dokumente online ins Norwegische?",
-            "answer": "Wählen Sie Norwegisch als Zielsprache, bestimmen Sie die Quellsprache des Dokuments und laden Sie das PDF hoch. Die Engine übersetzt ins Norwegische und bewahrt das Layout, wo es technisch unterstützt wird – für ein lesbares, originalgetreues Ergebnis."
+            "question": "Welche Sprachpaare unterstützt die PDF-Übersetzung?",
+            "answer": "Zur Auswahl stehen Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch. Wählen Sie vor dem Upload eine unterstützte Ausgangs- und Zielsprache."
           },
           {
             "question": "Was ist Translate PDF Online und wie funktioniert es?",

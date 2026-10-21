@@ -4,6 +4,7 @@ import { getThemePage } from '@/core/theme';
 import { defaultLocale } from '@/config/locale';
 import { currentPricingLocales } from '@/config/seo-routes';
 import { getMetadata } from '@/shared/lib/seo';
+import { getTranslateCreditsPerPage } from '@/shared/lib/translate-billing';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
 import { DynamicPage } from '@/shared/types/blocks/landing';
@@ -15,6 +16,26 @@ export const generateMetadata = getMetadata({
   canonicalUrl: '/pricing',
   indexLocales: currentPricingLocales,
 });
+
+function applyCurrentCreditRate<T>(value: T, creditsPerPage: number): T {
+  if (typeof value === 'string') {
+    return value.replaceAll('{creditsPerPage}', String(creditsPerPage)) as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) =>
+      applyCurrentCreditRate(item, creditsPerPage)
+    ) as T;
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        applyCurrentCreditRate(item, creditsPerPage),
+      ])
+    ) as T;
+  }
+  return value;
+}
 
 export default async function PricingPage({
   params,
@@ -49,6 +70,10 @@ export default async function PricingPage({
     });
     pricingSection = fallback.raw('page.sections.pricing');
   }
+  pricingSection = applyCurrentCreditRate(
+    pricingSection,
+    getTranslateCreditsPerPage()
+  );
 
   // build page sections
   const page: DynamicPage = {

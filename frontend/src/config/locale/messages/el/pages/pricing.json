@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "Τιμολόγηση",
-        "description": "Πληρωμή μέσω Creem. 10 πιστώσεις ανά μεταφρασμένη σελίδα PDF. Ανανέωση $5 / 500 πιστώσεις ανά πάσα στιγμή.",
+        "description": "Πληρωμή μέσω Creem. {creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα PDF. Ανανέωση $5 / 500 πιστώσεις ανά πάσα στιγμή.",
         "footnote_usd": "Όλες οι τιμές είναι σε USD.",
         "footnote_summary": "Μπορείτε να ακυρώσετε τη συνδρομή ανά πάσα στιγμή. Δεν επιστρέφονται χρήματα αφού χρησιμοποιηθούν οι πιστώσεις.",
         "terms_link_text": "Πλήρης πολιτική: Όροι χρήσης",
@@ -28,7 +28,7 @@
             "features_title": "Περιλαμβάνει",
             "features": [
               "500 πιστώσεις μετάφρασης",
-              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "{creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα",
               "Οι πιστώσεις δεν λήγουν ποτέ"
             ],
             "interval": "one-time",
@@ -38,7 +38,11 @@
             "unit": "",
             "is_featured": false,
             "tip": "Ανανεώστε όταν λιγοστέψουν οι πιστώσεις.",
-            "button": { "title": "Αγορά πιστώσεων", "url": "/pricing", "icon": "FileText" },
+            "button": {
+              "title": "Αγορά πιστώσεων",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
             "product_id": "translate-credits-topup",
             "product_name": "Translate PDF — 500 πιστώσεις (ανανέωση)",
             "credits": 500,
@@ -52,7 +56,7 @@
             "features_title": "Περιλαμβάνει",
             "features": [
               "550 πιστώσεις σε κάθε κύκλο χρέωσης",
-              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "{creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα",
               "Οι πιστώσεις συνδρομής λήγουν στο τέλος περιόδου· οι ανανεώσεις δεν λήγουν"
             ],
             "interval": "month",
@@ -62,7 +66,11 @@
             "unit": "/ μήνα",
             "is_featured": true,
             "tip": "Καλύτερη αξία αν μεταφράζετε τακτικά.",
-            "button": { "title": "Εγγραφή", "url": "/pricing", "icon": "FileText" },
+            "button": {
+              "title": "Εγγραφή",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
             "product_id": "translate-credits-monthly",
             "product_name": "Translate PDF — Μηνιαίο (550 πιστώσεις)",
             "credits": 550,
@@ -78,7 +86,7 @@
             "features_title": "Περιλαμβάνει",
             "features": [
               "1600 πιστώσεις σε κάθε κύκλο χρέωσης",
-              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "{creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα",
               "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
             ],
             "interval": "quarter",
@@ -88,7 +96,11 @@
             "unit": "/ τρίμηνο",
             "is_featured": false,
             "tip": "Λιγότερη ταλαιπωρία από το μηνιαίο.",
-            "button": { "title": "Εγγραφή τριμηνιαία", "url": "/pricing", "icon": "FileText" },
+            "button": {
+              "title": "Εγγραφή τριμηνιαία",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
             "product_id": "translate-credits-quarterly",
             "product_name": "Translate PDF — Τριμηνιαίο (1600 πιστώσεις)",
             "credits": 1600,
@@ -103,7 +115,7 @@
             "features_title": "Περιλαμβάνει",
             "features": [
               "3300 πιστώσεις σε κάθε κύκλο χρέωσης",
-              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "{creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα",
               "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
             ],
             "interval": "six-months",
@@ -113,7 +125,11 @@
             "unit": "/ 6 μήνες",
             "is_featured": false,
             "tip": "Ισορροπία τιμής και δέσμευσης.",
-            "button": { "title": "Εγγραφή (6 μήνες)", "url": "/pricing", "icon": "FileText" },
+            "button": {
+              "title": "Εγγραφή (6 μήνες)",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
             "product_id": "translate-credits-semiannual",
             "product_name": "Translate PDF — Εξαμηνιαίο (3300 πιστώσεις)",
             "credits": 3300,
@@ -128,7 +144,7 @@
             "features_title": "Περιλαμβάνει",
             "features": [
               "6500 πιστώσεις κάθε έτος",
-              "10 πιστώσεις ανά μεταφρασμένη σελίδα",
+              "{creditsPerPage} πιστώσεις ανά μεταφρασμένη σελίδα",
               "Ακύρωση ανά πάσα στιγμή από τη χρέωση"
             ],
             "interval": "year",
@@ -139,7 +155,11 @@
             "is_featured": false,
             "label": "Εξοικονομήστε 25% σε σχέση με το μηνιαίο",
             "tip": "Χαμηλότερο κόστος ανά πίστωση από ένα έτος μηνιαίων πληρωμών.",
-            "button": { "title": "Εγγραφή ετήσια", "url": "/pricing", "icon": "FileText" },
+            "button": {
+              "title": "Εγγραφή ετήσια",
+              "url": "/pricing",
+              "icon": "FileText"
+            },
             "product_id": "translate-credits-yearly",
             "product_name": "Translate PDF — Ετήσιο (6500 πιστώσεις)",
             "credits": 6500,

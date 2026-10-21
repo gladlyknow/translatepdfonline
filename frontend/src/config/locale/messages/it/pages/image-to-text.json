@@ -1,6 +1,6 @@
 {
   "metaTitle": "Immagine in Testo — OCR Online Gratis per Estrarre Testo da Foto",
-  "metaDescription": "Estrai testo da immagini online gratis. L'OCR AI converte foto, screenshot e documenti scansionati in testo modificabile. PNG, JPG, BMP, WebP. Senza registrazione.",
+  "metaDescription": "Estrai testo modificabile da foto, screenshot e scansioni PNG, JPG, BMP o WebP con OCR basato su IA. È necessario accedere prima del caricamento.",
   "keywords": "immagine in testo,estrarre testo da immagine,foto in testo,ocr immagine online,convertire immagine in testo,riconoscimento testo immagine,ocr immagine gratis",
   "heroTitle": "Immagine in Testo",
   "heroText": "L'OCR con IA estrae testo da qualsiasi immagine — foto, screenshot o documenti scansionati. Compatibile con PNG, JPG, BMP, WebP. Esporta in Word, TXT o Markdown.",
@@ -24,7 +24,7 @@
     "q3": "Quali formati immagine sono supportati per l'OCR?",
     "a3": "Supportiamo i formati PNG, JPG/JPEG, BMP e WebP. Dimensione massima 50 MB per immagine. Per risultati migliori, usa immagini nitide e ben illuminate con testo leggibile.",
     "q4": "Il convertitore immagine in testo è gratuito?",
-    "a4": "I nuovi utenti ricevono crediti gratis per provare il convertitore OCR immagine in testo. Le funzioni premium includono elaborazione ad alta risoluzione, caricamento batch e velocità prioritaria.",
+    "a4": "È necessario accedere. I crediti iniziali possono essere disponibili se abilitati nella configurazione corrente. Controlla tariffa e saldo in Impostazioni → Crediti.",
     "q5": "Posso tradurre il testo estratto in un'altra lingua?",
     "a5": "Sì. Dopo che l'OCR ha estratto il testo, puoi usare la funzione di traduzione integrata per tradurre il testo in una delle nostre oltre 10 lingue direttamente nell'editor."
   },

@@ -24,7 +24,7 @@
     "q3": "Quels formats d'image sont pris en charge par l'OCR ?",
     "a3": "Nous prenons en charge les formats PNG, JPG/JPEG, BMP et WebP. Taille maximale de 50 Mo par image. Pour de meilleurs résultats, utilisez des images nettes et bien éclairées.",
     "q4": "Le convertisseur image en texte est-il gratuit ?",
-    "a4": "Les nouveaux utilisateurs reçoivent des crédits gratuits pour essayer le convertisseur OCR image en texte. Les fonctions premium incluent le traitement haute résolution, le téléchargement par lots et une vitesse prioritaire.",
+    "a4": "La connexion est obligatoire. Des crédits de démarrage peuvent être disponibles s'ils sont activés dans la configuration actuelle. Consultez Réglages → Crédits pour le tarif et le solde en vigueur.",
     "q5": "Puis-je traduire le texte extrait dans une autre langue ?",
     "a5": "Oui. Après l'extraction du texte par OCR, utilisez la fonction de traduction intégrée pour traduire le texte extrait dans l'une de nos 10+ langues directement dans l'éditeur."
   },

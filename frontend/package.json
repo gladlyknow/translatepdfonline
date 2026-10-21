@@ -58,7 +58,7 @@
     "brand:icons": "python scripts/export-brand-icons.py",
     "brand:sync-from-tmp": "node scripts/sync-brand-from-tmp.js",
     "test:scan-precheck": "tsx --test src/shared/lib/translate-scan-precheck.test.ts",
-    "test:seo": "tsx --test src/shared/lib/sitemap.test.ts src/shared/blocks/common/third-party-scripts.test.ts",
+    "test:seo": "tsx --test src/shared/lib/sitemap.test.ts src/shared/lib/seo-content.test.ts src/shared/blocks/common/third-party-scripts.test.ts",
     "perf:test": "bash scripts/perf-test.sh",
     "perf:test:prod": "URL=https://www.translatepdfonline.com bash scripts/perf-test.sh",
     "perf:test:dev": "URL=https://translatepdfonline-dev.gladlyknow.workers.dev bash scripts/perf-test.sh",

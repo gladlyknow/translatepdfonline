@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "title": "OCR-PDF-Übersetzer für gescannte Dokumente",
+    "description": "Text in gescannten PDFs per OCR erkennen, Layoutblöcke prüfen, in unterstützte Sprachen übersetzen und exportieren. Anmeldung erforderlich."
+  },
+  "eyebrow": "Workflow für gescannte PDFs",
+  "h1": "Gescannte PDFs mit OCR übersetzen",
+  "intro": "Laden Sie ein gescanntes oder bildbasiertes PDF hoch, erkennen und prüfen Sie Textblöcke und übersetzen Sie den Inhalt anschließend in eine unterstützte Sprache.",
+  "useCasesTitle": "Geeignet für",
+  "useCases": "Gescannte Fachartikel, Lieferantendokumente, Handbücher und andere PDFs, deren Text sich nicht markieren oder kopieren lässt.",
+  "limitsTitle": "Vor dem Start",
+  "limits": "Eine Anmeldung ist erforderlich. Unscharfe Scans, Handschrift, komplexe Tabellen, ungewöhnliche Schriften und geschützte PDFs können eine manuelle Prüfung benötigen."
+}

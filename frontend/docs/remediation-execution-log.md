@@ -1,0 +1,215 @@
+# TranslatePDFOnline 整改执行日志
+
+> 用途：对[项目整改总表](./project-seo-gsc-remediation-plan.md)中的每一步保留“修改前证据 → 变更 → 部署 → 生产验证 → GSC 验证”。  
+> 建立日期：2026-10-21  
+> 规则：一项任务一条记录；未达到验收条件时，不得标记为“已完成”。
+
+## 状态规范
+
+| 状态             | 使用条件                                        |
+| ---------------- | ----------------------------------------------- |
+| 计划中           | 已定义范围和验收条件，尚未执行                  |
+| 执行中           | 正在修改或验证                                  |
+| 等待部署         | 本地验证通过，尚未进入目标环境                  |
+| 等待外部刷新     | 代码和生产验证完成，但依赖 Google 重抓/报表刷新 |
+| 需站点所有者操作 | 需要 GSC / GCP / Cloudflare 等账号内操作        |
+| 已完成           | 所有验收条件和证据均齐全                        |
+| 已回滚           | 变更撤回，并记录原因和回滚验证                  |
+
+## 已执行记录
+
+### EXEC-001 — 修复前 GSC 官方 API 基线
+
+- 日期：2026-10-21
+- 关联任务：SEO-001、SEO-004、SEO-005
+- 状态：已完成
+- 范围：domain property `sc-domain:translatepdfonline.com`；权限 `siteFullUser`。
+- 操作：使用服务账号调用官方 Sites、Sitemaps、URL Inspection、Search Analytics API。
+- 结果：检查 213 个 URL；154 PASS；59 非 PASS；API 错误 0。
+- 非 PASS 构成：52 个 `Crawled - currently not indexed`、6 个 `Alternate page with proper canonical tag`、1 个 `Duplicate, Google chose different canonical than user`。
+- Search Analytics：最近完整 28 天 21 点击、当时 1,268 展示；最近完整 90 天 57 点击、9,609 展示。近期展示会因数据新鲜度调整。
+- 脱敏产物：`/tmp/translatepdfonline-gsc-2026-10-21-live-api`。
+- 结论：修复前基线建立，不能据此代表修复后状态。
+
+### EXEC-002 — 技术 SEO 与公开配置修复
+
+- 日期：2026-10-21
+- 关联任务：SEO-001、SEO-004、SEO-005
+- 状态：已完成
+- 提交：`bf2a3192`（`fix: harden SEO indexing and public config`）。
+- 主要变更：统一 canonical/`hreflang`/语言路径；收敛 sitemap；调整 robots/noindex；阻止敏感服务端配置进入公开输出；增加 SEO 测试。
+- 本地验证：构建和相关自动测试通过。
+- 回滚点：提交的父提交；如回滚，必须重新检查 sitemap、robots、canonical 与公开配置，不能只看构建成功。
+
+### EXEC-003 — develop 环境部署与验证
+
+- 日期：2026-10-21
+- 关联任务：部署验证
+- 状态：已完成
+- 分支 / 提交：`develop` / `bf2a3192`。
+- Cloudflare：开发 Web Worker 与开发队列 Worker 构建均成功。
+- 验证：开发环境 canonical、robots、sitemap、语言路径和敏感配置检查通过后，才进入生产分支。
+
+### EXEC-004 — 生产部署核对
+
+- 日期：2026-10-21
+- 关联任务：部署验证、ENG-002
+- 状态：已完成（分支命名整改仍待执行）
+- 实际生产分支：`master`，不是 `main`。
+- 远端状态：`origin/master` 与 `origin/develop` 均指向 `bf2a3192`。
+- Cloudflare：生产 Web Worker 与生产队列 Worker 构建成功；生产部署时间约为 2026-10-21 05:49 UTC。
+- 结论：用户所说的“main 已推送”在当前仓库实际对应 `master`；代码已进入生产，但需统一后续口径。
+
+### EXEC-005 — 生产站 HTTP 与 sitemap 全量审计
+
+- 日期：2026-10-21
+- 关联任务：SEO-001、SEO-004、SEO-005
+- 状态：已完成
+- 在线 sitemap：172 个 `<loc>`；双 locale alternate 0。
+- 全量页面结果：172/172 返回 200，且 `robots=index, follow`、HTML `lang` 正确、自引用 apex canonical 正确。
+- 重定向：HTTP apex 和 `www` 深层链接均单跳 301 到 HTTPS apex，并保留路径与查询参数。
+- robots：公开页面允许抓取，API、后台、账号、聊天等内部路径禁止抓取。
+- 安全检查：页面公开配置中的敏感字段命中 0。
+- 结论：当前生产输出的技术条件通过。
+
+### EXEC-006 — 生产部署后 GSC 官方 API 审计
+
+- 日期：2026-10-21
+- 关联任务：SEO-001、SEO-003、SEO-004、SEO-005
+- 状态：等待外部刷新
+- 生成时间：2026-10-21 06:00:46 UTC。
+- URL Inspection：172 个 URL；131 PASS；41 非 PASS；API 错误 0。
+- 非 PASS 构成：37 个 `Crawled - currently not indexed`，4 个 `Alternate page with proper canonical tag`。
+- 关键证据：172 个 URL 的 `lastCrawlTime` 全部早于本次生产部署；部署后重抓数 0。
+- Sitemap API：`submitted=213` 仍是旧快照；同时返回 `indexed=0`、0 error、0 warning，但官方已将 `indexed` 字段标记为 deprecated / do not use，因此不能把它解读为 0 个页面被索引。
+- Search Analytics：最近完整 28 天 21 点击 / 1,301 展示 / 1.61% CTR；最近完整 90 天 57 点击 / 9,609 展示 / 0.59% CTR。
+- 报告校验：172 URL 与 172 Inspection 一致；报告中无敏感值。
+- 脱敏产物：`/tmp/translatepdfonline-gsc-2026-10-21-after-main-bf2a3192`。
+- 结论：生产修复有效，但 Google 尚未检查新版本；GSC 不能标记“完全解决”。
+- 下一检查：D1 / D3 / D7 / D14。
+
+### EXEC-007 — 建立整改总表与执行日志
+
+- 日期：2026-10-21
+- 关联任务：项目治理
+- 状态：已完成
+- 变更：新增 `project-seo-gsc-remediation-plan.md` 和本日志。
+- 覆盖：问题清单、优先级、验收条件、41 个 GSC URL、18 个退出 sitemap 的 URL、产品扩展波次、GSC 复查计划和逐步记录模板。
+- 验证：Markdown 差异检查、内部链接和问题 ID 检查通过后完成。
+
+### EXEC-008 — SEO / GEO / 多语言内容层全量审计
+
+- 日期：2026-10-21
+- 关联任务：SEO-002、SEO-003、SEO-006、SEO-007、SEO-008、CNT-001、CNT-003、CNT-004、I18N-001、I18N-002、GEO-002、GEO-003、GEO-004
+- 状态：已完成
+- 范围：仓库内容、172 个生产 sitemap URL、结构化数据、GSC Search Analytics、多语言 JSON/MDX。
+- 生产结果：172/172 返回 200；title 缺失 0；description 缺失 4；H1 数量异常 12；og:title 缺失 3；Twitter Card 缺失 0；JSON-LD 解析错误 0。
+- 多语言结果：9 个非英语合同对比页存在可见英文模块；9 个非英语首页缺页面级 metadata；德/西/俄 pricing 结构仍与当前英文不一致。
+- 内容事实：26 个文件存在 no-signup/no-account 类陈述，和 54 处登录要求冲突；14 个 locale 文件仍提到实际未支持的 Norwegian。
+- 内链：公开内容存在 53 处 `www` 绝对链接。
+- GEO 抓取：Googlebot、OAI-SearchBot、ChatGPT-User 访问首页均返回 200。
+- Search Analytics：优先意图仍为 PDF 翻译、JPG to Word、PDF to Text；优先市场以美国、印度、菲律宾、德国、俄罗斯、西班牙等为主。
+- 结论：技术 SEO 基础通过；内容事实、OCR 页语义、多语言本地化和实体可信度进入 P0/P1 整改。
+
+### EXEC-009 — 建立 GSC 控制台手册和场景化本地化计划
+
+- 日期：2026-10-21
+- 关联任务：项目治理、SEO/GEO、多语言
+- 状态：已完成
+- 交付：`gsc-console-operation-guide.md`、`seo-geo-multilingual-audit-plan.md`。
+- GSC 手册：包含 sitemap、URL Inspection、实时测试、请求索引、Pages 导出、验证修复、Search Analytics、CWV、结构化数据、D1/D3/D7/D14 和关闭标准。
+- 多语言计划：使用“用户—文档—场景—痛点—能力—限制—CTA”brief，要求事实核对和母语审校，禁止逐句直译和关键词替换。
+- 下一步：先执行安全密钥轮换和 GSC sitemap/代表 URL 操作，再启动 Phase A 功能事实清理。
+
+### EXEC-010 — `/docs/upload` 重定向与 GSC 状态专项核验
+
+- 日期：2026-10-21
+- 关联任务：SEO-001、SEO-004、SEO-005
+- 状态：等待外部刷新
+- 本次范围：`https://www.translatepdfonline.com/docs/upload` 与 apex 规范 URL。
+- 修改前证据：GSC 显示 `www` URL“网页会自动重定向”，最后抓取时间为 2026-08-12 20:39:17；引荐来源包含多语言 `/docs/upload` 页面。
+- 现场验证：`www` URL 单跳 301 到 `https://translatepdfonline.com/docs/upload`；apex 返回 200、允许索引、使用 apex 自引用 canonical，并包含在当前 sitemap。
+- 判断：`www` URL 不应独立收录，“网页会自动重定向”是预期状态；需要检查的是 apex URL。当前 GSC 抓取早于修复部署，不能以历史状态否定现有代码。
+- 代码处置：本项不需要为 `www` URL取消重定向；本批同时清理公开内容中的 `www` 绝对内链，减少继续产生旧主机信号。
+- GSC 后续：站点所有者在 domain property 中重新提交 sitemap，对 apex URL 执行实时测试并请求一次收录；D1/D3/D7/D14 复查 `lastCrawlTime`。
+- 验收结论：代码/现场条件通过，Google 层等待重抓。
+
+### EXEC-011 — SEO / GEO / 多语言 P0 内容整改批次
+
+- 日期：2026-10-21
+- 关联任务：CNT-FACT、CNT-001、CNT-003、CNT-004、CNT-005、SEO-002、SEO-006、SEO-007、SEO-008、I18N-001、I18N-002、GEO-004
+- 状态：等待部署
+- 本次范围：产品事实基线、10 个 locale 的 OCR/首页/工具/定价内容、合同对比页、博客、docs、legal 内链和 SEO 内容契约。
+- 明确不包含：Google 重抓结果、母语人工审校、品牌 About/Methodology/Security 页面、业务漏斗埋点、PDF 压缩/合并功能、de/es/ru pricing 旧 schema 完整迁移。
+- 修改前证据：OCR 10 个 locale 无服务端 H1；9 个首页无页面级 metadata；4 个 docs description 为空；博客双 H1/OG 不完整；`www` 内链、Norwegian、免登录、固定赠送积分、固定费率和合同 CLM 夸大陈述仍存在。
+- 变更内容：
+  - 新建 `product-facts.md`，锁定语言、登录、积分、费率、格式、大小、保留和规范域名。
+  - 为 OCR Translator 增加独立 locale metadata、服务端 H1、场景和限制模块。
+  - 补 9 个首页 metadata；补 docs description；修博客双 H1、OG/Twitter 和 BlogPosting。
+  - 合同对比页改为真实“两份文档差异定位 + 人工复核”场景，移除 CLM、认证和未经验证的效率承诺。
+  - 清除公开内容中的 Norwegian、免登录、无条件赠送积分和 `www` 内链；非英语关联模块完成本地化。
+  - 顶部注册赠送横幅读取后台开关和数量；关闭或数量无效时不显示。
+  - pricing 每页积分在服务端按当前运行时配置注入，静态内容不再写死 10。
+  - 新增 SEO 内容合同，阻止上述事实错误回归。
+- 本地验证：locale JSON 全量解析通过；`pnpm test:seo` 13/13；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过，203/203 静态页面生成成功。
+- 实际 HTML 抽查：`/zh/ocrtranslator`、`/fr/ocrtranslator`、`/zh/pricing`、`/ru/contract-comparison` 均只有 1 个 H1；title/canonical 存在；可见正文无未替换 `{creditsPerPage}`，无抽样免登录陈述。
+- 工具链备注：独立 ESLint 命令因仓库缺少 ESLint 9 配置而无法启动；生产构建内置 lint/type 阶段与 TypeScript 检查通过。新增 ENG-003 跟踪，不伪报 lint 通过。
+- 分支 / 提交：本地 `develop`，待提交。
+- Cloudflare 部署证据：待 push 后由关联的 dev 环境自动构建。
+- 生产验证：未执行；不得标记为生产完成。
+- GSC 验证：未执行；需生产发布且 Google 重抓后判断。
+- 验收结论：本地完成，等待部署。
+- 回滚方式：回滚本批独立提交；不得回滚上一批 canonical/sitemap/robots 安全修复。
+- 下一动作：提交并 push `develop`，验证 Cloudflare dev；确认后进入生产发布与 GSC D1/D3/D7/D14。
+
+## 待执行队列
+
+| 顺序 | 任务 ID           | 下一步                                     | 状态             | 负责人 | 目标时间  |
+| ---: | ----------------- | ------------------------------------------ | ---------------- | ------ | --------- |
+|    1 | SEC-001           | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
+|    2 | SEO-005           | GSC 重新提交当前 sitemap，实时测试代表 URL | 需站点所有者操作 | 待指定 | D0        |
+|    3 | CNT-FACT          | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
+|    4 | EXEC-011          | 提交并 push develop，验证 Cloudflare dev   | 等待部署         | Codex  | D0        |
+|    5 | I18N-001          | 完成德/西/俄 pricing 现行 schema 本地化     | 执行中           | 待指定 | 第 1 周   |
+|    6 | SEO-001           | 运行 D1/D3/D7/D14 GSC 只读审计             | 等待外部刷新     | 待指定 | 见计划    |
+|    7 | SEO-003           | Google 重抓后处理未收录内容聚类            | 计划中           | 待指定 | 第 1–2 周 |
+|    8 | ENG-003           | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
+|    9 | PROD-001          | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
+
+## 新记录模板
+
+复制本节，为每个独立任务建立记录：
+
+```text
+### EXEC-NNN — 标题
+
+- 日期：YYYY-MM-DD
+- 执行人：
+- 关联任务：
+- 状态：计划中 / 执行中 / 等待部署 / 等待外部刷新 / 需站点所有者操作 / 已完成 / 已回滚
+- 本次范围：
+- 明确不包含：
+- 修改前证据：
+- 变更内容：
+- 影响文件 / URL：
+- 本地验证：
+- 分支 / 提交：
+- Cloudflare 部署证据：
+- 生产验证：
+- GSC 验证（含 lastCrawlTime）：
+- 验收结论：
+- 回滚方式：
+- 下一动作 / 日期：
+```
+
+## 每次提交前检查
+
+- [ ] 本次任务边界明确，没有顺带发布未完成页面。
+- [ ] 修改前证据已保存且不含密钥、令牌、用户数据。
+- [ ] 文案与产品事实表一致。
+- [ ] 本地测试、构建、格式检查通过。
+- [ ] 新页面在功能和内容验收前保持 noindex，且不进入 sitemap。
+- [ ] Cloudflare 目标分支与环境正确。
+- [ ] 生产 URL 的状态码、robots、canonical、`hreflang`、语言和功能已检查。
+- [ ] GSC 判断记录最近抓取时间，没有把旧抓取结果归因于新代码。
+- [ ] 完成/等待/回滚状态与证据一致。

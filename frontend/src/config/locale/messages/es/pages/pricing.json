@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Precios — Traductor de PDF Online",
-    "description": "Planes y precios del traductor de PDF online. Créditos, suscripciones mensuales, trimestrales y anuales. Prueba gratis para nuevos usuarios."
+    "description": "Planes y precios del traductor de PDF online con créditos y suscripciones mensuales, trimestrales y anuales."
   },
   "page": {
     "title": "Traductor de PDF Online — Precios"
@@ -9,7 +9,7 @@
   "sections": {
     "pricing": {
       "title": "Precios",
-      "description": "Paga con Creem. 10 créditos por página PDF traducida. Recarga $5 / 500 créditos cuando quieras."
+      "description": "Paga con Creem. {creditsPerPage} créditos por página PDF traducida. Recarga $5 / 500 créditos cuando quieras."
     }
   },
   "groups": [
@@ -44,7 +44,7 @@
       },
       "features": [
         "500 créditos de traducción",
-        "10 créditos por página traducida",
+        "{creditsPerPage} créditos por página traducida",
         "Sin suscripción — pagas lo que usas",
         "Los créditos no caducan"
       ]
@@ -58,7 +58,7 @@
       },
       "features": [
         "550 créditos de traducción al mes",
-        "10 créditos por página traducida",
+        "{creditsPerPage} créditos por página traducida",
         "Créditos de suscripción: caducan al final del período",
         "Cancela cuando quieras"
       ]
@@ -72,7 +72,7 @@
       },
       "features": [
         "600 créditos de traducción al mes",
-        "10 créditos por página traducida",
+        "{creditsPerPage} créditos por página traducida",
         "Créditos de suscripción: caducan al final del período",
         "Ahorra un 10% frente al plan mensual"
       ]
@@ -86,7 +86,7 @@
       },
       "features": [
         "650 créditos de traducción al mes",
-        "10 créditos por página traducida",
+        "{creditsPerPage} créditos por página traducida",
         "Créditos de suscripción: caducan al final del período",
         "Ahorra un 20% frente al plan mensual"
       ]
@@ -100,7 +100,7 @@
       },
       "features": [
         "700 créditos de traducción al mes",
-        "10 créditos por página traducida",
+        "{creditsPerPage} créditos por página traducida",
         "Créditos de suscripción: caducan al final del período",
         "Ahorra un 30% frente al plan mensual"
       ]

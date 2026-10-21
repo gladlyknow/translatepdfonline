@@ -21,11 +21,11 @@
   "why2Title": "Erkennt Stempel, Wasserzeichen und Handschrift",
   "why2Desc": "Offizielle Stempel, starke Wasserzeichen und handschriftliche Notizen, an denen gewöhnliche OCR scheitert, werden vom Foto-zu-Word-Konverter erkannt und an ihrer Originalposition in die Word-Datei eingesetzt, sodass Bedeutung und Autorität des Quelldokuments erhalten bleiben.",
   "why3Title": "Kostenlos, privat und online",
-  "why3Desc": "Keine Software zu installieren. Ihr Foto wird per HTTPS hochgeladen, nur für die Umwandlung verarbeitet, und nur Sie können das resultierende Word-Dokument herunterladen. Neue Nutzer erhalten kostenlose Credits und wandeln JPG in Word auf jedem Gerät mit Browser um.",
+  "why3Desc": "Keine Software zu installieren. Ihr Foto wird per HTTPS hochgeladen, nur für die Umwandlung verarbeitet, und nur Sie können das resultierende Word-Dokument herunterladen. Eine Anmeldung ist erforderlich; ein Browser genügt auf jedem unterstützten Gerät.",
   "faqHeading": "JPG-zu-Word-Konverter FAQ",
   "seoFaq": {
     "q1": "Ist dieser JPG-zu-Word-Konverter kostenlos?",
-    "a1": "Ja. Der JPG-zu-Word-Konverter läuft online und jeder neue Nutzer erhält kostenlose Credits. Jede Foto-zu-Word-Umwandlung kostet wenige Credits, sodass Sie gratis testen können.",
+    "a1": "Der JPG-zu-Word-Konverter läuft online und erfordert eine Anmeldung. Startguthaben kann verfügbar sein, wenn es aktuell aktiviert ist; prüfen Sie vor der Umwandlung den angezeigten Credit-Satz und Ihr Guthaben.",
     "q2": "Behält der Konverter das Originalformat?",
     "a2": "Ja. Die KI-OCR bewahrt Absätze, Tabellen, Spalten, Stempel und Handschrift und erstellt ein Word-Dokument, das die Originalseite widerspiegelt — kein flacher Text.",
     "q3": "Kann ich ein Foto mit Handschrift umwandeln?",

@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "Inscrivez-vous pour obtenir ",
-      "promoCredits": "30 crédits",
+      "promoCredits": "{credits} crédits",
       "promoMiddle": " — ",
       "promoFree": "gratuit",
-      "promoAfter": " : traduction d’environ 3 pages PDF (10 crédits par page).",
+      "promoAfter": " pour le traitement de documents. Le coût actuel est affiché avant chaque tâche.",
       "buttonText": "S’inscrire",
       "href": "/sign-up",
       "target": "_self",

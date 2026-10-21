@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "가입 시 ",
-      "promoCredits": "30 크레딧",
+      "promoCredits": "{credits} 크레딧",
       "promoMiddle": ", ",
       "promoFree": "무료",
-      "promoAfter": "로 약 3페이지 PDF 번역(페이지당 10 크레딧).",
+      "promoAfter": "로 문서를 처리할 수 있습니다. 현재 비용은 각 작업을 시작하기 전에 표시됩니다.",
       "buttonText": "가입하기",
       "href": "/sign-up",
       "target": "_self",

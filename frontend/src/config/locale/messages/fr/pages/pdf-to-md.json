@@ -21,7 +21,7 @@
   "why2Title": "PDF numérisés inclus",
   "why2Desc": "Fonctionne avec les documents numérisés et les PDF images, pas seulement les fichiers numériques.",
   "why3Title": "Gratuit et privé",
-  "why3Desc": "Des crédits gratuits pour commencer, sans abonnement. Vos fichiers sont traités en toute sécurité et utilisés uniquement pour votre conversion.",
+  "why3Desc": "La connexion est obligatoire. Des crédits de démarrage peuvent être disponibles s'ils sont activés dans la configuration actuelle ; vos fichiers sont traités uniquement pour la conversion demandée.",
   "faqHeading": "FAQ du convertisseur PDF en Markdown",
   "seoFaq": {
     "q1": "Comment convertir un PDF en Markdown sans perdre la mise en forme ?",
@@ -29,7 +29,7 @@
     "q2": "Puis-je convertir un PDF numérisé en Markdown ?",
     "a2": "Oui. Le convertisseur intègre un OCR IA qui lit le texte des pages numérisées et des PDF images, y compris les notes manuscrites et les tampons. Un contrat photographié ou une page de manuel numérisée devient un Markdown modifiable et interrogeable — la plupart des convertisseurs échouent sur les scans, le nôtre a été conçu pour cela.",
     "q3": "Est-ce que le convertisseur PDF en Markdown est gratuit ?",
-    "a3": "Oui. Chaque nouvel utilisateur reçoit des crédits de conversion gratuits à utiliser pour la conversion PDF en Markdown. Chaque conversion consomme un petit nombre de crédits selon les pages, vous pouvez donc essayer gratuitement avant d'en acheter davantage. Sans abonnement, payez à l'usage.",
+    "a3": "La connexion est obligatoire. Des crédits de démarrage peuvent être disponibles s'ils sont activés dans la configuration actuelle. Vérifiez le tarif et votre solde dans Réglages → Crédits avant la conversion.",
     "q4": "Que puis-je faire avec le Markdown converti depuis un PDF ?",
     "a4": "Le Markdown est parfait pour les blogs, les sites de documentation et les générateurs de sites statiques comme Hugo, Jekyll ou Next.js. Après avoir téléchargé le fichier .md, collez-le dans n'importe quel éditeur Markdown, CMS ou dépôt Git — titres, tableaux et images sont conservés et restent modifiables.",
     "q5": "Les images et tableaux sont-ils conservés lors de la conversion PDF en Markdown ?",

@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "注册即送",
-      "promoCredits": "30 积分",
+      "promoCredits": "{credits} 积分",
       "promoMiddle": "。",
       "promoFree": "免费",
-      "promoAfter": "翻译约 3 页 PDF（每页 10 积分）。",
+      "promoAfter": "用于文档处理，开始任务前会显示当前费用。",
       "buttonText": "注册",
       "href": "/sign-up",
       "target": "_self",

@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "title": "OCR PDF Translator for Scanned Documents",
+    "description": "Use OCR to recognize text in scanned PDFs, review the detected layout, translate supported languages, and export the result. Sign-in is required."
+  },
+  "eyebrow": "Scanned PDF workflow",
+  "h1": "Translate scanned PDFs with OCR",
+  "intro": "Upload a scanned or image-based PDF, recognize its text, review the detected blocks, and translate the content into one of the supported languages before export.",
+  "useCasesTitle": "Useful for",
+  "useCases": "Scanned research papers, supplier documents, manuals, and other PDFs whose text cannot be selected or copied.",
+  "limitsTitle": "Before you start",
+  "limits": "Sign-in is required. Blurry scans, handwriting, complex tables, unusual fonts, and password-protected PDFs may need manual review or preprocessing."
+}

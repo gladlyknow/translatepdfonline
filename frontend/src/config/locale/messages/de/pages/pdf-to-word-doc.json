@@ -21,7 +21,7 @@
   "why2Title": "Verarbeitet gescannte PDFs — nicht nur textbasierte Dokumente",
   "why2Desc": "Die meisten PDF-zu-Word-Konverter scheitern an gescannten Dokumenten. Unser PDF-zu-Word-Dokument-Konverter enthält KI-OCR, die Text in gescannten Bildern, handschriftlichen Notizen, Stempeln und Wasserzeichen erkennt — selbst fotobasierte PDFs werden zu voll durchsuchbaren, bearbeitbaren Word-Dokumenten.",
   "why3Title": "Kostenlos, privat und online — PDF in Word umwandeln",
-  "why3Desc": "Keine Software-Installation, kein Konto nötig. Dein PDF wird per verschlüsseltem HTTPS hochgeladen, für die PDF-zu-Word-Dokument-Konvertierung verarbeitet, und nur du kannst das resultierende Word-Dokument herunterladen. PDF in Word-Dokument konvertieren kostenlos mit Startguthaben, von jedem Gerät mit Browser.",
+  "why3Desc": "Keine Software-Installation nötig, aber vor dem Hochladen ist eine Anmeldung erforderlich. Dein PDF wird per verschlüsseltem HTTPS übertragen und nur für die Konvertierung verarbeitet.",
   "faqHeading": "PDF-zu-Word-Dokument-Konverter FAQ",
   "seoFaq": {
     "q1": "Wie kann ich ein PDF in ein Word-Dokument umwandeln ohne Formatierungsverlust?",
@@ -29,7 +29,7 @@
     "q2": "Kann ich ein gescanntes PDF in ein bearbeitbares Word-Dokument umwandeln?",
     "a2": "Ja. Der PDF-zu-Word-Dokument-Konverter enthält KI-OCR, die Text aus gescannten Bildern, handschriftlichen Notizen, Stempeln und Wasserzeichen ausliest. Selbst ein fotobasiertes PDF — wie ein unterschriebener Vertrag oder eine gescannte Buchseite — wird zu einem voll durchsuchbaren, bearbeitbaren Word-Dokument. Die meisten Konverter scheitern an gescannten PDFs; unserer ist speziell dafür ausgelegt.",
     "q3": "Ist der PDF-zu-Word-Dokument-Konverter kostenlos nutzbar?",
-    "a3": "Ja. Jeder neue Nutzer erhält kostenloses Startguthaben, um PDFs in Word-Dokumente umzuwandeln. Jede PDF-zu-Word-Dokument-Konvertierung kostet eine kleine Anzahl Credits pro Seite, sodass du den Konverter kostenlos testen kannst, bevor du zusätzliche Credits kaufst. Kein Abo nötig — bezahle nur, was du konvertierst.",
+    "a3": "Eine Anmeldung ist erforderlich. Startguthaben kann verfügbar sein, wenn es in der aktuellen Produktkonfiguration aktiviert ist. Prüfe vor der Konvertierung die aktuelle Rate und dein Guthaben unter Einstellungen → Credits.",
     "q4": "Wie kann ich ein PDF nach der Konvertierung in Microsoft Word bearbeiten?",
     "a4": "Nachdem du dein PDF mit unserem Konverter in ein Word-Dokument umgewandelt hast, lade die .docx-Datei herunter und öffne sie in Microsoft Word, Google Docs oder LibreOffice. Das Word-Dokument ist voll bearbeitbar — du kannst Text ändern, Formatierung anpassen, Bilder hinzufügen oder entfernen, Tabellen aktualisieren und deine Änderungen speichern. Das Ausgabedokument enthält kein Wasserzeichen und ist nicht schreibgeschützt.",
     "q5": "Wie konvertiere ich ein PDF in ein Word-Dokument mit Seitenzahlen und Kopfzeilen?",

@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "Pricing",
-        "description": "Pay with Creem. 10 credits per translated PDF page. Top up $5 / 500 credits anytime.",
+        "description": "Pay with Creem. {creditsPerPage} credits per translated PDF page. Top up $5 / 500 credits anytime.",
         "footnote_usd": "All prices are shown in USD.",
         "footnote_summary": "Subscriptions can be canceled at any time. Purchases are non-refundable once credits have been used.",
         "terms_link_text": "Full policy: Terms of Service",
@@ -44,7 +44,7 @@
             "features_title": "Includes",
             "features": [
               "500 translation credits",
-              "10 credits per translated page",
+              "{creditsPerPage} credits per translated page",
               "Credits never expire"
             ],
             "interval": "one-time",
@@ -72,7 +72,7 @@
             "features_title": "Includes",
             "features": [
               "550 credits every billing cycle",
-              "10 credits per translated page",
+              "{creditsPerPage} credits per translated page",
               "Subscription credits expire at period end; top-ups never expire"
             ],
             "interval": "month",
@@ -102,7 +102,7 @@
             "features_title": "Includes",
             "features": [
               "1600 credits every billing cycle",
-              "10 credits per translated page",
+              "{creditsPerPage} credits per translated page",
               "Cancel anytime from billing"
             ],
             "interval": "quarter",
@@ -131,7 +131,7 @@
             "features_title": "Includes",
             "features": [
               "3300 credits every billing cycle",
-              "10 credits per translated page",
+              "{creditsPerPage} credits per translated page",
               "Cancel anytime from billing"
             ],
             "interval": "six-months",
@@ -160,7 +160,7 @@
             "features_title": "Includes",
             "features": [
               "6500 credits every year",
-              "10 credits per translated page",
+              "{creditsPerPage} credits per translated page",
               "Cancel anytime from billing"
             ],
             "interval": "year",

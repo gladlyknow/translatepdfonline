@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "Registrati e ottieni ",
-      "promoCredits": "30 crediti",
+      "promoCredits": "{credits} crediti",
       "promoMiddle": " — ",
       "promoFree": "gratis",
-      "promoAfter": "traduzione per circa 3 pagine PDF (10 crediti per pagina).",
+      "promoAfter": "per elaborare documenti. Il costo attuale viene mostrato prima di ogni attività.",
       "buttonText": "Registrati",
       "href": "/sign-up",
       "target": "_self",

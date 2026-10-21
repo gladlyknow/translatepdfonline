@@ -1,0 +1,336 @@
+# TranslatePDFOnline 项目整改总表（SEO / GEO / GSC / 产品）
+
+> 文档性质：长期维护的整改事实源（Living Document）  
+> 首次建立：2026-10-21  
+> 最后更新：2026-10-21  
+> 当前生产提交：`bf2a3192`  
+> 当前整改候选：本地 `develop` 工作区，已验证、待提交部署  
+> 生产分支：`master`（仓库当前没有 `main` 远端分支）  
+> 开发分支：`develop`  
+> 逐步执行记录：[remediation-execution-log.md](./remediation-execution-log.md)
+> GSC 控制台操作：[gsc-console-operation-guide.md](./gsc-console-operation-guide.md)  
+> SEO/GEO/多语言专项计划：[seo-geo-multilingual-audit-plan.md](./seo-geo-multilingual-audit-plan.md)
+
+## 1. 当前结论
+
+### 1.1 一句话结论
+
+上一批技术 SEO 修复已进入生产，生产站当前 172 个站点地图 URL 的技术检查全部通过；本批 SEO/GEO 内容修复已在本地通过测试和构建，尚待 `develop` 部署。**Google Search Console 问题仍未完全解决**，因为 Google 记录中的 41 个非通过 URL 均未在生产提交 `bf2a3192` 后重新抓取，不能把“代码已修复”误判成“Google 已确认修复”。
+
+### 1.2 三层状态必须分开判断
+
+| 证据层    | 当前状态                                                                                | 结论                     |
+| --------- | --------------------------------------------------------------------------------------- | ------------------------ |
+| 代码层    | `bf2a3192` 已同时存在于 `origin/develop` 和 `origin/master`                             | 已完成                   |
+| 生产站层  | 172/172 URL 返回 200、允许索引、语言正确、自引用 canonical 正确；站点地图无双重语言路径 | 已完成                   |
+| Google 层 | GSC URL Inspection：131 PASS、41 非 PASS；172 个 URL 的最后抓取时间全部早于本次生产部署 | 待 Google 重抓，不能关闭 |
+
+### 1.3 本轮基线
+
+| 指标                     | 修复前 API 审计 | 生产部署后 API 审计 | 解释                                                                                           |
+| ------------------------ | --------------: | ------------------: | ---------------------------------------------------------------------------------------------- |
+| 审计 URL 数              |             213 |                 172 | 当前站点地图主动移除了 41 个不应继续提交或暂不满足发布条件的 URL，两个总体不可直接计算“提升率” |
+| PASS                     |             154 |                 131 | 当前 172 URL 中占 76.16%                                                                       |
+| 非 PASS                  |              59 |                  41 | 37 个“已抓取但尚未编入索引”，4 个“具有适当规范标记的备用网页”                                  |
+| API 错误                 |               0 |                   0 | 两次审计均完整执行                                                                             |
+| 本次部署后被 Google 重抓 |          不适用 |                   0 | 这是当前不能宣布完全解决的核心原因                                                             |
+| 生产站技术检查           |  未作为此列基线 |        172/172 通过 | 表明当前页面输出已修复，不等于 Google 历史状态已刷新                                           |
+
+GSC Sitemap API 当前仍返回 `submitted=213`、`indexed=0`、0 error、0 warning。`submitted` 仍是尚未刷新的旧站点地图快照；Google 官方已经把 `contents[].indexed` 标记为 deprecated / do not use，因此这里的 `indexed=0` 不能解释为“站点 0 个页面被索引”。后续以当前在线站点地图 172 个 URL、URL Inspection 明细以及 GSC Pages 报告为判断依据。参考：[Search Console Sitemap API 字段定义](https://developers.google.com/webmaster-tools/v1/sitemaps)。
+
+### 1.4 Search Analytics 现状
+
+| 时间窗                                     | 点击 |  展示 |   CTR | 备注            |
+| ------------------------------------------ | ---: | ----: | ----: | --------------- |
+| 最近完整 28 天（2026-09-21 至 2026-10-18） |   21 | 1,301 | 1.61% | 页面维度 57 行  |
+| 最近完整 90 天（2026-07-21 至 2026-10-18） |   57 | 9,609 | 0.59% | 页面维度 133 行 |
+
+主要机会词仍处于较低排名：`translate pdf`、`jpg to word`、`convert jpg to word`、`pdf translator`、`translate pdf to english` 等。历史数据中仍存在 `www` URL 的展示，应观察 canonical/重定向修复后是否持续衰减，不应删除历史数据或把它当成当前线上输出。
+
+## 2. 审计范围和证据
+
+本结论基于以下四类证据：
+
+1. 仓库与分支：本地和远端分支指向、提交内容、构建配置。
+2. Cloudflare 部署：生产 Web Worker、生产队列 Worker、开发 Web Worker、开发队列 Worker 的构建检查均成功。
+3. 生产 HTTP：重定向、状态码、robots、canonical、`hreflang`、HTML `lang`、站点地图、安全配置泄露检查。
+4. GSC 官方 API：站点权限、Sitemap、URL Inspection 和 Search Analytics。
+
+本次只执行了 GSC 读取和诊断，没有代替站点所有者执行“重新提交站点地图”“请求编入索引”或“验证修复”等控制台写操作。
+
+临时审计产物（不提交仓库，机器重启后可能失效）：
+
+- 修复前：`/tmp/translatepdfonline-gsc-2026-10-21-live-api`
+- 生产部署后：`/tmp/translatepdfonline-gsc-2026-10-21-after-main-bf2a3192`
+- 生产部署后报告完整性验证：通过，172 个 URL、172 条 Inspection、无敏感值写入报告。
+
+## 3. 已确认问题总表
+
+状态定义：`已完成`、`执行中`、`待执行`、`等待外部刷新`、`需站点所有者操作`、`待验证`。
+
+| ID       | 优先级 | 问题                                                    | 证据与影响                                                                                                                                          | 处理要求 / 验收标准                                                                                       | 状态             |
+| -------- | ------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------- |
+| SEC-001  | P0     | GSC 服务账号密钥需要轮换                                | 密钥曾在诊断过程的工具输出中暴露；即使未进入 Git，也不能继续视为安全                                                                                | 在 Google Cloud 撤销旧密钥、创建新密钥、更新本地/部署密钥；验证 GSC API 可读；确认 Git 历史与产物不含密钥 | 需站点所有者操作 |
+| SEO-001  | P0     | GSC 仍有 41 个非 PASS URL                               | 37 个“已抓取但尚未编入索引”，4 个 canonical 备用页；全部最后抓取早于生产部署                                                                        | Google 重抓后重新跑全量 API；非 PASS 明显下降且不出现新技术型问题；未下降者进入内容质量整改               | 等待外部刷新     |
+| CNT-001  | P0     | 多语言营销口径存在过时或未经验证的声明                  | 多语言内容曾包含“No sign-up”、固定赠送、语言数量、Norwegian 和产品能力冲突，可能造成失实、转化损失和 GEO 可信度下降                                 | 建立功能事实表；所有语言逐项对齐实际产品；自动测试阻止免登录、固定赠送、不支持语言和 `www` 内链回归       | 等待部署         |
+| CNT-005  | P0     | 动态积分和费率被静态文案写死                            | 顶部横幅固定承诺注册送 30 积分，pricing/API docs/FAQ 固定写 10 积分/页，但实际由后台和运行时配置决定                                                   | 横幅只在赠送开启且数量有效时显示；费率从运行时配置注入；静态内容不再保证固定值                            | 等待部署         |
+| SEO-002  | P0     | 9 个非英语首页缺少页面级 metadata                       | 非英语 `pages/index.json` 原先缺 `metadata.title`、`description`，依赖通用回退，搜索意图不够精准                                                       | 9 个语言补齐独立、自然、本地化 metadata；构建和页面检查通过；不得机械直译或堆词                           | 等待部署         |
+| SEO-006  | P0     | OCR Translator 缺独立 metadata 和服务端 H1              | 10 个 locale 原先与首页共用 metadata 且服务端无 H1                                                                                                  | 每个 locale 有独立 title/description/H1、场景说明和限制；实际 HTML 单 H1                                  | 等待部署         |
+| CNT-004  | P0     | 合同对比页超出真实产品能力定位                          | 原内容使用完整 CLM、企业认证、Top 10 和未经证实的效率承诺                                                                                           | 聚焦两份文档差异对比；移除未经证实能力；明确人工复核边界                                                   | 等待部署         |
+| I18N-001 | P1     | 德/西/俄 pricing 文案仍是旧数据结构                     | 当前通过英文现行结构回退并 noindex/退出站点地图避免错误曝光；本批已将所有 locale 的每页费率改为运行时注入                                              | 继续重写三种语言 pricing 结构；通过键集合自动校验；页面内容、价格、功能与实际系统一致后才允许 index       | 执行中           |
+| SEO-003  | P1     | 37 个“已抓取但尚未编入索引”可能仍有内容同质化           | 主要集中在德、西、法、意、日、俄的工具页和 docs；技术标签当前正常，但 Google 历史上未选择收录                                                       | 按模板/语言聚类，检查正文独特价值、搜索意图、内链、可用功能；优先整改有展示或商业价值页面；重抓后验证     | 待执行           |
+| SEO-004  | P1     | 4 个 canonical 备用状态及历史 `www` 信号未刷新          | `/contract-comparison`、`/docs/ocr-workbench`、`/docs/upload`、`/ko/docs`；部分历史 canonical 为 `www` 或错误落到 `/ko`                             | 保持单跳 301 和 apex 自引用 canonical；代表 URL 实时测试通过；Google 重抓后状态消失或明确合并符合预期     | 等待外部刷新     |
+| SEO-005  | P1     | GSC Sitemap 快照仍显示 213 个 URL                       | 在线站点地图已是 172，API 的 `submitted` 仍返回旧快照；`indexed` 字段已弃用，不纳入验收                                                             | 在 GSC 重新提交现有 sitemap；1/3/7/14 天复查；API 或控制台显示新读取时间和合理 URL 数                     | 需站点所有者操作 |
+| SEO-007  | P1     | docs/blog 标签和结构不完整                              | 4 个 docs description 为空、博客双 H1、部分博客 OG/BlogPosting 字段不完整                                                                            | 补齐 description，模板只输出一个 H1，补齐真实 OG/BlogPosting 字段并通过合同测试                            | 等待部署         |
+| SEO-008  | P1     | 公开内容包含 `www` 绝对内链                            | 内容文件中的绝对内链会额外经过主机重定向并延续旧主机信号                                                                                           | 公开内容统一 apex；自动测试禁止重新引入                                                                                | 等待部署         |
+| I18N-002 | P1     | 非英语合同对比页有英文残留                              | 9 个 locale 的关联工具描述曾直接显示英文                                                                                                            | 关联内容本地化，页面可见文本和结构化数据与 locale 一致                                                                  | 等待部署         |
+| CNT-002  | P1     | 多语言 docs/工具页存在模板化和价值不足风险              | 非 PASS URL 大量集中在同一类模板；仅翻译标题不能构成独立价值                                                                                        | 每页增加该语言真实场景、步骤、输入限制、输出示例、常见错误和 FAQ；抽样做母语质量审阅                      | 待执行           |
+| PROD-001 | P1     | PDF 工具覆盖面不足                                      | 当前偏翻译/OCR/转换，缺少压缩、合并、拆分、旋转/整理等高频基础需求                                                                                  | 按“功能可用 → 隐私/质量验收 → 内容完善 → 允许索引 → 加入 sitemap”顺序上线，禁止先发布空壳 SEO 页面        | 待执行           |
+| GEO-001  | P1     | GEO 内容缺少稳定的事实、实体和出处体系                  | 当前指南混入未经复核的搜索量和能力描述；AI 答案引用需要清晰事实、作者/组织、更新时间和可验证来源                                                    | 建立品牌/功能事实页、编辑规范、更新日期、来源策略；结构化数据必须与可见内容一致                           | 待执行           |
+| MEAS-001 | P1     | SEO 流量尚未形成“落地页 → 上传 → 完成 → 付费”的统一漏斗 | GSC 只有搜索曝光/点击，不能解释业务结果                                                                                                             | 定义并核对分析事件；按 landing page、locale、query cluster 形成周报；明确转化率而非只看收录数             | 待验证           |
+| ENG-001  | P2     | GSC 审计尚未形成定期回归                                | 已有 CLI，但当前主要依赖人工触发                                                                                                                    | 每周只读全量审计并保存脱敏摘要；新增异常数、canonical 漂移、站点地图差异触发告警                          | 待执行           |
+| ENG-002  | P2     | “main / master”口径不一致                               | 用户操作描述为 main，但远端实际生产分支是 `master`，容易推错或误判部署                                                                              | Cloudflare、README、交付文档统一写明生产分支；若迁移到 main，需一次性同步仓库默认分支和 CF 构建配置       | 待执行           |
+| ENG-003  | P2     | ESLint 9 缺少可执行配置                                 | `pnpm lint` / 独立 ESLint 命令找不到 `eslint.config.js|mjs|cjs`；生产构建内置检查和 TypeScript 仍通过                                                   | 增加兼容 ESLint 9 的配置并在 CI 固定执行；修复前不得把“lint 未执行”写成“lint 通过”                         | 待执行           |
+| PERF-001 | P2     | 前端首屏资源偏大，需要独立性能基线                      | 构建输出中根路由首载约 376 KB，部分聊天页面约 512 KB；尚无本轮真实用户 CWV 结论                                                                     | 先采集移动/桌面 PSI 与真实 CWV，再按 route bundle、第三方脚本、图片、字体拆解；以 LCP/INP/CLS 验收        | 待验证           |
+
+## 4. 已完成的技术修复
+
+提交 `bf2a3192` 已完成并部署：
+
+- 收敛可索引路由，站点地图只发布满足条件的页面和语言组合。
+- 修复双重语言路径、`hreflang` 和 canonical 生成逻辑。
+- apex / `www` / HTTP 归一化为 HTTPS apex，路径和查询参数保留。
+- 对内容不完整的 blog、API docs、部分 pricing 页面执行 noindex 或退出站点地图。
+- 收紧 robots 规则，避免 API、管理后台、账号、聊天等内部路由进入索引。
+- 防止服务端敏感配置进入公共页面输出。
+- 增加 sitemap 和第三方脚本相关自动测试。
+
+生产验收结果：
+
+- 当前站点地图 `<loc>`：172。
+- 172/172 页面：HTTP 200、`index, follow`、HTML 语言正确、自引用 canonical 正确。
+- 双重 locale alternate：0。
+- 页面公开输出中的敏感配置命中：0。
+- HTTP 和 `www` 深层 URL：单跳 301，路径与查询参数均保留。
+- 生产/开发 Web 与队列的四项 Cloudflare 检查：全部成功。
+
+## 5. 产品内容与市场缺口
+
+当前项目已经覆盖 PDF 翻译、PDF 转文字、图片转文字、JPG/图片转 Word、PDF 转 Word/Excel/Markdown、OCR 翻译、合同对比等方向，但缺少完整的 PDF 基础处理链。
+
+市场交叉验证：Smallpdf、iLovePDF、Adobe Acrobat 的官方工具目录都把“压缩、合并、拆分、PDF 与图片转换、页面整理/旋转”作为核心工具，并进一步覆盖水印、页码、保护/解锁、编辑、表单和签名。参考：[Smallpdf 工具目录](https://smallpdf.com/pdf-tools)、[iLovePDF 工具目录](https://www.ilovepdf.com/)、[Adobe Acrobat 在线工具](https://www.adobe.com/acrobat/online.html)。
+
+### 5.1 产品波次
+
+| 波次   | 建议工具                                                | 选择原因                                                       | 上线前置条件                                                            |
+| ------ | ------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Wave 1 | PDF 压缩、PDF 合并、PDF 拆分、旋转/重排/删除/提取页面   | 三家头部产品共同覆盖；任务明确、可形成内部工具链和高意图落地页 | 真实处理能力、文件大小/页数限制、失败恢复、删除策略、安全说明、质量测试 |
+| Wave 2 | PDF 转 JPG、JPG 转 PDF、加水印、添加页码、保护/解锁 PDF | 补齐格式转换和文档交付场景；可与现有 OCR/Word/Excel 页互链     | 密码与加密边界、版权/隐私文案、输出一致性、多语言帮助内容               |
+| Wave 3 | 填写/签名、编辑/批注、裁剪/脱敏、扫描/OCR               | 复杂度和合规风险更高，但能提升用户留存与商业价值               | 明确是否本地/云处理、签名法律边界、审计与日志策略、浏览器兼容性         |
+
+### 5.2 新页面发布闸门
+
+任何新工具页面都按以下状态推进：
+
+`规划中（无公开页） → 内测（鉴权或 noindex） → 功能 Beta（noindex） → 功能/内容/隐私验收 → index,follow → 加入 sitemap → GSC 验证`
+
+必须同时满足以下条件才能进入 sitemap：
+
+1. 核心任务可以从上传到下载完整执行，不是等待名单或伪功能。
+2. 标题、描述、H1、正文、FAQ 与真实功能一致。
+3. 有独特的使用说明、限制、失败处理和输出示例，而非替换关键词的模板页。
+4. canonical、`hreflang`、结构化数据、robots、状态码通过自动测试。
+5. 说明文件保存时间、删除策略、是否上传到第三方以及用户责任。
+6. 至少完成英文和目标语言的人工质量抽检。
+
+## 6. 分阶段精细执行计划
+
+### Phase 0：安全与口径锁定（当天）
+
+| 任务     | 操作                                                                                 | 验证与完成条件                                                   |
+| -------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| SEC-001  | 撤销曾暴露的 GCP 服务账号旧密钥，创建新密钥，更新本地安全存储和需要使用它的部署环境  | 旧密钥失效；新密钥能只读访问 GSC；仓库、Git 历史和审计产物无密钥 |
+| ENG-002  | 明确当前生产分支为 `master`，核对 Cloudflare 生产分支设置；决定是否未来迁移到 `main` | 文档、仓库默认分支、CF 设置三者一致；禁止只改其中一处            |
+| CNT-FACT | 新建“产品功能事实表”：注册要求、免费额度、语言、输出格式、数据保留、第三方处理、价格 | 产品负责人确认；后续页面只引用事实表，不自由发挥                 |
+
+### Phase 1：GSC 稳定期（部署后第 0–14 天）
+
+| 时间 | 操作                                                                                                                                                                                                | 目标 / 验收                                                                                                                                                                                                 |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D0   | 在 GSC 的 domain property 中重新提交现有 `/sitemap.xml`，不要删除属性或历史 sitemap 记录                                                                                                            | GSC 显示新的读取时间；无解析错误                                                                                                                                                                            |
+| D0   | URL Inspection 实时测试代表 URL：`/contract-comparison`、`/docs/upload`、`/docs/ocr-workbench`、`/ko/docs`，以及高价值的 `/es/jpg-to-word`、`/fr/pdf-to-text`、`/it/jpg-to-word`、`/ja/pdf-to-text` | 实时测试看到 200、可索引、apex canonical；当前只对内容已通过的 docs 代表 URL 请求索引，`/contract-comparison` 和高价值工具页完成内容整改后再请求。Google 明确说明重复请求不会加快抓取，且请求抓取不保证收录 |
+| D1   | 运行只读 GSC 全量审计                                                                                                                                                                               | 保存 PASS/非 PASS、最后抓取时间和新问题数                                                                                                                                                                   |
+| D3   | 重复审计并比较 D1                                                                                                                                                                                   | 至少出现部分部署后抓取；若为 0，继续等待，不反复改代码                                                                                                                                                      |
+| D7   | 按状态和模板分组复核                                                                                                                                                                                | canonical 类应开始减少；内容类仍未收录的进入 Phase 3                                                                                                                                                        |
+| D14  | 形成稳定期结论                                                                                                                                                                                      | 技术型问题为 0；无新增错误；剩余 URL 有明确的内容整改或 noindex 决策                                                                                                                                        |
+
+GSC 关闭标准：不能只看部署成功。必须至少满足：
+
+- 代表 URL 的最近抓取时间晚于 `2026-10-21 05:49 UTC` 的生产部署时间。
+- 不再出现由错误 canonical、双 locale、noindex 冲突、重定向链或 5xx 引起的问题。
+- 当前 sitemap 与 GSC 读取口径一致或有可解释的刷新延迟。
+- 剩余未收录 URL 已逐条做“增强内容 / 合并 canonical / noindex / 删除”的明确决定。
+
+### Phase 2：内容事实与国际化结构（第 1 周）
+
+1. 完成 CNT-FACT，以实际代码、价格配置和业务规则为证据。
+2. 全局检索并修正“No sign-up”、语言数量、Norwegian、导出能力、免费/隐私承诺等陈述。
+3. 为 9 个非英语首页补齐本地化 metadata；标题优先表达任务，不机械堆叠同义词。
+4. 重写德语、西班牙语、俄语 pricing 数据，使其与英文当前键结构一致。
+5. 新增 i18n 合同测试：页面级 metadata 必填、键集合差异为 0、不得静默回退到英文 pricing。
+6. 每个目标语言抽样检查首页、主工具页、pricing、docs，记录审阅人和日期。
+
+验收：构建、类型、SEO 测试、i18n 合同测试通过；可见内容与事实表一致；不完整页面继续 noindex。
+
+### Phase 3：37 个“已抓取但尚未编入索引”页面（第 1–2 周）
+
+1. 按 `locale × 页面模板 × 搜索意图` 聚类，而不是 37 页逐页盲改。
+2. 优先级按“已有展示/点击 → 商业价值 → 内容完善成本”排序。
+3. 对每个聚类对比标题、H1、正文、FAQ、示例和内部链接，识别仅翻译或高度重复部分。
+4. 增加目标市场真实使用场景、输入/输出示例、错误处理、限制、隐私说明和相关工具链。
+5. 每轮只修改一个聚类，部署后保留前后快照，等待重抓，不在等待期连续改写同一 URL。
+6. 两轮后仍无展示且无独立价值的页面，选择 canonical 合并或 noindex/退出 sitemap。
+
+验收：每个 URL 有明确决策、内容差异证据、部署记录和 GSC 后续结果；不以“页面字数增加”作为唯一完成标准。
+
+### Phase 4：PDF 工具产品扩展（第 2–6 周）
+
+建议按功能闭环而非页面数量交付：
+
+1. Sprint A：压缩 + 合并。
+2. Sprint B：拆分 + 页面旋转/重排/删除/提取。
+3. Sprint C：PDF ↔ JPG + 水印/页码。
+4. Sprint D：保护/解锁；再评估编辑、签名和表单。
+
+每个 Sprint 都包括后端处理、前端交互、限制与错误、隐私说明、英语内容、本地化计划、自动测试、性能测试、SEO 发布闸门和 GSC 观察，不允许把“新增路由”当作工具完成。
+
+### Phase 5：GEO 与权威性建设（第 3–8 周，和 Phase 4 并行）
+
+1. 建立 About/品牌事实、隐私处理、支持渠道、更新时间和编辑责任。
+2. 为工具页增加可直接回答问题的短定义、步骤、输入/输出限制、FAQ；答案必须与可见功能一致。
+3. 使用与页面内容一致的 SoftwareApplication、FAQ、Breadcrumb 等结构化数据；不能标记页面上不存在的内容。
+4. 为核心工作流制作原创对比/测试材料，例如不同压缩档位、OCR 语言效果、表格提取边界，并公开方法。
+5. 外链工作以产品目录、教育/文档场景合作、原创研究引用为主，禁止批量低质目录和购买链接。
+6. `llms.txt` 只做辅助发现，不把它当成排名或引用保证。
+
+### Phase 6：度量与例行回归（持续）
+
+周报最少包含：
+
+- 当前 sitemap URL 数、HTTP/可索引通过数。
+- GSC PASS、各非 PASS 状态、新增/恢复 URL、最近抓取是否晚于部署。
+- 自然搜索点击、展示、CTR、平均排名，按页面/查询/国家/设备拆分。
+- `www` 历史展示占比和 canonical 异常趋势。
+- 自然落地页的上传开始、处理成功、下载、注册和付费转化（完成 MEAS-001 后）。
+- 新工具从 noindex 到 index 的闸门状态。
+
+## 7. 单任务执行模板
+
+后续每执行一步，都必须先在[执行日志](./remediation-execution-log.md)新增记录，并按以下顺序填写：
+
+1. `任务 ID / 日期 / 执行人 / 当前状态`。
+2. 问题与预期结果，明确本次只处理什么。
+3. 修改前证据：URL、GSC 状态、文件、截图或报告路径。
+4. 变更内容与影响范围。
+5. 本地验证：测试、构建、静态检查。
+6. 部署证据：分支、提交、Cloudflare 构建和时间。
+7. 生产验证：状态码、HTML 标签、功能结果。
+8. GSC 验证：最近抓取时间、coverage、canonical、Search Analytics。
+9. 验收结论：完成 / 回滚 / 等待外部刷新 / 进入下一任务。
+10. 后续动作和检查日期。
+
+没有达到验收条件时不得写“已完成”；Google 尚未重抓时统一写“等待外部刷新”。
+
+## 8. 当前 41 个 GSC 非 PASS URL
+
+以下状态来自 2026-10-21 生产部署后的官方 URL Inspection API，但抓取均发生在部署前。
+
+|   # | URL 路径                       | coverageState                            | 最后抓取（UTC） | 当前处置                                       |
+| --: | ------------------------------ | ---------------------------------------- | --------------- | ---------------------------------------------- |
+|   1 | `/contract-comparison`         | Alternate page with proper canonical tag | 2026-08-10      | 保持当前 apex 自引用 canonical，等待重抓       |
+|   2 | `/de/contract-comparison`      | Crawled - currently not indexed          | 2026-10-08      | 内容聚类整改候选                               |
+|   3 | `/de/docs`                     | Crawled - currently not indexed          | 2026-08-27      | 内容聚类整改候选                               |
+|   4 | `/de/docs/image-to-text`       | Crawled - currently not indexed          | 2026-10-11      | 内容聚类整改候选                               |
+|   5 | `/de/docs/pdf-to-text`         | Crawled - currently not indexed          | 2026-10-11      | 内容聚类整改候选                               |
+|   6 | `/de/image-to-text`            | Crawled - currently not indexed          | 2026-10-11      | 内容聚类整改候选                               |
+|   7 | `/de/pdf-to-text`              | Crawled - currently not indexed          | 2026-10-14      | 内容聚类整改候选                               |
+|   8 | `/docs/ocr-workbench`          | Alternate page with proper canonical tag | 2026-08-01      | 检查历史 `www` 信号，等待重抓                  |
+|   9 | `/docs/upload`                 | Alternate page with proper canonical tag | 2026-08-12      | 检查历史 `www` 信号，等待重抓                  |
+|  10 | `/es`                          | Crawled - currently not indexed          | 2026-08-04      | 首页 metadata + 内容质量                       |
+|  11 | `/es/contract-comparison`      | Crawled - currently not indexed          | 2026-08-26      | 内容聚类整改候选                               |
+|  12 | `/es/docs`                     | Crawled - currently not indexed          | 2026-10-13      | 内容聚类整改候选                               |
+|  13 | `/es/docs/ocr-workbench`       | Crawled - currently not indexed          | 2026-10-16      | 内容聚类整改候选                               |
+|  14 | `/es/docs/pdf-to-text`         | Crawled - currently not indexed          | 2026-10-06      | 内容聚类整改候选                               |
+|  15 | `/es/jpg-to-word`              | Crawled - currently not indexed          | 2026-08-30      | 高价值代表 URL，优先实时测试                   |
+|  16 | `/es/ocrtranslator`            | Crawled - currently not indexed          | 2026-10-18      | 内容聚类整改候选                               |
+|  17 | `/es/pdf-to-excel`             | Crawled - currently not indexed          | 2026-08-27      | 内容聚类整改候选                               |
+|  18 | `/es/pdf-to-md`                | Crawled - currently not indexed          | 2026-08-27      | 内容聚类整改候选                               |
+|  19 | `/fr/contract-comparison`      | Crawled - currently not indexed          | 2026-08-27      | 内容聚类整改候选                               |
+|  20 | `/fr/docs`                     | Crawled - currently not indexed          | 2026-10-13      | 内容聚类整改候选                               |
+|  21 | `/fr/jpg-to-word`              | Crawled - currently not indexed          | 2026-10-17      | 内容聚类整改候选                               |
+|  22 | `/fr/pdf-to-text`              | Crawled - currently not indexed          | 2026-10-14      | 高价值代表 URL，优先实时测试                   |
+|  23 | `/it`                          | Crawled - currently not indexed          | 2026-10-20      | 首页 metadata + 内容质量                       |
+|  24 | `/it/docs`                     | Crawled - currently not indexed          | 2026-09-16      | 内容聚类整改候选                               |
+|  25 | `/it/docs/contract-comparison` | Crawled - currently not indexed          | 2026-10-17      | 内容聚类整改候选                               |
+|  26 | `/it/jpg-to-word`              | Crawled - currently not indexed          | 2026-10-19      | 高价值代表 URL，优先实时测试                   |
+|  27 | `/it/pdf-to-excel`             | Crawled - currently not indexed          | 2026-09-07      | 内容聚类整改候选                               |
+|  28 | `/it/pdf-to-md`                | Crawled - currently not indexed          | 2026-10-18      | 内容聚类整改候选                               |
+|  29 | `/it/pdf-to-word-doc`          | Crawled - currently not indexed          | 2026-10-09      | 内容聚类整改候选                               |
+|  30 | `/it/pricing`                  | Crawled - currently not indexed          | 2026-10-20      | 先核对价格事实和本地化内容                     |
+|  31 | `/ja`                          | Crawled - currently not indexed          | 2026-10-18      | 首页 metadata + 内容质量                       |
+|  32 | `/ja/contract-comparison`      | Crawled - currently not indexed          | 2026-10-08      | 内容聚类整改候选                               |
+|  33 | `/ja/docs`                     | Crawled - currently not indexed          | 2026-09-26      | 内容聚类整改候选                               |
+|  34 | `/ja/ocrtranslator`            | Crawled - currently not indexed          | 2026-10-18      | 内容聚类整改候选                               |
+|  35 | `/ja/pdf-to-text`              | Crawled - currently not indexed          | 2026-10-16      | 高价值代表 URL，优先实时测试                   |
+|  36 | `/ja/pricing`                  | Crawled - currently not indexed          | 2026-09-05      | 先核对价格事实和本地化内容                     |
+|  37 | `/ko/docs`                     | Alternate page with proper canonical tag | 2026-07-01      | 历史 canonical 曾落到 `/ko`，等待重抓          |
+|  38 | `/ru/docs`                     | Crawled - currently not indexed          | 2026-09-04      | 内容聚类整改候选                               |
+|  39 | `/ru/docs/upload`              | Crawled - currently not indexed          | 2026-08-28      | 内容聚类整改候选                               |
+|  40 | `/ru/ocrtranslator`            | Crawled - currently not indexed          | 2026-07-01      | 内容聚类整改候选                               |
+|  41 | `/ru/pdf-to-excel`             | Crawled - currently not indexed          | 2026-08-12      | 历史 `www` canonical，等待重抓后再判定内容问题 |
+
+## 9. 已从当前 sitemap 移除的 18 个历史非 PASS URL
+
+这些 URL 不再属于当前 172 个提交集合，不应与“当前仍需争取索引”的 41 个 URL 混为一谈：
+
+- `/de/blog`、`/de/docs/api`、`/de/privacy-policy`
+- `/es/pricing`、`/es/privacy-policy`、`/es/terms-of-service`
+- `/fr/privacy-policy`、`/fr/terms-of-service`
+- `/it/blog`、`/it/privacy-policy`、`/it/terms-of-service`
+- `/ja/docs/api`、`/ja/privacy-policy`、`/ja/terms-of-service`
+- `/ru/docs/api`、`/ru/pricing`、`/ru/privacy-policy`、`/ru/terms-of-service`
+
+移出 sitemap 不等于从互联网删除。后续必须逐页决定：保持 noindex、补齐内容后重新发布、canonical 合并，或返回符合语义的 404/410；不得仅为了减少 GSC 报错而隐藏有价值页面。
+
+## 10. 数据限制与后续取证
+
+- URL Inspection API 只能检查给定 URL，不能直接枚举 GSC Pages 报告中的全部示例 URL。
+- 若需覆盖全部 Pages 问题 URL，应从 GSC 页面索引报告导出 CSV，并与当前 sitemap、路由和 API 结果做差集。
+- Search Analytics 是聚合数据，近期天数可能因数据新鲜度出现小幅变化；报告必须记录查询时间窗和执行时间。
+- “已抓取但尚未编入索引”不是单一技术错误。只有在 Google 重抓当前版本后，才能区分刷新延迟、内容质量、重复内容或搜索需求不足。
+- 市场工具列表只用于定义产品覆盖差距，不等于关键词量或商业优先级；实际 Sprint 还需结合搜索数据、处理成本、合规和转化验证。
+
+## 11. 下一个推荐执行顺序
+
+1. `SEC-001`：立即轮换 GCP 服务账号密钥。
+2. `SEO-005`：站点所有者在 GSC 重新提交现有 sitemap，并实时测试代表 URL。
+3. `CNT-FACT`：建立产品事实表，再修内容，避免继续产生不一致文案。
+4. `SEO-002` + `CNT-001`：补齐 9 个首页 metadata，清理失实/过时声明。
+5. `I18N-001`：修复德/西/俄 pricing 结构并加自动合同测试。
+6. D1/D3/D7/D14 复跑 GSC；Google 重抓后，再启动 `SEO-003` 的内容聚类整改。
+7. Wave 1 先做 PDF 压缩和 PDF 合并的功能闭环，再扩展页面数量。
+
+## 12. 2026-10-21 SEO / GEO / 多语言追加审计
+
+追加的 172 页内容层审计发现：
+
+- OCR Translator 的 10 个 locale 服务端 HTML 都没有 H1，并与首页共用 metadata。
+- 4 个多语言 PDF to Text docs 缺 description。
+- 两篇本地博客产生双 H1，3 篇生产博客缺 og:title。
+- 9 个非英语合同对比页仍显示英文关联工具说明。
+- 公开内容还有 53 处 `www` 绝对内链。
+- 26 个内容文件出现“无需注册/无需账号”类陈述，同时产品内容有 54 处明确登录要求。
+- 14 个 locale 内容文件提到 Norwegian，但实际支持语言配置不包含 Norwegian。
+- 合同对比页面大量使用完整 CLM、Top 10、企业认证等超出实际文档对比能力的陈述。
+
+详细证据、优先级、场景化翻译规范和执行批次以 [SEO / GEO / 多语言场景化审计与执行计划](./seo-geo-multilingual-audit-plan.md) 为准。GSC 控制台的逐步点击操作以 [GSC 控制台操作手册](./gsc-console-operation-guide.md) 为准。

@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "登録で",
-      "promoCredits": "30 クレジット",
+      "promoCredits": "{credits} クレジット",
       "promoMiddle": "。",
       "promoFree": "無料",
-      "promoAfter": "で約 3 ページ分の PDF 翻訳（1 ページ 10 クレジット）。",
+      "promoAfter": "を文書処理に利用できます。現在の費用は各タスクの開始前に表示されます。",
       "buttonText": "登録",
       "href": "/sign-up",
       "target": "_self",

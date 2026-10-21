@@ -21,11 +21,11 @@
   "why2Title": "Gestisce timbri, filigrane e manoscritto",
   "why2Desc": "Timbri ufficiali, filigrane intense e annotazioni manoscritte che l'OCR comune non legge sono riconosciuti dal convertitore foto in word e collocati nella loro posizione originale nel file Word, conservando significato e autorità del documento sorgente.",
   "why3Title": "Gratis, privato e online",
-  "why3Desc": "Nulla da installare. La tua foto viene caricata in HTTPS, elaborata solo per la conversione, e solo tu puoi scaricare il Word risultante. I nuovi utenti ricevono crediti gratis e convertono JPG in Word da qualsiasi dispositivo con browser.",
+  "why3Desc": "Nulla da installare. È necessario accedere prima del caricamento; la foto viene trasferita via HTTPS ed elaborata solo per la conversione. Solo tu puoi scaricare il documento Word.",
   "faqHeading": "FAQ del convertitore da JPG a Word",
   "seoFaq": {
     "q1": "Questo convertitore da JPG a Word è gratis?",
-    "a1": "Sì. Il convertitore da JPG a Word funziona online e ogni nuovo utente riceve crediti gratis. Ogni conversione foto a word costa pochi crediti, quindi puoi provare gratis.",
+    "a1": "Il convertitore da JPG a Word funziona online e richiede l'accesso. I crediti iniziali possono essere disponibili se abilitati; controlla tariffa e saldo prima della conversione.",
     "q2": "Conserva il layout originale?",
     "a2": "Sì. L'OCR IA preserva paragrafi, tabelle, colonne, timbri e manoscritto e genera un Word che riflette la pagina originale — non un dump di testo semplice.",
     "q3": "Posso convertire una foto con testo manoscritto?",

@@ -1,6 +1,6 @@
 {
   "metaTitle": "Convertir PDF a Texto — OCR Online Gratis para Extraer Texto de PDF",
-  "metaDescription": "Convierte PDF a texto editable online gratis. OCR con IA extrae texto de PDFs escaneados, documentos e imágenes. Compatible con 10+ idiomas. Sin registro.",
+  "metaDescription": "Extrae texto editable de PDF digitales o escaneados con OCR de IA y compatibilidad con 10 idiomas. Es necesario iniciar sesión antes de subir archivos.",
   "keywords": "convertir pdf a texto,extraer texto de pdf,ocr online,pdf a word,ocr pdf gratis,convertir pdf escaneado a texto,reconocimiento de texto,sacar texto de pdf",
   "heroTitle": "PDF a Texto",
   "heroText": "OCR con IA extrae texto de cualquier PDF — escaneado, con imágenes o digital. Conserva el diseño. Exporta a Word, TXT o Markdown.",
@@ -24,7 +24,7 @@
     "q3": "¿Qué idiomas soporta el conversor de PDF a texto?",
     "a3": "Soporta inglés, chino, español, francés, alemán, japonés, coreano, ruso, griego, italiano y más. El motor OCR detecta automáticamente el idioma del documento para mayor precisión.",
     "q4": "¿Es gratis convertir PDF a texto?",
-    "a4": "Los usuarios nuevos reciben créditos gratis para probar el conversor OCR de PDF a texto. Las funciones premium incluyen archivos más grandes, procesamiento por lotes y mayor velocidad.",
+    "a4": "Es necesario iniciar sesión. Puede haber créditos iniciales si están habilitados en la configuración actual. Consulta la tarifa y el saldo vigentes en Configuración → Créditos.",
     "q5": "¿A qué formatos puedo exportar después del OCR?",
     "a5": "Puedes exportar a TXT (texto plano), Microsoft Word (DOCX), HTML o Markdown. Elige el formato que mejor se adapte a tu flujo de trabajo."
   },

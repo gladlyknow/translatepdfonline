@@ -1,14 +1,26 @@
-import { notFound } from 'next/navigation';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { defaultLocale } from '@/config/locale';
+import { MarkdownContent } from '@/shared/blocks/common/markdown-content';
 import { buildAlternates } from '@/shared/lib/hreflang';
 import { findPost, PostStatus } from '@/shared/models/post';
-import { MarkdownContent } from '@/shared/blocks/common/markdown-content';
 
 export const revalidate = 3600;
+
+function getPostImage(post: {
+  image?: string | null;
+  content?: string | null;
+}) {
+  if (post.image) return post.image;
+  return post.content?.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/)?.[1];
+}
+
+function removeDuplicateMarkdownTitle(content: string) {
+  return content.replace(/^\s*#\s+[^\n]+\r?\n+/, '');
+}
 
 export async function generateMetadata({
   params,
@@ -24,20 +36,34 @@ export async function generateMetadata({
     notFound();
   }
 
-  const post = await findPost({ slug: slug as string, status: PostStatus.PUBLISHED });
+  const post = await findPost({
+    slug: slug as string,
+    status: PostStatus.PUBLISHED,
+  });
   if (!post) {
     return { title: 'Not Found' };
   }
 
   // 文章仅有默认语言版本：canonical + hreflang 均只含默认 locale（与 sitemap 一致）
   const { canonical } = buildAlternates(`/blog/${slug}`, locale);
+  const image = getPostImage(post);
 
   return {
     title: post.title || 'Blog Post',
     description: post.description || undefined,
-    openGraph: post.image
-      ? { images: [{ url: post.image }] }
-      : undefined,
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      title: post.title || 'Blog Post',
+      description: post.description || undefined,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title || 'Blog Post',
+      description: post.description || undefined,
+      images: image ? [image] : undefined,
+    },
     alternates: {
       canonical,
       languages: { en: canonical, 'x-default': canonical },
@@ -59,7 +85,10 @@ export default async function BlogPostPage({
   }
 
   const t = await getTranslations({ locale, namespace: 'pages.blog' });
-  const post = await findPost({ slug: slug as string, status: PostStatus.PUBLISHED });
+  const post = await findPost({
+    slug: slug as string,
+    status: PostStatus.PUBLISHED,
+  });
 
   if (!post) {
     return notFound();
@@ -70,12 +99,29 @@ export default async function BlogPostPage({
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.description,
-    image: post.image || undefined,
-    datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-    dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-    author: post.authorName
-      ? { '@type': 'Person', name: post.authorName }
+    image: getPostImage(post),
+    datePublished: post.createdAt
+      ? new Date(post.createdAt).toISOString()
       : undefined,
+    dateModified: post.updatedAt
+      ? new Date(post.updatedAt).toISOString()
+      : undefined,
+    author: post.authorName
+      ? {
+          '@type': 'Organization',
+          name: post.authorName,
+          url: 'https://translatepdfonline.com',
+        }
+      : undefined,
+    publisher: {
+      '@type': 'Organization',
+      name: 'TranslatePDFOnline',
+      url: 'https://translatepdfonline.com',
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://translatepdfonline.com/blog/${slug}`,
+    },
   };
 
   const formattedDate = post.createdAt
@@ -92,48 +138,55 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-dvh w-full bg-background pt-14 lg:pt-18">
-        <article className="mx-auto w-full max-w-4xl px-6 md:px-8 py-16 md:py-24">
+      <div className="bg-background min-h-dvh w-full pt-14 lg:pt-18">
+        <article className="mx-auto w-full max-w-4xl px-6 py-16 md:px-8 md:py-24">
           {/* Back link */}
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
+            className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-1.5 text-sm transition-colors"
           >
             {t('backToBlog')}
           </Link>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
             {post.title}
           </h1>
 
           {/* Meta */}
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-3 text-sm">
             {post.authorName ? (
-              <span>{t('by')} {post.authorName}</span>
+              <span>
+                {t('by')} {post.authorName}
+              </span>
             ) : null}
             {formattedDate ? (
-              <span>{t('publishedOn')} {formattedDate}</span>
+              <span>
+                {t('publishedOn')} {formattedDate}
+              </span>
             ) : null}
           </div>
 
           {/* Categories */}
           {post.categories ? (
             <div className="mt-4 flex flex-wrap gap-1.5">
-              {post.categories.split(',').filter(Boolean).map((cat: string) => (
-                <span
-                  key={cat}
-                  className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                >
-                  {cat.trim()}
-                </span>
-              ))}
+              {post.categories
+                .split(',')
+                .filter(Boolean)
+                .map((cat: string) => (
+                  <span
+                    key={cat}
+                    className="border-border bg-muted text-muted-foreground inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
+                  >
+                    {cat.trim()}
+                  </span>
+                ))}
             </div>
           ) : null}
 
           {/* Cover image */}
           {post.image ? (
-            <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+            <div className="border-border mt-8 overflow-hidden rounded-2xl border">
               <img
                 src={post.image}
                 alt={post.title || ''}
@@ -144,9 +197,11 @@ export default async function BlogPostPage({
 
           {/* Content */}
           {post.content ? (
-            <div className="mt-10 rounded-2xl border border-border bg-card p-6 md:p-10">
-              <div className="prose prose-neutral max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted">
-                <MarkdownContent content={post.content} />
+            <div className="border-border bg-card mt-10 rounded-2xl border p-6 md:p-10">
+              <div className="prose prose-neutral dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted max-w-none">
+                <MarkdownContent
+                  content={removeDuplicateMarkdownTitle(post.content)}
+                />
               </div>
             </div>
           ) : null}
@@ -155,7 +210,7 @@ export default async function BlogPostPage({
           <div className="mt-12 border-t pt-8">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
             >
               {t('backToBlog')}
             </Link>

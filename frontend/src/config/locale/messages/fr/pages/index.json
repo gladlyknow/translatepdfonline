@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "Traduire un PDF en ligne avec OCR pour les scans",
+    "description": "Traduisez des PDF numériques ou numérisés entre 10 langues prises en charge, avec conservation de la structure lorsque c’est possible. Connexion requise."
+  },
   "page": {
     "show_sections": [
       "hero",
@@ -186,7 +190,7 @@
           },
           {
             "title": "Langue cible",
-            "description": "Choisissez la langue vers laquelle traduire le PDF — anglais, chinois, allemand, japonais, norvégien et plus — puis lancez la tâche.",
+            "description": "Choisissez une langue cible prise en charge — anglais, chinois, espagnol, français, italien, grec, japonais, coréen, allemand ou russe — puis lancez la tâche.",
             "image": {
               "src": "/imgs/features/choose_language_target.png",
               "alt": "Choisir la langue cible",
@@ -292,8 +296,8 @@
             "answer": "Sur la page de traduction, définissez l'allemand comme langue source et le français comme langue cible, téléversez votre PDF et lancez la tâche. Le pipeline de conservation de mise en page traduit le document tout en gardant les polices, tableaux et colonnes intacts."
           },
           {
-            "question": "Comment traduire des documents PDF en norvégien en ligne ?",
-            "answer": "Choisissez le norvégien comme langue cible sur la page de traduction, sélectionnez la langue source du document et téléversez le PDF. Le moteur traduit en norvégien en conservant la mise en page là où c'est techniquement possible, pour un résultat lisible et fidèle."
+            "question": "Quelles combinaisons de langues sont prises en charge ?",
+            "answer": "Vous pouvez choisir l’anglais, le chinois, l’espagnol, le français, l’italien, le grec, le japonais, le coréen, l’allemand ou le russe. Sélectionnez une langue source et une langue cible prises en charge avant le téléversement."
           },
           {
             "question": "Qu'est-ce que Translate PDF Online et comment ça marche ?",

@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "Εγγραφείτε και λάβετε ",
-      "promoCredits": "30 πιστώσεις",
+      "promoCredits": "{credits} πιστώσεις",
       "promoMiddle": " — ",
       "promoFree": "δωρεάν",
-      "promoAfter": "μετάφραση για περίπου 3 σελίδες PDF (10 πιστώσεις ανά σελίδα).",
+      "promoAfter": "για επεξεργασία εγγράφων. Η τρέχουσα χρέωση εμφανίζεται πριν από κάθε εργασία.",
       "buttonText": "Εγγραφή",
       "href": "/sign-up",
       "target": "_self",

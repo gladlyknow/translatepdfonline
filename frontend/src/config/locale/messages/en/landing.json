@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "Sign up and get ",
-      "promoCredits": "30 credits",
+      "promoCredits": "{credits} credits",
       "promoMiddle": " — ",
       "promoFree": "free",
-      "promoAfter": " translation for about 3 PDF pages (10 credits per page).",
+      "promoAfter": " for document processing. Current costs are shown before each task.",
       "buttonText": "Sign up",
       "href": "/sign-up",
       "target": "_self",

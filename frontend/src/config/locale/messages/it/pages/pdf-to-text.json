@@ -1,6 +1,6 @@
 {
   "metaTitle": "PDF in Testo — OCR Online Gratis per Estrarre Testo da PDF",
-  "metaDescription": "Converti PDF in testo modificabile online gratis. L'OCR AI estrae il testo da PDF scansionati e documenti. Supporto 10+ lingue. Nessuna registrazione.",
+  "metaDescription": "Converti PDF in testo modificabile online. L'OCR AI estrae testo da PDF scansionati e documenti, supporta 10 lingue e usa un flusso protetto con accesso.",
   "keywords": "pdf in testo,estrarre testo da pdf,ocr online,pdf in word gratis,convertire pdf in testo,riconoscimento testo pdf,ocr pdf",
   "heroTitle": "PDF in Testo",
   "heroText": "L'OCR con IA estrae testo da qualsiasi PDF — scansionato, con immagini o digitale. Conserva il layout. Esporta in Word, TXT o Markdown.",
@@ -24,7 +24,7 @@
     "q3": "Quali lingue supporta il convertitore PDF in testo?",
     "a3": "Supporta inglese, cinese, spagnolo, francese, tedesco, giapponese, coreano, russo, greco, italiano e altre. Il motore OCR rileva automaticamente la lingua del documento per una migliore precisione.",
     "q4": "La conversione da PDF a testo è gratuita?",
-    "a4": "I nuovi utenti ricevono crediti gratis per provare il convertitore OCR PDF in testo. Le funzioni premium includono file più grandi, elaborazione batch e velocità prioritaria.",
+    "a4": "È necessario accedere. I crediti iniziali possono essere disponibili se abilitati nella configurazione corrente. Controlla tariffa e saldo in Impostazioni → Crediti.",
     "q5": "In quali formati posso esportare dopo l'OCR?",
     "a5": "Puoi esportare il testo estratto in TXT (testo semplice), Microsoft Word (DOCX), HTML o Markdown. Scegli il formato più adatto al tuo flusso di lavoro."
   },

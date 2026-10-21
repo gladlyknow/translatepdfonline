@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "title": "Traducteur OCR de PDF pour documents numérisés",
+    "description": "Reconnaissez le texte d’un PDF numérisé, vérifiez les blocs, traduisez vers une langue prise en charge puis exportez. Connexion requise."
+  },
+  "eyebrow": "Traitement des PDF numérisés",
+  "h1": "Traduire un PDF numérisé avec l’OCR",
+  "intro": "Téléversez un PDF numérisé ou composé d’images, vérifiez le texte et les blocs détectés, puis traduisez le contenu dans une langue prise en charge avant l’export.",
+  "useCasesTitle": "Adapté à",
+  "useCases": "Articles universitaires numérisés, documents fournisseurs, manuels et autres PDF dont le texte ne peut pas être sélectionné ou copié.",
+  "limitsTitle": "Avant de commencer",
+  "limits": "La connexion est obligatoire. Les scans flous, l’écriture manuscrite, les tableaux complexes, les polices inhabituelles et les PDF protégés peuvent nécessiter une vérification manuelle."
+}

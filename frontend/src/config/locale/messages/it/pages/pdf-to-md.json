@@ -21,7 +21,7 @@
   "why2Title": "PDF scannerizzati inclusi",
   "why2Desc": "Funziona con documenti scannerizzati e PDF immagine, non solo con file digitali.",
   "why3Title": "Gratis e privato",
-  "why3Desc": "Crediti gratuiti per iniziare, senza abbonamento. I tuoi file sono gestiti in modo sicuro e usati solo per la conversione.",
+  "why3Desc": "È necessario accedere. I crediti iniziali possono essere disponibili se abilitati nella configurazione corrente; i file vengono elaborati solo per la conversione richiesta.",
   "faqHeading": "Domande frequenti sul convertitore PDF in Markdown",
   "seoFaq": {
     "q1": "Come convertire un PDF in Markdown senza perdere la formattazione?",
@@ -29,7 +29,7 @@
     "q2": "Posso convertire un PDF scannerizzato in Markdown?",
     "a2": "Sì. Il convertitore include l'OCR con IA che legge il testo da pagine scannerizzate e PDF immagine, incluse note scritte a mano e timbri. Un contratto fotografato o una pagina di libro scannerizzata diventa Markdown modificabile e ricercabile — la maggior parte dei convertitori non gestisce gli scansiti, il nostro è stato creato per questo.",
     "q3": "Il convertitore PDF in Markdown è gratuito?",
-    "a3": "Sì. Ogni nuovo utente riceve crediti di conversione gratuiti da usare per la conversione PDF in Markdown. Ogni conversione consuma pochi crediti in base alle pagine, così puoi provarlo gratis prima di acquistarne altri. Nessun abbonamento, paghi a consumo.",
+    "a3": "È necessario accedere. I crediti iniziali possono essere disponibili se abilitati nella configurazione corrente del prodotto. Controlla tariffa e saldo in Impostazioni → Crediti prima della conversione.",
     "q4": "Cosa posso fare con il Markdown convertito da un PDF?",
     "a4": "Markdown è perfetto per blog, siti di documentazione e generatori di siti statici come Hugo, Jekyll o Next.js. Dopo aver scaricato il file .md, incollalo in qualsiasi editor Markdown, CMS o repository Git — titoli, tabelle e immagini vengono mantenuti e restano modificabili.",
     "q5": "Immagini e tabelle vengono conservate nella conversione da PDF a Markdown?",

@@ -21,11 +21,11 @@
   "why2Title": "Maneja sellos, marcas de agua y manuscrito",
   "why2Desc": "Sellos oficiales, marcas de agua intensas y anotaciones manuscritas que el OCR común no puede leer son reconocidos por el convertidor de foto a Word y colocados en su posición original dentro del archivo Word, conservando el significado y la autoridad del documento fuente.",
   "why3Title": "Gratis, privado y online",
-  "why3Desc": "Nada que instalar. Su foto se sube por HTTPS, se procesa solo para la conversión y solo usted puede descargar el Word resultante. Los nuevos usuarios reciben créditos gratis y convierten JPG a Word desde cualquier dispositivo con navegador.",
+  "why3Desc": "Nada que instalar. Es necesario iniciar sesión antes de subir la foto; se transfiere por HTTPS y se procesa solo para la conversión. Solo usted puede descargar el Word resultante.",
   "faqHeading": "Preguntas frecuentes del convertidor de JPG a Word",
   "seoFaq": {
     "q1": "¿Este convertidor de JPG a Word es gratis?",
-    "a1": "Sí. El convertidor de JPG a Word funciona online y cada nuevo usuario recibe créditos gratis. Cada conversión de foto a word cuesta pocos créditos, por lo que puede probar gratis.",
+    "a1": "El convertidor de JPG a Word funciona online y requiere iniciar sesión. Puede haber créditos iniciales si están habilitados; consulte la tarifa y el saldo vigentes antes de convertir.",
     "q2": "¿Conserva el diseño original?",
     "a2": "Sí. El OCR con IA preserva párrafos, tablas, columnas, sellos y manuscrito y genera un Word que refleja la página original — no un volcado de texto plano.",
     "q3": "¿Puedo convertir una foto con texto manuscrito?",

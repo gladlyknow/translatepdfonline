@@ -13,7 +13,18 @@ export const localeNames: any = {
   ru: 'Русский',
 };
 
-export const locales = ['en', 'zh', 'es', 'fr', 'it', 'el', 'ja', 'ko', 'de', 'ru'];
+export const locales = [
+  'en',
+  'zh',
+  'es',
+  'fr',
+  'it',
+  'el',
+  'ja',
+  'ko',
+  'de',
+  'ru',
+];
 
 export const defaultLocale = envConfigs.locale;
 
@@ -60,6 +71,7 @@ export const localeMessagesPaths = [
   'pages/photo-to-word',
   'pages/pricing',
   'pages/contract-comparison',
+  'pages/ocr-translator',
   'pages/pdf-to-word-doc',
   'pages/pdf-to-excel',
   'pages/pdf-to-md',

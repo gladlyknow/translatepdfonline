@@ -21,11 +21,11 @@
   "why2Title": "Designed for real-world scans",
   "why2Desc": "The converter can process clear photos, screenshots and scanned pages. Heavy watermarks, stamps, handwriting, blur or low contrast can reduce OCR accuracy, so important documents should be reviewed against the source image.",
   "why3Title": "Free, private, and online",
-  "why3Desc": "No software to install. Your photo is uploaded over HTTPS, processed for the conversion, and only you can download the resulting Word document. Try the JPG to Word converter free with starter credits, and convert JPG to Word from any device with a browser.",
+  "why3Desc": "No software installation is required. Sign in before uploading; the photo is transferred over HTTPS and processed for conversion. Starter credits may be available when enabled in the current product configuration.",
   "faqHeading": "JPG to Word Converter FAQ",
   "seoFaq": {
     "q1": "Is this JPG to Word converter free?",
-    "a1": "Yes. The JPG to Word converter runs online and every new user gets free credits. Each photo to word conversion costs a small number of credits, so you can convert JPG to Word for free before deciding to buy more.",
+    "a1": "The JPG to Word converter runs online, but sign-in is required. Starter credits may be available when enabled in the current product configuration; check the pricing and credit screens for current costs.",
     "q2": "Does the JPG to Word converter keep the original layout?",
     "a2": "The converter reconstructs detected paragraphs, columns and tables on a best-effort basis. Complex layouts, stamps and handwritten annotations may need correction in Word after conversion.",
     "q3": "Can I convert a photo with handwriting to Word?",

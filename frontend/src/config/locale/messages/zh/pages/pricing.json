@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "定价",
-        "description": "通过 Creem 支付。每翻译 1 页 PDF 消耗 10 积分；不足时可随时 $5 加购 500 积分。",
+        "description": "通过 Creem 支付。每翻译 1 页 PDF 消耗 {creditsPerPage} 积分；不足时可随时 $5 加购 500 积分。",
         "footnote_usd": "标价单位为美元（USD）。",
         "footnote_summary": "订阅可随时取消。积分一经使用恕不退款。",
         "terms_link_text": "完整政策见《服务条款》",
@@ -44,7 +44,7 @@
             "features_title": "包含",
             "features": [
               "500 翻译积分",
-              "每翻译 1 页消耗 10 积分",
+              "每翻译 1 页消耗 {creditsPerPage} 积分",
               "加购积分永久有效"
             ],
             "interval": "one-time",
@@ -64,9 +64,7 @@
             "credits": 500,
             "valid_days": 0,
             "group": "one-time",
-            "payment_providers": [
-              "creem"
-            ]
+            "payment_providers": ["creem"]
           },
           {
             "title": "每月 550 积分",
@@ -74,7 +72,7 @@
             "features_title": "包含",
             "features": [
               "每账单周期 550 积分",
-              "每翻译 1 页消耗 10 积分",
+              "每翻译 1 页消耗 {creditsPerPage} 积分",
               "订阅积分在周期末失效；加购积分永久有效"
             ],
             "interval": "month",
@@ -95,9 +93,7 @@
             "valid_days": 0,
             "group": "monthly",
             "plan_name": "月付",
-            "payment_providers": [
-              "creem"
-            ],
+            "payment_providers": ["creem"],
             "trial_subscription": true
           },
           {
@@ -106,7 +102,7 @@
             "features_title": "包含",
             "features": [
               "每账单周期 1600 积分",
-              "每翻译 1 页消耗 10 积分",
+              "每翻译 1 页消耗 {creditsPerPage} 积分",
               "可随时在账单页取消"
             ],
             "interval": "quarter",
@@ -127,9 +123,7 @@
             "valid_days": 0,
             "group": "quarterly",
             "plan_name": "季付",
-            "payment_providers": [
-              "creem"
-            ]
+            "payment_providers": ["creem"]
           },
           {
             "title": "每半年 3300 积分",
@@ -137,7 +131,7 @@
             "features_title": "包含",
             "features": [
               "每账单周期 3300 积分",
-              "每翻译 1 页消耗 10 积分",
+              "每翻译 1 页消耗 {creditsPerPage} 积分",
               "可随时在账单页取消"
             ],
             "interval": "six-months",
@@ -158,9 +152,7 @@
             "valid_days": 0,
             "group": "semi-annual",
             "plan_name": "半年付",
-            "payment_providers": [
-              "creem"
-            ]
+            "payment_providers": ["creem"]
           },
           {
             "title": "每年 6500 积分",
@@ -168,7 +160,7 @@
             "features_title": "包含",
             "features": [
               "每年 6500 积分",
-              "每翻译 1 页消耗 10 积分",
+              "每翻译 1 页消耗 {creditsPerPage} 积分",
               "可随时在账单页取消"
             ],
             "interval": "year",
@@ -190,9 +182,7 @@
             "valid_days": 0,
             "group": "yearly",
             "plan_name": "年付",
-            "payment_providers": [
-              "creem"
-            ]
+            "payment_providers": ["creem"]
           }
         ]
       }

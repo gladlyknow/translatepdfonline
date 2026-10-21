@@ -99,10 +99,10 @@
     "topbanner": {
       "id": "signup-bonus-2026",
       "promoBefore": "Зарегистрируйтесь и получите ",
-      "promoCredits": "30 кредитов",
+      "promoCredits": "{credits} кредитов",
       "promoMiddle": " — ",
       "promoFree": "бесплатно",
-      "promoAfter": "перевод примерно 3 страниц PDF (10 кредитов за страницу).",
+      "promoAfter": "на обработку документов. Текущая стоимость показывается перед каждой задачей.",
       "buttonText": "Регистрация",
       "href": "/sign-up",
       "target": "_self",

@@ -1,6 +1,6 @@
 {
   "metaTitle": "PDF en Texte — OCR en Ligne Gratuit pour Extraire le Texte d'un PDF",
-  "metaDescription": "Convertissez un PDF en texte éditable en ligne gratuitement. L'OCR IA extrait le texte des PDF numérisés et documents. 10+ langues. Sans inscription.",
+  "metaDescription": "Extrayez le texte modifiable de PDF numériques ou numérisés grâce à l’OCR IA, avec 10 langues prises en charge. Connexion requise avant le téléversement.",
   "keywords": "pdf en texte,extraire texte pdf,ocr en ligne,pdf en word gratuit,convertir pdf en texte,reconnaissance de texte pdf,ocr pdf gratuit",
   "heroTitle": "PDF en Texte",
   "heroText": "L'OCR par IA extrait le texte de tout PDF — numérisé, image ou numérique. Conserve la mise en page. Exportez en Word, TXT ou Markdown.",
@@ -24,7 +24,7 @@
     "q3": "Quelles langues sont prises en charge par le convertisseur PDF en texte ?",
     "a3": "Il prend en charge l'anglais, le chinois, l'espagnol, le français, l'allemand, le japonais, le coréen, le russe, le grec, l'italien et plus encore. Le moteur OCR détecte automatiquement la langue du document.",
     "q4": "La conversion PDF en texte est-elle gratuite ?",
-    "a4": "Les nouveaux utilisateurs reçoivent des crédits gratuits pour essayer le convertisseur OCR PDF en texte. Les fonctions premium incluent des fichiers plus volumineux, le traitement par lots et une vitesse prioritaire.",
+    "a4": "La connexion est obligatoire. Des crédits de démarrage peuvent être disponibles s'ils sont activés dans la configuration actuelle. Consultez Réglages → Crédits pour le tarif et le solde en vigueur.",
     "q5": "Vers quels formats puis-je exporter après l'OCR ?",
     "a5": "Vous pouvez exporter en TXT (texte brut), Microsoft Word (DOCX), HTML ou Markdown. Choisissez le format qui correspond le mieux à votre flux de travail."
   },

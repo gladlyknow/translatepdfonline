@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "title": "Traductor OCR de PDF para documentos escaneados",
+    "description": "Reconoce texto en PDF escaneados con OCR, revisa los bloques, traduce a idiomas compatibles y exporta el resultado. Es necesario iniciar sesión."
+  },
+  "eyebrow": "Flujo para PDF escaneados",
+  "h1": "Traduce PDF escaneados con OCR",
+  "intro": "Sube un PDF escaneado o basado en imágenes, revisa el texto y los bloques detectados y traduce el contenido a uno de los idiomas compatibles antes de exportarlo.",
+  "useCasesTitle": "Útil para",
+  "useCases": "Artículos académicos escaneados, documentos de proveedores, manuales y otros PDF cuyo texto no se puede seleccionar ni copiar.",
+  "limitsTitle": "Antes de empezar",
+  "limits": "Es necesario iniciar sesión. Los escaneos borrosos, la escritura manual, las tablas complejas, las fuentes poco comunes y los PDF protegidos pueden requerir revisión manual."
+}

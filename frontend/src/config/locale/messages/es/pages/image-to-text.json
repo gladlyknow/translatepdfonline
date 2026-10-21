@@ -1,6 +1,6 @@
 {
   "metaTitle": "Convertir Imagen a Texto — OCR Online Gratis para Fotos y Capturas",
-  "metaDescription": "Extrae texto de imágenes online gratis. OCR con IA convierte fotos, capturas de pantalla y documentos escaneados a texto editable. PNG, JPG, BMP, WebP. Sin registro.",
+  "metaDescription": "Extrae texto editable de fotos, capturas y escaneos PNG, JPG, BMP o WebP con OCR de IA. Es necesario iniciar sesión antes de subir archivos.",
   "keywords": "convertir imagen a texto,extraer texto de imagen,foto a texto,ocr imagen,pasar imagen a texto,imagen a word,reconocimiento de texto imagen,ocr online gratis",
   "heroTitle": "Imagen a Texto",
   "heroText": "OCR con IA extrae texto de cualquier imagen — fotos, capturas de pantalla o documentos escaneados. Compatible con PNG, JPG, BMP, WebP. Exporta a Word, TXT o Markdown.",
@@ -24,7 +24,7 @@
     "q3": "¿Qué formatos de imagen soporta el OCR?",
     "a3": "Soportamos PNG, JPG/JPEG, BMP y WebP. Máximo 50 MB por imagen. Para mejores resultados, usa imágenes claras y bien iluminadas con texto legible.",
     "q4": "¿Es gratis el conversor de imagen a texto?",
-    "a4": "Los usuarios nuevos reciben créditos gratis para probar el conversor OCR de imagen a texto. Las funciones premium incluyen procesamiento en alta resolución, carga por lotes y mayor velocidad.",
+    "a4": "Es necesario iniciar sesión. Puede haber créditos iniciales si están habilitados en la configuración actual. Consulta la tarifa y el saldo vigentes en Configuración → Créditos.",
     "q5": "¿Puedo traducir el texto extraído a otro idioma?",
     "a5": "Sí. Después de extraer el texto con OCR, puedes usar la función de traducción integrada para traducir el texto a cualquiera de nuestros más de 10 idiomas directamente en el editor."
   },
