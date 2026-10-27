@@ -1,97 +1,49 @@
 ---
-title: Introducción
-description: Translate PDF Online — arquitectura, funciones, seguridad y cumplimiento de licencias abiertas.
+title: Guías de traducción, OCR y extracción de PDF
+description: Elige el flujo adecuado para traducir, reconocer, extraer o comparar contenido PDF, con límites y notas de privacidad claros.
 ---
 
-## ¿Qué es Translate PDF Online?
+## Empieza por la tarea del documento
 
-**Translate PDF Online** es un servicio web para **traducir documentos PDF** conservando, cuando es posible, el diseño, las figuras y las tablas. Está orientado a PDF académicos y profesionales en **inglés, chino (simplificado), español, francés, italiano, griego, japonés y coreano**, ampliando progresivamente más pares de idiomas.
+Este centro de documentación ayuda a elegir un flujo antes de subir un archivo. Para procesar archivos es necesario iniciar sesión. Las tareas de traducción, OCR y conversión usan los créditos que muestra el producto antes de comenzar.
 
-- **Sitio web:** [www.translatepdfonline.com](https://translatepdfonline.com)
-- **Contacto:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+- **Traducir un PDF digitalizado o con texto:** abre el [traductor PDF con OCR](/es/ocrtranslator) y consulta el [flujo de carga](/es/docs/upload) y la [guía del banco de trabajo OCR](/es/docs/ocr-workbench).
+- **Extraer texto seleccionable de un PDF:** sigue la guía de [PDF a texto](/es/docs/pdf-to-text).
+- **Reconocer texto de una foto o imagen escaneada:** consulta [Imagen a texto](/es/docs/image-to-text).
+- **Revisar diferencias entre dos versiones:** usa la guía de [comparación de documentos](/es/docs/contract-comparison).
 
-## Código abierto y créditos
+## Idiomas y documentos compatibles
 
-El pipeline de traducción se apoya en proyectos de código abierto, en particular **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** y el ecosistema **pdf2zh / BabelDOC** para traducción de PDF con conciencia de maquetación.
+El selector actual admite **inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán y ruso**. Antes de traducir, selecciona un idioma de origen y uno de destino disponibles.
 
-Le recomendamos revisar el proyecto original para detalles de implementación y condiciones de licencia.
+Los PDF con capa de texto suelen poder leerse directamente. Los PDF escaneados o basados en imágenes necesitan OCR. El proceso sensible a la maquetación intenta volver a colocar la traducción en la estructura del documento cuando es posible, pero el resultado depende del archivo, las fuentes, la calidad del escaneo, las tablas y la complejidad de la página.
 
-## Cumplimiento AGPL-3.0
+Los casos habituales incluyen artículos académicos, manuales técnicos, documentos de proveedores, informes y otros PDF que deben revisarse antes de reutilizarlos.
 
-Los componentes derivados de **pdf2zh** (AGPL-3.0) pueden implicar que los usuarios que usan el servicio por red puedan obtener el código fuente correspondiente a las partes cubiertas por AGPL, u otras obligaciones según la licencia.
+## Flujo habitual para un PDF
 
-**Acceso al código:** Implementación de referencia: [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Para consultas sobre el código aplicable a nuestro despliegue: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+1. **Inicia sesión y sube el archivo.** Elige la herramienta adecuada y añade el documento.
+2. **Configura la tarea.** Según el flujo, selecciona idiomas, páginas o las dos versiones que quieres comparar.
+3. **Aplica OCR cuando sea necesario.** Los escaneos y las imágenes deben reconocerse antes de traducir o exportar su texto.
+4. **Revisa el resultado.** Compara el original y la salida y corrige los errores relevantes de reconocimiento o traducción.
+5. **Descarga o vuelve a abrir.** Descarga el resultado disponible o abre una tarea conservada desde el historial de tu cuenta.
 
-_Esta sección es informativa y no constituye asesoramiento legal._
+## Límites que debes comprobar
 
-## Arquitectura del sistema
+- Los PDF cifrados o protegidos con contraseña pueden necesitar desbloqueo antes de subirlos.
+- Los escaneos borrosos, la escritura manual, las fuentes poco comunes, las tablas complejas, las fórmulas, los sellos y el texto superpuesto pueden exigir corrección manual.
+- En documentos largos, indicar un intervalo de páginas puede reducir el tiempo y el uso de créditos.
+- El producto o la cuenta muestran el consumo actual y cualquier oferta inicial disponible; esta guía no promete una tarifa fija ni créditos gratuitos.
+- Los formatos de salida dependen de la herramienta. Verifica nombres, cifras, cláusulas y celdas importantes frente al original.
 
-Arquitectura **frontal y backend separados**.
+## Procesamiento, privacidad y conservación
 
-### Frontal (edge)
+La carga, la vista previa y la descarga se controlan desde el navegador. El OCR, la traducción, la comparación y la reconstrucción se realizan mediante servicios backend. Los archivos se transfieren por HTTPS.
 
-- **Stack:** React / **Next.js**.
-- **Alojamiento:** **Cloudflare Pages / Workers**.
-- **Función:** interfaz, autenticación, UI de facturación, vista previa y comparación de PDF, llamadas a la API.
+Los archivos subidos y generados se programan normalmente para eliminarse al cabo de unos siete días, con las excepciones de la política publicada y los requisitos legales. Lee la [Política de privacidad](/es/privacy-policy) y los [Términos del servicio](/es/terms-of-service) antes de tratar documentos confidenciales o regulados.
 
-### Almacenamiento de objetos
+## ¿Necesitas ayuda?
 
-- **Cloudflare R2** guarda PDF subidos y resultados, con API compatible **S3**.
-- Ayuda a controlar costes de **egreso** frente a otros almacenes para descargas grandes.
+Empieza por la guía correspondiente al documento y a la tarea. Si el flujo documentado no resuelve el problema, escribe a [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com) e indica la herramienta, el tipo de archivo y una descripción sin datos sensibles.
 
-### API backend (servidores de aplicación)
-
-- **Stack:** Python (**FastAPI** u similar) en servidores en la nube (**ECS** / VPS).
-- **Función:** cuentas, créditos/suscripciones, creación de tareas, orquestación, integración con **DeepSeek** y colas de trabajos.
-
-### Workers asíncronos
-
-- **Celery** (o equivalente) ejecuta análisis de diseño (p. ej. **DocLayout-YOLO**), extracción de texto, llamadas de traducción y flujo **BabelDOC** para volver a colocar el texto en la estructura vectorial del PDF.
-
-**Flujo de datos (resumen):** navegador → Next.js en Cloudflare → API backend → R2, cola, API DeepSeek → workers → R2.
-
-## Funciones principales
-
-### A. Vista PDF y selección por área
-
-- **Librería:** `react-pdf-selection` (o similar) como capa interactiva sobre el visor.
-- **Flujo:** el usuario dibuja un rectángulo; el cliente obtiene **coordenadas normalizadas** y las envía al backend.
-- **Traducción parcial:** el backend usa **PyMuPDF** (o similar), llama a **DeepSeek** y devuelve el texto traducido.
-
-### B. Comparación lado a lado y scroll sincronizado
-
-- **Motor:** **pdf.js** (o similar) para dos paneles (origen y traducido).
-- **Sincronización:** se lee el scroll del panel izquierdo, se calcula la **proporción** y se aplica al derecho.
-
-### C. Cola de tareas y pipeline
-
-1. **Análisis / maquetación:** detección de párrafos, fórmulas, tablas, etc.
-2. **Traducción:** lotes enviados a **DeepSeek** (p. ej. DeepSeek-V3). Los costes en tokens son **orientativos** y dependen del precio oficial.
-3. **Renderizado:** **BabelDOC** reinserta el texto traducido preservando el estilo cuando es posible.
-
-## El espacio de trabajo de traducción (panel Historial)
-
-En la pantalla **[Traducir PDF](/translate/upload)**, la columna **Historial** es clave en el flujo diario:
-
-- Muestra **subidas y tareas de traducción** vinculadas a la sesión del navegador (y a su **cuenta** si ha iniciado sesión): estado, idiomas de origen/destino y nombres de archivo.
-- Puede **abrir una tarea anterior** desde el historial para seguir previsualizando, descargar el PDF traducido o ver el progreso **sin volver a subir el mismo archivo**.
-- El historial se coordina con la **vista previa del PDF** y los controles de la derecha: al seleccionar una entrada se carga el contexto de esa tarea.
-
-Si no ve un elemento antiguo, puede haber sido eliminado por la **política de retención** (más abajo) o estar usando otro dispositivo o sesión.
-
-## Seguridad de datos y conservación
-
-- **Transporte:** **HTTPS** de extremo a extremo.
-- **Conservación:** los objetos en **R2** relacionados con traducciones se programan para **eliminación automática aproximadamente a los 7 días**, salvo otra política o requisito legal.
-- **Seguridad:** controles de acceso y cifrado razonables en tránsito; ningún servicio en línea garantiza seguridad absoluta.
-
-Para condiciones legales y pagos, consulte la [Política de privacidad](/privacy-policy) y los [Términos del servicio](/terms-of-service).
-
-## Guias de funciones
-
-- [Flujo de carga](/docs/upload)
-- [Banco OCR](/docs/ocr-workbench)
-
-- [PDF a Texto](/docs/pdf-to-text)
-- [Imagen a Texto](/docs/image-to-text)
-- [Comparacion de Contratos](/docs/contract-comparison)
+_Hechos del producto revisados: 2026-10-27._

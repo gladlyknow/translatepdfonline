@@ -1,97 +1,49 @@
 ---
-title: Einführung
-description: Translate PDF Online — Architektur, Funktionen, Sicherheit und Open-Source-Compliance.
+title: Anleitungen für PDF-Übersetzung, OCR und Textextraktion
+description: Wählen Sie den passenden Ablauf zum Übersetzen, Erkennen, Extrahieren oder Vergleichen von PDF-Inhalten, einschließlich Grenzen und Datenschutzhinweisen.
 ---
 
-## Was ist Translate PDF Online?
+## Mit der Dokumentaufgabe beginnen
 
-**Translate PDF Online** ist ein Webdienst zum Übersetzen von PDF-Dokumenten bei möglichst erhaltener Seitenlayout, Abbildungen und Tabellen. Gedacht für akademische und professionelle PDFs in **Englisch, Chinesisch (Vereinfacht), Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch** und weiteren Sprachpaaren.
+Dieses Dokumentationszentrum hilft Ihnen, vor dem Upload den passenden Ablauf zu wählen. Für die Dateiverarbeitung ist eine Anmeldung erforderlich. Übersetzung, OCR und Konvertierung verwenden die Credits, die vor dem Start im Produkt angezeigt werden.
 
-- **Website:** [www.translatepdfonline.com](https://translatepdfonline.com)
-- **Kontakt:** [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com)
+- **Textbasierte oder gescannte PDFs übersetzen:** Öffnen Sie den [PDF-Übersetzer mit OCR](/de/ocrtranslator) und lesen Sie den [Upload-Ablauf](/de/docs/upload) sowie die [OCR-Workbench-Anleitung](/de/docs/ocr-workbench).
+- **Auswählbaren Text aus einem PDF extrahieren:** Nutzen Sie die Anleitung [PDF in Text](/de/docs/pdf-to-text).
+- **Text in einem Foto oder Scan erkennen:** Nutzen Sie [Bild in Text](/de/docs/image-to-text).
+- **Unterschiede zwischen zwei Dokumentversionen prüfen:** Lesen Sie die Anleitung zum [Dokumentenvergleich](/de/docs/contract-comparison).
 
-## Open Source und Danksagungen
+## Unterstützte Sprachen und Dokumente
 
-Unsere Übersetzungs-Pipeline baut auf Community-Open-Source, insbesondere **[zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh)** und dem **pdf2zh / BabelDOC**-Ökosystem für layoutbewusste PDF-Übersetzung.
+Die aktuelle Sprachauswahl unterstützt **Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch**. Wählen Sie vor der Übersetzung eine verfügbare Ausgangs- und Zielsprache.
 
-Wir empfehlen, das Upstream-Projekt für Implementierungsdetails und Lizenzbedingungen zu prüfen.
+PDFs mit Textebene lassen sich in der Regel direkt lesen. Gescannte oder bildbasierte PDFs benötigen zuerst OCR. Die layoutbewusste Verarbeitung versucht, übersetzten Text dort wieder in die Dokumentstruktur einzusetzen, wo dies technisch unterstützt wird. Das Ergebnis hängt von Quelldatei, Schriftarten, Scanqualität, Tabellen und Seitenkomplexität ab.
 
-## AGPL-3.0-Compliance
+Typische Dokumente sind Forschungsarbeiten, technische Handbücher, Lieferantenunterlagen und Berichte, die vor der weiteren Verwendung geprüft werden müssen.
 
-Von **pdf2zh** (AGPL-3.0) abgeleitete Komponenten können erfordern, dass Nutzer, die den Dienst über ein Netzwerk nutzen, den entsprechenden Quellcode für die AGPL-gedeckten Teile erhalten können — oder dass das Projekt sonst den AGPL-Pflichten nachkommt.
+## Typischer PDF-Ablauf
 
-**Quellcode:** Referenz-Implementierung: [github.com/guaguastandup/zotero-pdf2zh](https://github.com/guaguastandup/zotero-pdf2zh). Fragen zu deployment-spezifischen Quellangeboten: [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com).
+1. **Anmelden und hochladen.** Wählen Sie das passende Werkzeug und fügen Sie das Quelldokument hinzu.
+2. **Aufgabe festlegen.** Wählen Sie je nach Ablauf Sprachen, einen Seitenbereich oder zwei zu vergleichende Versionen.
+3. **Bei Bedarf OCR ausführen.** Scans und Bilder müssen erkannt werden, bevor ihr Text übersetzt oder exportiert werden kann.
+4. **Ergebnis prüfen.** Vergleichen Sie Quelle und Ausgabe und korrigieren Sie wichtige Erkennungs- oder Übersetzungsfehler.
+5. **Herunterladen oder erneut öffnen.** Laden Sie die verfügbare Ausgabe herunter oder öffnen Sie eine noch gespeicherte Aufgabe im Kontoverlauf.
 
-_Dieser Abschnitt dient der Transparenz; keine Rechtsberatung. Bitte Anwalt für Ihre AGPL-Pflichten konsultieren._
+## Grenzen vor der Verarbeitung prüfen
 
-## Systemarchitektur
+- Verschlüsselte oder passwortgeschützte PDFs müssen gegebenenfalls vor dem Upload entsperrt werden.
+- Unscharfe Scans, Handschrift, ungewöhnliche Schriften, komplexe Tabellen, Formeln, Stempel und überlagerter Text können manuelle Korrekturen erfordern.
+- Ein Seitenbereich kann bei langen Dokumenten Verarbeitungszeit und Credits reduzieren.
+- Der aktuelle Credit-Verbrauch und mögliche Einführungsangebote werden im Produkt oder Konto angezeigt; diese Dokumentation verspricht weder einen Festpreis noch kostenlose Credits.
+- Ausgabeformate hängen vom gewählten Werkzeug ab. Prüfen Sie wichtige Namen, Zahlen, Klauseln und Tabellenzellen anhand der Originaldatei.
 
-Wir trennen **Frontend und Backend**.
+## Verarbeitung, Datenschutz und Aufbewahrung
 
-### Frontend (Edge)
+Upload, Vorschau und Download werden im Browser gesteuert. OCR, Übersetzung, Vergleich und Dokumentrekonstruktion laufen über Backend-Dienste. Dateien werden über HTTPS übertragen.
 
-- **Stack:** React / **Next.js**.
-- **Hosting:** **Cloudflare Pages / Workers**.
-- **Rolle:** UI, Authentifizierung, Billing-UI, PDF-Vorschau und -vergleich im Browser, Aufrufe der Backend-APIs.
+Hochgeladene und erzeugte Dateien werden normalerweise nach etwa sieben Tagen zur Löschung eingeplant, vorbehaltlich der veröffentlichten Richtlinie und gesetzlicher Anforderungen. Lesen Sie vor der Verarbeitung vertraulicher oder regulierter Dokumente die [Datenschutzerklärung](/de/privacy-policy) und [Nutzungsbedingungen](/de/terms-of-service).
 
-### Objektspeicher
+## Benötigen Sie Hilfe?
 
-- **Cloudflare R2** für hochgeladene PDFs und Ausgaben, **S3-kompatible** APIs.
-- R2 hilft, **Egress**-Kosten bei großen Downloads zu begrenzen.
+Beginnen Sie mit der Anleitung, die zu Dokument und Aufgabe passt. Wenn der beschriebene Ablauf das Problem nicht abdeckt, schreiben Sie an [hello@translatepdfonline.com](mailto:hello@translatepdfonline.com) und nennen Sie Werkzeug, Dateityp und eine nicht vertrauliche Problembeschreibung.
 
-### Backend-API
-
-- **Stack:** Python (**FastAPI** o. Ä.) auf skalierbaren Servern (**ECS** / VPS).
-- **Rolle:** Konten, Credits/Abos, Aufgaben, Orchestrierung, Anbindung an **DeepSeek** und Worker-Warteschlangen.
-
-### Asynchrone Worker
-
-- **Celery** (o. Ä.) für CPU-/IO-lastige Schritte: Layout-Analyse (z. B. **DocLayout-YOLO**), Textextraktion, Übersetzungsaufrufe und **BabelDOC**-artiges Neuzeichnen, damit übersetzter Text in die PDF-Vektorstruktur zurückgelegt wird, wo unterstützt.
-
-**Datenfluss (kurz):** Browser → Next.js auf Cloudflare → Backend-API → R2, Warteschlange, DeepSeek-API → Worker → R2.
-
-## Kernfunktionen
-
-### A. PDF-Ansicht und Bereichsauswahl
-
-- **Bibliothek:** `react-pdf-selection` (o. Ä.) überlagert die Interaktion.
-- **Ablauf:** Nutzer zieht ein Rechteck; Client sendet **normalisierte Koordinaten** an das Backend.
-- **Teilübersetzung:** Backend extrahiert mit **PyMuPDF** (o. Ä.) Text aus der Region, ruft **DeepSeek** auf und liefert Text für Inline-/Overlay-Anzeige.
-
-### B. Seitenweise Gegenüberstellung und Scroll-Sync
-
-- **Engine:** **pdf.js** (o. Ä.) rendert zwei PDF-Bereiche (Quelle und Übersetzung).
-- **Sync:** Scroll-Position links → **Scroll-Verhältnis** → rechte Ansicht angepasst.
-
-### C. Aufgaben-Pipeline
-
-1. **Parse / Layout:** Worker erkennen Absätze, Gleichungen, Tabellen.
-2. **Übersetzen:** Batches an **DeepSeek** (z. B. DeepSeek-V3). Tokenkosten variieren.
-3. **Render:** **BabelDOC** schreibt übersetzte Zeichenketten zurück in die PDF-Struktur, wo möglich.
-
-## Arbeitsbereich „Übersetzen“ (Verlauf)
-
-Auf **[PDF übersetzen](/translate/upload)** ist die **Verlauf**-Spalte zentral:
-
-- Sie listet **Uploads und Übersetzungsaufgaben** für die aktuelle Sitzung (und Ihr **Konto**, wenn angemeldet) mit Status, Sprachen und Dateinamen.
-- **Alte Aufgabe öffnen** — Vorschau, Download des übersetzten PDFs oder Fortschritt **ohne erneutes Hochladen derselben Datei**.
-- Zusammenarbeit mit **PDF-Vorschau** und Steuerung rechts: Eintrag wählen lädt den Kontext der Aufgabe.
-
-Wenn ein Eintrag fehlt, kann **Aufbewahrungsrichtlinie** (siehe unten) oder ein anderes Gerät/Sitzung der Grund sein.
-
-## Datensicherheit und Aufbewahrung
-
-- **Transport:** **HTTPS** End-to-End (inkl. Cloudflare zum Origin).
-- **Aufbewahrung:** Ausgaben und zugehörige Objekte in **R2** werden in der Regel **nach etwa 7 Tagen** automatisch gelöscht, sofern nicht anders in den Produkteinstellungen oder gesetzlich vorgeschrieben.
-- **Sicherheit:** Angemessene Zugriffskontrollen und Verschlüsselung während der Übertragung; absolute Sicherheit kann kein Onlinedienst garantieren.
-
-Rechtliches, Datenschutz und Zahlungen: [Datenschutz](/privacy-policy) und [Nutzungsbedingungen](/terms-of-service).
-
-## Funktionsleitfäden
-
-- [Upload-Ablauf](/docs/upload)
-- [OCR-Workbench](/docs/ocr-workbench)
-
-- [PDF in Text](/docs/pdf-to-text)
-- [Bild in Text](/docs/image-to-text)
-- [Vertragsvergleich](/docs/contract-comparison)
+_Produktdaten geprüft: 2026-10-27._

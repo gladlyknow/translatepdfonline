@@ -359,6 +359,58 @@ test('priority PDF-to-text docs have non-empty frontmatter descriptions', () => 
   }
 });
 
+test('localized docs landing pages provide factual task navigation', () => {
+  const staleOrSpeculative = [
+    /\/translate\/upload/i,
+    /www\.translatepdfonline\.com/i,
+    /more language pairs|weitere Sprachpaare|más pares de idiomas/i,
+    /d’autres paires de langues|altre coppie linguistiche/i,
+    /περισσότερα ζεύγη γλωσσών|言語ペアは今後も拡張/i,
+    /언어 쌍은 계속 확장|других языковых парах|持续扩展语言对/i,
+    /FastAPI|Celery|DeepSeek|DocLayout-YOLO|react-pdf-selection|PyMuPDF|\bECS\b/,
+  ];
+
+  for (const locale of locales) {
+    const fileName = locale === 'en' ? 'index.mdx' : `index.${locale}.mdx`;
+    const content = fs.readFileSync(
+      path.join(CONTENT_ROOT, 'docs', fileName),
+      'utf8'
+    );
+    const prefix = locale === 'en' ? '' : `/${locale}`;
+    const requiredLinks = [
+      `${prefix}/ocrtranslator`,
+      `${prefix}/docs/upload`,
+      `${prefix}/docs/ocr-workbench`,
+      `${prefix}/docs/pdf-to-text`,
+      `${prefix}/docs/image-to-text`,
+      `${prefix}/docs/contract-comparison`,
+      `${prefix}/privacy-policy`,
+      `${prefix}/terms-of-service`,
+    ];
+
+    assert.match(content, /^---\n[\s\S]*?title:\s*\S/m, `${locale} docs title`);
+    assert.match(
+      content,
+      /^---\n[\s\S]*?description:\s*\S/m,
+      `${locale} docs description`
+    );
+    assert.ok(content.length > 1300, `${locale} substantive docs landing page`);
+    assert.match(content, /2026-10-27/, `${locale} product-fact review date`);
+    assert.doesNotMatch(
+      content.replace(/^---[\s\S]*?---\s*/, ''),
+      /^#\s+/m,
+      `${locale} docs body must not duplicate the template H1`
+    );
+
+    for (const link of requiredLinks) {
+      assert.ok(content.includes(`](${link})`), `${locale} docs link ${link}`);
+    }
+    for (const pattern of staleOrSpeculative) {
+      assert.doesNotMatch(content, pattern, `${locale} docs: ${pattern}`);
+    }
+  }
+});
+
 test('local blog sources do not duplicate the page template H1', () => {
   const blogFiles = collectFiles(
     path.join(CONTENT_ROOT, 'blog'),
