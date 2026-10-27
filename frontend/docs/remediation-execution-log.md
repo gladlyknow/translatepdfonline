@@ -208,7 +208,7 @@
 
 - 日期：2026-10-27
 - 关联任务：SEO-006、产品可用性回归
-- 状态：等待部署
+- 状态：等待生产
 - 本次范围：`/ocrtranslator` 的普通落地页、`task` 任务恢复态和 `document` 文档恢复态；所有会跳转到该工作台的入口。
 - 明确不包含：OCR 识别/翻译算法、任务数据、编辑器功能、营销内容删除、生产发布。
 - 修改前证据：生产 URL `/ocrtranslator?task=...` 在工作台上方继续显示 “Translate scanned PDFs with OCR / Useful for / Before you start”，截图中工作台整体被下推约一个首屏内容区高度。
@@ -216,15 +216,18 @@
 - 同类入口审计：`/pdf-to-text`、`/image-to-text`、`/upload` 和历史任务均跳转到同一个 `/ocrtranslator?task=...`，因此共享本次修复；`/translate` 仅重定向到 OCR 路由；其他转换页未使用相同 `task` 工作台结构，未发现同类下推问题。
 - 变更内容：服务器读取查询参数；仅非空 `task` 或 `document` 进入工作台模式，并移除首屏、FAQ JSON-LD 和底部说明，同时输出 `noindex,nofollow`；普通 `/ocrtranslator` 及仅含语言预选参数的 URL 保留完整 SEO/GEO 内容和原 canonical。
 - 本地验证：SEO 合同 15/15；TypeScript 通过；生产构建通过并生成 203/203 静态页面，OCR 路由按请求动态渲染；浏览器验证普通页 H1 存在、`task`/`document` 工作台 H1 不存在、工具区直接位于主内容顶部。
+- 实现提交：`4d1ca2ef`（`fix: preserve OCR workbench viewport`），已推送 `origin/develop`。
+- Cloudflare 部署证据：dev 队列 Worker 构建于 2026-10-27 02:51:19 UTC 成功，dev Web Worker 构建于 02:52:07 UTC 成功。
+- dev 验证：普通 `/ocrtranslator` 保留 1 个 H1 和落地页内容；英文 `task`、`document` 与中文 `task` 三种工作台 URL 均为 0 个落地页 H1/H2，任务区直接进入加载态；任务 URL 为 `noindex,nofollow`，canonical 指向对应语言的无参数 `/ocrtranslator`。
 - 回滚方式：回滚本次独立提交；不影响 OCR API、任务状态或文档数据。
-- 下一动作：推送 `develop`，等待 Cloudflare dev 构建后复查普通态、任务态、文档态和多语言任务态。
+- 下一动作：合入生产后使用用户提供的真实任务 URL 复查完整工作台高度、滚动区域和导出操作；生产发布前不宣称截图问题已在线修复。
 
 ## 待执行队列
 
 | 顺序 | 任务 ID  | 下一步                                   | 状态             | 负责人 | 目标时间  |
 | ---: | -------- | ---------------------------------------- | ---------------- | ------ | --------- |
 |    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储    | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | EXEC-014 | 部署并验证 OCR 工作台任务态布局          | 等待部署         | Codex  | D0        |
+|    2 | EXEC-014 | 生产发布并复查真实 OCR 任务工作台        | 等待生产         | 待指定 | D0–D1     |
 |    3 | EXEC-013 | 审核 OCR dev 内容并决定生产发布          | 等待生产         | 待指定 | D0–D1     |
 |    4 | CNT-FACT | 产品负责人复核已建立的功能事实表         | 待验证           | 待指定 | D0–D1     |
 |    5 | SEO-003  | 第二批处理多语言 docs 首页模板           | 计划中           | 待指定 | 第 1 周   |
