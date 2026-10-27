@@ -18,15 +18,15 @@
       "hero": {
         "id": "hero",
         "variant": "translateDark",
-        "title": "Translate PDF Online",
-        "highlight_text": "Traducir PDF en línea gratis con IA",
-        "description": "Traducir PDF en línea conservando el formato original: columnas, tablas, figuras y fuentes se mantienen fieles. Traduce PDF en línea al inglés, chino, español, francés, italiano, alemán, griego, japonés, coreano y ruso. Funciona en el navegador, sin instalar nada y sin configuración.",
+        "title": "Traduce PDF con OCR y salida que respeta el diseño",
+        "highlight_text": "OCR y salida que respeta el diseño",
+        "description": "Traduce PDF digitales o escaneados entre 10 idiomas compatibles. Revisa el OCR y el resultado antes de descargarlo. Es necesario iniciar sesión y el coste en créditos se muestra antes del procesamiento.",
         "announcement": {
           "badge": "Nuevo",
-          "title": "Traducción profesional que respeta el diseño",
+          "title": "Flujo de traducción PDF que tiene en cuenta el diseño",
           "url": "/ocrtranslator"
         },
-        "tip": "Precio de lanzamiento para usuarios iniciales",
+        "tip": "El coste actual en créditos se muestra antes del procesamiento",
         "buttons": [
           {
             "title": "Empezar",
@@ -63,7 +63,7 @@
         "id": "introduce",
         "title": "Qué es Translate PDF Online",
         "label": "Producto",
-        "description": "Translate PDF Online es un servicio web para traducir PDF en línea manteniendo el diseño original. Está pensado para artículos, manuales, informes y libros — no para volcar texto plano — de modo que al traducir PDF en línea obtienes un resultado fiel y legible que refleja el documento fuente.",
+        "description": "Translate PDF Online procesa artículos, manuales, informes y libros mediante un flujo de traducción que tiene en cuenta el diseño. Cuando es compatible, intenta colocar el texto traducido de nuevo en la estructura del documento, en lugar de devolver solo texto plano.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -73,7 +73,7 @@
         "items": [
           {
             "title": "Salida que conserva el diseño",
-            "description": "Al traducir PDF en línea, el PDF traducido refleja la estructura original: texto a varias columnas, tablas, imágenes y títulos se mantienen alineados con la página fuente.",
+            "description": "El proceso intenta reconstruir texto en columnas, tablas, imágenes y títulos. El resultado depende del PDF, las fuentes, la calidad del escaneo y la complejidad de la página.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -82,7 +82,7 @@
           },
           {
             "title": "Muchos pares de idiomas",
-            "description": "Elige origen y destino entre un conjunto creciente de idiomas para traducir PDF en línea — válido para documentos académicos, legales y profesionales de distintas regiones.",
+            "description": "Elige origen y destino entre los 10 idiomas disponibles actualmente para documentos académicos, técnicos y profesionales.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -91,7 +91,7 @@
           },
           {
             "title": "Almacenamiento seguro y temporal",
-            "description": "Al traducir PDF en línea, los archivos viajan por HTTPS y se eliminan según un calendario fijo de retención tras el procesamiento, así no se quedan almacenados.",
+            "description": "Los archivos se transfieren por HTTPS. Los objetos subidos y generados suelen programarse para su eliminación tras unos siete días, sujetos a la política publicada y a requisitos legales.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -115,7 +115,7 @@
         "id": "benefits",
         "title": "Por qué los equipos traducen PDF en línea con nosotros",
         "label": "Ventajas",
-        "description": "Al traducir PDF en línea, quieres recuperar el documento intacto — no un puñado de formato roto que arreglar a mano. De eso se trata.",
+        "description": "Revisa el documento traducido antes de descargarlo. Las tablas complejas, fuentes poco habituales, escritura manual y escaneos de baja calidad pueden requerir correcciones manuales.",
         "items": [
           {
             "title": "Pensado para PDF densos",
@@ -237,13 +237,13 @@
             "icon": "RiCoinsLine"
           },
           {
-            "title": "Cuenta o invitado",
-            "description": "Inicia sesión para facturación e historial entre dispositivos, o prueba el flujo en una sola sesión antes de traducir PDF en línea.",
+            "title": "Procesamiento con cuenta",
+            "description": "Inicia sesión para procesar documentos, usar créditos y volver a abrir trabajos disponibles desde tu historial en distintos dispositivos.",
             "icon": "RiUserLine"
           },
           {
-            "title": "Interfaz en la nube",
-            "description": "Carga inicial rápida en Cloudflare; tu navegador gestiona la vista previa y la descarga, manteniendo el PDF que traduces en línea responsivo.",
+            "title": "Vista previa antes de descargar",
+            "description": "Revisa las páginas de origen y traducidas en el navegador antes de descargar el resultado.",
             "icon": "RiCloudy2Fill"
           },
           {
@@ -252,8 +252,8 @@
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Stack mantenible",
-            "description": "Una app Next.js con APIs claras entre UI, almacenamiento y el worker de traducción — el mismo stack que permite traducir PDF en línea de forma fiable.",
+            "title": "Compatibilidad con PDF escaneados",
+            "description": "El OCR extrae texto de los PDF escaneados compatibles antes de traducir; la precisión depende de la calidad del escaneo, el idioma y la complejidad de la página.",
             "icon": "RiCodeSSlashLine"
           }
         ]
@@ -261,10 +261,10 @@
       "stats": {
         "id": "stats",
         "title": "Hecho para documentos serios",
-        "description": "Desde un artículo hasta manuales extensos — traducir PDF en línea a cualquier escala.",
+        "description": "Procesa artículos, informes y manuales dentro de los límites de archivo y páginas indicados en el espacio de traducción.",
         "items": [
           {
-            "title": "8+",
+            "title": "10",
             "description": "Idiomas de interfaz"
           },
           {
@@ -284,56 +284,28 @@
         "description": "Respuestas rápidas antes de traducir PDF en línea. Más detalles en /docs o en hello@translatepdfonline.com.",
         "items": [
           {
-            "question": "¿Cómo traducir un archivo PDF grande gratis en línea?",
-            "answer": "Abre la página de traducción, sube tu PDF, elige los idiomas de origen y destino y, si solo necesitas una parte, define un rango de páginas. Los documentos grandes se admiten dentro de los límites indicados, y el rango de páginas te permite traducir más rápido gastando menos créditos. Todo en el navegador, sin instalar nada."
+            "question": "¿Puedo traducir PDF digitales y escaneados?",
+            "answer": "Sí. Los PDF con texto se procesan directamente y los PDF escaneados o basados en imágenes pasan primero por OCR. Los escaneos borrosos, la escritura manual, las tablas complejas, las fuentes poco habituales y los archivos protegidos pueden necesitar preparación o revisión manual."
           },
           {
-            "question": "¿Cómo conseguir una traducción de PDF de muy buena calidad en línea?",
-            "answer": "Para una calidad excelente, elige correctamente el idioma de origen para que el motor lea con precisión, y usa un proceso que conserve el formato manteniendo títulos, tablas y columnas en su lugar. La traducción con DeepSeek preserva la estructura original para un resultado natural y fiel."
+            "question": "¿Qué idiomas se admiten actualmente?",
+            "answer": "El selector ofrece inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán y ruso. Elige un idioma de origen y destino compatible antes de iniciar la tarea."
           },
           {
-            "question": "¿Cómo traducir un PDF del alemán al español gratis en línea?",
-            "answer": "En la página de traducción, define el alemán como idioma de origen y el español como destino, sube tu PDF e inicia la tarea. El proceso que conserva el formato traduce el PDF manteniendo fuentes, tablas y columnas intactas, para un resultado limpio."
+            "question": "¿Necesito una cuenta y cómo se cobra el procesamiento?",
+            "answer": "Es necesario iniciar sesión para subir y procesar documentos. La traducción y el OCR consumen créditos según la configuración actual de la tarea. El coste aplicable y cualquier crédito inicial se muestran en la interfaz del producto o de la cuenta."
           },
           {
-            "question": "¿Qué combinaciones de idiomas admite la traducción de PDF?",
-            "answer": "Puedes elegir inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán o ruso. Antes de subir el PDF, selecciona un idioma de origen y destino compatibles."
+            "question": "¿Todo el procesamiento del PDF ocurre en mi navegador?",
+            "answer": "No. La carga, revisión y descarga se realizan desde la interfaz del navegador; el OCR, la traducción y la reconstrucción del documento se ejecutan en servicios de backend. Los archivos se transfieren por HTTPS y siguen la política de retención publicada."
           },
           {
-            "question": "¿Qué es Translate PDF Online y cómo funciona?",
-            "answer": "Subes un PDF, eliges los idiomas de origen y destino, y ejecutamos un proceso de traducción que conserva el formato. Luego descargas un nuevo PDF que refleja la estructura original donde la tecnología lo permite. Todo sucede en el navegador, sin instalar nada."
+            "question": "¿Puedo traducir solo algunas páginas?",
+            "answer": "Sí. Define un rango al iniciar la tarea para procesar solo las páginas necesarias. En documentos largos, esto puede reducir el tiempo y el consumo de créditos."
           },
           {
-            "question": "¿Necesito instalar algo para traducir PDF en línea?",
-            "answer": "No. La subida, vista previa y descarga se hacen completamente en el navegador. Los archivos se transfieren por HTTPS — no hay nada que instalar ni configurar. Abres la página y ya está."
-          },
-          {
-            "question": "¿A qué idiomas puedo traducir un PDF en línea?",
-            "answer": "La página de traducción muestra los idiomas disponibles: inglés, chino, español, francés, italiano, griego, japonés, coreano, alemán, ruso y más. Añadimos nuevos pares de idiomas regularmente."
-          },
-          {
-            "question": "¿Cuánto tarda la traducción de un PDF en línea?",
-            "answer": "Los PDF cortos suelen completarse en minutos; los largos o con muchas imágenes tardan más. Puedes salir de la página y volver más tarde desde el historial — la traducción continúa en segundo plano."
-          },
-          {
-            "question": "¿Está seguro mi documento al traducir PDF en línea?",
-            "answer": "Todo el tráfico está cifrado. Los archivos almacenados siguen nuestra política de retención y se eliminan automáticamente tras unos siete días. Tus documentos no se quedan permanentemente en los servidores."
-          },
-          {
-            "question": "¿Puedo traducir solo páginas específicas de un PDF en línea?",
-            "answer": "Sí. Define un rango de páginas al iniciar para traducir solo una parte del documento. Así traduces más rápido y gastas solo los créditos necesarios — ideal para PDFs grandes."
-          },
-          {
-            "question": "¿Cómo vuelvo a abrir un PDF que traduje antes en línea?",
-            "answer": "Abre la página de traducción y usa el historial. Elige una tarea anterior para ver su estado y comparar el PDF original con el traducido lado a lado, sin tener que subirlo de nuevo mientras esté disponible."
-          },
-          {
-            "question": "¿Se puede traducir un PDF escaneado o compuesto solo por imágenes?",
-            "answer": "Sí. Para PDFs escaneados o de solo imágenes, Translate PDF Online aplica primero un reconocimiento de caracteres (OCR) para extraer el texto y luego lo traduce conservando el diseño original. Obtienes un PDF traducido que se puede leer y buscar, sin configuración adicional."
-          },
-          {
-            "question": "¿El PDF traducido conserva el diseño, las tablas y las fuentes originales?",
-            "answer": "Sí. La preservación del diseño es un objetivo central del servicio: columnas, tablas, figuras y estilos de fuente se mantienen lo más fieles posible al original, para que el PDF traducido se vea como el original, solo que en tu idioma."
+            "question": "¿El PDF traducido conservará el diseño?",
+            "answer": "Conservar el diseño es un objetivo, no una garantía. El servicio intenta reconstruir bloques de texto, columnas, imágenes y títulos cuando es compatible. Revisa la vista previa porque las tablas complejas, fuentes poco habituales, escritura manual y escaneos de baja calidad pueden producir diferencias."
           }
         ]
       },

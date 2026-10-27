@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@/core/i18n/navigation';
+import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { SmartIcon } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { Highlighter } from '@/shared/components/ui/highlighter';
-import { TRANSLATE_PRIMARY_CTA_CLASSNAME } from '@/config/translate-ui';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -38,11 +38,14 @@ export function Hero({
   const tHome = useTranslations('translate.home');
   const isTranslateDark = section.variant === 'translateDark';
   const highlightText = section.highlight_text ?? '';
+  const canHighlightTitle = Boolean(
+    highlightText && section.title?.includes(highlightText)
+  );
   const heroImageAltFallback =
     section.title?.replace(/<[^>]*>/g, '').trim() ||
     'Translate PDF Online product screenshot';
   let texts = null;
-  if (highlightText) {
+  if (canHighlightTitle) {
     texts = section.title?.split(highlightText, 2);
   }
 
@@ -51,7 +54,7 @@ export function Hero({
       id={section.id}
       className={cn(
         isTranslateDark
-          ? 'relative overflow-hidden bg-slate-50 pt-20 pb-10 dark:bg-slate-950 md:pt-28 md:pb-14'
+          ? 'relative overflow-hidden bg-slate-50 pt-20 pb-10 md:pt-28 md:pb-14 dark:bg-slate-950'
           : `pt-24 pb-8 md:pt-36 md:pb-8`,
         !isTranslateDark && section.className,
         className
@@ -83,7 +86,9 @@ export function Hero({
           <span
             className={cn(
               'text-sm',
-              isTranslateDark ? 'text-zinc-900 dark:text-zinc-100' : 'text-foreground'
+              isTranslateDark
+                ? 'text-zinc-900 dark:text-zinc-100'
+                : 'text-foreground'
             )}
           >
             {section.announcement.title}
@@ -141,12 +146,16 @@ export function Hero({
           <h1
             className={cn(
               'text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl',
-              isTranslateDark ? 'text-zinc-900 dark:text-zinc-50' : 'text-foreground'
+              isTranslateDark
+                ? 'text-zinc-900 dark:text-zinc-50'
+                : 'text-foreground'
             )}
           >
             {texts[0]}
             {isTranslateDark ? (
-              <TranslateHeroHighlighter>{highlightText}</TranslateHeroHighlighter>
+              <TranslateHeroHighlighter>
+                {highlightText}
+              </TranslateHeroHighlighter>
             ) : (
               <Highlighter action="underline" color="#FF9800">
                 {highlightText}
@@ -158,7 +167,9 @@ export function Hero({
           <h1
             className={cn(
               'text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl',
-              isTranslateDark ? 'text-zinc-900 dark:text-zinc-50' : 'text-foreground'
+              isTranslateDark
+                ? 'text-zinc-900 dark:text-zinc-50'
+                : 'text-foreground'
             )}
           >
             {section.title}
@@ -168,7 +179,9 @@ export function Hero({
         <p
           className={cn(
             'mt-8 mb-8 text-lg text-balance',
-            isTranslateDark ? 'text-zinc-600 dark:text-zinc-300' : 'text-muted-foreground'
+            isTranslateDark
+              ? 'text-zinc-600 dark:text-zinc-300'
+              : 'text-muted-foreground'
           )}
           dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
         />
@@ -226,7 +239,9 @@ export function Hero({
           <p
             className={cn(
               'mt-6 block text-center text-sm',
-              isTranslateDark ? 'text-zinc-500 dark:text-zinc-400' : 'text-muted-foreground'
+              isTranslateDark
+                ? 'text-zinc-500 dark:text-zinc-400'
+                : 'text-muted-foreground'
             )}
             dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
           />
@@ -236,7 +251,7 @@ export function Hero({
           <div
             className={cn(
               isTranslateDark &&
-                '[&_p]:text-zinc-600 dark:[&_p]:text-zinc-400 [&_.text-muted-foreground]:text-zinc-600 dark:[&_.text-muted-foreground]:text-zinc-400'
+                '[&_.text-muted-foreground]:text-zinc-600 dark:[&_.text-muted-foreground]:text-zinc-400 [&_p]:text-zinc-600 dark:[&_p]:text-zinc-400'
             )}
           >
             <SocialAvatars tip={section.avatars_tip || ''} />
@@ -277,9 +292,7 @@ export function Hero({
                 (section.image_invert?.src || section.image?.src) && (
                   <img
                     className="relative z-2 block h-auto w-full max-w-full border border-zinc-200 dark:border-white/10"
-                    src={
-                      section.image_invert?.src || section.image?.src || ''
-                    }
+                    src={section.image_invert?.src || section.image?.src || ''}
                     srcSet={responsiveSrcset(
                       section.image_invert?.src || section.image?.src || ''
                     )}
@@ -315,7 +328,9 @@ export function Hero({
                         heroImageAltFallback
                       }
                       width={
-                        section.image_invert.width || section.image?.width || 1200
+                        section.image_invert.width ||
+                        section.image?.width ||
+                        1200
                       }
                       height={
                         section.image_invert.height ||
@@ -339,7 +354,9 @@ export function Hero({
                         heroImageAltFallback
                       }
                       width={
-                        section.image.width || section.image_invert?.width || 1200
+                        section.image.width ||
+                        section.image_invert?.width ||
+                        1200
                       }
                       height={
                         section.image.height ||

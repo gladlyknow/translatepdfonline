@@ -16,8 +16,11 @@ export function OrganizationJsonLd() {
     url: siteUrl,
     logo: `${siteUrl}/brand/logo.webp`,
     description:
-      'Free online PDF translation service that preserves original document layout.',
-    sameAs: [siteUrl],
+      'Online service for translating text-based and scanned PDFs across 10 supported languages, with OCR and layout-aware output where supported.',
+    sameAs: [
+      'https://x.com/translatep73025',
+      'https://github.com/translatepdfonline',
+    ],
   };
 
   return (

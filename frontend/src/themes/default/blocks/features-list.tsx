@@ -2,6 +2,7 @@ import { Link } from '@/core/i18n/navigation';
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { resolveImageAlt } from '@/shared/lib/image-alt';
 import { responsiveSrcset, smallImageVariant } from '@/shared/lib/image-srcset';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
@@ -16,7 +17,9 @@ export function FeaturesList({
   const iw = section.image?.width;
   const ih = section.image?.height;
   const imageAspect =
-    iw && ih && iw > 0 && ih > 0 ? ({ aspectRatio: `${iw} / ${ih}` } as const) : undefined;
+    iw && ih && iw > 0 && ih > 0
+      ? ({ aspectRatio: `${iw} / ${ih}` } as const)
+      : undefined;
 
   return (
     // Prevent horizontal scrolling
@@ -51,7 +54,7 @@ export function FeaturesList({
                   >
                     <LazyImage
                       src={smallImageVariant(section.image?.src ?? '')}
-                      alt={section.image?.alt ?? ''}
+                      alt={resolveImageAlt(section.image?.alt, section.title)}
                       className="absolute inset-0 h-full w-full object-cover"
                       srcSet={responsiveSrcset(section.image?.src ?? '')}
                       sizes="500px"

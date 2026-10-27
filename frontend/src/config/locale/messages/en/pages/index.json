@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Translate PDF Online — Free AI PDF Translator",
-    "description": "Translate text-based and scanned PDFs online while retaining page structure where supported. Choose from 10 languages, preview the result, and download the translated PDF.",
-    "keywords": "translate pdf online, free pdf translator, translate pdf, pdf translation, translate pdf to english, translate scanned pdf"
+    "title": "PDF Translator with OCR & Layout Preview",
+    "description": "Translate text-based and scanned PDFs in 10 languages. Review OCR and layout-aware results before download. Sign-in and credits are required.",
+    "keywords": "pdf translator, translate pdf, OCR PDF translation, scanned PDF translator, layout-aware PDF translation"
   },
   "page": {
     "show_sections": [
@@ -19,15 +19,15 @@
       "hero": {
         "id": "hero",
         "variant": "translateDark",
-        "title": "Translate PDF Online",
-        "highlight_text": "Free AI-powered PDF translation online",
-        "description": "Translate text-based and scanned PDFs into English, Chinese, Spanish, French, Italian, German, Greek, Japanese, Korean or Russian. The service reconstructs page structure where supported and provides an in-browser preview before download.",
+        "title": "Translate PDFs with OCR and layout-aware output",
+        "highlight_text": "OCR and layout-aware output",
+        "description": "Translate text-based or scanned PDFs across 10 supported languages. Review OCR and side-by-side results before download. Sign-in is required, and processing uses credits shown before each task.",
         "announcement": {
           "badge": "New",
-          "title": "Professional layout-preserving PDF translation",
+          "title": "Layout-aware PDF translation workflow",
           "url": "/ocrtranslator"
         },
-        "tip": "Special launch pricing for early users",
+        "tip": "Current credit costs are shown before processing",
         "buttons": [
           {
             "title": "Open OCR Translator",
@@ -64,7 +64,7 @@
         "id": "introduce",
         "title": "What is Translate PDF Online",
         "label": "Product",
-        "description": "Translate PDF Online is a web service that translates PDF documents online while keeping the original design. It is built for papers, manuals, reports and books — not plain text dumps — so when you translate a PDF online, you get a faithful, readable result that mirrors the source.",
+        "description": "Translate PDF Online processes papers, manuals, reports and books through a layout-aware translation workflow. It attempts to place translated text back into the document structure where supported, instead of returning only a plain-text dump.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -74,7 +74,7 @@
         "items": [
           {
             "title": "Layout-preserving output",
-            "description": "When you translate PDF online, the translated PDF mirrors the original structure: multi-column text, tables, images and headings stay aligned with the source page.",
+            "description": "The layout pipeline attempts to reconstruct multi-column text, tables, images and headings. Results vary with the source PDF, fonts, scan quality and page complexity.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -83,7 +83,7 @@
           },
           {
             "title": "Many language pairs",
-            "description": "Choose source and target from a growing set of languages to translate PDF online — fine for academic, legal and professional documents across regions.",
+            "description": "Choose a source and target language from the 10 languages currently shown in the selector for academic, technical and professional documents.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -92,7 +92,7 @@
           },
           {
             "title": "Secure, ephemeral storage",
-            "description": "When you translate PDF online, files move over HTTPS and are removed on a fixed retention schedule after processing, so your documents do not linger.",
+            "description": "Files move over HTTPS. Uploaded and generated objects are normally scheduled for deletion after about seven days, subject to the published policy and legal requirements.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -116,7 +116,7 @@
         "id": "benefits",
         "title": "Why teams translate PDFs online with us",
         "label": "Benefits",
-        "description": "When you translate a PDF online, you want the document back intact — not a pile of broken formatting to fix by hand. That is the whole point.",
+        "description": "Review the translated document before download. Complex tables, unusual fonts, handwriting and low-quality scans can still require manual correction.",
         "items": [
           {
             "title": "Built for dense PDFs",
@@ -201,7 +201,7 @@
           },
           {
             "title": "Download",
-            "description": "When the job finishes, download the translated PDF from the same screen. The result keeps the original layout wherever supported.",
+            "description": "When the job finishes, download the translated PDF from the same screen. The result attempts to preserve the source layout where the pipeline supports it.",
             "image": {
               "src": "/imgs/features/download.png",
               "alt": "Download translated PDF",
@@ -262,10 +262,10 @@
       "stats": {
         "id": "stats",
         "title": "Built for serious documents",
-        "description": "From single papers to large manuals — translate PDF online at any scale.",
+        "description": "Process papers, reports and manuals within the file and page limits shown in the translation workspace.",
         "items": [
           {
-            "title": "8+",
+            "title": "10",
             "description": "Interface languages"
           },
           {
@@ -285,56 +285,28 @@
         "description": "Quick answers before you translate PDF online. More detail in /docs or email hello@translatepdfonline.com.",
         "items": [
           {
-            "question": "How do I translate a big PDF file online for free?",
-            "answer": "To translate a big PDF file online for free, open the translate page, upload your PDF, choose the source and target languages, and set a page range if you only need part of it. Large documents are supported within the limits shown on the page, and a page range lets you translate a big PDF online faster while spending fewer credits. You can translate PDF online without installing anything."
+            "question": "Can I translate both text-based and scanned PDFs?",
+            "answer": "Yes. Text-based PDFs use the layout-aware translation workflow directly. Scanned or image-based PDFs run through OCR first. Blurry scans, handwriting, complex tables, unusual fonts and password-protected files may need preprocessing or manual review."
           },
           {
-            "question": "How do I translate a PDF online with really good translation quality?",
-            "answer": "For really good translation quality when you translate PDF online, pick the correct source language so the engine reads the document accurately, and use a layout-preserving pipeline that keeps headings, tables and columns in place. The DeepSeek-powered translation keeps the original structure, so the result reads naturally and stays faithful to the source instead of producing a flat text dump."
+            "question": "Which languages are currently supported?",
+            "answer": "The selector currently supports English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German and Russian. Choose a supported source and target language before starting the task."
           },
           {
-            "question": "How do I translate a PDF from German to English for free online?",
-            "answer": "To translate a PDF from German to English for free online, set the source language to German and the target language to English on the translate page, then upload your PDF and start the job. The layout-preserving pipeline translates German PDFs into English while keeping the original fonts, tables and columns, so you can translate a German PDF online and get a clean English result."
+            "question": "Do I need an account, and how is processing charged?",
+            "answer": "Sign-in is required to upload and process documents. Translation and OCR use credits according to the current task settings. The applicable cost and any introductory credits are shown in the product or account interface rather than guaranteed in this page."
           },
           {
-            "question": "Which language pairs can I use for PDF translation?",
-            "answer": "You can choose among the 10 supported languages shown in the selector: English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German, and Russian. Select a supported source and target language before uploading."
+            "question": "Does all PDF processing happen in my browser?",
+            "answer": "No. You use the browser to upload, review and download files, while OCR, translation and document reconstruction run on backend services. Files are transferred over HTTPS and follow the published retention policy."
           },
           {
-            "question": "What is Translate PDF Online and how does it work?",
-            "answer": "You upload a PDF, choose source and target languages, and we run a layout-aware translation pipeline. You then download a new PDF that mirrors the original structure where the technology supports it. Everything to translate PDF online happens in the browser — no install required."
+            "question": "Can I translate only selected pages?",
+            "answer": "Yes. Set a page range when starting the task to process only the pages you need. This can reduce processing time and credit use for longer documents."
           },
           {
-            "question": "Do I need to install anything to translate PDF online?",
-            "answer": "No. Upload, preview and download run in the browser when you translate PDF online. Files are transferred over HTTPS, so there is nothing to install or configure."
-          },
-          {
-            "question": "Which languages can I translate PDF online into?",
-            "answer": "The translate page lists available source and target languages — English, Chinese, Spanish, French, Italian, Greek, Japanese, Korean, German, Russian and more. We add pairs over time, so you can translate PDF online across an expanding set of languages."
-          },
-          {
-            "question": "How long does it take to translate PDF online?",
-            "answer": "Short PDFs often finish in minutes. Long or image-heavy files take longer. You can stay on the page or return later and open the task from History, so translating a PDF online never blocks your workflow."
-          },
-          {
-            "question": "Is my document secure when I translate PDF online?",
-            "answer": "Traffic is encrypted. Stored objects follow the retention policy in our docs — typically automatic deletion after about seven days unless stated otherwise. So when you translate PDF online, your file does not linger."
-          },
-          {
-            "question": "Can I translate only specific pages of a PDF online?",
-            "answer": "Yes. Set a page range when you start the job to translate only part of the document. This lets you translate a big PDF online faster and spend fewer credits on the pages you actually need."
-          },
-          {
-            "question": "How do I reopen or preview a PDF I translated online earlier?",
-            "answer": "Open the translate page and use History. Pick a past job to see its status and preview the source and translated PDFs side by side in the browser. You do not need to upload the file again while it is still available under our retention policy, so every PDF you translate online stays reachable."
-          },
-          {
-            "question": "Can I translate a scanned or image-only PDF online?",
-            "answer": "Yes. For scanned or image-only PDFs, Translate PDF Online runs an OCR pass first to extract the text, then translates it while keeping the original layout. You get a translated PDF you can read and search, with no extra setup required."
-          },
-          {
-            "question": "Will the translated PDF keep the original layout, tables, and fonts?",
-            "answer": "Yes. Layout preservation is a core goal of the service: columns, tables, figures, and font styling are kept as close to the source as possible, so the translated PDF looks like the original, only in your language."
+            "question": "Will the translated PDF preserve its layout?",
+            "answer": "Layout preservation is a goal, not a guarantee. The service attempts to reconstruct text blocks, columns, images and headings where supported. Review the preview because complex tables, unusual fonts, handwriting and low-quality scans can produce differences."
           }
         ]
       },

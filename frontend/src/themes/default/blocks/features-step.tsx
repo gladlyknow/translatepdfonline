@@ -1,7 +1,6 @@
 // ArrowBigRight → SmartIcon 懒加载
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
   Carousel,
   CarouselContent,
@@ -9,6 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/shared/components/ui/carousel';
+import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { resolveImageAlt } from '@/shared/lib/image-alt';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -77,7 +78,10 @@ export function FeaturesStep({
                             <div className="bg-muted/50 flex min-h-[100px] items-center justify-center rounded-xl p-2 md:min-h-[120px] md:p-4">
                               <LazyImage
                                 src={item.image.src}
-                                alt={item.image.alt || item.title || 'Step'}
+                                alt={resolveImageAlt(
+                                  item.image.alt,
+                                  item.title || 'Step'
+                                )}
                                 width={item.image.width ?? 960}
                                 height={item.image.height ?? 600}
                                 className="max-h-[min(52vh,460px)] w-auto max-w-full object-contain object-top"
@@ -98,35 +102,41 @@ export function FeaturesStep({
             </ScrollAnimation>
           ) : null}
 
-          <ScrollAnimation delay={useCarousel ? 0.25 : 0.2}>
-            <div className={cn('mt-20 grid gap-8 sm:gap-10', stepGridClass)}>
-              {items.map((item, idx) => (
-                <div className="space-y-6" key={idx}>
-                  <div className="text-center">
-                    <span className="mx-auto flex size-6 items-center justify-center rounded-full bg-zinc-500/15 text-sm font-medium">
-                      {idx + 1}
-                    </span>
-                    <div className="relative">
-                      <div className="mx-auto my-6 w-fit">
-                        {item.icon && (
-                          <SmartIcon name={item.icon as string} size={24} />
+          {!useCarousel ? (
+            <ScrollAnimation delay={0.2}>
+              <div className={cn('mt-20 grid gap-8 sm:gap-10', stepGridClass)}>
+                {items.map((item, idx) => (
+                  <div className="space-y-6" key={idx}>
+                    <div className="text-center">
+                      <span className="mx-auto flex size-6 items-center justify-center rounded-full bg-zinc-500/15 text-sm font-medium">
+                        {idx + 1}
+                      </span>
+                      <div className="relative">
+                        <div className="mx-auto my-6 w-fit">
+                          {item.icon && (
+                            <SmartIcon name={item.icon as string} size={24} />
+                          )}
+                        </div>
+                        {idx < items.length - 1 && items.length <= 4 && (
+                          <SmartIcon
+                            name="ArrowBigRight"
+                            size={24}
+                            className="fill-muted stroke-primary absolute inset-y-0 right-0 my-auto mt-1 hidden translate-x-[150%] drop-shadow @3xl:block"
+                          />
                         )}
                       </div>
-                      {idx < items.length - 1 && items.length <= 4 && (
-                        <SmartIcon name="ArrowBigRight" size={24} className="fill-muted stroke-primary absolute inset-y-0 right-0 my-auto mt-1 hidden translate-x-[150%] drop-shadow @3xl:block" />
-                      )}
+                      <h3 className="text-foreground mb-4 text-lg font-semibold">
+                        {item.title}
+                      </h3>
+                      <p className="text-muted-foreground text-balance">
+                        {item.description}
+                      </p>
                     </div>
-                    <h3 className="text-foreground mb-4 text-lg font-semibold">
-                      {item.title}
-                    </h3>
-                    <p className="text-muted-foreground text-balance">
-                      {item.description}
-                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          </ScrollAnimation>
+                ))}
+              </div>
+            </ScrollAnimation>
+          ) : null}
         </div>
       </div>
     </section>

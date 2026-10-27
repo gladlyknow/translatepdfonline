@@ -4,6 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { locales } from '@/config/locale';
+import { resolveImageAlt } from '@/shared/lib/image-alt';
 import { isOcrWorkbenchMode } from '@/shared/lib/ocr-workbench-mode';
 
 const ROOT = process.cwd();
@@ -38,6 +39,97 @@ test('every locale has dedicated home and OCR metadata plus a visible OCR H1', (
     assert.ok(ocr.h1?.trim(), `${locale} OCR H1`);
     assert.ok(ocr.intro?.trim(), `${locale} OCR intro`);
   }
+});
+
+test('home pages expose one factual, highlight-safe content contract', () => {
+  for (const locale of locales) {
+    const home = readJson(
+      `src/config/locale/messages/${locale}/pages/index.json`
+    );
+    const sections = home.page?.sections;
+    const hero = sections?.hero;
+    const faqItems = sections?.faq?.items ?? [];
+
+    assert.ok(hero?.title?.trim(), `${locale} home H1`);
+    assert.ok(hero?.highlight_text?.trim(), `${locale} home H1 highlight`);
+    assert.ok(
+      hero.title.includes(hero.highlight_text),
+      `${locale} home highlight must be part of the H1`
+    );
+    assert.equal(faqItems.length, 6, `${locale} concise home FAQ`);
+    assert.equal(
+      sections?.stats?.items?.[0]?.title,
+      '10',
+      `${locale} supported-language count`
+    );
+  }
+
+  const featuresStep = fs.readFileSync(
+    path.join(ROOT, 'src/themes/default/blocks/features-step.tsx'),
+    'utf8'
+  );
+  assert.match(featuresStep, /!useCarousel \? \(/);
+});
+
+test('home pages do not publish high-risk free, browser-only, or absolute layout claims', () => {
+  const homeFiles = locales.map((locale) =>
+    path.join(MESSAGES_ROOT, locale, 'pages/index.json')
+  );
+  const forbidden = [
+    /free AI PDF translator|free AI-powered|online for free|for free online/i,
+    /everything (?:to translate PDF online )?happens in the browser/i,
+    /at any scale/i,
+    /mirrors? the original structure/i,
+    /keeps? the original (?:fonts|layout|structure)/i,
+    /and more\. We add pairs|and more\. New language pairs/i,
+    /kostenlos(?:e[nrms]?|\s+online)|alles läuft im Browser|in jedem Maßstab/i,
+    /δωρεάν|όλα γίνονται στον περιηγητή|οποιαδήποτε κλίμακα/i,
+    /gratis(?: en línea| online)|todo (?:ocurre|se hace) en el navegador|cualquier escala/i,
+    /gratuitement|tout se passe dans le navigateur|toute échelle/i,
+    /gratis online|tutto avviene nel browser|qualsiasi scala/i,
+    /無料|すべてブラウザ内で(?:安全に)?処理|あらゆる規模/i,
+    /무료|모든 과정이 브라우저|어떤 규모/i,
+    /бесплатн|всё происходит в браузере|любом масштабе/i,
+    /免费|全程在浏览器|任意规模/i,
+    /Konto- oder Gast|Λογαριασμός ή επισκέπτης|Cuenta o invitado/i,
+    /Compte ou invité|Account o sessione ospite|アカウントまたはゲスト/i,
+    /계정 또는 게스트|Аккаунт или гость|账号或访客/i,
+  ];
+
+  for (const file of homeFiles) {
+    const content = fs.readFileSync(file, 'utf8');
+    for (const pattern of forbidden) {
+      assert.doesNotMatch(
+        content,
+        pattern,
+        `${path.relative(ROOT, file)}: ${pattern}`
+      );
+    }
+  }
+});
+
+test('home image alt text and organization data stay descriptive and factual', () => {
+  assert.equal(
+    resolveImageAlt('benefits', 'OCR review preview'),
+    'OCR review preview'
+  );
+  assert.equal(
+    resolveImageAlt('  Detailed preview  ', 'Fallback'),
+    'Detailed preview'
+  );
+
+  const organizationSchema = fs.readFileSync(
+    path.join(ROOT, 'src/shared/blocks/seo/organization-json-ld.tsx'),
+    'utf8'
+  );
+
+  assert.doesNotMatch(organizationSchema, /free online PDF translator/i);
+  assert.doesNotMatch(
+    organizationSchema,
+    /preserv(?:e|es|ing) the original layout/i
+  );
+  assert.match(organizationSchema, /https:\/\/x\.com\/translatep73025/);
+  assert.match(organizationSchema, /https:\/\/github\.com\/translatepdfonline/);
 });
 
 test('OCR content cluster includes localized workflow, review, output, privacy, FAQ, and detailed docs', () => {

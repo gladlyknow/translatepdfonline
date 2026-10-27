@@ -18,15 +18,15 @@
       "hero": {
         "id": "hero",
         "variant": "translateDark",
-        "title": "Translate PDF Online",
-        "highlight_text": "Kostenlose KI-gestützte PDF-Übersetzung online",
-        "description": "PDF online übersetzen und das ursprüngliche Layout behalten — Spalten, Tabellen, Abbildungen und Schriftarten bleiben erhalten. Übersetzen Sie PDFs online ins Englische, Chinesische, Spanische, Französische, Italienische, Deutsche, Griechische, Japanische, Koreanische und Russische. Alles läuft im Browser, sodass Sie ein PDF online übersetzen ohne Installation und ohne Einrichtung.",
+        "title": "PDFs mit OCR und layoutbewusster Ausgabe übersetzen",
+        "highlight_text": "OCR und layoutbewusster Ausgabe",
+        "description": "Übersetzen Sie textbasierte oder gescannte PDFs zwischen 10 unterstützten Sprachen. Prüfen Sie OCR und Ergebnis vor dem Download. Anmeldung ist erforderlich; die aktuellen Credit-Kosten werden vor der Verarbeitung angezeigt.",
         "announcement": {
           "badge": "Neu",
-          "title": "Professionelle PDF-Übersetzung mit Layout-Erhalt",
+          "title": "Layoutbewusster Workflow für PDF-Übersetzungen",
           "url": "/ocrtranslator"
         },
-        "tip": "Einführungspreis für frühe Nutzer",
+        "tip": "Aktuelle Credit-Kosten werden vor der Verarbeitung angezeigt",
         "buttons": [
           {
             "title": "Loslegen",
@@ -63,7 +63,7 @@
         "id": "introduce",
         "title": "Was ist Translate PDF Online",
         "label": "Produkt",
-        "description": "Translate PDF Online ist ein Webdienst, der PDF-Dokumente online übersetzt und das ursprüngliche Design bewahrt. Er ist auf Aufsätze, Handbücher, Berichte und Bücher zugeschnitten — nicht auf simplen Text —, sodass Sie beim PDF online Übersetzen ein treues, lesbares Ergebnis erhalten, das die Quelle widerspiegelt.",
+        "description": "Translate PDF Online verarbeitet Aufsätze, Handbücher, Berichte und Bücher in einem layoutbewussten Übersetzungsablauf. Übersetzter Text wird, soweit unterstützt, wieder in die Dokumentstruktur eingesetzt, statt nur als Klartext ausgegeben zu werden.",
         "image": {
           "src": "/imgs/features/landing-page_new.webp",
           "alt": "introduce",
@@ -73,7 +73,7 @@
         "items": [
           {
             "title": "Layout-erhaltende Ausgabe",
-            "description": "Wenn Sie PDF online übersetzen, spiegelt das übersetzte PDF die Originalstruktur: mehrspaltiger Text, Tabellen, Bilder und Überschriften bleiben an der Stelle der Quellseite.",
+            "description": "Die Layout-Pipeline versucht mehrspaltigen Text, Tabellen, Bilder und Überschriften zu rekonstruieren. Das Ergebnis hängt von PDF, Schriftarten, Scanqualität und Seitenkomplexität ab.",
             "icon": "RiLayoutLine",
             "image": {
               "src": "/imgs/features/1.webp",
@@ -82,7 +82,7 @@
           },
           {
             "title": "Viele Sprachpaare",
-            "description": "Wählen Sie Quelle und Ziel aus einer wachsenden Sprachliste, um PDF online zu übersetzen — geeignet für akademische, juristische und berufliche Dokumente über Regionen hinweg.",
+            "description": "Wählen Sie Quell- und Zielsprache aus den 10 derzeit im Auswahlfeld verfügbaren Sprachen für akademische, technische und berufliche Dokumente.",
             "icon": "RiTranslate2",
             "image": {
               "src": "/imgs/features/2.webp",
@@ -91,7 +91,7 @@
           },
           {
             "title": "Sichere, flüchtige Speicherung",
-            "description": "Wenn Sie PDF online übersetzen, wandern Dateien über HTTPS und werden nach einem festen Aufbewahrungsplan nach der Verarbeitung gelöscht, sodass Ihre Dokumente nicht verbleiben.",
+            "description": "Dateien werden über HTTPS übertragen. Hochgeladene und erzeugte Objekte werden normalerweise nach etwa sieben Tagen zur Löschung vorgesehen; Richtlinie und gesetzliche Ausnahmen gelten.",
             "icon": "RiShieldCheckLine",
             "image": {
               "src": "/imgs/features/3.webp",
@@ -115,7 +115,7 @@
         "id": "benefits",
         "title": "Warum Teams PDFs online bei uns übersetzen",
         "label": "Vorteile",
-        "description": "Wenn Sie ein PDF online übersetzen, wollen Sie das Dokument unversehrt zurück — keinen Haufen kaputter Formatierung, den Sie von Hand reparieren müssen. Genau darum geht es.",
+        "description": "Prüfen Sie das übersetzte Dokument vor dem Download. Komplexe Tabellen, ungewöhnliche Schriftarten, Handschrift und schwache Scans können manuelle Korrekturen erfordern.",
         "items": [
           {
             "title": "Für dichte PDFs gebaut",
@@ -237,13 +237,13 @@
             "icon": "RiCoinsLine"
           },
           {
-            "title": "Konto- oder Gast-Flow",
-            "description": "Melden Sie sich an für Abrechnung und geräteübergreifenden Verlauf, oder testen Sie den Flow in einer einzigen Sitzung, bevor Sie ein PDF online übersetzen.",
+            "title": "Kontobasierte Verarbeitung",
+            "description": "Melden Sie sich an, um Dokumente zu verarbeiten, Credits zu verwenden und verfügbare Aufträge geräteübergreifend im Verlauf wieder zu öffnen.",
             "icon": "RiUserLine"
           },
           {
-            "title": "Edge-gehostete Oberfläche",
-            "description": "Schneller erster Aufbau auf Cloudflare; Ihr Browser übernimmt Vorschau und Download und hält das PDF, das Sie online übersetzen, reaktionsschnell.",
+            "title": "Vorschau vor dem Download",
+            "description": "Prüfen Sie Quell- und übersetzte Seiten im Browser, bevor Sie das Ergebnis herunterladen.",
             "icon": "RiCloudy2Fill"
           },
           {
@@ -252,8 +252,8 @@
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Entwickler-freundlicher Stack",
-            "description": "Eine Next.js-App mit klaren APIs zwischen UI, Speicher und Übersetzungs-Worker — derselbe Stack, der Sie PDF zuverlässig online übersetzen lässt.",
+            "title": "Unterstützung für gescannte PDFs",
+            "description": "OCR extrahiert Text aus unterstützten gescannten PDFs vor der Übersetzung; die Genauigkeit hängt von Scanqualität, Sprache und Seitenkomplexität ab.",
             "icon": "RiCodeSSlashLine"
           }
         ]
@@ -261,10 +261,10 @@
       "stats": {
         "id": "stats",
         "title": "Für anspruchsvolle Dokumente gebaut",
-        "description": "Vom einzelnen Aufsatz bis zum großen Handbuch — PDF online übersetzen in jedem Maßstab.",
+        "description": "Verarbeiten Sie Aufsätze, Berichte und Handbücher innerhalb der im Übersetzungsbereich angezeigten Datei- und Seitenlimits.",
         "items": [
           {
-            "title": "8+",
+            "title": "10",
             "description": "Oberflächensprachen"
           },
           {
@@ -284,56 +284,28 @@
         "description": "Kurze Antworten, bevor Sie PDF online übersetzen. Mehr in /docs oder an hello@translatepdfonline.com.",
         "items": [
           {
-            "question": "Wie kann ich eine große PDF-Datei kostenlos online übersetzen?",
-            "answer": "Öffnen Sie die Übersetzungsseite, laden Sie Ihr PDF hoch, wählen Sie Quell- und Zielsprache und legen Sie bei Bedarf einen Seitenbereich fest. Große Dokumente werden innerhalb der angezeigten Grenzen unterstützt, und mit einem Seitenbereich übersetzen Sie ein großes PDF online schneller bei weniger Credits. Alles läuft im Browser, ohne Installation."
+            "question": "Kann ich Text-PDFs und gescannte PDFs übersetzen?",
+            "answer": "Ja. Textbasierte PDFs werden direkt verarbeitet; gescannte oder bildbasierte PDFs durchlaufen zuerst OCR. Unscharfe Scans, Handschrift, komplexe Tabellen, ungewöhnliche Schriftarten und geschützte Dateien können Vorverarbeitung oder manuelle Prüfung erfordern."
           },
           {
-            "question": "Wie bekomme ich eine richtig gute Übersetzungsqualität bei PDFs?",
-            "answer": "Wählen Sie die korrekte Quellsprache, damit die Engine das Dokument präzise lesen kann, und nutzen Sie die Layout-erhaltende Pipeline, die Überschriften, Tabellen und Spalten an Ort und Stelle belässt. Die DeepSeek-gestützte Übersetzung bewahrt die Originalstruktur – das Ergebnis liest sich natürlich und originalgetreu."
+            "question": "Welche Sprachen werden derzeit unterstützt?",
+            "answer": "Derzeit stehen Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch zur Auswahl. Wählen Sie vor dem Start eine unterstützte Quell- und Zielsprache."
           },
           {
-            "question": "Wie übersetze ich ein PDF kostenlos vom Deutschen ins Englische?",
-            "answer": "Auf der Übersetzungsseite Deutsch als Quellsprache und Englisch als Zielsprache einstellen, PDF hochladen und Auftrag starten. Die Layout-erhaltende Pipeline übersetzt das Dokument und behält dabei Schriftarten, Tabellen und Spalten bei – Sie erhalten ein sauberes englisches Ergebnis."
+            "question": "Brauche ich ein Konto und wie wird abgerechnet?",
+            "answer": "Zum Hochladen und Verarbeiten ist eine Anmeldung erforderlich. Übersetzung und OCR verwenden Credits entsprechend den aktuellen Aufgabeneinstellungen. Kosten und mögliche Einführungsgutschriften werden in der Produkt- oder Kontooberfläche angezeigt."
           },
           {
-            "question": "Welche Sprachpaare unterstützt die PDF-Übersetzung?",
-            "answer": "Zur Auswahl stehen Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch und Russisch. Wählen Sie vor dem Upload eine unterstützte Ausgangs- und Zielsprache."
+            "question": "Findet die gesamte PDF-Verarbeitung im Browser statt?",
+            "answer": "Nein. Upload, Prüfung und Download erfolgen über die Browseroberfläche; OCR, Übersetzung und Dokumentrekonstruktion laufen auf Backend-Diensten. Dateien werden per HTTPS übertragen und folgen der veröffentlichten Aufbewahrungsrichtlinie."
           },
           {
-            "question": "Was ist Translate PDF Online und wie funktioniert es?",
-            "answer": "Sie laden ein PDF hoch, wählen Quell- und Zielsprache, und wir führen eine Layout-erhaltende Übersetzungspipeline aus. Danach laden Sie ein neues PDF herunter, das die Originalstruktur widerspiegelt, soweit die Technik es unterstützt. Alles läuft im Browser – keine Installation nötig."
+            "question": "Kann ich nur ausgewählte Seiten übersetzen?",
+            "answer": "Ja. Geben Sie beim Start einen Seitenbereich an, um nur die benötigten Seiten zu verarbeiten. Das kann bei längeren Dokumenten Zeit und Credits sparen."
           },
           {
-            "question": "Muss ich etwas installieren, um PDFs online zu übersetzen?",
-            "answer": "Nein. Upload, Vorschau und Download laufen komplett im Browser. Dateien werden über HTTPS übertragen – nichts muss installiert oder eingerichtet werden. Einfach Webseite öffnen und loslegen."
-          },
-          {
-            "question": "In welche Sprachen kann ich PDFs online übersetzen lassen?",
-            "answer": "Die Übersetzungsseite listet alle verfügbaren Quell- und Zielsprachen: Englisch, Chinesisch, Spanisch, Französisch, Italienisch, Griechisch, Japanisch, Koreanisch, Deutsch, Russisch und mehr. Neue Sprachpaare kommen laufend dazu."
-          },
-          {
-            "question": "Wie lange dauert eine PDF-Übersetzung online?",
-            "answer": "Kurze PDFs sind oft in wenigen Minuten fertig; lange oder bildlastige Dateien brauchen länger. Sie können auf der Seite bleiben oder später über den Verlauf zurückkehren – die Übersetzung läuft im Hintergrund weiter."
-          },
-          {
-            "question": "Ist mein Dokument beim Online-Übersetzen von PDFs sicher?",
-            "answer": "Die gesamte Kommunikation ist verschlüsselt. Gespeicherte Dateien werden nach unserer Aufbewahrungsrichtlinie automatisch gelöscht – in der Regel nach etwa sieben Tagen. Ihre Dokumente bleiben nicht dauerhaft auf den Servern."
-          },
-          {
-            "question": "Kann ich nur bestimmte Seiten eines PDFs online übersetzen?",
-            "answer": "Ja. Legen Sie beim Start einen Seitenbereich fest, um nur einen Teil des Dokuments zu übersetzen. Das spart Zeit und Credits – ideal für große PDFs."
-          },
-          {
-            "question": "Wie kann ich ein früher übersetztes PDF wieder öffnen?",
-            "answer": "Öffnen Sie die Übersetzungsseite und nutzen Sie den Verlauf. Wählen Sie einen vergangenen Auftrag, um den Status zu prüfen und Quell- sowie übersetztes PDF nebeneinander anzuzeigen – ohne erneuten Upload, solange die Datei verfügbar ist."
-          },
-          {
-            "question": "Kann ich auch gescannte PDFs oder reine Bild-PDFs übersetzen?",
-            "answer": "Ja. Bei gescannten oder bildbasierten PDFs führt Translate PDF Online zuerst eine OCR-Texterkennung durch, extrahiert den Text und übersetzt ihn anschließend unter Beibehaltung des Originallayouts. Sie erhalten ein lesbares, durchsuchbares übersetztes PDF – ohne zusätzliche Einrichtung."
-          },
-          {
-            "question": "Bleiben Layout, Tabellen und Schriftarten im übersetzten PDF erhalten?",
-            "answer": "Ja. Der Layouterhalt ist ein Kernziel des Dienstes: Spalten, Tabellen, Abbildungen und Schriftstile bleiben so originalgetreu wie möglich erhalten. Das übersetzte PDF sieht aus wie das Original – nur in Ihrer Zielsprache."
+            "question": "Bleibt das Layout im übersetzten PDF erhalten?",
+            "answer": "Der Layouterhalt ist ein Ziel, keine Garantie. Der Dienst versucht Textblöcke, Spalten, Bilder und Überschriften zu rekonstruieren. Prüfen Sie die Vorschau, da komplexe Tabellen, ungewöhnliche Schriftarten, Handschrift und schwache Scans Abweichungen verursachen können."
           }
         ]
       },

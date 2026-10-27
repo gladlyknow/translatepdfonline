@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { resolveImageAlt } from '@/shared/lib/image-alt';
 import { responsiveSrcset, smallImageVariant } from '@/shared/lib/image-srcset';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
@@ -76,7 +77,7 @@ export function FeaturesAccordion({
             <div className="bg-background relative min-w-0 overflow-hidden rounded-3xl border p-2">
               <div
                 className={cn(
-                  'bg-background relative w-full min-w-0 overflow-hidden rounded-2xl border bg-muted/20 shadow-md',
+                  'bg-background bg-muted/20 relative w-full min-w-0 overflow-hidden rounded-2xl border shadow-md',
                   'h-[min(52vw,13.5rem)] sm:h-[15rem] md:h-[17rem]'
                 )}
               >
@@ -95,7 +96,7 @@ export function FeaturesAccordion({
                     >
                       <LazyImage
                         src={smallImageVariant(item.image?.src ?? '')}
-                        alt={item.image?.alt || item.title || ''}
+                        alt={resolveImageAlt(item.image?.alt, item.title)}
                         className="h-full w-full object-contain object-center dark:mix-blend-lighten"
                         srcSet={responsiveSrcset(item.image?.src ?? '')}
                         sizes="(max-width: 768px) 52vw, 443px"
