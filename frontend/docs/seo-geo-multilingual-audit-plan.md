@@ -1,7 +1,7 @@
 # SEO / GEO / 多语言场景化审计与执行计划
 
 > 首次审计：2026-10-21；最新复查：2026-10-27
-> 当前生产提交：`c49263ef`；当前内容候选：`origin/develop` / `31613085`（Cloudflare dev 已验证）
+> 最近一次 GSC/API 生产基线：`c49263ef`；当前内容候选：`origin/develop` / `c8b0b2de`（Cloudflare dev 已验证）
 > 范围：仓库、172 个生产 sitemap URL、GSC API、Search Analytics、多语言内容与结构化数据  
 > GSC 操作：[gsc-console-operation-guide.md](./gsc-console-operation-guide.md)  
 > 总整改表：[project-seo-gsc-remediation-plan.md](./project-seo-gsc-remediation-plan.md)
@@ -37,7 +37,7 @@
 | SEO-008  | P1     | 公开内容仍有 53 处 `www` 绝对链接                                   | blog、docs、terms/privacy 多语言内容仍指向 `https://www...`                                                                    | 每次内链多一次重定向，继续产生历史主机信号              |
 | I18N-001 | P1     | 德/西/俄 pricing 仍使用旧结构                                       | 相对当前英文结构分别缺 9 个键、多 7 个旧键；目前这三个语言 pricing 已退出 sitemap                                              | 无法安全恢复索引，维护时容易静默英文回退                |
 | SEO-003  | P1     | 37 个页面“已抓取但尚未编入索引”                                     | GSC API 实际状态；集中在多语言工具与 docs                                                                                      | 需要重抓后区分刷新延迟和内容同质化                      |
-| GEO-002  | P1     | 品牌实体信息薄弱                                                    | 没有独立 About/Team/Methodology；Organization `sameAs` 只指向自身；组织 description 使用未经统一的“Free”承诺                   | 搜索和生成式系统缺少稳定的主体、责任人和事实来源        |
+| GEO-002  | P1     | 品牌实体信息仍不完整                                                | dev 已修正 Organization 描述和公开外部资料，但仍没有独立 About/Team/Methodology/Security 页面                                  | 搜索和生成式系统仍缺少稳定的主体、责任人和事实来源      |
 | GEO-003  | P1     | GEO 可引用内容缺少原创证据                                          | 工具页以通用营销和 FAQ 为主，缺少测试方法、样例、准确率边界、版本和数据来源                                                    | 难以被 AI 回答选作具体证据或引用                        |
 | GEO-004  | P1     | `llms.txt` 是静态手写事实，缺少合同测试                             | 当前内容声明 10 语言、API、保留时间等；事实变化时可能与产品脱节                                                                | GEO 事实漂移；`llms.txt` 本身不保证被引用               |
 | MEAS-001 | P1     | SEO 到业务结果的漏斗未形成                                          | 有 GA/Clarity/Plausible 配置能力，但代码中未确认统一的上传、完成、下载、注册、购买 SEO 归因事件                                | 无法判断“收录/点击”是否带来有效业务                     |
@@ -72,6 +72,17 @@ Google 明确说明页面语言主要根据可见文本判断，而不是仅依�
 - 第一批按“一个模板一个批次”扩充 OCR 集群：10 个 `/ocrtranslator` 页面新增 4 步工作流、校对项、输出、隐私、FAQ 和复核日期；10 份 OCR 指南补充场景、操作、故障边界与导出说明。
 - 实现提交：`31613085`；SEO 内容合同 14/14、TypeScript、Next.js 生产构建和 203/203 静态页面生成均通过；Cloudflare dev 的 10 个 OCR 页面和 10 份指南 20/20 验收通过。
 - 下一批：多语言 docs 首页；功能尚未完成的 PDF 压缩/合并页面继续禁止公开索引。
+
+### 1.5 2026-10-27 十种语言首页整改
+
+- 修改前英文 H1 会把当前标题和不属于标题的旧高亮词拼接；轮播版五步流程同时保留了第二套网格 DOM。
+- 十种语言首页存在免费、纯浏览器处理、绝对版式保留、游客处理和 `8+` 语言等失实或过时口径；FAQ 为 13 项，同义关键词重复多于用户决策信息。
+- 提交 `c8b0b2de` 已修复 H1 与重复 DOM，并按每种语言的文档场景重写 metadata、首屏、能力、限制、登录/积分、后端处理、保留期、OCR 和 6 项 FAQ；实际支持语言数统一为 10。
+- Organization JSON-LD 已改为有边界的产品描述，并关联网站公开的 X、GitHub 资料；图片的泛化 alt 会回退到本地化标题。
+- 自动合同增加首页高风险声明、H1 高亮、FAQ 数量、语言数、步骤互斥、图片 alt 与 Organization 检查。
+- 本地验证：SEO 合同 18/18、TypeScript、生产构建、203/203 静态页面均通过；Cloudflare dev 两项构建成功。
+- dev 现场：10/10 locale 的 title/H1 与本地内容一致，单 H1，五步各出现一次，FAQ JSON-LD 6 项，旧英文 Free H1 不再出现。
+- 当前边界：这证明 dev 页面已正确发布，不代表生产已发布或 `/es`、`/it`、`/ja` 已被 Google 收录。生产后仍须用 GSC 实时测试和 D1/D3/D7/D14 数据判断。
 
 ## 2. 生产页面量化结果
 
