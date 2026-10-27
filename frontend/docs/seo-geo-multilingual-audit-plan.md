@@ -1,7 +1,7 @@
 # SEO / GEO / 多语言场景化审计与执行计划
 
 > 首次审计：2026-10-21；最新复查：2026-10-27
-> 最近一次 GSC/API 生产基线：`c49263ef`；当前内容候选：`origin/develop` / `c8b0b2de`（Cloudflare dev 已验证）
+> 最近一次 GSC/API 生产基线：`master` / `9cd4f298`；当前内容候选：`origin/develop` / `cb9f167a`（Cloudflare dev 已验证）
 > 范围：仓库、172 个生产 sitemap URL、GSC API、Search Analytics、多语言内容与结构化数据  
 > GSC 操作：[gsc-console-operation-guide.md](./gsc-console-operation-guide.md)  
 > 总整改表：[project-seo-gsc-remediation-plan.md](./project-seo-gsc-remediation-plan.md)
@@ -15,7 +15,7 @@
 - 172/172 sitemap URL 返回 200。
 - 172/172 当前允许索引并使用 apex 自引用 canonical。
 - HTML `lang`、`hreflang`、x-default 和 sitemap 语言组合基础检查通过。
-- HTTP / `www` 深层链接单跳 301 到 HTTPS apex，路径和查询参数保留。
+- HTTP apex 与 HTTPS `www` 各自单跳 301 到 HTTPS apex，路径和查询参数保留；HTTP+`www` 组合仍为两跳，已列入 EDGE-001。
 - 172 页 title 全部存在。
 - 172 页 Twitter Card 均存在。
 - 页面中的 JSON-LD 均能解析，没有语法错误。
@@ -36,7 +36,7 @@
 | SEO-007  | P1     | 文档和博客基础标签不完整                                            | 4 个 `/docs/pdf-to-text` description 为空；两篇博客有两个 H1；3 篇博客缺 og:title；大量 descriptions 过短或过长                | 搜索摘要、内容层级和分享预览质量不稳定                  |
 | SEO-008  | P1     | 公开内容仍有 53 处 `www` 绝对链接                                   | blog、docs、terms/privacy 多语言内容仍指向 `https://www...`                                                                    | 每次内链多一次重定向，继续产生历史主机信号              |
 | I18N-001 | P1     | 德/西/俄 pricing 仍使用旧结构                                       | 相对当前英文结构分别缺 9 个键、多 7 个旧键；目前这三个语言 pricing 已退出 sitemap                                              | 无法安全恢复索引，维护时容易静默英文回退                |
-| SEO-003  | P1     | 37 个页面“已抓取但尚未编入索引”                                     | GSC API 实际状态；集中在多语言工具与 docs                                                                                      | 需要重抓后区分刷新延迟和内容同质化                      |
+| SEO-003  | P1     | 36 个页面“已抓取但尚未编入索引”                                     | 2026-10-27 10:07 UTC GSC API 状态；集中在多语言工具与 docs                                                                     | 需要重抓后区分刷新延迟和内容同质化                      |
 | GEO-002  | P1     | 品牌实体信息仍不完整                                                | dev 已修正 Organization 描述和公开外部资料，但仍没有独立 About/Team/Methodology/Security 页面                                  | 搜索和生成式系统仍缺少稳定的主体、责任人和事实来源      |
 | GEO-003  | P1     | GEO 可引用内容缺少原创证据                                          | 工具页以通用营销和 FAQ 为主，缺少测试方法、样例、准确率边界、版本和数据来源                                                    | 难以被 AI 回答选作具体证据或引用                        |
 | GEO-004  | P1     | `llms.txt` 是静态手写事实，缺少合同测试                             | 当前内容声明 10 语言、API、保留时间等；事实变化时可能与产品脱节                                                                | GEO 事实漂移；`llms.txt` 本身不保证被引用               |
@@ -82,7 +82,26 @@ Google 明确说明页面语言主要根据可见文本判断，而不是仅依�
 - 自动合同增加首页高风险声明、H1 高亮、FAQ 数量、语言数、步骤互斥、图片 alt 与 Organization 检查。
 - 本地验证：SEO 合同 18/18、TypeScript、生产构建、203/203 静态页面均通过；Cloudflare dev 两项构建成功。
 - dev 现场：10/10 locale 的 title/H1 与本地内容一致，单 H1，五步各出现一次，FAQ JSON-LD 6 项，旧英文 Free H1 不再出现。
-- 当前边界：这证明 dev 页面已正确发布，不代表生产已发布或 `/es`、`/it`、`/ja` 已被 Google 收录。生产后仍须用 GSC 实时测试和 D1/D3/D7/D14 数据判断。
+- 后续状态：该批已随 `9cd4f298` 进入生产，现场验证通过；`/es`、`/it`、`/ja` 尚未抓取新版本，详见 1.6。
+
+### 1.6 `9cd4f298` 生产部署与 GSC 新基线
+
+- `master`、生产 Web Worker 与生产队列 Worker 均已成功；10 个首页、20 个 OCR 页面/指南和真实 OCR 任务 URL 完成现场验收。
+- 首页 10/10 为正确单 H1，五步各出现一次，FAQ JSON-LD 为 6 项；OCR 任务态为 `noindex,nofollow` 且不再显示落地页营销区。
+- sitemap 保持 172 个 apex URL，robots 指向正确 sitemap，OAI-SearchBot 未被屏蔽。
+- GSC 官方 API（2026-10-27T10:07:23.991Z）：172 URL、134 PASS、36 个 `Crawled - currently not indexed`、2 个备用 canonical、0 API 错误。
+- 数量与上次一致；只有 4 个 URL 的 `lastCrawlTime` 更新，首页和 OCR 代表 URL 均未抓取本次 10:01 UTC 后版本。因此当前结论是等待 Google 重抓，不是新内容失败。
+- 新发现 EDGE-001：`http://www...` 会经过 HTTPS `www` 再到 apex，共两次 301。路径和查询参数完整，最终 200；应在 Cloudflare 用一条组合重定向规则收敛。
+- 脱敏报告：`/tmp/translatepdfonline-gsc-2026-10-27-after-production-9cd4f298`，完整性与敏感值检查通过。
+
+### 1.7 十种语言 docs 首页任务导航重构
+
+- GSC 中 `/es/docs`、`/fr/docs` 已在 2026-10-25 重抓后仍未收录；旧首页同时存在错误入口 `/translate/upload`、语言扩展承诺、游客会话暗示和未稳定纳入产品事实的技术栈描述。
+- 提交 `cb9f167a` 将 10 个 locale 的 `/docs` 重写为任务导航：翻译/OCR、PDF 提取、图片识别、版本对比、统一操作步骤、输入限制、输出复核、后端处理、隐私与约 7 天保留。
+- 每种语言使用带 locale 的产品、指南和法律链接，明确实际 10 种语言、登录要求和动态积分，不把英文逐句替换成目标语言。
+- 产品事实表增加实际 `/ocrtranslator` 入口及浏览器界面/后端处理边界；SEO 合同阻止旧路由、`www`、未来语言和不稳定实现词回归。
+- 本地验证：SEO 合同 19/19、TypeScript、生产构建、203/203 静态页面通过；Cloudflare dev 两项构建成功，10/10 docs 首页单 H1、6 个任务区块和本地化链接均通过。
+- 当前边界：本批尚未进入生产，不宣称 `/es/docs`、`/fr/docs` 的 GSC 状态已改善。
 
 ## 2. 生产页面量化结果
 

@@ -187,7 +187,7 @@
 
 - 日期：2026-10-27
 - 关联任务：SEO-003、SEO-006、CNT-002、GEO-003、GEO-004
-- 状态：等待生产
+- 状态：生产已验证，等待 Google 重抓
 - 本次范围：10 个 locale 的 `/ocrtranslator` 可见内容与 FAQ JSON-LD；10 份 `/docs/ocr-workbench` 指南；SEO 内容合同。
 - 明确不包含：新 OCR 功能、费率调整、压缩/合并空壳页、第二个内容模板、生产请求收录、人工母语终审。
 - 修改前证据：GSC 新增 `/de/docs/ocr-workbench` 未收录；`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 仍未收录；原 OCR 指南仅约 42–96 个空格分词，页面可见语义区仅有简介、场景和限制三个短模块。
@@ -199,16 +199,16 @@
 - 实现提交：`31613085`（`feat: expand multilingual OCR content`）。
 - Cloudflare 部署证据：`35bd27aa` 推送 `origin/develop` 后自动触发；dev 队列 Worker 构建于 2026-10-27 02:22:14 UTC 成功，dev Web Worker 构建于 02:23:56 UTC 成功。
 - dev 验证：10 个 `/ocrtranslator` 与 10 个 `/docs/ocr-workbench` 共 20/20 返回 200、自引用 dev canonical、单 H1；新语言内容和指南标记存在；页面包含 FAQ JSON-LD；无未替换翻译键。
-- 生产验证：未执行；当前不宣称 GSC 已改善。
-- GSC 验证：生产部署后对 `/de/docs/ocr-workbench`、`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 实时测试并各请求一次收录；D1/D3/D7/D14 复查。
+- 生产验证：10 个 `/ocrtranslator` 与 10 个 `/docs/ocr-workbench` 共 20/20 返回 200、自引用生产 canonical 和单 H1；流程首尾步骤、4 项 FAQ 与各语言复核日期均存在。
+- GSC 验证：2026-10-27 10:07 UTC 的官方 API 仍显示 `/de/docs/ocr-workbench`、`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 未收录；对应 `lastCrawlTime` 全部早于本次生产部署，因此状态为等待新抓取，不归因于当前版本。
 - 回滚方式：独立回滚 `31613085`；不会影响既有 canonical、sitemap、robots 和 OCR 功能代码。
-- 下一动作：人工抽样语言自然度后合入生产；生产部署完成前不执行请求收录。
+- 下一动作：在 GSC 对四个代表 URL 执行实时测试并各请求一次收录；按 D1/D3/D7/D14 复查 `lastCrawlTime`。
 
 ### EXEC-014 — OCR 任务工作台被 SEO 内容下推
 
 - 日期：2026-10-27
 - 关联任务：SEO-006、产品可用性回归
-- 状态：等待生产
+- 状态：生产已验证
 - 本次范围：`/ocrtranslator` 的普通落地页、`task` 任务恢复态和 `document` 文档恢复态；所有会跳转到该工作台的入口。
 - 明确不包含：OCR 识别/翻译算法、任务数据、编辑器功能、营销内容删除、生产发布。
 - 修改前证据：生产 URL `/ocrtranslator?task=...` 在工作台上方继续显示 “Translate scanned PDFs with OCR / Useful for / Before you start”，截图中工作台整体被下推约一个首屏内容区高度。
@@ -219,14 +219,15 @@
 - 实现提交：`4d1ca2ef`（`fix: preserve OCR workbench viewport`），已推送 `origin/develop`。
 - Cloudflare 部署证据：dev 队列 Worker 构建于 2026-10-27 02:51:19 UTC 成功，dev Web Worker 构建于 02:52:07 UTC 成功。
 - dev 验证：普通 `/ocrtranslator` 保留 1 个 H1 和落地页内容；英文 `task`、`document` 与中文 `task` 三种工作台 URL 均为 0 个落地页 H1/H2，任务区直接进入加载态；任务 URL 为 `noindex,nofollow`，canonical 指向对应语言的无参数 `/ocrtranslator`。
+- 生产验证：用户提供的真实 `/ocrtranslator?task=...` URL 为 0 个落地页 H1/H2，输出 `noindex,nofollow`，canonical 指向无参数 `/ocrtranslator`；营销内容不再占用工作台首屏。
 - 回滚方式：回滚本次独立提交；不影响 OCR API、任务状态或文档数据。
-- 下一动作：合入生产后使用用户提供的真实任务 URL 复查完整工作台高度、滚动区域和导出操作；生产发布前不宣称截图问题已在线修复。
+- 下一动作：产品侧继续抽样已登录任务的编辑、滚动与导出交互；SEO 内容下推问题已完成生产验收。
 
 ### EXEC-015 — 十种语言首页 SEO / GEO 事实与结构整改
 
 - 日期：2026-10-27
 - 关联任务：SEO-003、CNT-001、SEO-002、GEO-002、GEO-003、PERF-001
-- 状态：dev 已验证，等待生产与 Google 重抓
+- 状态：生产已验证，等待 Google 重抓
 - 本次范围：10 个 locale 首页文案、H1 高亮逻辑、首页步骤模块、图片替代文本、Organization JSON-LD 与 SEO 内容合同。
 - 明确不包含：生产发布、GSC 请求收录、About/Team/Methodology/Security 页面、原创效果测试数据、人工母语终审、PDF 压缩/合并功能和首页包体优化。
 - 修改前证据：英文首页 H1 被拼成 `Translate PDF OnlineFree AI-powered PDF translation online`；启用轮播时五个操作步骤仍在隐藏网格中重复输出；首页反复使用 `translate PDF online`，FAQ 有 13 项；十种语言存在“免费”“全部在浏览器处理”“保持原始布局”“游客可处理”等与实际产品不一致或过强的表述；语言统计仍为 `8+`；Organization description 使用 Free 与绝对版式承诺，`sameAs` 只指向站点自身。GSC 2026-10-27 基线中 `/es`、`/it`、`/ja` 为 `Crawled - currently not indexed`。
@@ -243,27 +244,62 @@
 - 实现提交：`c8b0b2de`（`fix: strengthen multilingual homepage SEO`），已推送 `origin/develop`。
 - Cloudflare 部署证据：dev 队列 Worker 与 dev Web Worker 的 GitHub 检查均为 `completed/success`；完成时间分别为 2026-10-27 09:44:13 UTC 与 09:44:57 UTC。
 - dev 验证：10/10 locale 首页返回新版本；title 与 locale 内容一致；每页只有 1 个正确 H1；五个操作步骤各只输出 1 次；FAQ JSON-LD 为 6 项；Organization 包含公开 X 与 GitHub 资料；旧 `Free AI-powered PDF translation online` 不再出现。
-- 生产 / GSC 验证：未执行。普通搜索 URL 的 Indexing API 不适用，本批没有伪报“已解决收录”；生产发布后通过 GSC URL 检查对 `/es`、`/it`、`/ja` 做实时测试与一次人工请求收录，并按 D1/D3/D7/D14 复查。
+- 生产验证：10/10 locale 首页 title、H1、五步流程、6 项 FAQ JSON-LD、Organization 与 canonical 均通过；旧 Free H1 不再出现。`master` 提交 `9cd4f298` 的生产 Web/队列 Worker 均成功。
+- GSC 验证：2026-10-27 10:07 UTC 官方 API 中 `/es`、`/it`、`/ja` 仍为 `Crawled - currently not indexed`，`lastCrawlTime` 分别为 2026-08-04、2026-10-23、2026-10-23，均早于本次生产部署；普通网页不能使用 Indexing API，本批不宣称收录已解决。
 - 回滚方式：独立回滚 `c8b0b2de`；不会影响 OCR API、任务数据、canonical、robots 或 sitemap 路由注册表。
-- 下一动作：先做产品事实和母语抽样复核，再进入生产；随后处理多语言 docs 首页、德/西/俄 pricing 现行结构、可验证的品牌方法/安全/样例内容，以及首页约 376 KB 首载资源的性能拆解。
+- 下一动作：在 GSC 对 `/es`、`/it`、`/ja` 做实时测试和一次人工请求收录，按 D1/D3/D7/D14 复查；继续 docs 首页、pricing、GEO 证据与性能批次。
+
+### EXEC-016 — `9cd4f298` 生产部署与 GSC 官方 API 复查
+
+- 日期：2026-10-27
+- 关联任务：SEO-001、SEO-003、SEO-004、SEO-005、SEO-006、EXEC-013、EXEC-014、EXEC-015
+- 状态：生产部署完成，Google 重抓待观察
+- 本次范围：`master` 最新提交、Cloudflare 生产部署、10 个首页、20 个 OCR 内容页/指南、真实 OCR 任务 URL、sitemap、robots、规范跳转和 GSC 只读 API。
+- Cloudflare 证据：`master` 指向 `9cd4f298`；生产队列 Worker 于 2026-10-27 09:59:55 UTC 成功，生产 Web Worker 于 10:01:59 UTC 成功；同次 dev Web/队列检查也成功。
+- 生产现场：10/10 首页为正确单 H1，五步各输出 1 次，FAQ JSON-LD 为 6 项，Organization 有两个公开资料链接；20/20 OCR 内容页/指南为 200、单 H1、自引用 canonical；真实任务 URL 无营销 H1/H2、为 `noindex,nofollow`；sitemap 为 172 个 apex URL且无 `www`；robots 指向正确 sitemap 并未屏蔽 OAI-SearchBot。
+- 重定向遗留：`http://www.translatepdfonline.com/docs/upload?probe=...` 当前经过 `http www → https www → https apex` 两次 301，路径和查询参数保留，最终 200。HTTPS `www` 和 HTTP apex 各自为单跳；合并 HTTP+www 需要 Cloudflare Redirect Rule，不在本批代码中擅自修改。
+- GSC API：生成时间 2026-10-27T10:07:23.991Z，property `sc-domain:translatepdfonline.com`，权限 `siteFullUser`；172 Inspection，134 PASS，36 个 `Crawled - currently not indexed`，2 个 `Alternate page with proper canonical tag`，API 错误 0。
+- Sitemap API：1 个 sitemap，`submitted=172`、0 error、0 warning，`lastDownloaded=2026-10-21T06:59:18.394Z`；弃用的 `indexed=0` 不作为全站收录数。
+- Search Analytics：最近完整 28 天 17 点击 / 1,187 展示 / 1.43% CTR；最近完整 90 天 57 点击 / 9,734 展示 / 0.59% CTR。
+- 对比上次报告：4 个 URL 的 `lastCrawlTime` 更新，索引结论没有变化；重点首页/OCR URL 均尚未抓取本次 10:01 UTC 后版本。
+- 脱敏报告：`/tmp/translatepdfonline-gsc-2026-10-27-after-production-9cd4f298`；报告校验通过，172 URL = 172 Inspection，四个文件权限均为 600，无敏感值。
+- 验收结论：生产部署成功；Google 层属于等待重抓，不能把 38 个历史非 PASS 状态解释为本次上线失败。
+- 下一动作：站点所有者在 GSC 中重新提交现有 sitemap；对 `/es`、`/it`、`/ja` 及四个 OCR 代表 URL 做实时测试并各请求一次收录；D1/D3/D7/D14 复查。
+
+### EXEC-017 — 十种语言 docs 首页任务导航重构
+
+- 日期：2026-10-27
+- 关联任务：SEO-003、CNT-001、CNT-002、GEO-003
+- 状态：dev 已验证，等待生产
+- 本次范围：10 个 locale 的 `/docs` 首页、产品事实表和 SEO 内容合同。
+- 明确不包含：工具功能开发、生产发布、GSC 请求收录、AGPL 法律判断、品牌方法/安全独立页和人工母语终审。
+- 修改前证据：`/es/docs`、`/fr/docs` 在 2026-10-25 重抓后仍未收录；旧 docs 首页包含不存在的 `/translate/upload` 入口、未来语言扩展承诺、游客/会话历史暗示，以及 FastAPI、DeepSeek、Celery、ECS 等未纳入稳定产品事实合同的实现描述；部分语言只列出 8 种语言。
+- 场景 brief：用户先按“翻译 PDF、OCR、提取文本、图片识别、版本对比”选择任务，再查看登录/积分、扫描质量、页面范围、输出复核、后端处理、HTTPS 与约 7 天保留边界。
+- 变更内容：10 个语言分别重写 title、description 和 6 个任务区块；使用当前 locale 的工具、指南和法律链接；列出实际 10 种语言；删除错误入口、未来承诺、游客暗示和不稳定实现细节；增加可见产品事实复核日期。
+- 自动合同：要求每个 locale 有本地化 `/ocrtranslator`、五份指南、隐私/条款链接和复核日期；阻止 `/translate/upload`、`www`、未来语言扩展和未稳定技术栈描述回归。
+- 本地验证：`pnpm test:seo` 19/19；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过并生成 203/203 静态页面；10 个 docs 首页构建结果均为单 H1、6 个 H2、正确本地化链接、无旧声明；`git diff --check` 通过。
+- 实现提交：`cb9f167a`（`docs: rebuild multilingual documentation hubs`），已推送 `origin/develop`。
+- Cloudflare dev：队列 Worker 于 2026-10-27 10:19:54 UTC 成功，Web Worker 于 10:20:25 UTC 成功。
+- dev 验证：10/10 `/docs` 首页返回新 title 与单 H1、6 个任务区块、本地化工具/指南链接、自引用 dev canonical 和 `2026-10-27` 复核日期；旧路由、`www` 与不稳定技术栈词均未出现。
+- 生产 / GSC：尚未执行；不宣称 `/es/docs`、`/fr/docs` 已改善。
+- 回滚方式：独立回滚 `cb9f167a`；不影响工具 API、用户文件、路由索引策略或上一批首页/OCR 修复。
+- 下一动作：产品事实与母语抽样通过后合入生产；生产后优先检查 `/es/docs`、`/fr/docs`、`/it/docs`、`/ja/docs` 并按 D1/D3/D7/D14 复查。
 
 ## 待执行队列
 
-| 顺序 | 任务 ID  | 下一步                                    | 状态             | 负责人 | 目标时间  |
-| ---: | -------- | ----------------------------------------- | ---------------- | ------ | --------- |
-|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储     | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | EXEC-015 | 产品事实/母语抽样后发布首页批次到生产     | dev 已验证       | 待指定 | D0–D1     |
-|    3 | EXEC-014 | 生产发布并复查真实 OCR 任务工作台         | 等待生产         | 待指定 | D0–D1     |
-|    4 | EXEC-013 | 审核 OCR dev 内容并决定生产发布           | 等待生产         | 待指定 | D0–D1     |
-|    5 | CNT-FACT | 产品负责人复核已建立的功能事实表          | 待验证           | 待指定 | D0–D1     |
-|    6 | SEO-003  | 第三批处理多语言 docs 首页模板            | 计划中           | 待指定 | 第 1 周   |
-|    7 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化   | 执行中           | 待指定 | 第 1 周   |
-|    8 | SEO-001  | 生产部署后运行 D1/D3/D7/D14 GSC 审计      | 等待外部刷新     | 待指定 | 见计划    |
-|    9 | GEO-003  | 以真实证据建设方法、安全、样例内容        | 计划中           | 待指定 | 第 2–3 周 |
-|   10 | PERF-001 | 拆解首页约 376 KB 首载资源并建立 PSI 基线 | 待验证           | 待指定 | 第 1–2 周 |
-|   11 | SEO-004  | 实时测试两个剩余 canonical 历史状态 URL   | 需站点所有者操作 | 待指定 | D1        |
-|   12 | ENG-003  | 增加 ESLint 9 配置并纳入 CI               | 计划中           | 待指定 | 第 1 周   |
-|   13 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP         | 计划中           | 待指定 | 第 2–4 周 |
+| 顺序 | 任务 ID  | 下一步                                     | 状态             | 负责人 | 目标时间  |
+| ---: | -------- | ------------------------------------------ | ---------------- | ------ | --------- |
+|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
+|    2 | EXEC-017 | 母语抽样后发布 docs 首页批次到生产         | dev 已验证       | 待指定 | D0–D1     |
+|    3 | SEO-001  | GSC 实时测试、请求收录及 D1/D3/D7/D14 审计 | 需站点所有者操作 | 待指定 | 见计划    |
+|    4 | EDGE-001 | 将 HTTP+www 两跳收敛为 Cloudflare 单跳     | 待执行           | 待指定 | 第 1 周   |
+|    5 | CNT-FACT | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
+|    6 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化    | 执行中           | 待指定 | 第 1 周   |
+|    7 | GEO-003  | 以真实证据建设方法、安全、样例内容         | 计划中           | 待指定 | 第 2–3 周 |
+|    8 | PERF-001 | 拆解首页约 376 KB 首载资源并建立 PSI 基线  | 待验证           | 待指定 | 第 1–2 周 |
+|    9 | SEO-004  | 实时测试两个剩余 canonical 历史状态 URL    | 需站点所有者操作 | 待指定 | D1        |
+|   10 | ENG-003  | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
+|   11 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
 
 ## 新记录模板
 
