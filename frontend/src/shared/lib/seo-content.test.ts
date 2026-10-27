@@ -4,6 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { locales } from '@/config/locale';
+import { isOcrWorkbenchMode } from '@/shared/lib/ocr-workbench-mode';
 
 const ROOT = process.cwd();
 const MESSAGES_ROOT = path.join(ROOT, 'src/config/locale/messages');
@@ -101,6 +102,24 @@ test('OCR content cluster includes localized workflow, review, output, privacy, 
     assert.match(doc, /Markdown/, `${locale} OCR guide Markdown output`);
     assert.match(doc, /HTML/, `${locale} OCR guide HTML output`);
   }
+});
+
+test('OCR SEO content is omitted only when a task or document opens the workbench', () => {
+  assert.equal(isOcrWorkbenchMode({}), false);
+  assert.equal(isOcrWorkbenchMode({ target_lang: 'zh' }), false);
+  assert.equal(isOcrWorkbenchMode({ task: '' }), false);
+  assert.equal(isOcrWorkbenchMode({ task: 'task-123' }), true);
+  assert.equal(isOcrWorkbenchMode({ document: 'document-123' }), true);
+  assert.equal(isOcrWorkbenchMode({ task: [' ', 'task-456'] }), true);
+
+  const ocrPage = fs.readFileSync(
+    path.join(ROOT, 'src/app/[locale]/(translate)/ocrtranslator/page.tsx'),
+    'utf8'
+  );
+  assert.match(ocrPage, /showLandingContent = !isOcrWorkbenchMode\(query\)/);
+  assert.match(ocrPage, /\{showLandingContent \? \(/);
+  assert.match(ocrPage, /if \(!isOcrWorkbenchMode\(query\)\) return metadata/);
+  assert.match(ocrPage, /index: false/);
 });
 
 test('public content does not reintroduce unsupported Norwegian claims, no-signup claims, or www links', () => {
