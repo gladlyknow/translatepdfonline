@@ -9,5 +9,42 @@
   "useCasesTitle": "Geeignet für",
   "useCases": "Gescannte Fachartikel, Lieferantendokumente, Handbücher und andere PDFs, deren Text sich nicht markieren oder kopieren lässt.",
   "limitsTitle": "Vor dem Start",
-  "limits": "Eine Anmeldung ist erforderlich. Unscharfe Scans, Handschrift, komplexe Tabellen, ungewöhnliche Schriften und geschützte PDFs können eine manuelle Prüfung benötigen."
+  "limits": "Eine Anmeldung ist erforderlich. Unscharfe Scans, Handschrift, komplexe Tabellen, ungewöhnliche Schriften und geschützte PDFs können eine manuelle Prüfung benötigen.",
+  "workflow": {
+    "title": "So funktioniert die OCR-Übersetzung",
+    "intro": "Dieser Ablauf ist für Seiten gedacht, die nur als Bild vorliegen und bei denen die normale PDF-Texterkennung keinen zuverlässigen, markierbaren Text liefert.",
+    "step1Title": "Gescanntes PDF hochladen",
+    "step1Description": "Melden Sie sich an, wählen Sie das bildbasierte PDF und legen Sie Quell- und Zielsprache fest. Für digitale PDFs mit sauberem Text ist der normale Übersetzer geeigneter.",
+    "step2Title": "Text und Layout erkennen",
+    "step2Description": "OCR ermittelt Textblöcke, Lesereihenfolge, Tabellen und Seitenbereiche. Scanqualität und Dokumentaufbau beeinflussen das Ergebnis.",
+    "step3Title": "Erkannte Blöcke prüfen",
+    "step3Description": "Vergleichen Sie die Quellseite mit dem Ergebnis im Arbeitsbereich. Korrigieren Sie Namen, Zahlen, Überschriften und Lesereihenfolge vor der Übersetzung.",
+    "step4Title": "Übersetzen und exportieren",
+    "step4Description": "Übersetzen Sie den geprüften Inhalt, kontrollieren Sie die fertigen Seiten und erstellen Sie eine PDF-, Markdown- oder HTML-Datei."
+  },
+  "review": {
+    "title": "Das sollten Sie prüfen",
+    "description": "Kontrollieren Sie Namen, Daten, Maße, Tabellenzellen, Fußnoten, Stempel und Text am Seitenrand. Rechtliche, wissenschaftliche und finanzielle Dokumente immer mit dem Original abgleichen."
+  },
+  "outputs": {
+    "title": "Verfügbare Ausgabeformate",
+    "description": "Der Arbeitsbereich kann PDF, Markdown und HTML erzeugen. Das Layout wird soweit technisch möglich erhalten; komplexe Tabellen, ungewöhnliche Schriften und schwache Scans können Nacharbeit erfordern."
+  },
+  "privacy": {
+    "title": "Konto und Dateiverarbeitung",
+    "description": "Für die Verarbeitung ist eine Anmeldung erforderlich; Aufgaben sind nach Konto getrennt. Dokumente und gespeicherte Objekte werden normalerweise nach etwa sieben Tagen zur Löschung vorgesehen, vorbehaltlich der Datenschutzerklärung und gesetzlicher Ausnahmen."
+  },
+  "faq": {
+    "title": "Fragen zur OCR-PDF-Übersetzung",
+    "q1": "Wann sollte ich OCR statt des normalen PDF-Übersetzers nutzen?",
+    "a1": "Nutzen Sie OCR, wenn sich Text nicht markieren oder kopieren lässt, weil die Seiten gescannt wurden. Bei digitalen PDFs mit eingebettetem Text beginnen Sie mit dem normalen Übersetzer.",
+    "q2": "Erkennt OCR Handschrift und komplexe Tabellen zuverlässig?",
+    "a2": "Das Ergebnis hängt von Bildqualität, Handschrift, Tabellenlinien und Lesereihenfolge ab. Prüfen Sie diese Bereiche gezielt und erwarten Sie keine perfekte Wiedergabe.",
+    "q3": "Welche Dateien kann ich aus dem OCR-Arbeitsbereich herunterladen?",
+    "a3": "Nach Erkennung und Übersetzung können PDF-, Markdown- und HTML-Exporte erstellt werden. Prüfen Sie die erzeugte Datei vor Veröffentlichung oder Weitergabe.",
+    "q4": "Brauche ich ein Konto und wie lange bleiben Dateien gespeichert?",
+    "a4": "Für Upload und Verarbeitung müssen Sie angemeldet sein. Dokumente und zugehörige Objekte werden normalerweise etwa sieben Tage gespeichert und anschließend zur Löschung vorgesehen; Einzelheiten stehen in der Datenschutzerklärung."
+  },
+  "reviewedLabel": "Produktinformationen geprüft am 27. Oktober 2026. Funktionen, Guthaben und Verfügbarkeit können von der aktuellen Konto- und Laufzeitkonfiguration abhängen.",
+  "guideLink": "Ausführliche Anleitung zum OCR-Arbeitsbereich lesen"
 }

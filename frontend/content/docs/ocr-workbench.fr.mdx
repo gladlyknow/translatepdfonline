@@ -1,20 +1,49 @@
 ---
 title: Atelier OCR
-description: Lancer la traduction OCR pour PDF scannes et exporter les resultats.
+description: Reconnaître, vérifier, traduire et exporter un PDF numérisé avec l’atelier OCR.
 ---
 
-## Quand utiliser OCR
+## Choisir le bon parcours
 
-Utilisez OCR pour les PDF scannes/image lorsque l'extraction de texte classique n'est pas fiable.
+Utilisez l’atelier OCR quand les pages sont des images et que le texte ne peut pas être sélectionné ou copié. Il convient aux articles universitaires numérisés, documents signés de fournisseurs, manuels et archives papier. Si le PDF contient déjà un texte numérique propre, commencez par le [traducteur PDF standard](/fr/translate).
 
-## Flux OCR
+## Avant de commencer
 
-1. Ouvrez `/ocrtranslator` avec un fichier deja televerse.
-2. Confirmez langue source et cible.
-3. Lancez la tache OCR et attendez la fin.
-4. Verifiez et exportez le resultat.
+- Connectez-vous avant de téléverser ou de traiter un fichier.
+- Choisissez la langue du document et une langue cible prise en charge.
+- Retirez un mot de passe uniquement si vous êtes autorisé à le faire.
+- Préférez un scan droit, contrasté et complet, sans bord de page coupé.
 
-## Regles UX
+## Traduction OCR étape par étape
 
-- En presence d'un document/tache actif, le re-upload est desactive.
-- Si Translate detecte un scan avec forte confiance, l'utilisateur est guide vers OCR.
+1. Ouvrez le [traducteur OCR de PDF](/fr/ocrtranslator) et téléversez le document numérisé.
+2. Confirmez les langues source et cible. Limitez le traitement aux pages utiles si nécessaire.
+3. Lancez la tâche. L’OCR détecte les zones, les blocs, l’ordre de lecture et les tableaux.
+4. Comparez la page source au résultat et corrigez les noms, chiffres, titres et blocs mal placés.
+5. Traduisez le contenu vérifié, puis contrôlez les pages finales.
+6. Générez un fichier PDF, Markdown ou HTML et vérifiez-le avant de le partager.
+
+Lorsqu’un document ou une tâche est actif, un nouveau téléversement est désactivé afin de ne pas remplacer le contexte en cours. Si le traducteur standard reconnaît un scan avec une forte confiance, il peut proposer directement ce parcours.
+
+## Liste des points à vérifier
+
+- **Noms et identifiants :** personnes, organisations, numéros de facture, codes produit et références.
+- **Chiffres et unités :** dates, montants, pourcentages, mesures et séparateurs décimaux.
+- **Structure :** colonnes, légendes, notes, en-têtes et ordre de lecture.
+- **Éléments visuels :** tableaux, cachets, signatures, écriture manuscrite et texte en bord de page.
+
+L’OCR et la traduction facilitent la relecture, mais ne remplacent pas la comparaison avec l’original. Les documents juridiques, universitaires, médicaux et financiers doivent être contrôlés par une personne compétente.
+
+## Formats d’export
+
+- **PDF** pour un résultat paginé qui suit la mise en page vérifiée lorsque c’est techniquement possible.
+- **Markdown** pour un texte modifiable, de la documentation ou une publication ultérieure.
+- **HTML** pour une vérification dans le navigateur ou un flux de contenu web.
+
+Les tableaux complexes, polices rares, images de faible résolution et écritures manuscrites peuvent demander des corrections dans tous les formats.
+
+## Compte, stockage et suppression
+
+Le traitement nécessite un compte et les tâches sont séparées par utilisateur. Les documents et objets associés sont normalement programmés pour suppression après environ sept jours, conformément à la [politique de confidentialité](/fr/privacy-policy) et aux exceptions légales. Ne téléversez qu’un fichier que vous êtes autorisé à traiter.
+
+Informations produit vérifiées : 27 octobre 2026.

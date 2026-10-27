@@ -1,20 +1,49 @@
 ---
 title: OCR Workbench
-description: Run OCR translation for scanned PDFs and export results.
+description: Recognize, review, translate, and export scanned PDFs with the OCR workbench.
 ---
 
-## When to use OCR
+## Choose the right workflow
 
-Use OCR when your PDF is image-based (scanned pages) and regular text extraction is not reliable.
+Use the OCR workbench when a PDF page is an image and its words cannot be selected or copied. Typical examples include archived research papers, signed supplier documents, scanned manuals, and image-only reports. If the PDF already contains clean selectable text, start with the [regular PDF translator](/translate) instead; it avoids an unnecessary recognition step.
 
-## OCR workflow
+## Before you start
 
-1. Open `/ocrtranslator` with an uploaded file.
-2. Confirm source and target languages.
-3. Start OCR task and wait for parsing/translation to complete.
-4. Review output and export result.
+- Sign in before uploading or processing a file.
+- Choose a source language that matches the document and one of the supported target languages.
+- Remove a password or access restriction before upload if you are authorized to do so.
+- Use the clearest available scan. Straight pages, readable contrast, and complete margins improve recognition.
 
-## UX rules
+## Step-by-step OCR translation
 
-- When OCR page has an active document/task context, re-upload is disabled.
-- If Translate detects a high-confidence scanned PDF, users are guided here directly.
+1. Open the [OCR PDF translator](/ocrtranslator) and upload the scanned PDF.
+2. Confirm the source and target languages. You can limit processing to the pages you actually need.
+3. Start the task. OCR detects page regions, text blocks, reading order, and tables before translation.
+4. Compare the original page with the workbench result. Correct names, numbers, headings, and misplaced blocks.
+5. Translate the reviewed content and inspect the final pages.
+6. Generate PDF, Markdown, or HTML and check the downloaded file before sharing it.
+
+While a document or task is active, the upload control is disabled to prevent the workbench from replacing the current context. When the regular translator detects a scan with high confidence, it can guide you to this OCR workflow.
+
+## What to review carefully
+
+- **Names and identifiers:** people, organizations, invoice numbers, product codes, and references.
+- **Numbers and units:** dates, prices, percentages, measurements, and decimal separators.
+- **Page structure:** columns, captions, footnotes, headers, and reading order.
+- **Visual content:** tables, stamps, signatures, handwriting, and text close to page edges.
+
+OCR and translation assist with document review; they do not replace comparison with the source. Legal, academic, medical, and financial material should receive a qualified human review.
+
+## Export options
+
+- **PDF** for a page-oriented document that follows the reviewed workbench layout where technically possible.
+- **Markdown** for editable text, documentation, or downstream publishing workflows.
+- **HTML** for browser-based review or reuse in a web content workflow.
+
+Complex tables, unusual fonts, low-resolution images, and handwriting may not reproduce perfectly in any export. Keep the source file available for final verification.
+
+## Account, storage, and deletion
+
+Processing requires an account, and tasks are separated by user. Documents and related stored objects are normally scheduled for deletion after about seven days, subject to the [privacy policy](/privacy-policy) and legal exceptions. Do not upload a file unless you have the right to process its contents.
+
+Product facts reviewed: October 27, 2026.

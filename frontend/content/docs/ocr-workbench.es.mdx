@@ -1,20 +1,49 @@
 ---
-title: Banco OCR
-description: Ejecuta traducción OCR para PDF escaneados y exporta resultados.
+title: Banco de trabajo OCR
+description: Reconoce, revisa, traduce y exporta PDF escaneados con el banco de trabajo OCR.
 ---
 
-## Cuando usar OCR
+## Elige el flujo adecuado
 
-Usa OCR cuando el PDF sea de imagen/escaneo y la extracción de texto normal no sea fiable.
+Usa el banco de trabajo OCR cuando las páginas sean imágenes y no puedas seleccionar ni copiar el texto. Es útil para artículos académicos escaneados, documentos firmados de proveedores, manuales y expedientes antiguos. Si el PDF ya contiene texto digital limpio, empieza con el [traductor de PDF normal](/es/translate).
 
-## Flujo OCR
+## Antes de empezar
 
-1. Abre `/ocrtranslator` con un archivo ya cargado.
-2. Confirma idioma origen y destino.
-3. Inicia la tarea OCR y espera parseo/traducción.
-4. Revisa y exporta el resultado.
+- Inicia sesión antes de subir o procesar archivos.
+- Elige el idioma del documento y uno de los idiomas de destino compatibles.
+- Elimina una contraseña solo si tienes autorización para hacerlo.
+- Utiliza el escaneo más claro disponible, con páginas rectas, buen contraste y márgenes completos.
 
-## Reglas UX
+## Traducción OCR paso a paso
 
-- Si hay contexto activo de documento/tarea, se desactiva una nueva carga.
-- Si Translate detecta escaneo con alta confianza, redirige a OCR.
+1. Abre el [traductor OCR de PDF](/es/ocrtranslator) y sube el documento escaneado.
+2. Confirma los idiomas de origen y destino. Puedes limitar el proceso a las páginas que necesitas.
+3. Inicia la tarea. El OCR detecta regiones, bloques, orden de lectura y tablas antes de traducir.
+4. Compara la página original con el resultado y corrige nombres, cifras, títulos y bloques mal ordenados.
+5. Traduce el contenido revisado y comprueba las páginas finales.
+6. Genera PDF, Markdown o HTML y revisa el archivo descargado antes de compartirlo.
+
+Mientras haya un documento o una tarea activa, la nueva carga queda desactivada para no reemplazar el contexto actual. Si el traductor normal detecta un escaneo con alta confianza, puede conducir directamente a este flujo.
+
+## Lista de comprobación
+
+- **Nombres e identificadores:** personas, organizaciones, facturas, productos y referencias.
+- **Cifras y unidades:** fechas, importes, porcentajes, medidas y separadores decimales.
+- **Estructura:** columnas, pies de imagen, notas, encabezados y orden de lectura.
+- **Contenido visual:** tablas, sellos, firmas, escritura manual y texto cerca del borde.
+
+El OCR y la traducción ayudan a revisar el documento, pero no sustituyen la comparación con el original. Los documentos jurídicos, académicos, médicos y financieros necesitan revisión humana competente.
+
+## Formatos de exportación
+
+- **PDF** para un documento por páginas que siga el diseño revisado cuando sea técnicamente posible.
+- **Markdown** para texto editable, documentación o publicación posterior.
+- **HTML** para revisar en el navegador o reutilizar en un flujo de contenido web.
+
+Las tablas complejas, fuentes poco comunes, imágenes de baja resolución y escritura manual pueden necesitar correcciones en cualquier formato.
+
+## Cuenta, almacenamiento y eliminación
+
+El procesamiento requiere una cuenta y las tareas quedan separadas por usuario. Los documentos y objetos relacionados suelen programarse para eliminación tras unos siete días, según la [política de privacidad](/es/privacy-policy) y las excepciones legales. Sube únicamente archivos que tengas derecho a procesar.
+
+Información del producto revisada: 27 de octubre de 2026.

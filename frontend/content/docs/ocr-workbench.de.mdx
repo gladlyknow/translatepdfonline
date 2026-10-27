@@ -3,18 +3,47 @@ title: OCR-Workbench
 description: OCR-Übersetzung für gescannte PDFs ausführen und Ergebnisse exportieren.
 ---
 
-## Wann OCR verwenden
+## Den richtigen Ablauf wählen
 
-OCR nutzen, wenn das PDF bild-/scanbasiert ist und normale Textextraktion unzuverlaessig ist.
+Der OCR-Arbeitsbereich ist für PDFs gedacht, deren Seiten nur als Bild vorliegen und deren Text sich nicht markieren oder kopieren lässt. Typische Beispiele sind eingescannte Fachartikel, unterschriebene Lieferantenunterlagen, technische Handbücher und ältere Archivdokumente. Enthält das PDF bereits sauberen digitalen Text, verwenden Sie zuerst den [normalen PDF-Übersetzer](/de/translate).
 
-## OCR-Ablauf
+## Vor dem Start
 
-1. `/ocrtranslator` mit bereits hochgeladener Datei öffnen.
-2. Quell- und Zielsprache bestaetigen.
-3. OCR-Task starten und auf Abschluss warten.
-4. Ergebnis prüfen und exportieren.
+- Melden Sie sich an, bevor Sie eine Datei hochladen oder verarbeiten.
+- Wählen Sie die Sprache des Dokuments und eine unterstützte Zielsprache.
+- Entfernen Sie einen Kennwortschutz nur dann, wenn Sie dazu berechtigt sind.
+- Nutzen Sie möglichst gerade, kontrastreiche Scans mit vollständigen Seitenrändern.
 
-## UX-Regeln
+## OCR-Übersetzung Schritt für Schritt
 
-- Bei aktivem Dokument/Task ist Re-Upload deaktiviert.
-- Erkennt Translate ein Scan-PDF mit hoher Sicherheit, wird zu OCR geführt.
+1. Öffnen Sie den [OCR-PDF-Übersetzer](/de/ocrtranslator) und laden Sie das gescannte PDF hoch.
+2. Bestätigen Sie Quell- und Zielsprache. Falls nötig, beschränken Sie die Verarbeitung auf bestimmte Seiten.
+3. Starten Sie die Aufgabe. OCR erkennt Seitenbereiche, Textblöcke, Lesereihenfolge und Tabellen.
+4. Vergleichen Sie die Originalseite mit dem Ergebnis und korrigieren Sie Namen, Zahlen, Überschriften und falsch zugeordnete Blöcke.
+5. Übersetzen Sie den geprüften Inhalt und kontrollieren Sie die fertigen Seiten.
+6. Erzeugen Sie PDF, Markdown oder HTML und prüfen Sie die heruntergeladene Datei vor der Weitergabe.
+
+Solange ein Dokument oder eine Aufgabe aktiv ist, bleibt ein erneuter Upload gesperrt, damit der aktuelle Arbeitsstand nicht ersetzt wird. Erkennt der normale Übersetzer ein Scan-PDF mit hoher Sicherheit, kann er direkt zu diesem Ablauf führen.
+
+## Prüfliste für das Ergebnis
+
+- **Namen und Kennungen:** Personen, Firmen, Rechnungsnummern, Produktcodes und Aktenzeichen.
+- **Zahlen und Einheiten:** Datum, Preise, Prozentwerte, Maße und Dezimaltrennzeichen.
+- **Seitenaufbau:** Spalten, Bildunterschriften, Fußnoten, Kopfzeilen und Lesereihenfolge.
+- **Bildinhalte:** Tabellen, Stempel, Unterschriften, Handschrift und Text am Seitenrand.
+
+OCR und Übersetzung unterstützen die Prüfung, ersetzen aber nicht den Vergleich mit dem Original. Rechtliche, wissenschaftliche, medizinische und finanzielle Unterlagen benötigen eine fachkundige Kontrolle.
+
+## Exportformate
+
+- **PDF** für ein seitenorientiertes Ergebnis, das dem geprüften Layout soweit technisch möglich folgt.
+- **Markdown** für editierbaren Text, Dokumentation oder weitere Veröffentlichungsschritte.
+- **HTML** für die Prüfung im Browser oder die Weiterverwendung in Webinhalten.
+
+Komplexe Tabellen, ungewöhnliche Schriften, schwache Scans und Handschrift können in jedem Format Nacharbeit erfordern.
+
+## Konto, Speicherung und Löschung
+
+Die Verarbeitung erfordert ein Konto; Aufgaben sind nach Benutzer getrennt. Dokumente und zugehörige Speicherobjekte werden normalerweise nach etwa sieben Tagen zur Löschung vorgesehen. Maßgeblich sind die [Datenschutzerklärung](/de/privacy-policy) und gesetzliche Ausnahmen. Laden Sie nur Inhalte hoch, die Sie verarbeiten dürfen.
+
+Produktinformationen geprüft: 27. Oktober 2026.

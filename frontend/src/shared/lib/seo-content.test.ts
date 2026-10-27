@@ -39,6 +39,70 @@ test('every locale has dedicated home and OCR metadata plus a visible OCR H1', (
   }
 });
 
+test('OCR content cluster includes localized workflow, review, output, privacy, FAQ, and detailed docs', () => {
+  const english = readJson(
+    'src/config/locale/messages/en/pages/ocr-translator.json'
+  );
+
+  for (const locale of locales) {
+    const ocr = readJson(
+      `src/config/locale/messages/${locale}/pages/ocr-translator.json`
+    );
+    for (const key of ['title', 'intro']) {
+      assert.ok(ocr.workflow?.[key]?.trim(), `${locale} OCR workflow ${key}`);
+    }
+    for (const step of [1, 2, 3, 4]) {
+      assert.ok(
+        ocr.workflow?.[`step${step}Title`]?.trim(),
+        `${locale} OCR workflow step ${step} title`
+      );
+      assert.ok(
+        ocr.workflow?.[`step${step}Description`]?.trim(),
+        `${locale} OCR workflow step ${step} description`
+      );
+    }
+    for (const section of ['review', 'outputs', 'privacy']) {
+      assert.ok(ocr[section]?.title?.trim(), `${locale} OCR ${section} title`);
+      assert.ok(
+        ocr[section]?.description?.trim(),
+        `${locale} OCR ${section} description`
+      );
+    }
+    assert.ok(ocr.faq?.title?.trim(), `${locale} OCR FAQ title`);
+    for (const item of [1, 2, 3, 4]) {
+      assert.ok(ocr.faq?.[`q${item}`]?.trim(), `${locale} OCR FAQ q${item}`);
+      assert.ok(ocr.faq?.[`a${item}`]?.trim(), `${locale} OCR FAQ a${item}`);
+    }
+    assert.ok(ocr.reviewedLabel?.trim(), `${locale} OCR reviewed label`);
+    assert.ok(ocr.guideLink?.trim(), `${locale} OCR guide link`);
+
+    if (locale !== 'en') {
+      assert.notEqual(
+        ocr.workflow.intro,
+        english.workflow.intro,
+        `${locale} localized OCR workflow`
+      );
+      assert.notEqual(
+        ocr.faq.q1,
+        english.faq.q1,
+        `${locale} localized OCR FAQ`
+      );
+    }
+
+    const docName =
+      locale === 'en' ? 'ocr-workbench.mdx' : `ocr-workbench.${locale}.mdx`;
+    const doc = fs.readFileSync(
+      path.join(CONTENT_ROOT, 'docs', docName),
+      'utf8'
+    );
+    assert.ok(doc.length >= 1000, `${locale} detailed OCR guide length`);
+    assert.match(doc, /description:\s*\S/, `${locale} OCR guide description`);
+    assert.match(doc, /PDF/, `${locale} OCR guide PDF output`);
+    assert.match(doc, /Markdown/, `${locale} OCR guide Markdown output`);
+    assert.match(doc, /HTML/, `${locale} OCR guide HTML output`);
+  }
+});
+
 test('public content does not reintroduce unsupported Norwegian claims, no-signup claims, or www links', () => {
   const files = [
     ...collectFiles(MESSAGES_ROOT, new Set(['.json'])),

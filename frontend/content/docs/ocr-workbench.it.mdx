@@ -3,18 +3,47 @@ title: Workbench OCR
 description: Esegui traduzione OCR per PDF scansionati ed esporta i risultati.
 ---
 
-## Quando usare OCR
+## Scegli il flusso corretto
 
-Usa OCR quando il PDF e basato su immagini/scansioni e l'estrazione testo standard non e affidabile.
+Usa il banco di lavoro OCR quando le pagine sono immagini e non puoi selezionare o copiare il testo. È adatto ad articoli accademici scansionati, documenti firmati dei fornitori, manuali tecnici e archivi cartacei. Se il PDF contiene già testo digitale pulito, inizia dal [traduttore PDF standard](/it/translate).
 
-## Flusso OCR
+## Prima di iniziare
 
-1. Apri `/ocrtranslator` con un file gia caricato.
-2. Conferma lingua sorgente e target.
-3. Avvia task OCR e attendi completamento.
-4. Controlla ed esporta il risultato.
+- Accedi prima di caricare o elaborare un file.
+- Scegli la lingua del documento e una lingua di destinazione supportata.
+- Rimuovi una password solo se sei autorizzato a farlo.
+- Usa la scansione più nitida disponibile, con pagine dritte, buon contrasto e margini completi.
 
-## Regole UX
+## Traduzione OCR passo dopo passo
 
-- Con documento/task attivo, il re-upload e disabilitato.
-- Se Translate rileva scansione ad alta confidenza, guida l'utente a OCR.
+1. Apri il [traduttore OCR per PDF](/it/ocrtranslator) e carica il documento scansionato.
+2. Conferma le lingue di origine e destinazione. Se necessario, limita l’elaborazione alle pagine utili.
+3. Avvia l’attività. L’OCR rileva aree della pagina, blocchi, ordine di lettura e tabelle.
+4. Confronta la pagina originale con il risultato e correggi nomi, numeri, titoli e blocchi fuori ordine.
+5. Traduci il contenuto verificato e controlla le pagine finali.
+6. Genera PDF, Markdown o HTML e verifica il file scaricato prima di condividerlo.
+
+Quando è attivo un documento o un’attività, un nuovo caricamento viene disabilitato per non sostituire il contesto corrente. Se il traduttore standard rileva con buona affidabilità un PDF scansionato, può indirizzare a questo flusso.
+
+## Controlli consigliati
+
+- **Nomi e identificativi:** persone, aziende, numeri di fattura, codici prodotto e riferimenti.
+- **Numeri e unità:** date, importi, percentuali, misure e separatori decimali.
+- **Struttura:** colonne, didascalie, note, intestazioni e ordine di lettura.
+- **Contenuto visivo:** tabelle, timbri, firme, scrittura a mano e testo vicino ai bordi.
+
+OCR e traduzione aiutano la revisione, ma non sostituiscono il confronto con l’originale. I documenti legali, accademici, medici e finanziari richiedono un controllo umano competente.
+
+## Formati di esportazione
+
+- **PDF** per un risultato a pagine che segue il layout verificato quando tecnicamente possibile.
+- **Markdown** per testo modificabile, documentazione o pubblicazione successiva.
+- **HTML** per la revisione nel browser o il riuso in contenuti web.
+
+Tabelle complesse, font insoliti, immagini a bassa risoluzione e scrittura a mano possono richiedere correzioni in ogni formato.
+
+## Account, archiviazione ed eliminazione
+
+L’elaborazione richiede un account e le attività sono separate per utente. Documenti e oggetti correlati vengono normalmente programmati per l’eliminazione dopo circa sette giorni, secondo l’[informativa sulla privacy](/it/privacy-policy) e le eccezioni di legge. Carica solo file che hai il diritto di elaborare.
+
+Informazioni sul prodotto verificate: 27 ottobre 2026.

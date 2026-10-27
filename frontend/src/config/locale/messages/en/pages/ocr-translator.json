@@ -9,5 +9,42 @@
   "useCasesTitle": "Useful for",
   "useCases": "Scanned research papers, supplier documents, manuals, and other PDFs whose text cannot be selected or copied.",
   "limitsTitle": "Before you start",
-  "limits": "Sign-in is required. Blurry scans, handwriting, complex tables, unusual fonts, and password-protected PDFs may need manual review or preprocessing."
+  "limits": "Sign-in is required. Blurry scans, handwriting, complex tables, unusual fonts, and password-protected PDFs may need manual review or preprocessing.",
+  "workflow": {
+    "title": "How the OCR translation workflow works",
+    "intro": "Use this workflow when the page is an image and ordinary PDF text extraction cannot produce reliable, selectable text.",
+    "step1Title": "Upload the scanned PDF",
+    "step1Description": "Sign in, choose the image-based PDF, and select the source and target languages. Use the regular translator instead when the document already contains clean selectable text.",
+    "step2Title": "Recognize text and layout",
+    "step2Description": "OCR detects text blocks, reading order, tables, and page regions. Scan quality and document structure affect what can be recognized.",
+    "step3Title": "Review the detected blocks",
+    "step3Description": "Compare the source page with the workbench result. Correct names, numbers, headings, and reading order before relying on a translation.",
+    "step4Title": "Translate and export",
+    "step4Description": "Translate the reviewed content, inspect the final pages, and generate PDF, Markdown, or HTML output for the next stage of your work."
+  },
+  "review": {
+    "title": "What to review",
+    "description": "Check names, dates, measurements, table cells, footnotes, stamps, and text near page edges. Legal, academic, and financial documents should always be compared with the source."
+  },
+  "outputs": {
+    "title": "Available outputs",
+    "description": "The workbench can generate PDF, Markdown, and HTML. Layout is retained where technically possible, but complex tables, unusual fonts, and low-resolution scans can require editing."
+  },
+  "privacy": {
+    "title": "Account and file handling",
+    "description": "File processing requires sign-in and tasks are separated by account. Documents and stored objects are normally scheduled for deletion after about seven days, subject to the published privacy policy and legal exceptions."
+  },
+  "faq": {
+    "title": "OCR PDF translation questions",
+    "q1": "When should I use OCR instead of the regular PDF translator?",
+    "a1": "Use OCR when text cannot be selected or copied because each page is a scan or image. For a digital PDF with embedded text, start with the regular translator.",
+    "q2": "Can OCR accurately read handwriting and complex tables?",
+    "a2": "Results vary with image quality, handwriting style, table borders, and reading order. Treat these areas as review points rather than assuming they were reproduced perfectly.",
+    "q3": "Which formats can I download from the OCR workbench?",
+    "a3": "After recognition and translation, the workbench can prepare PDF, Markdown, and HTML exports. Review the generated file before publishing or sharing it.",
+    "q4": "Do I need an account, and how long are files kept?",
+    "a4": "You must sign in to upload and process files. Documents and related objects are normally retained for about seven days before scheduled deletion, with details and exceptions described in the privacy policy."
+  },
+  "reviewedLabel": "Product information reviewed on October 27, 2026. Features, credits, and processing availability can depend on the current account and runtime configuration.",
+  "guideLink": "Read the detailed OCR workbench guide"
 }

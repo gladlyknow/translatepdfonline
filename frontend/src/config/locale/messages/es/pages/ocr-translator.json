@@ -9,5 +9,42 @@
   "useCasesTitle": "Útil para",
   "useCases": "Artículos académicos escaneados, documentos de proveedores, manuales y otros PDF cuyo texto no se puede seleccionar ni copiar.",
   "limitsTitle": "Antes de empezar",
-  "limits": "Es necesario iniciar sesión. Los escaneos borrosos, la escritura manual, las tablas complejas, las fuentes poco comunes y los PDF protegidos pueden requerir revisión manual."
+  "limits": "Es necesario iniciar sesión. Los escaneos borrosos, la escritura manual, las tablas complejas, las fuentes poco comunes y los PDF protegidos pueden requerir revisión manual.",
+  "workflow": {
+    "title": "Cómo funciona la traducción con OCR",
+    "intro": "Este flujo sirve cuando cada página es una imagen y la extracción normal del PDF no produce texto seleccionable con suficiente fiabilidad.",
+    "step1Title": "Sube el PDF escaneado",
+    "step1Description": "Inicia sesión, elige el PDF basado en imágenes e indica los idiomas de origen y destino. Si el documento ya contiene texto digital limpio, usa el traductor normal.",
+    "step2Title": "Reconoce texto y estructura",
+    "step2Description": "El OCR detecta bloques de texto, orden de lectura, tablas y regiones de la página. La calidad del escaneo y la estructura del documento influyen en el resultado.",
+    "step3Title": "Revisa los bloques detectados",
+    "step3Description": "Compara la página original con el resultado del banco de trabajo. Corrige nombres, cifras, títulos y orden de lectura antes de confiar en la traducción.",
+    "step4Title": "Traduce y exporta",
+    "step4Description": "Traduce el contenido revisado, comprueba las páginas finales y genera una salida en PDF, Markdown o HTML."
+  },
+  "review": {
+    "title": "Qué conviene revisar",
+    "description": "Comprueba nombres, fechas, medidas, celdas de tablas, notas al pie, sellos y texto junto a los bordes. En documentos legales, académicos o financieros, compara siempre con el original."
+  },
+  "outputs": {
+    "title": "Formatos de salida",
+    "description": "El banco de trabajo puede generar PDF, Markdown y HTML. Conserva la estructura cuando es técnicamente posible, pero las tablas complejas, las fuentes poco comunes y los escaneos de baja resolución pueden requerir edición."
+  },
+  "privacy": {
+    "title": "Cuenta y tratamiento de archivos",
+    "description": "Es necesario iniciar sesión y las tareas quedan separadas por cuenta. Los documentos y objetos almacenados suelen programarse para eliminación tras unos siete días, según la política de privacidad y las excepciones legales."
+  },
+  "faq": {
+    "title": "Preguntas sobre la traducción OCR de PDF",
+    "q1": "¿Cuándo debo usar OCR en lugar del traductor normal?",
+    "a1": "Usa OCR si no puedes seleccionar ni copiar el texto porque las páginas son imágenes escaneadas. Para un PDF digital con texto incrustado, empieza con el traductor normal.",
+    "q2": "¿El OCR reconoce bien la escritura manual y las tablas complejas?",
+    "a2": "El resultado depende de la calidad de imagen, el tipo de letra manuscrita, los bordes de la tabla y el orden de lectura. Revisa esas zonas en lugar de asumir una reproducción perfecta.",
+    "q3": "¿Qué formatos puedo descargar desde el banco OCR?",
+    "a3": "Después del reconocimiento y la traducción se pueden preparar archivos PDF, Markdown y HTML. Revisa el archivo generado antes de publicarlo o compartirlo.",
+    "q4": "¿Necesito una cuenta y cuánto tiempo se guardan los archivos?",
+    "a4": "Debes iniciar sesión para subir y procesar archivos. Los documentos y objetos relacionados se conservan normalmente unos siete días antes de su eliminación programada; consulta la política de privacidad para ver los detalles."
+  },
+  "reviewedLabel": "Información del producto revisada el 27 de octubre de 2026. Las funciones, los créditos y la disponibilidad pueden depender de la configuración vigente de la cuenta y del servicio.",
+  "guideLink": "Consulta la guía detallada del banco de trabajo OCR"
 }

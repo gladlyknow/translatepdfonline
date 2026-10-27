@@ -9,5 +9,42 @@
   "useCasesTitle": "Adapté à",
   "useCases": "Articles universitaires numérisés, documents fournisseurs, manuels et autres PDF dont le texte ne peut pas être sélectionné ou copié.",
   "limitsTitle": "Avant de commencer",
-  "limits": "La connexion est obligatoire. Les scans flous, l’écriture manuscrite, les tableaux complexes, les polices inhabituelles et les PDF protégés peuvent nécessiter une vérification manuelle."
+  "limits": "La connexion est obligatoire. Les scans flous, l’écriture manuscrite, les tableaux complexes, les polices inhabituelles et les PDF protégés peuvent nécessiter une vérification manuelle.",
+  "workflow": {
+    "title": "Comment fonctionne la traduction par OCR",
+    "intro": "Ce parcours convient lorsque chaque page est une image et que l’extraction PDF classique ne fournit pas de texte sélectionnable suffisamment fiable.",
+    "step1Title": "Téléverser le PDF numérisé",
+    "step1Description": "Connectez-vous, choisissez le PDF composé d’images et indiquez les langues source et cible. Pour un PDF numérique avec du texte propre, utilisez d’abord le traducteur standard.",
+    "step2Title": "Reconnaître le texte et la mise en page",
+    "step2Description": "L’OCR détecte les blocs de texte, l’ordre de lecture, les tableaux et les zones de page. La qualité du scan et la structure du document influencent le résultat.",
+    "step3Title": "Vérifier les blocs détectés",
+    "step3Description": "Comparez la page source au résultat de l’atelier. Corrigez les noms, chiffres, titres et l’ordre de lecture avant de vous appuyer sur la traduction.",
+    "step4Title": "Traduire et exporter",
+    "step4Description": "Traduisez le contenu vérifié, contrôlez les pages finales, puis créez une sortie PDF, Markdown ou HTML."
+  },
+  "review": {
+    "title": "Points à vérifier",
+    "description": "Contrôlez les noms, dates, mesures, cellules de tableau, notes, cachets et textes en bord de page. Comparez toujours les documents juridiques, universitaires et financiers avec l’original."
+  },
+  "outputs": {
+    "title": "Formats de sortie",
+    "description": "L’atelier peut générer des fichiers PDF, Markdown et HTML. La mise en page est conservée lorsque c’est techniquement possible, mais les tableaux complexes, polices rares et scans de faible qualité peuvent demander des retouches."
+  },
+  "privacy": {
+    "title": "Compte et traitement des fichiers",
+    "description": "La connexion est requise et les tâches sont séparées par compte. Les documents et objets stockés sont normalement programmés pour suppression après environ sept jours, sous réserve de la politique de confidentialité et des exceptions légales."
+  },
+  "faq": {
+    "title": "Questions sur la traduction OCR des PDF",
+    "q1": "Quand utiliser l’OCR plutôt que le traducteur PDF standard ?",
+    "a1": "Utilisez l’OCR si le texte ne peut pas être sélectionné ou copié parce que les pages sont des images numérisées. Pour un PDF numérique avec texte intégré, commencez par le traducteur standard.",
+    "q2": "L’OCR lit-il correctement l’écriture manuscrite et les tableaux complexes ?",
+    "a2": "Le résultat dépend de la qualité d’image, du style d’écriture, des bordures de tableau et de l’ordre de lecture. Vérifiez ces zones au lieu de supposer une reproduction parfaite.",
+    "q3": "Quels formats puis-je télécharger depuis l’atelier OCR ?",
+    "a3": "Après reconnaissance et traduction, l’atelier peut préparer des exports PDF, Markdown et HTML. Vérifiez le fichier produit avant de le publier ou de le partager.",
+    "q4": "Un compte est-il nécessaire et combien de temps les fichiers sont-ils conservés ?",
+    "a4": "Vous devez vous connecter pour téléverser et traiter des fichiers. Les documents et objets associés sont normalement conservés environ sept jours avant leur suppression programmée ; consultez la politique de confidentialité pour les détails."
+  },
+  "reviewedLabel": "Informations produit vérifiées le 27 octobre 2026. Les fonctions, les crédits et la disponibilité peuvent dépendre de la configuration actuelle du compte et du service.",
+  "guideLink": "Lire le guide détaillé de l’atelier OCR"
 }
