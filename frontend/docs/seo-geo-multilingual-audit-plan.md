@@ -1,7 +1,7 @@
 # SEO / GEO / 多语言场景化审计与执行计划
 
-> 审计日期：2026-10-21  
-> 生产提交：`bf2a3192`  
+> 首次审计：2026-10-21；最新复查：2026-10-27
+> 当前生产提交：`c49263ef`；当前内容候选：`31613085`
 > 范围：仓库、172 个生产 sitemap URL、GSC API、Search Analytics、多语言内容与结构化数据  
 > GSC 操作：[gsc-console-operation-guide.md](./gsc-console-operation-guide.md)  
 > 总整改表：[project-seo-gsc-remediation-plan.md](./project-seo-gsc-remediation-plan.md)
@@ -46,9 +46,9 @@
 
 Google 明确说明页面语言主要根据可见文本判断，而不是仅依赖 `lang`，只翻译模板或混合多种语言会造成不良体验。参考：[Managing multilingual sites](https://developers.google.com/search/docs/specialty/international/managing-multi-regional-sites)。
 
-### 1.3 2026-10-21 develop 整改状态
+### 1.3 2026-10-21 develop 整改历史状态
 
-以下状态代表 `develop` 提交 `2c9e859f` 已通过本地和 Cloudflare dev 验证，尚不能视为生产完成：
+以下表格保留 2026-10-21 当时状态；截至 2026-10-27，`2c9e859f` 已进入生产，不再属于“等待生产”：
 
 | 范围                                             | 本地状态             | 验证结果                                                                            | 部署后仍需完成                                          |
 | ------------------------------------------------ | -------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
@@ -60,6 +60,18 @@ Google 明确说明页面语言主要根据可见文本判断，而不是仅依�
 | SEO-003 / GEO-002 / GEO-003 / GEO-004 / MEAS-001 | 未关闭               | 已有计划但不属于本批全部完成范围                                                    | 按后续 Phase C–E 执行                                   |
 
 本地验证：JSON 全量解析通过、SEO 内容合同测试 13/13、TypeScript 检查通过、Next.js 生产构建通过，203/203 静态页面生成完成；代表 locale 页面实际 HTML 均为单 H1，且未暴露费率占位符。独立 ESLint 命令因仓库缺少 ESLint 9 配置而无法运行，已列为工程任务，不归因于本次页面代码。
+
+### 1.4 2026-10-27 GSC 复查与第一批内容扩充
+
+- GSC 官方 API：172 URL、134 PASS、38 非 PASS、API 错误 0；上次为 131 PASS、41 非 PASS。
+- Sitemap API：`submitted=172`、0 error、0 warning，旧的 213 URL 快照已刷新。
+- 恢复页面：`/docs/ocr-workbench`、`/docs/upload`、`/es/docs/ocr-workbench`、`/ja/pdf-to-text`。
+- 新问题：`/de/docs/ocr-workbench`；该页实时技术条件正常，但正文体量明显偏薄。
+- 38 个非 PASS URL 的线上检查全部通过 200、`index,follow`、单 H1 和自引用 canonical，因此没有新的技术 SEO 修复依据。
+- 已重抓仍未收录页面包括 `/de/pdf-to-text`、`/es/docs`、`/fr/docs`、`/it`、`/it/pricing`、`/ja`，确认内容质量整改应继续。
+- 第一批按“一个模板一个批次”扩充 OCR 集群：10 个 `/ocrtranslator` 页面新增 4 步工作流、校对项、输出、隐私、FAQ 和复核日期；10 份 OCR 指南补充场景、操作、故障边界与导出说明。
+- 实现提交：`31613085`；SEO 内容合同 14/14、TypeScript、Next.js 生产构建和 203/203 静态页面生成均通过。
+- 下一批：多语言 docs 首页；功能尚未完成的 PDF 压缩/合并页面继续禁止公开索引。
 
 ## 2. 生产页面量化结果
 

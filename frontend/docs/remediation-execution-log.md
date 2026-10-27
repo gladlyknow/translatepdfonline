@@ -139,7 +139,7 @@
 
 - 日期：2026-10-21
 - 关联任务：CNT-FACT、CNT-001、CNT-003、CNT-004、CNT-005、SEO-002、SEO-006、SEO-007、SEO-008、I18N-001、I18N-002、GEO-004
-- 状态：等待生产
+- 状态：等待外部刷新
 - 本次范围：产品事实基线、10 个 locale 的 OCR/首页/工具/定价内容、合同对比页、博客、docs、legal 内链和 SEO 内容契约。
 - 明确不包含：Google 重抓结果、母语人工审校、品牌 About/Methodology/Security 页面、业务漏斗埋点、PDF 压缩/合并功能、de/es/ru pricing 旧 schema 完整迁移。
 - 修改前证据：OCR 10 个 locale 无服务端 H1；9 个首页无页面级 metadata；4 个 docs description 为空；博客双 H1/OG 不完整；`www` 内链、Norwegian、免登录、固定赠送积分、固定费率和合同 CLM 夸大陈述仍存在。
@@ -155,28 +155,67 @@
 - 本地验证：locale JSON 全量解析通过；`pnpm test:seo` 13/13；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过，203/203 静态页面生成成功。
 - 实际 HTML 抽查：`/zh/ocrtranslator`、`/fr/ocrtranslator`、`/zh/pricing`、`/ru/contract-comparison` 均只有 1 个 H1；title/canonical 存在；可见正文无未替换 `{creditsPerPage}`，无抽样免登录陈述。
 - 工具链备注：独立 ESLint 命令因仓库缺少 ESLint 9 配置而无法启动；生产构建内置 lint/type 阶段与 TypeScript 检查通过。新增 ENG-003 跟踪，不伪报 lint 通过。
-- 分支 / 提交：`develop` / `2c9e859f`（`fix: align SEO content with product facts`），已推送到 `origin/develop`。
+- 分支 / 提交：实现提交 `2c9e859f`，记录提交 `c49263ef`；截至 2026-10-27 均已进入 `origin/develop` 与 `origin/master`。
 - Cloudflare 部署证据：dev Worker 于 2026-10-21 07:57:31 UTC 生成新部署并切换流量；部署前最后版本时间为 05:48:38 UTC。
 - dev 验证：`/zh/ocrtranslator`、`/fr/ocrtranslator`、`/ru/contract-comparison`、`/zh/pricing` 均返回新内容、自引用 dev canonical 和单一 H1；OCR title 已独立；无可见 `{creditsPerPage}`、免登录承诺或旧 CLM 营销定位。俄语页保留“本工具不替代 CLM 或法律复核”的限制说明，属于事实边界而非能力宣称。
-- 生产验证：未执行；不得标记为生产完成。
-- GSC 验证：未执行；需生产发布且 Google 重抓后判断。
-- 验收结论：本地与 Cloudflare dev 完成，等待生产发布。
+- 生产验证：2026-10-27 对当前 38 个非 PASS URL 全量检查，全部返回 200、`index,follow`、单 H1、自引用 canonical；生产已包含本批内容修复。
+- GSC 验证：PASS 从 131 增至 134；`/es/docs/ocr-workbench`、`/ja/pdf-to-text` 在生产修改后重抓并恢复；仍有页面需要内容扩充或继续重抓。
+- 验收结论：代码与生产层完成，Google 层等待后续抓取；不能把剩余未收录全部归因为本批失败。
 - 回滚方式：回滚本批独立提交；不得回滚上一批 canonical/sitemap/robots 安全修复。
-- 下一动作：确认 dev 功能和母语抽样后进入生产发布，再执行生产 HTML 审计与 GSC D1/D3/D7/D14。
+- 下一动作：继续按单一内容模板分批整改，并执行 GSC D1/D3/D7/D14。
+
+### EXEC-012 — 2026-10-27 GSC 官方 API 复查
+
+- 日期：2026-10-27
+- 关联任务：SEO-001、SEO-003、SEO-004、SEO-005
+- 状态：已完成
+- 本次范围：domain property `sc-domain:translatepdfonline.com`；当前 sitemap 的 172 个 URL；Search Analytics 最近完整 28/90 天。
+- 明确不包含：GSC“网页索引”界面全部历史 URL；本次没有控制台写操作，也没有调用 Google Indexing API。
+- 官方 API 权限：`siteFullUser`。
+- Sitemap API：`submitted=172`、`indexed=0`、0 error、0 warning、`lastDownloaded=2026-10-21T06:59:18.394Z`；`indexed` 为弃用字段，不作为全站收录数。
+- URL Inspection：172 个 URL；134 PASS；38 非 PASS；API 错误 0。
+- 非 PASS 构成：36 个 `Crawled - currently not indexed`；2 个 `Alternate page with proper canonical tag`。
+- 相对 2026-10-21：恢复 `/docs/ocr-workbench`、`/docs/upload`、`/es/docs/ocr-workbench`、`/ja/pdf-to-text`；新增 `/de/docs/ocr-workbench`。
+- 重抓后仍未收录：`/de/pdf-to-text`、`/es/docs`、`/fr/docs`、`/it`、`/it/pricing`、`/ja`，因此不能继续统一标记为“只需等待”。
+- Search Analytics：2026-09-27 至 2026-10-24 为 17 点击 / 1,187 展示 / 1.43% CTR；2026-07-27 至 2026-10-24 为 57 点击 / 9,734 展示 / 0.59% CTR。
+- 线上技术关联：38/38 非 PASS URL 返回 200、`index,follow`、单 H1、自引用 canonical；技术故障 0。
+- 脱敏报告：`/tmp/translatepdfonline-gsc-2026-10-27-after-production-c49263ef-retry`；校验 172 URL = 172 Inspection，且无敏感值。
+- 验收结论：上批修复带来净改善；SEO-005 的 sitemap 刷新已完成；剩余任务以内容质量、母语复核和重抓验证为主。
+- 下一动作：按一个模板一个批次扩充内容，先处理 OCR 集群，再处理多语言 docs 首页。
+
+### EXEC-013 — 多语言 OCR 内容集群扩充
+
+- 日期：2026-10-27
+- 关联任务：SEO-003、SEO-006、CNT-002、GEO-003、GEO-004
+- 状态：等待部署
+- 本次范围：10 个 locale 的 `/ocrtranslator` 可见内容与 FAQ JSON-LD；10 份 `/docs/ocr-workbench` 指南；SEO 内容合同。
+- 明确不包含：新 OCR 功能、费率调整、压缩/合并空壳页、第二个内容模板、生产请求收录、人工母语终审。
+- 修改前证据：GSC 新增 `/de/docs/ocr-workbench` 未收录；`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 仍未收录；原 OCR 指南仅约 42–96 个空格分词，页面可见语义区仅有简介、场景和限制三个短模块。
+- 场景 brief：扫描论文、供应商文件、技术手册与纸质档案；任务为“识别 → 校对 → 翻译 → 导出”，并明确复杂表格、手写、低清扫描、特殊字体和加密 PDF 的边界。
+- 变更内容：新增 4 步工作流、校对清单、PDF/Markdown/HTML 输出说明、登录与约 7 天保留边界、4 组 FAQ、产品事实复核日期和指南内链；指南补充准备、逐步操作、导出、故障边界与隐私说明。
+- 多语言原则：10 个语言分别按对应文档场景写作；产品事实一致，但问法、例子和语序不复用英文原句；未引入固定积分、免登录、无限能力或完美版式承诺。
+- 自动合同：新增每个 locale 的 workflow/review/outputs/privacy/FAQ/复核日期/指南长度和导出格式检查。
+- 本地验证：JSON 全部可解析；`pnpm test:seo` 14/14；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过，203/203 静态页面生成成功；`git diff --check` 通过。
+- 实现提交：`31613085`（`feat: expand multilingual OCR content`）。
+- Cloudflare 部署证据：待推送 `develop` 后记录。
+- 生产验证：未执行；当前不宣称 GSC 已改善。
+- GSC 验证：生产部署后对 `/de/docs/ocr-workbench`、`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 实时测试并各请求一次收录；D1/D3/D7/D14 复查。
+- 回滚方式：独立回滚 `31613085`；不会影响既有 canonical、sitemap、robots 和 OCR 功能代码。
+- 下一动作：推送 `develop`，等待 Cloudflare dev 自动部署并抽查 SSR 可见正文、FAQ JSON-LD、H1、canonical 与本地化链接。
 
 ## 待执行队列
 
-| 顺序 | 任务 ID  | 下一步                                     | 状态             | 负责人 | 目标时间  |
-| ---: | -------- | ------------------------------------------ | ---------------- | ------ | --------- |
-|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | SEO-005  | GSC 重新提交当前 sitemap，实时测试代表 URL | 需站点所有者操作 | 待指定 | D0        |
-|    3 | CNT-FACT | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
-|    4 | EXEC-011 | 审核 dev 后决定生产发布                    | 等待生产         | 待指定 | D0–D1     |
-|    5 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化    | 执行中           | 待指定 | 第 1 周   |
-|    6 | SEO-001  | 运行 D1/D3/D7/D14 GSC 只读审计             | 等待外部刷新     | 待指定 | 见计划    |
-|    7 | SEO-003  | Google 重抓后处理未收录内容聚类            | 计划中           | 待指定 | 第 1–2 周 |
-|    8 | ENG-003  | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
-|    9 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
+| 顺序 | 任务 ID  | 下一步                                   | 状态             | 负责人 | 目标时间  |
+| ---: | -------- | ---------------------------------------- | ---------------- | ------ | --------- |
+|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储    | 需站点所有者操作 | 待指定 | 立即      |
+|    2 | EXEC-013 | 推送 OCR 内容集群并验证 Cloudflare dev   | 等待部署         | Codex  | D0        |
+|    3 | CNT-FACT | 产品负责人复核已建立的功能事实表         | 待验证           | 待指定 | D0–D1     |
+|    4 | SEO-003  | 第二批处理多语言 docs 首页模板           | 计划中           | 待指定 | 第 1 周   |
+|    5 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化  | 执行中           | 待指定 | 第 1 周   |
+|    6 | SEO-001  | OCR 生产部署后运行 D1/D3/D7/D14 GSC 审计 | 等待外部刷新     | 待指定 | 见计划    |
+|    7 | SEO-004  | 实时测试两个剩余 canonical 历史状态 URL  | 需站点所有者操作 | 待指定 | D1        |
+|    8 | ENG-003  | 增加 ESLint 9 配置并纳入 CI              | 计划中           | 待指定 | 第 1 周   |
+|    9 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP        | 计划中           | 待指定 | 第 2–4 周 |
 
 ## 新记录模板
 
