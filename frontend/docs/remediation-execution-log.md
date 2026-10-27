@@ -187,7 +187,7 @@
 
 - 日期：2026-10-27
 - 关联任务：SEO-003、SEO-006、CNT-002、GEO-003、GEO-004
-- 状态：等待部署
+- 状态：等待生产
 - 本次范围：10 个 locale 的 `/ocrtranslator` 可见内容与 FAQ JSON-LD；10 份 `/docs/ocr-workbench` 指南；SEO 内容合同。
 - 明确不包含：新 OCR 功能、费率调整、压缩/合并空壳页、第二个内容模板、生产请求收录、人工母语终审。
 - 修改前证据：GSC 新增 `/de/docs/ocr-workbench` 未收录；`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 仍未收录；原 OCR 指南仅约 42–96 个空格分词，页面可见语义区仅有简介、场景和限制三个短模块。
@@ -197,18 +197,19 @@
 - 自动合同：新增每个 locale 的 workflow/review/outputs/privacy/FAQ/复核日期/指南长度和导出格式检查。
 - 本地验证：JSON 全部可解析；`pnpm test:seo` 14/14；`pnpm exec tsc --noEmit` 通过；`pnpm build` 通过，203/203 静态页面生成成功；`git diff --check` 通过。
 - 实现提交：`31613085`（`feat: expand multilingual OCR content`）。
-- Cloudflare 部署证据：待推送 `develop` 后记录。
+- Cloudflare 部署证据：`35bd27aa` 推送 `origin/develop` 后自动触发；dev 队列 Worker 构建于 2026-10-27 02:22:14 UTC 成功，dev Web Worker 构建于 02:23:56 UTC 成功。
+- dev 验证：10 个 `/ocrtranslator` 与 10 个 `/docs/ocr-workbench` 共 20/20 返回 200、自引用 dev canonical、单 H1；新语言内容和指南标记存在；页面包含 FAQ JSON-LD；无未替换翻译键。
 - 生产验证：未执行；当前不宣称 GSC 已改善。
 - GSC 验证：生产部署后对 `/de/docs/ocr-workbench`、`/es/ocrtranslator`、`/ja/ocrtranslator`、`/ru/ocrtranslator` 实时测试并各请求一次收录；D1/D3/D7/D14 复查。
 - 回滚方式：独立回滚 `31613085`；不会影响既有 canonical、sitemap、robots 和 OCR 功能代码。
-- 下一动作：推送 `develop`，等待 Cloudflare dev 自动部署并抽查 SSR 可见正文、FAQ JSON-LD、H1、canonical 与本地化链接。
+- 下一动作：人工抽样语言自然度后合入生产；生产部署完成前不执行请求收录。
 
 ## 待执行队列
 
 | 顺序 | 任务 ID  | 下一步                                   | 状态             | 负责人 | 目标时间  |
 | ---: | -------- | ---------------------------------------- | ---------------- | ------ | --------- |
 |    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储    | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | EXEC-013 | 推送 OCR 内容集群并验证 Cloudflare dev   | 等待部署         | Codex  | D0        |
+|    2 | EXEC-013 | 审核 OCR dev 内容并决定生产发布          | 等待生产         | 待指定 | D0–D1     |
 |    3 | CNT-FACT | 产品负责人复核已建立的功能事实表         | 待验证           | 待指定 | D0–D1     |
 |    4 | SEO-003  | 第二批处理多语言 docs 首页模板           | 计划中           | 待指定 | 第 1 周   |
 |    5 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化  | 执行中           | 待指定 | 第 1 周   |

@@ -1,7 +1,7 @@
 # SEO / GEO / 多语言场景化审计与执行计划
 
 > 首次审计：2026-10-21；最新复查：2026-10-27
-> 当前生产提交：`c49263ef`；当前内容候选：`31613085`
+> 当前生产提交：`c49263ef`；当前内容候选：`origin/develop` / `31613085`（Cloudflare dev 已验证）
 > 范围：仓库、172 个生产 sitemap URL、GSC API、Search Analytics、多语言内容与结构化数据  
 > GSC 操作：[gsc-console-operation-guide.md](./gsc-console-operation-guide.md)  
 > 总整改表：[project-seo-gsc-remediation-plan.md](./project-seo-gsc-remediation-plan.md)
@@ -70,7 +70,7 @@ Google 明确说明页面语言主要根据可见文本判断，而不是仅依�
 - 38 个非 PASS URL 的线上检查全部通过 200、`index,follow`、单 H1 和自引用 canonical，因此没有新的技术 SEO 修复依据。
 - 已重抓仍未收录页面包括 `/de/pdf-to-text`、`/es/docs`、`/fr/docs`、`/it`、`/it/pricing`、`/ja`，确认内容质量整改应继续。
 - 第一批按“一个模板一个批次”扩充 OCR 集群：10 个 `/ocrtranslator` 页面新增 4 步工作流、校对项、输出、隐私、FAQ 和复核日期；10 份 OCR 指南补充场景、操作、故障边界与导出说明。
-- 实现提交：`31613085`；SEO 内容合同 14/14、TypeScript、Next.js 生产构建和 203/203 静态页面生成均通过。
+- 实现提交：`31613085`；SEO 内容合同 14/14、TypeScript、Next.js 生产构建和 203/203 静态页面生成均通过；Cloudflare dev 的 10 个 OCR 页面和 10 份指南 20/20 验收通过。
 - 下一批：多语言 docs 首页；功能尚未完成的 PDF 压缩/合并页面继续禁止公开索引。
 
 ## 2. 生产页面量化结果
