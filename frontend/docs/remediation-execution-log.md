@@ -306,7 +306,7 @@
 
 - 日期：2026-11-24
 - 关联任务：I18N-003、PERF-001、GEO-005、ENG-003、SEO-003
-- 状态：本地验证完成，等待提交与部署
+- 状态：dev Web 已部署；dev 队列构建异常待控制台复核
 - 本次范围：27 份本地化 MDX、顶部促销条、语言建议、`llms.txt`、SEO 合同、ESLint 9 flat config 与少量正确性修复。
 - 明确不包含：平均扩写 44 个 GSC 页面、PDF 压缩/合并功能、Cloudflare 规则、GSC 请求收录、服务账号密钥轮换、历史 lint warning 全量清零。
 - 修改前证据：德/希/西/法/意/日/韩/俄/中文每种语言各 13 个无 locale 内链，共 117 个；移动 PSI CLS 0.298；两个顶部组件在 hydration 后测量高度并修改全局 header/sidebar；`llms.txt` 使用绝对版式保留；`pnpm lint` 因缺少配置无法启动。
@@ -318,12 +318,12 @@
   - 新增 ESLint 9 flat config；修复本批发现的条件 Hooks、动态模块变量命名和 HOC display name 等正确性问题；高存量 `any` 规则暂不阻断。
 - 本地验证：SEO 合同 22/22；TypeScript 通过；ESLint 542 个文件、0 error、309 warning；生产构建通过；构建产物 161 个静态路由与 11 个动态路由；locale-less 内链复核为 0。
 - 构建后冒烟：本地生产服务的 `/`、`/de/docs`、`/es/docs/pdf-to-text`、`/llms.txt` 均返回 200；前三个 HTML 页面均为单 H1，canonical 存在；`llms.txt` 输出新的 best-effort 边界和政策链接。
-- 分支 / 提交：本地 `develop` 工作树，尚未提交。
-- Cloudflare 部署证据：未部署。
+- 分支 / 提交：`develop` 提交 `f2aae3ae`（`fix: improve multilingual SEO and page stability`），已推送 `origin/develop`。
+- Cloudflare 部署证据：dev Web Worker 构建 `0417039b-5f53-434e-8a8b-b792fc17dee4` 于 2026-11-24 03:52:29 UTC 完成且成功；dev 队列 Worker 构建 `024cb180-35f6-4ba6-be86-39f16749fb2a` 于 03:50:12 UTC 失败。队列 Worker 使用同一配置的本地 `wrangler deploy --dry-run` 已成功生成约 7.8 MB bundle，并识别 Queue、Hyperdrive、Browser 三类绑定，未复现代码打包错误；GitHub Check 无 annotation 或错误正文。
 - 生产验证：未执行。
 - GSC 验证：本批部署前不请求收录，不宣称 44 个问题已经改善。
 - 回滚方式：分别回滚 MDX 内链、通知组件、`llms.txt` 与 lint 配置；不修改用户数据、API 协议、sitemap 路由数量或 canonical 生成。
-- 下一动作：检查差异并提交；部署到 dev 后复测首页 CLS、44 个 URL 技术条件和代表页面渲染，再决定生产合入。
+- 下一动作：在 Cloudflare Builds 控制台读取队列失败日志；若为平台瞬时故障，重试原构建；若为构建设置或权限问题，只修复对应配置。Web dev 环境继续复测 CLS 和代表页面渲染，通过后再决定生产合入。
 
 ### EXEC-020 — GSC 本地密钥文件权限复核
 
@@ -335,13 +335,27 @@
 - 验收结论：文件权限问题尚未解决；GSC API 可读只证明当前密钥有效，不能证明旧密钥已在 Google Cloud 撤销。
 - 下一动作：由 root/文件所有者执行 `chmod 600 /android/glmusr/translatepdfonline/glmusr.env`，随后在 Google Cloud IAM 撤销旧服务账号密钥并更新安全存储。
 
+### EXEC-021 — `f2aae3ae` Cloudflare dev 构建核验
+
+- 日期：2026-11-24
+- 关联任务：EXEC-019、PERF-001、部署回归
+- 状态：部分完成；dev 队列 Worker 待外部日志
+- 本次范围：`develop` 提交 `f2aae3ae` 的 GitHub Check、Cloudflare dev Web/队列构建状态和队列 Worker 本地打包。
+- 明确不包含：生产发布、Cloudflare 运行时变量修改、Queue consumer 重绑、GSC 请求收录。
+- 修改前证据：同一提交触发两个 Cloudflare dev 检查；Web 成功，队列失败；失败检查只返回 Build ID，没有 annotation 或错误正文。
+- 验证内容：dev Web Worker `0417039b-5f53-434e-8a8b-b792fc17dee4` 为 `completed/success`；dev 队列 Worker `024cb180-35f6-4ba6-be86-39f16749fb2a` 为 `completed/failure`；本地队列 dry-run 成功，bundle 约 7.8 MB / gzip 约 1.7 MB，三类绑定均正确识别。
+- 重试记录：通过 GitHub Checks API 对 Cloudflare check suite 发起 re-request，接口返回 201；30 秒观察期内 Cloudflare 未创建新 Check Run，因此不能把它记为已重试成功。
+- 日志限制：现有 Cloudflare 环境令牌不能读取 Builds API，浏览器连接提示桌面应用版本不支持所需网络策略；未猜测错误原因，也未修改 Worker 代码掩盖外部故障。
+- 验收结论：Web dev 部署成功；队列代码本地可打包，但 Cloudflare 失败原因尚未取得。生产合入前必须读取该 Build ID 的日志或取得一次成功重跑。
+- 下一动作：站点所有者在 Cloudflare → Workers & Pages → `translatepdfonline-quenues-dev` → Builds 打开上述 Build ID，复制失败步骤及首个错误；或更新桌面应用后由 Codex继续读取。若失败仅为偶发平台错误，直接 Retry build。
+
 ## 待执行队列
 
 | 顺序 | 任务 ID  | 下一步                                    | 状态             | 负责人 | 目标时间  |
 | ---: | -------- | ----------------------------------------- | ---------------- | ------ | --------- |
 |    1 | SEC-001  | 文件所有者改为 0600 并撤销旧 GCP 密钥     | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | EXEC-019 | 提交并推送 develop，等待 Cloudflare dev   | 等待提交         | Codex  | D0        |
-|    3 | PERF-001 | dev 部署后重测移动 CLS 与首页包体         | 等待部署         | Codex  | D0–D1     |
+|    2 | EXEC-021 | 读取 dev 队列 Build ID 日志并重试          | 需站点所有者操作 | 待指定 | D0        |
+|    3 | PERF-001 | dev Web 部署后重测移动 CLS 与首页包体      | 执行中           | Codex  | D0–D1     |
 |    4 | SEO-001  | 对变更代表 URL 实时测试、请求一次收录     | 需站点所有者操作 | 待指定 | 部署后    |
 |    5 | SEO-001  | 导出 GSC 页面索引 CSV 并补充 API 审计     | 需站点所有者操作 | 待指定 | D0–D1     |
 |    6 | EDGE-001 | 将 HTTP+www 两跳收敛为 Cloudflare 单跳    | 待执行           | 待指定 | 第 1 周   |

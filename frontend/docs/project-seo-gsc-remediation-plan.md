@@ -3,8 +3,8 @@
 > 文档性质：长期维护的整改事实源（Living Document）  
 > 首次建立：2026-10-21  
 > 最后更新：2026-11-24
-> 当前生产提交：`6ef2b1c8`（`master`、`develop` 与远端当前一致）
-> 当前整改候选：本地 `develop` 工作树，尚未提交或部署
+> 当前生产提交：`6ef2b1c8`（`master`）
+> 当前整改候选：`develop` 提交 `f2aae3ae`；dev Web 已部署，dev 队列构建失败待日志
 > 生产分支：`master`（仓库当前没有 `main` 远端分支）  
 > 开发分支：`develop`  
 > 逐步执行记录：[remediation-execution-log.md](./remediation-execution-log.md)
@@ -39,6 +39,8 @@
 4. 增加 ESLint 9 flat config，修复条件调用 Hooks 等正确性问题；历史 `any` 不在本批一次性重构，但不再阻止 lint 工具运行。
 5. 当前不批量扩写 44 页，也不反复请求索引；先部署可验证的结构修复，再以新抓取时间和语言集群表现决定下一批内容。
 
+部署进度：`f2aae3ae` 已推送 `develop`；dev Web Worker 构建成功。dev 队列 Worker 构建失败，但相同配置的本地 dry-run 可完整打包，GitHub Check 没有错误 annotation；失败 Build ID 与处置步骤已记录在执行日志 EXEC-021。Web 成功不等于整批 dev 验收完成，生产合入前仍需取得队列日志或一次成功重跑。
+
 ### 0.3 当前 GSC 处置原则
 
 - 有新抓取且仍未收录的 19 个 URL：进入内容/集群整改候选；部署本批后再做一次实时测试和请求收录。
@@ -50,15 +52,15 @@
 
 ### 1.1 一句话结论
 
-上一批技术与内容修复已经进入生产。2026-10-27 的 GSC 官方 API 显示 PASS 从 131 增至 134、非 PASS 从 41 降至 38；当前 sitemap 快照也已从 213 刷新为 172，且 0 error、0 warning。**Google Search Console 问题尚未完全解决**：仍有 36 个“已抓取但尚未编入索引”和 2 个历史 canonical 状态，但 38 个页面的实时技术检查全部通过，因此后续重点已经从 canonical/robots 转为内容差异化和 Google 重抓验证。本轮已按内容集群扩充 10 种语言的 OCR 页面与指南，提交 `31613085` 已在 Cloudflare dev 完成 20/20 页面验收，等待生产发布。
+上一批技术与内容修复已经进入生产。2026-11-24 的 GSC 官方 API 显示当前 sitemap 仍为 172 个 URL、0 error、0 warning，但 PASS 从 2026-11-02 的 153 降至 128，非 PASS 从 19 增至 44。**Google Search Console 问题尚未完全解决**：44 个问题全部是“已抓取但尚未编入索引”，现场技术条件全部通过；因此当前重点是语言集群、内容差异化、真实搜索需求和 Google 重抓验证，而不是再次改 canonical/robots。本轮结构修复已推送 `develop`，dev Web 成功，dev 队列构建待外部日志。
 
 ### 1.2 三层状态必须分开判断
 
-| 证据层    | 当前状态                                                                                            | 结论                             |
-| --------- | --------------------------------------------------------------------------------------------------- | -------------------------------- |
-| 代码层    | `c49263ef` 为生产基线；`origin/develop` 已包含 `31613085`，Cloudflare dev 的 20 个目标页面验收通过  | 生产基线完成；新批次等待生产     |
-| 生产站层  | 38 个当前非 PASS URL 全部返回 200、`index,follow`、单 H1、自引用 canonical；当前 sitemap 为 172 URL | 未发现新的技术索引故障           |
-| Google 层 | GSC URL Inspection：134 PASS、38 非 PASS；4 个旧问题恢复、1 个新问题出现，部分页面重抓后仍未收录    | 有实际改善；内容质量整改继续执行 |
+| 证据层    | 当前状态                                                                                         | 结论                                       |
+| --------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| 代码层    | 生产为 `6ef2b1c8`；`develop` 为 `f2aae3ae`，dev Web 成功、dev 队列失败且本地打包成功             | 新批次尚未完成整体验收，不合入生产         |
+| 生产站层  | 44 个当前非 PASS URL 全部返回 200、`index,follow`、单 H1、自引用 canonical；sitemap 为 172 URL    | 未发现新的技术索引故障                     |
+| Google 层 | GSC URL Inspection：128 PASS、44 非 PASS；30 个页面转为非 PASS，其中 19 个确认发生了新抓取        | 索引表现回落；按抓取和模板分组继续整改     |
 
 ### 1.3 本轮基线
 
@@ -87,7 +89,7 @@
 本结论基于以下四类证据：
 
 1. 仓库与分支：本地和远端分支指向、提交内容、构建配置。
-2. Cloudflare 部署：生产 Web Worker、生产队列 Worker、开发 Web Worker、开发队列 Worker 的构建检查均成功。
+2. Cloudflare 部署：生产基线的 Web/队列构建正常；当前 `develop` 的 Web 构建成功、队列构建失败，详见 EXEC-021。
 3. 生产 HTTP：重定向、状态码、robots、canonical、`hreflang`、HTML `lang`、站点地图、安全配置泄露检查。
 4. GSC 官方 API：站点权限、Sitemap、URL Inspection 和 Search Analytics。
 
@@ -129,8 +131,8 @@
 | ENG-002  | P2     | “main / master”口径不一致                               | 用户操作描述为 main，但远端实际生产分支是 `master`，容易推错或误判部署                                              | Cloudflare、README、交付文档统一写明生产分支；若迁移到 main，需一次性同步仓库默认分支和 CF 构建配置   | 待执行               |
 | ENG-003  | P2     | ESLint 9 缺少可执行配置                                 | 已增加 flat config；当前 lint 0 error，仍有 309 个历史 warning，需要分批清理并纳入 CI                               | 维持 Hooks 等正确性规则为 error；按模板清理 warning，不用一次性大改掩盖风险                           | 部分完成             |
 | PERF-001 | P2     | 首页移动端 CLS 与首屏资源偏大                           | PSI 移动端 CLS 0.298；顶部两个组件在 hydration 后插入高度并移动 header；首页首载约 376 KB                           | 本批先移除通知组件的后插入占位；部署后重测 CLS，再拆消息包、上下文和第三方脚本                        | 执行中               |
-| I18N-003 | P1     | 本地化指南存在 117 个无 locale 内链                     | 27 份德/希/西/法/意/日/韩/俄/中文指南把用户送回默认语言页面，削弱语言内容集群                                       | 全部改为当前 locale 路径；SEO 合同扫描所有本地化 MDX，错误数必须为 0                                  | 本地已完成，待部署   |
-| GEO-005  | P1     | `llms.txt` 使用绝对版式保留表述                         | 原文使用 preserving original layout / preserved formatting，强于可验证产品边界                                      | 改为 layout-aware、best effort，并列出登录、复杂文档、输出和保留期边界；合同测试防回归                | 本地已完成，待部署   |
+| I18N-003 | P1     | 本地化指南存在 117 个无 locale 内链                     | 27 份德/希/西/法/意/日/韩/俄/中文指南把用户送回默认语言页面，削弱语言内容集群                                       | 全部改为当前 locale 路径；SEO 合同扫描所有本地化 MDX，错误数必须为 0                                  | dev Web 已部署，待整体验收 |
+| GEO-005  | P1     | `llms.txt` 使用绝对版式保留表述                         | 原文使用 preserving original layout / preserved formatting，强于可验证产品边界                                      | 改为 layout-aware、best effort，并列出登录、复杂文档、输出和保留期边界；合同测试防回归                | dev Web 已部署，待整体验收 |
 
 ## 4. 已完成的技术修复
 
