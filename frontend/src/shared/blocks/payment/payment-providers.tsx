@@ -35,13 +35,13 @@ export function PaymentProviders({
 }) {
   const t = useTranslations('common.payment');
   const router = useRouter();
+  const locale = useLocale();
 
   const { setIsShowPaymentModal } = useAppContext();
 
   const [paymentProvider, setPaymentProvider] = useState<string | null>(null);
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&
@@ -67,7 +67,7 @@ export function PaymentProviders({
   // Get allowed payment providers from pricing item
   // If payment_providers is set, use it; otherwise show all enabled providers
   const allowedProviders = pricingItem?.payment_providers;
-  
+
   // Helper function to check if a provider is allowed
   const isProviderAllowed = (providerName: string): boolean => {
     // If no payment_providers specified, allow all

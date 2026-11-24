@@ -7,14 +7,14 @@ export async function GET(request: Request) {
   void request;
   const base = canonicalSiteOrigin;
 
-  const content = `# TranslatePDFOnline — AI-Powered PDF Translation
+  const content = `# TranslatePDFOnline — PDF Translation and OCR Tools
 
-> An online platform for translating PDF documents while preserving original layout. Supports 10 languages including English, Chinese, Spanish, French, German, Italian, Japanese, Korean, Russian, and Greek.
+> An online platform for translating text-based and scanned PDF documents. The translation workflow uses layout-aware, best-effort formatting where the document and export format support it. The interface currently supports English, Chinese, Spanish, French, German, Italian, Japanese, Korean, Russian, and Greek.
 
 ## Core Features
 
-- **OCR PDF Translation**: Upload scanned/image-based PDFs, automatic OCR → translate → export translated PDF with preserved formatting.
-- **10 Language Support**: Full bidirectional translation between all supported languages (zh, en, es, fr, it, el, ja, ko, de, ru).
+- **OCR PDF Translation**: Upload a scanned or image-based PDF, recognize its text, review the result, translate it, and export an available output format. Formatting quality varies with scan quality, fonts, tables, handwriting, and page complexity.
+- **10 Interface Languages**: The public interface and localized guides currently cover zh, en, es, fr, it, el, ja, ko, de, and ru. Available source and target languages are shown in the product before a job starts.
 - **Account-based Processing**: Users sign in to process documents, manage credits, and access available job history.
 - **Data Retention**: Uploaded and generated objects are normally scheduled for deletion after approximately seven days, subject to the published policy and legal requirements.
 
@@ -38,7 +38,14 @@ export async function GET(request: Request) {
 
 ## Pricing
 
-- Processing uses credits. Current plan details and any introductory credits are shown on the pricing page.
+- Processing uses credits. The current rate is shown before processing; plan details and any introductory credits are shown on the pricing page.
+
+## Product Boundaries
+
+- Sign-in is required before document processing.
+- Password-protected files, handwriting, low-resolution scans, unusual fonts, and complex tables may require preprocessing or manual review.
+- Layout and formatting preservation are best effort, not guaranteed for every PDF.
+- Uploaded and generated objects are normally scheduled for deletion after approximately seven days, subject to the published privacy policy and legal requirements.
 
 ## Links
 
@@ -46,6 +53,8 @@ export async function GET(request: Request) {
 - OCR Translator: ${base}/ocrtranslator
 - Pricing: ${base}/pricing
 - API Documentation: ${base}/docs/api
+- Privacy Policy: ${base}/privacy-policy
+- Terms of Service: ${base}/terms-of-service
 - Blog: ${base}/blog
 `;
 

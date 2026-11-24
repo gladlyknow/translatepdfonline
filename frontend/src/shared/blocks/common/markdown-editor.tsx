@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-// @ts-ignore
+// @ts-expect-error overtype does not currently publish compatible type declarations
 import { OverType } from 'overtype';
 
 export function MarkdownEditor({

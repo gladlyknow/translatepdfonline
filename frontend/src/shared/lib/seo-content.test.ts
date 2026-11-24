@@ -132,6 +132,39 @@ test('home image alt text and organization data stay descriptive and factual', (
   assert.match(organizationSchema, /https:\/\/github\.com\/translatepdfonline/);
 });
 
+test('llms.txt states layout support as best effort and publishes product boundaries', () => {
+  const llmsRoute = fs.readFileSync(
+    path.join(ROOT, 'src/app/llms.txt/route.ts'),
+    'utf8'
+  );
+
+  assert.match(llmsRoute, /layout-aware, best-effort formatting/i);
+  assert.match(llmsRoute, /not guaranteed for every PDF/i);
+  assert.match(llmsRoute, /Sign-in is required/i);
+  assert.doesNotMatch(llmsRoute, /preserv(?:e|es|ing) original layout/i);
+  assert.doesNotMatch(llmsRoute, /with preserved formatting/i);
+});
+
+test('top notices do not insert post-hydration layout spacers', () => {
+  const topBanner = fs.readFileSync(
+    path.join(ROOT, 'src/shared/blocks/common/top-banner.tsx'),
+    'utf8'
+  );
+  const localeDetector = fs.readFileSync(
+    path.join(ROOT, 'src/shared/blocks/common/locale-detector.tsx'),
+    'utf8'
+  );
+
+  assert.match(topBanner, /useState\(enabled\)/);
+  assert.match(topBanner, /top-banner-slot/);
+  assert.doesNotMatch(topBanner, /setBannerHeight|ResizeObserver/);
+  assert.doesNotMatch(topBanner, /document\.querySelector\(['"]header/);
+
+  assert.match(localeDetector, /fixed right-4 bottom-4/);
+  assert.doesNotMatch(localeDetector, /setBannerHeight|ResizeObserver/);
+  assert.doesNotMatch(localeDetector, /document\.querySelector\(['"]header/);
+});
+
 test('OCR content cluster includes localized workflow, review, output, privacy, FAQ, and detailed docs', () => {
   const english = readJson(
     'src/config/locale/messages/en/pages/ocr-translator.json'
@@ -407,6 +440,31 @@ test('localized docs landing pages provide factual task navigation', () => {
     }
     for (const pattern of staleOrSpeculative) {
       assert.doesNotMatch(content, pattern, `${locale} docs: ${pattern}`);
+    }
+  }
+});
+
+test('localized docs keep internal links inside the same locale cluster', () => {
+  const docsFiles = collectFiles(
+    path.join(CONTENT_ROOT, 'docs'),
+    new Set(['.mdx'])
+  );
+
+  for (const file of docsFiles) {
+    const match = path.basename(file).match(/\.([a-z]{2})\.mdx$/);
+    if (!match) continue;
+
+    const locale = match[1];
+    const content = fs.readFileSync(file, 'utf8');
+    const internalLinks = [...content.matchAll(/\]\((\/(?!\/)[^)]+)\)/g)].map(
+      (link) => link[1]
+    );
+
+    for (const link of internalLinks) {
+      assert.ok(
+        link === `/${locale}` || link.startsWith(`/${locale}/`),
+        `${path.relative(ROOT, file)} must not leave ${locale}: ${link}`
+      );
     }
   }
 });

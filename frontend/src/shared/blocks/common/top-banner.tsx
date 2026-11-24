@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
-import { cacheGet, cacheSet } from '@/shared/lib/cache';
+import { cacheSet } from '@/shared/lib/cache';
+import { setCookie } from '@/shared/lib/cookie';
 import { getTimestamp } from '@/shared/lib/time';
 import { cn } from '@/shared/lib/utils';
 
 type TopBannerLinkTarget = '_self' | '_blank';
+
+export const TOP_BANNER_DISMISSED_COOKIE = 'top_banner_dismissed';
 
 export type TopBannerProps = {
   enabled?: boolean;
@@ -76,133 +79,22 @@ export function TopBanner({
 }: TopBannerProps) {
   const dismissKey = useMemo(() => `top-banner-dismissed:${id}`, [id]);
 
-  const [showBanner, setShowBanner] = useState(false);
-  const [bannerHeight, setBannerHeight] = useState(0);
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const hasCheckedRef = useRef(false);
-
-  const isDismissed = (): boolean => {
-    if (!rememberDismiss) return false;
-    return Boolean(cacheGet(dismissKey));
-  };
+  // Render the banner in the initial HTML so hydration never inserts a new
+  // layout block. A tiny pre-paint script in the locale layout hides a
+  // previously dismissed banner before the browser paints the page.
+  const [showBanner, setShowBanner] = useState(enabled);
 
   const setDismissed = () => {
     if (!rememberDismiss) return;
     const expiresAt = getTimestamp() + dismissedExpiryDays * 24 * 60 * 60;
     cacheSet(dismissKey, 'true', expiresAt);
+    setCookie(TOP_BANNER_DISMISSED_COOKIE, '1', dismissedExpiryDays);
   };
-
-  useEffect(() => {
-    // Only run initial check once to avoid flicker in strict mode / rerenders
-    if (hasCheckedRef.current) return;
-    hasCheckedRef.current = true;
-
-    if (!enabled) return;
-    if (isDismissed()) return;
-
-    setShowBanner(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled]);
-
-  // Adjust header and layout spacing when banner visibility changes
-  useEffect(() => {
-    if (showBanner && bannerRef.current) {
-      const bannerHeight = bannerRef.current.offsetHeight;
-      setBannerHeight(bannerHeight);
-
-      const header = document.querySelector('header');
-      if (header) {
-        header.style.top = `${bannerHeight}px`;
-      }
-
-      const sidebarContainer = document.querySelector(
-        '[data-slot="sidebar-container"]'
-      );
-      if (sidebarContainer) {
-        (sidebarContainer as HTMLElement).style.top = `${bannerHeight}px`;
-        (sidebarContainer as HTMLElement).style.height =
-          `calc(100vh - ${bannerHeight}px)`;
-      }
-
-      const sidebarWrapper = document.querySelector(
-        '[data-slot="sidebar-wrapper"]'
-      );
-      if (sidebarWrapper) {
-        (sidebarWrapper as HTMLElement).style.paddingTop = `${bannerHeight}px`;
-      }
-    } else {
-      setBannerHeight(0);
-    }
-
-    return () => {
-      const header = document.querySelector('header');
-      if (header) {
-        header.style.top = '0px';
-      }
-
-      const sidebarContainer = document.querySelector(
-        '[data-slot="sidebar-container"]'
-      );
-      if (sidebarContainer) {
-        (sidebarContainer as HTMLElement).style.top = '0px';
-        (sidebarContainer as HTMLElement).style.height = '100vh';
-      }
-
-      const sidebarWrapper = document.querySelector(
-        '[data-slot="sidebar-wrapper"]'
-      );
-      if (sidebarWrapper) {
-        (sidebarWrapper as HTMLElement).style.paddingTop = '0px';
-      }
-    };
-  }, [showBanner]);
-
-  useEffect(() => {
-    if (!showBanner || !bannerRef.current) return;
-
-    const updateHeight = () => {
-      if (bannerRef.current) {
-        setBannerHeight(bannerRef.current.offsetHeight);
-      }
-    };
-
-    updateHeight();
-
-    const resizeObserver = new ResizeObserver(updateHeight);
-    resizeObserver.observe(bannerRef.current);
-
-    window.addEventListener('resize', updateHeight);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', updateHeight);
-    };
-  }, [showBanner]);
 
   const handleDismiss = () => {
     setDismissed();
+    document.documentElement.classList.add('top-banner-dismissed');
     setShowBanner(false);
-    setBannerHeight(0);
-
-    const header = document.querySelector('header');
-    if (header) {
-      header.style.top = '0px';
-    }
-
-    const sidebarContainer = document.querySelector(
-      '[data-slot="sidebar-container"]'
-    );
-    if (sidebarContainer) {
-      (sidebarContainer as HTMLElement).style.top = '0px';
-      (sidebarContainer as HTMLElement).style.height = '100vh';
-    }
-
-    const sidebarWrapper = document.querySelector(
-      '[data-slot="sidebar-wrapper"]'
-    );
-    if (sidebarWrapper) {
-      (sidebarWrapper as HTMLElement).style.paddingTop = '0px';
-    }
   };
 
   if (!enabled || !showBanner) {
@@ -213,92 +105,81 @@ export function TopBanner({
     Boolean(buttonText) && (Boolean(href) || Boolean(onAction));
 
   return (
-    <>
-      <div
-        ref={bannerRef}
-        className={cn(
-          'bg-background/95 text-foreground border-border fixed top-0 right-0 left-0 z-[51] block min-h-12 border-b py-1 shadow-sm backdrop-blur-sm',
-          className
-        )}
-      >
-        <div className="container py-2.5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex min-w-0 flex-1 items-center justify-center gap-3 px-1">
-              {typeof text === 'string' ? (
-                <div
-                  className="text-center text-sm text-foreground [&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:decoration-foreground"
-                  dangerouslySetInnerHTML={{ __html: text }}
-                />
-              ) : (
-                <div className="text-center text-sm text-foreground [&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:decoration-foreground">
-                  {text}
-                </div>
-              )}
-            </div>
+    <div
+      className={cn(
+        'top-banner-slot bg-background/95 text-foreground border-border relative z-[51] block min-h-12 border-b py-1 shadow-sm backdrop-blur-sm',
+        className
+      )}
+    >
+      <div className="container py-2.5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-3 px-1">
+            {typeof text === 'string' ? (
+              <div
+                className="text-foreground [&_a]:text-foreground [&_a]:decoration-foreground/30 hover:[&_a]:decoration-foreground text-center text-sm [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors"
+                dangerouslySetInnerHTML={{ __html: text }}
+              />
+            ) : (
+              <div className="text-foreground [&_a]:text-foreground [&_a]:decoration-foreground/30 hover:[&_a]:decoration-foreground text-center text-sm [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors">
+                {text}
+              </div>
+            )}
+          </div>
 
-            <div className="flex flex-shrink-0 items-center gap-2">
-              {showButton ? (
-                href ? (
-                  isExternalHref(href) ? (
-                    <Button
-                      asChild
-                      variant="secondary"
-                      size="sm"
-                      className="bg-background text-xs"
-                    >
-                      <a
-                        href={href}
-                        target={target}
-                        rel={
-                          target === '_blank'
-                            ? 'noreferrer noopener'
-                            : undefined
-                        }
-                      >
-                        {buttonText}
-                      </a>
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      variant="secondary"
-                      size="sm"
-                      className="bg-background text-xs"
-                    >
-                      <Link href={href}>{buttonText}</Link>
-                    </Button>
-                  )
-                ) : (
+          <div className="flex flex-shrink-0 items-center gap-2">
+            {showButton ? (
+              href ? (
+                isExternalHref(href) ? (
                   <Button
-                    onClick={onAction}
+                    asChild
                     variant="secondary"
                     size="sm"
                     className="bg-background text-xs"
                   >
-                    {buttonText}
+                    <a
+                      href={href}
+                      target={target}
+                      rel={
+                        target === '_blank' ? 'noreferrer noopener' : undefined
+                      }
+                    >
+                      {buttonText}
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    asChild
+                    variant="secondary"
+                    size="sm"
+                    className="bg-background text-xs"
+                  >
+                    <Link href={href}>{buttonText}</Link>
                   </Button>
                 )
-              ) : null}
-
-              {closable ? (
-                <button
-                  onClick={handleDismiss}
-                  className="text-muted-foreground hover:bg-muted hover:text-foreground flex-shrink-0 rounded-md p-1 transition-colors"
-                  aria-label="Close"
+              ) : (
+                <Button
+                  onClick={onAction}
+                  variant="secondary"
+                  size="sm"
+                  className="bg-background text-xs"
                 >
-                  <X className="h-4 w-4" />
-                </button>
-              ) : null}
-            </div>
+                  {buttonText}
+                </Button>
+              )
+            ) : null}
+
+            {closable ? (
+              <button
+                onClick={handleDismiss}
+                className="text-muted-foreground hover:bg-muted hover:text-foreground flex-shrink-0 rounded-md p-1 transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
-
-      <div
-        aria-hidden="true"
-        style={{ height: bannerHeight }}
-        className="pointer-events-none"
-      />
-    </>
+    </div>
   );
 }

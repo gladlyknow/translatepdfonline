@@ -285,21 +285,70 @@
 - 回滚方式：独立回滚 `cb9f167a`；不影响工具 API、用户文件、路由索引策略或上一批首页/OCR 修复。
 - 下一动作：产品事实与母语抽样通过后合入生产；生产后优先检查 `/es/docs`、`/fr/docs`、`/it/docs`、`/ja/docs` 并按 D1/D3/D7/D14 复查。
 
+### EXEC-018 — 2026-11-24 GSC 官方 API 与生产现场复查
+
+- 日期：2026-11-24
+- 关联任务：SEO-001、SEO-003、SEO-004、SEO-005、EDGE-001
+- 状态：已完成（Google 索引继续监测）
+- 本次范围：domain property `sc-domain:translatepdfonline.com`；当前 sitemap 的 172 个 URL；Search Analytics 最近完整 28/90 天；44 个非 PASS URL 的生产现场；主机重定向链。
+- 明确不包含：GSC“网页索引”界面全部历史 URL、控制台写操作、Google Indexing API、Cloudflare Redirect Rule 修改。
+- 官方 API：权限 `siteFullUser`；172 Inspection；128 PASS；44 非 PASS；API 错误 0；44 个状态全部为 Google 原文 `Crawled - currently not indexed`。
+- 对比 2026-11-02：PASS 153 → 128，非 PASS 19 → 44；5 个旧问题恢复，30 个页面从 PASS 变为非 PASS。30 个中 19 个有新的抓取时间，11 个没有新抓取，只能记为存储状态变化。
+- Sitemap API：`submitted=172`、`indexed=0`、0 error、0 warning、`lastDownloaded=2026-11-15T00:16:25.665Z`；弃用的 `indexed` 字段不作为全站收录数。
+- Search Analytics：2026-10-25 至 2026-11-21 为 28 点击 / 2,155 展示 / 1.30% CTR；最近完整 90 天为 69 点击 / 6,815 展示 / 1.01% CTR。
+- 生产关联：44 个 URL 最终全部确认 200、自引用 canonical、允许索引、单 H1、位于 sitemap；`/es/docs/pdf-to-text` 首次并发检查瞬时失败，单独复核后通过。
+- 重定向遗留：`http://www.../docs/upload?probe=20261124` 仍为两次 301 后到 HTTPS apex，路径和查询参数保留，最终 200；EDGE-001 未解决。
+- 脱敏产物：`/tmp/translatepdfonline-gsc-2026-11-24-current`、`/tmp/translatepdfonline-gsc-live-2026-11-24.json`；主报告验证 172 URL = 172 Inspection，未写入敏感值。
+- 验收结论：没有新的技术索引类型故障；未收录数量回升不能解释为 sitemap/canonical 失效，重点转为语言集群、内容模板和 Google 重新评估。
+- 下一动作：部署 EXEC-019 后只对确认变更的代表 URL做实时测试和一次请求收录；导出 GSC 页面索引 CSV补齐 API 数据缺口。
+
+### EXEC-019 — 多语言内链、首页 CLS、GEO 事实边界与 Lint 基线
+
+- 日期：2026-11-24
+- 关联任务：I18N-003、PERF-001、GEO-005、ENG-003、SEO-003
+- 状态：本地验证完成，等待提交与部署
+- 本次范围：27 份本地化 MDX、顶部促销条、语言建议、`llms.txt`、SEO 合同、ESLint 9 flat config 与少量正确性修复。
+- 明确不包含：平均扩写 44 个 GSC 页面、PDF 压缩/合并功能、Cloudflare 规则、GSC 请求收录、服务账号密钥轮换、历史 lint warning 全量清零。
+- 修改前证据：德/希/西/法/意/日/韩/俄/中文每种语言各 13 个无 locale 内链，共 117 个；移动 PSI CLS 0.298；两个顶部组件在 hydration 后测量高度并修改全局 header/sidebar；`llms.txt` 使用绝对版式保留；`pnpm lint` 因缺少配置无法启动。
+- 变更内容：
+  - 117 个内链全部指向当前语言路径，覆盖 contract comparison、image to text、PDF to text 三组指南。
+  - 新增扫描全部本地化 MDX 的语言集群合同，禁止无 locale 内链回归。
+  - 顶部促销条改为首屏稳定的普通文档流内容；已关闭状态在首屏绘制前隐藏；语言建议改为右下固定浮层；移除动态占位、ResizeObserver 和全局 header/sidebar 改写。
+  - `llms.txt` 改为 layout-aware / best effort，补充登录、复杂扫描、版式、保留期和政策链接边界。
+  - 新增 ESLint 9 flat config；修复本批发现的条件 Hooks、动态模块变量命名和 HOC display name 等正确性问题；高存量 `any` 规则暂不阻断。
+- 本地验证：SEO 合同 22/22；TypeScript 通过；ESLint 542 个文件、0 error、309 warning；生产构建通过；构建产物 161 个静态路由与 11 个动态路由；locale-less 内链复核为 0。
+- 构建后冒烟：本地生产服务的 `/`、`/de/docs`、`/es/docs/pdf-to-text`、`/llms.txt` 均返回 200；前三个 HTML 页面均为单 H1，canonical 存在；`llms.txt` 输出新的 best-effort 边界和政策链接。
+- 分支 / 提交：本地 `develop` 工作树，尚未提交。
+- Cloudflare 部署证据：未部署。
+- 生产验证：未执行。
+- GSC 验证：本批部署前不请求收录，不宣称 44 个问题已经改善。
+- 回滚方式：分别回滚 MDX 内链、通知组件、`llms.txt` 与 lint 配置；不修改用户数据、API 协议、sitemap 路由数量或 canonical 生成。
+- 下一动作：检查差异并提交；部署到 dev 后复测首页 CLS、44 个 URL 技术条件和代表页面渲染，再决定生产合入。
+
+### EXEC-020 — GSC 本地密钥文件权限复核
+
+- 日期：2026-11-24
+- 关联任务：SEC-001
+- 状态：需站点所有者操作
+- 修改前证据：`glmusr.env` 为 `0644 root:root`，包含 GSC、Cloudflare、R2 等环境变量；文件已被 Git 忽略且当前 Git 历史检查未显示该文件被跟踪。
+- 操作：尝试将权限改为 0600；当前执行用户不是文件所有者，系统返回 `Operation not permitted`，未绕过所有权或复制密钥。
+- 验收结论：文件权限问题尚未解决；GSC API 可读只证明当前密钥有效，不能证明旧密钥已在 Google Cloud 撤销。
+- 下一动作：由 root/文件所有者执行 `chmod 600 /android/glmusr/translatepdfonline/glmusr.env`，随后在 Google Cloud IAM 撤销旧服务账号密钥并更新安全存储。
+
 ## 待执行队列
 
-| 顺序 | 任务 ID  | 下一步                                     | 状态             | 负责人 | 目标时间  |
-| ---: | -------- | ------------------------------------------ | ---------------- | ------ | --------- |
-|    1 | SEC-001  | 撤销旧 GCP 服务账号密钥并更换安全存储      | 需站点所有者操作 | 待指定 | 立即      |
-|    2 | EXEC-017 | 母语抽样后发布 docs 首页批次到生产         | dev 已验证       | 待指定 | D0–D1     |
-|    3 | SEO-001  | GSC 实时测试、请求收录及 D1/D3/D7/D14 审计 | 需站点所有者操作 | 待指定 | 见计划    |
-|    4 | EDGE-001 | 将 HTTP+www 两跳收敛为 Cloudflare 单跳     | 待执行           | 待指定 | 第 1 周   |
-|    5 | CNT-FACT | 产品负责人复核已建立的功能事实表           | 待验证           | 待指定 | D0–D1     |
-|    6 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化    | 执行中           | 待指定 | 第 1 周   |
-|    7 | GEO-003  | 以真实证据建设方法、安全、样例内容         | 计划中           | 待指定 | 第 2–3 周 |
-|    8 | PERF-001 | 拆解首页约 376 KB 首载资源并建立 PSI 基线  | 待验证           | 待指定 | 第 1–2 周 |
-|    9 | SEO-004  | 实时测试两个剩余 canonical 历史状态 URL    | 需站点所有者操作 | 待指定 | D1        |
-|   10 | ENG-003  | 增加 ESLint 9 配置并纳入 CI                | 计划中           | 待指定 | 第 1 周   |
-|   11 | PROD-001 | 设计并实现 PDF 压缩、PDF 合并 MVP          | 计划中           | 待指定 | 第 2–4 周 |
+| 顺序 | 任务 ID  | 下一步                                    | 状态             | 负责人 | 目标时间  |
+| ---: | -------- | ----------------------------------------- | ---------------- | ------ | --------- |
+|    1 | SEC-001  | 文件所有者改为 0600 并撤销旧 GCP 密钥     | 需站点所有者操作 | 待指定 | 立即      |
+|    2 | EXEC-019 | 提交并推送 develop，等待 Cloudflare dev   | 等待提交         | Codex  | D0        |
+|    3 | PERF-001 | dev 部署后重测移动 CLS 与首页包体         | 等待部署         | Codex  | D0–D1     |
+|    4 | SEO-001  | 对变更代表 URL 实时测试、请求一次收录     | 需站点所有者操作 | 待指定 | 部署后    |
+|    5 | SEO-001  | 导出 GSC 页面索引 CSV 并补充 API 审计     | 需站点所有者操作 | 待指定 | D0–D1     |
+|    6 | EDGE-001 | 将 HTTP+www 两跳收敛为 Cloudflare 单跳    | 待执行           | 待指定 | 第 1 周   |
+|    7 | I18N-001 | 完成德/西/俄 pricing 现行 schema 本地化   | 执行中           | 待指定 | 第 1 周   |
+|    8 | GEO-003  | 以真实证据建设方法、安全、样例内容        | 计划中           | 待指定 | 第 2–3 周 |
+|    9 | ENG-003  | 分批清理 309 个 warning 并接入 CI         | 执行中           | 待指定 | 第 1–2 周 |
+|   10 | PROD-001 | 完成当前索引批次后设计 PDF 压缩、合并 MVP | 计划中           | 待指定 | 第 2–4 周 |
 
 ## 新记录模板
 

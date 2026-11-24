@@ -25,11 +25,11 @@ export function SocialProviders({
 }) {
   const t = useTranslations('common.sign');
   const router = useRouter();
+  const locale = useLocale();
 
   const { setIsShowSignModal } = useAppContext();
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&

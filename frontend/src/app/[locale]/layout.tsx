@@ -82,6 +82,12 @@ export default async function LocaleLayout({
             __html: "document.documentElement.classList.add('js')",
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(document.cookie.split('; ').some(function(v){return v.indexOf('top_banner_dismissed=')===0}))document.documentElement.classList.add('top-banner-dismissed')}catch(e){}",
+          }}
+        />
         <link
           rel="icon"
           type="image/png"

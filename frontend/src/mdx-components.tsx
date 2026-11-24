@@ -47,7 +47,7 @@ export function withNoFollow(
     React.AnchorHTMLAttributes<HTMLAnchorElement>
   >
 ) {
-  return ({
+  const NoFollowLink = ({
     href,
     children,
     ...props
@@ -77,6 +77,9 @@ export function withNoFollow(
       </LinkComponent>
     );
   };
+
+  NoFollowLink.displayName = `WithNoFollow(${LinkComponent.displayName || LinkComponent.name || 'Link'})`;
+  return NoFollowLink;
 }
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {

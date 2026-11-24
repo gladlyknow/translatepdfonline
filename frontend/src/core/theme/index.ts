@@ -33,16 +33,20 @@ export async function getThemePage(pageName: string, theme?: string) {
 
   // 已经是 default 主题则不需要 fallback
   if (loadTheme === defaultTheme) {
-    const module = await import(`@/themes/${defaultTheme}/pages/${pageName}`);
-    pageCache.set(cacheKey, module.default);
-    return module.default;
+    const importedPage = await import(
+      `@/themes/${defaultTheme}/pages/${pageName}`
+    );
+    pageCache.set(cacheKey, importedPage.default);
+    return importedPage.default;
   }
 
   // 非 default 主题：先尝试加载，失败则 fallback 到 default
   try {
-    const module = await import(`@/themes/${loadTheme}/pages/${pageName}`);
-    pageCache.set(cacheKey, module.default);
-    return module.default;
+    const importedPage = await import(
+      `@/themes/${loadTheme}/pages/${pageName}`
+    );
+    pageCache.set(cacheKey, importedPage.default);
+    return importedPage.default;
   } catch {
     const fallbackModule = await import(
       `@/themes/${defaultTheme}/pages/${pageName}`
@@ -64,15 +68,19 @@ export async function getThemeLayout(layoutName: string, theme?: string) {
   }
 
   if (loadTheme === defaultTheme) {
-    const module = await import(`@/themes/${defaultTheme}/layouts/${layoutName}`);
-    layoutCache.set(cacheKey, module.default);
-    return module.default;
+    const importedLayout = await import(
+      `@/themes/${defaultTheme}/layouts/${layoutName}`
+    );
+    layoutCache.set(cacheKey, importedLayout.default);
+    return importedLayout.default;
   }
 
   try {
-    const module = await import(`@/themes/${loadTheme}/layouts/${layoutName}`);
-    layoutCache.set(cacheKey, module.default);
-    return module.default;
+    const importedLayout = await import(
+      `@/themes/${loadTheme}/layouts/${layoutName}`
+    );
+    layoutCache.set(cacheKey, importedLayout.default);
+    return importedLayout.default;
   } catch {
     const fallbackModule = await import(
       `@/themes/${defaultTheme}/layouts/${layoutName}`
@@ -106,9 +114,11 @@ export async function getThemeBlock(blockName: string, theme?: string) {
   }
 
   if (loadTheme === defaultTheme) {
-    const module = await import(`@/themes/${defaultTheme}/blocks/${blockName}`);
-    blockCache.set(cacheKey, module);
-    const component = module[pascalCaseName] || module[blockName];
+    const importedBlock = await import(
+      `@/themes/${defaultTheme}/blocks/${blockName}`
+    );
+    blockCache.set(cacheKey, importedBlock);
+    const component = importedBlock[pascalCaseName] || importedBlock[blockName];
     if (!component) {
       throw new Error(`No valid export found in block "${blockName}"`);
     }
@@ -117,9 +127,11 @@ export async function getThemeBlock(blockName: string, theme?: string) {
 
   // 非 default 主题：先尝试，失败则 fallback
   try {
-    const module = await import(`@/themes/${loadTheme}/blocks/${blockName}`);
-    blockCache.set(cacheKey, module);
-    const component = module[pascalCaseName] || module[blockName];
+    const importedBlock = await import(
+      `@/themes/${loadTheme}/blocks/${blockName}`
+    );
+    blockCache.set(cacheKey, importedBlock);
+    const component = importedBlock[pascalCaseName] || importedBlock[blockName];
     if (!component) {
       throw new Error(`No valid export found in block "${blockName}"`);
     }
@@ -132,9 +144,7 @@ export async function getThemeBlock(blockName: string, theme?: string) {
     const fallbackComponent =
       fallbackModule[pascalCaseName] || fallbackModule[blockName];
     if (!fallbackComponent) {
-      throw new Error(
-        `No valid export found in fallback block "${blockName}"`
-      );
+      throw new Error(`No valid export found in fallback block "${blockName}"`);
     }
     return fallbackComponent;
   }

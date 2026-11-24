@@ -18,6 +18,11 @@
   @apply mx-auto max-w-7xl px-4 md:px-8;
 }
 
+/* Applied before first paint when the visitor dismissed the promotional bar. */
+html.top-banner-dismissed .top-banner-slot {
+  display: none;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
